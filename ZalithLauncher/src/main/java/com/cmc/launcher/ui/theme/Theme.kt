@@ -16,8 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.platform.LocalMotionDurationScale
 import androidx.compose.ui.platform.LocalContext
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
@@ -648,8 +646,7 @@ fun CMCLauncherTheme(
     }
     CompositionLocalProvider(
         LocalBackgroundViewModel provides backgroundViewModel,
-        LocalFestivals provides festivals,
-        LocalMotionDurationScale provides ZeroMotionScale
+        LocalFestivals provides festivals
     ) {
         val useDynamicScheme =
             dynamicColor && colorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -665,8 +662,4 @@ fun CMCLauncherTheme(
             content = content
         )
     }
-}
-
-private val ZeroMotionScale = object : MotionDurationScale {
-    override val scaleFactor: Float get() = 0f
 }

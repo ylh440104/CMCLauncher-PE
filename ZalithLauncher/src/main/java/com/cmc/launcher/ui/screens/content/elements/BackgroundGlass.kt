@@ -76,3 +76,256 @@ internal fun Modifier.backgroundCapture(
     blurRadiusPx: Float,
     whiteOverlayAlpha: Float,
 ): Modifier = this then BackgroundCaptureElement(store, recordContent, blurRadiusPx, whiteOverlayAlpha)
+
+internal fun whiteOverlayAlpha(blur: Int): Float {
+    val t = (blur / 80f).coerceIn(0f, 1f)
+    return lerp(start = 0f, stop = 0.25f, fraction = sqrt(t))
+}
+
+private data class GlassElement(
+    val blur: Int,
+    val color: Color,
+    val store: BackgroundViewModel,
+) : ModifierNodeElement<GlassNode>() {
+    override fun create() = GlassNode(blur, color, store)
+
+    override fun update(node: GlassNode) {
+        node.blur = blur
+        node.color = color
+    }
+}
+
+/**
+ * 毛玻璃绘制节点：绘制期间读取的状态变化只触发重绘，不触发重组
+ */
+private class GlassNode(
+    blur: Int,
+    color: Color,
+    val store: BackgroundViewModel,
+) : Modifier.Node(), DrawModifierNode, GlobalPositionAwareModifierNode {
+    var blur: Int = blur
+        set(value) {
+            if (field == value) return
+            field = value
+            invalidateDraw()
+        }
+
+    var color: Color = color
+        set(value) {
+            if (field == value) return
+            field = value
+            invalidateDraw()
+        }
+
+    //元素在屏幕坐标系中的位置，随布局逐帧更新，绘制时据此对齐采样
+    private var screenOrigin = Offset.Zero
+    private var hasOrigin = false
+
+    //绘制时复用的临时对象，避免每次绘制都重新分配
+    private val currentMatrix = Matrix()
+    private val invertedMatrix = Matrix()
+    private val matrixValues = FloatArray(9)
+
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        val position = coordinates.positionOnScreen()
+        if (!position.isSpecified) return
+        if (!hasOrigin || position != screenOrigin) {
+            screenOrigin = position
+            hasOrigin = true
+            invalidateDraw()
+        }
+    }
+
+    override fun ContentDrawScope.draw() {
+        drawGlass()
+        drawContent()
+    }
+
+    private fun DrawScope.drawGlass() {
+        if (blur <= 0 || AllSettings.launcherBackgroundOpacity.state >= 100) return
+        val bounds = store.backgroundBounds
+        if (bounds.isEmpty || !hasOrigin) return
+
+        val nativeCanvas = drawContext.canvas.nativeCanvas
+        nativeCanvas.withSave {
+            getMatrix(currentMatrix)
+            if (currentMatrix.invert(invertedMatrix)) {
+                val values = matrixValues.also(currentMatrix::getValues)
+                val left = bounds.left - screenOrigin.x + values[Matrix.MTRANS_X]
+                val top = bounds.top - screenOrigin.y + values[Matrix.MTRANS_Y]
+
+                concat(invertedMatrix)
+                if (Build.VERSION.SDK_INT >= 31) {
+                    store.glassLayer?.let { layer ->
+                        this@drawGlass.translate(left, top) {
+                            drawLayer(layer)
+                        }
+                    }
+                } else {
+                    store.blurredBackground?.let { bitmap ->
+                        this@drawGlass.drawImage(
+                            image = bitmap,
+                            dstOffset = IntOffset(left.roundToInt(), top.roundToInt()),
+                            dstSize = IntSize(bounds.width.roundToInt(), bounds.height.roundToInt())
+                        )
+                    }
+                }
+            }
+        }
+
+        drawRect(color = color, blendMode = BlendMode.SrcOver)
+        drawRect(
+            color = Color.White.copy(alpha = whiteOverlayAlpha(blur)),
+            blendMode = BlendMode.Softlight
+        )
+    }
+
+
+}
+
+private data class BackgroundCaptureElement(
+    val store: BackgroundViewModel,
+    val recordContent: Boolean,
+    val blurRadiusPx: Float,
+    val whiteOverlayAlpha: Float,
+) : ModifierNodeElement<BackgroundCaptureNode>() {
+    override fun create() = BackgroundCaptureNode(store, recordContent, blurRadiusPx, whiteOverlayAlpha)
+
+    override fun update(node: BackgroundCaptureNode) {
+        node.store = store
+        node.recordContent = recordContent
+        node.blurRadiusPx = blurRadiusPx
+        node.whiteOverlayAlpha = whiteOverlayAlpha
+        node.sync()
+        node.invalidateDraw()
+    }
+}
+
+/**
+ * 背景捕获节点：持有共享模糊层并随节点生命周期发布/摘除，
+ * 布局时上报背景屏幕区域，Android 12- 前景模式下驱动帧捕获循环
+ */
+private class BackgroundCaptureNode(
+    var store: BackgroundViewModel,
+    var recordContent: Boolean,
+    var blurRadiusPx: Float,
+    var whiteOverlayAlpha: Float,
+) : Modifier.Node(), DrawModifierNode, GlobalPositionAwareModifierNode,
+    CompositionLocalConsumerModifierNode {
+    private var graphicsContext: GraphicsContext? = null
+    private var sourceLayer: GraphicsLayer? = null
+    private var blurredLayer: GraphicsLayer? = null
+    private var blurredEffectRadius = 0f
+    private var captureJob: Job? = null
+
+    override fun onAttach() {
+        sync()
+    }
+
+    override fun onDetach() {
+        releaseLayers()
+        graphicsContext = null
+    }
+
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        store.updateBackgroundBounds(coordinates)
+    }
+
+    override fun ContentDrawScope.draw() {
+        val source = sourceLayer
+        if (recordContent && source != null) {
+            source.record { this@draw.drawContent() }
+            drawLayer(source)
+            if (Build.VERSION.SDK_INT >= 31) {
+                ensureBlurredLayer()?.record { drawLayer(source) }
+            }
+        } else {
+            drawContent()
+        }
+        if (whiteOverlayAlpha > 0f) {
+            drawRect(
+                color = Color.White.copy(alpha = whiteOverlayAlpha),
+                blendMode = BlendMode.Softlight
+            )
+        }
+    }
+
+    /**
+     * 依据当前参数调和共享层的发布与捕获循环的启停
+     */
+    fun sync() {
+        syncLayers()
+        syncCaptureLoop()
+    }
+
+    private fun syncLayers() {
+        if (recordContent) {
+            val source = sourceLayer ?: createLayer()?.also { sourceLayer = it }
+            if (Build.VERSION.SDK_INT >= 31) {
+                store.attachGlassLayer(ensureBlurredLayer())
+                store.attachCaptureLayer(null)
+            } else {
+                store.attachCaptureLayer(source)
+                store.attachGlassLayer(null)
+            }
+        } else {
+            releaseLayers()
+        }
+    }
+
+    private fun ensureBlurredLayer(): GraphicsLayer? {
+        blurredLayer?.let { layer ->
+            if (blurredEffectRadius != blurRadiusPx) {
+                layer.renderEffect = BlurEffect(blurRadiusPx, blurRadiusPx, TileMode.Clamp)
+                blurredEffectRadius = blurRadiusPx
+            }
+            return layer
+        }
+        val layer = createLayer() ?: return null
+        layer.renderEffect = BlurEffect(blurRadiusPx, blurRadiusPx, TileMode.Clamp)
+        blurredEffectRadius = blurRadiusPx
+        blurredLayer = layer
+        return layer
+    }
+
+    private fun createLayer(): GraphicsLayer? {
+        //release 必须归还给创建它的同一 context，故在创建时捕获
+        val context = currentValueOf(LocalGraphicsContext)
+        graphicsContext = context
+        return context.createGraphicsLayer()
+    }
+
+    private fun syncCaptureLoop() {
+        if (recordContent && Build.VERSION.SDK_INT < 31) {
+            if (captureJob?.isActive == true) return
+            captureJob = coroutineScope.launch {
+                snapshotFlow {
+                    store.isValid && store.captureLayer != null &&
+                        AllSettings.backgroundBlur.state > 0 &&
+                        AllSettings.launcherBackgroundOpacity.state < 100
+                }.collectLatest { active ->
+                    if (!active) return@collectLatest
+                    while (currentCoroutineContext().isActive) {
+                        val started = System.nanoTime()
+                        store.captureGlassFrame()
+                        val elapsedMs = (System.nanoTime() - started) / 1_000_000L
+                        delay((16L - elapsedMs).coerceAtLeast(0L).milliseconds)
+                    }
+                }
+            }
+        } else {
+            captureJob?.cancel()
+            captureJob = null
+        }
+    }
+
+    private fun releaseLayers() {
+        store.attachGlassLayer(null)
+        store.attachCaptureLayer(null)
+        val context = graphicsContext
+        sourceLayer?.let { context?.releaseGraphicsLayer(it) }
+        sourceLayer = null
+        blurredLayer?.let { context?.releaseGraphicsLayer(it) }
+        blurredLayer = null
+    }
+}
