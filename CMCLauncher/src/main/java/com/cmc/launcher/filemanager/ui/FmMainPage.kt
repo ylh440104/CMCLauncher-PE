@@ -5,13 +5,9 @@ import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -279,44 +275,38 @@ private fun MainContent(
         enabled = !uiState.refreshing,
         onRefresh = vm::refresh,
     ) {
-        AnimatedContent(
-            targetState = contentState,
-            transitionSpec = {
-                fadeIn(tween(FmAnimations.FADE_IN_MS)) togetherWith
-                    fadeOut(tween(FmAnimations.FADE_OUT_MS))
-            },
-            label = "fm-content"
-        ) { state ->
+        run {
+            val state = contentState
             when {
-                state == null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                else -> {
-                    // 按各帧自己的内容渲染
-                    val visible = remember(state, uiState.sortConfig, uiState.showHidden) {
-                        applyVisibility(state.entries, uiState.sortConfig, uiState.showHidden)
-                    }
-                    if (visible.isEmpty()) {
-                        EmptyBox(stringResource(R.string.fm_empty_dir))
-                    } else {
-                        EntryList(
-                            entries = visible,
-                            uiState = uiState,
-                            vm = vm,
-                            updateOperation = updateOperation,
-                            onOpenEditor = onOpenEditor,
-                            listState = listState,
-                            gridState = gridState
-                        )
-                    }
-                }
+            state == null -> {
+            Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+            ) {
+            CircularProgressIndicator()
             }
-        }
+            }
+            else -> {
+            // 按各帧自己的内容渲染
+            val visible = remember(state, uiState.sortConfig, uiState.showHidden) {
+            applyVisibility(state.entries, uiState.sortConfig, uiState.showHidden)
+            }
+            if (visible.isEmpty()) {
+            EmptyBox(stringResource(R.string.fm_empty_dir))
+            } else {
+            EntryList(
+            entries = visible,
+            uiState = uiState,
+            vm = vm,
+            updateOperation = updateOperation,
+            onOpenEditor = onOpenEditor,
+            listState = listState,
+            gridState = gridState
+            )
+            }
+            }
+            }
+            }
 
         // 刷新进行中，全屏透明输入拦截层
         if (uiState.refreshing) {

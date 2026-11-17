@@ -1,10 +1,7 @@
 package com.cmc.launcher.ui.screens.content.download.addon.elements
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -438,11 +435,7 @@ fun <E> FilterListLayout(
                 onClear = { onSelectionChange(emptyList()) }
             )
 
-            AnimatedVisibility(
-                visible = expanded,
-                enter = expandVertically(animationSpec = getAnimateTween()),
-                exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut()
-            ) {
+            if (expanded)  {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -548,7 +541,7 @@ private fun FilterHeader(
         ) {
             Text(title, style = MaterialTheme.typography.titleSmall)
             FlowRow(
-                modifier = Modifier.animateContentSize(),
+                modifier = Modifier,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 content = selectedLabels
@@ -570,9 +563,7 @@ private fun FilterHeader(
                 painter = painterResource(R.drawable.ic_arrow_drop_down_rounded),
                 contentDescription = null
             )
-            AnimatedVisibility(
-                visible = selected && cancelable
-            ) {
+            if (selected && cancelable)  {
                 IconButton(
                     onClick = {
                         if (selected && cancelable) onClear()

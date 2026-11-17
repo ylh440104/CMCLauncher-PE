@@ -1,7 +1,6 @@
 package com.cmc.launcher.ui.screens.content.home.server
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.hoverable
@@ -729,9 +728,7 @@ private fun ServerCardSettingsDialog(
                     }
 
                     //选择版本
-                    AnimatedVisibility(
-                        visible = mode == ServerCardVersionMode.SPECIFIC
-                    ) {
+                    if (mode == ServerCardVersionMode.SPECIFIC)  {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(4.dp),

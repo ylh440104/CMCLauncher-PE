@@ -3,8 +3,6 @@ package com.cmc.launcher.filemanager.ui
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.background
@@ -415,25 +413,24 @@ fun FmEditorScreen(
                                 checked = fabMenuExpanded,
                                 onCheckedChange = { fabMenuExpanded = it },
                                 content = {
-                                    Crossfade(
-                                        fabMenuExpanded
-                                    ) { isExpanded ->
+                                    run {
+                                        val isExpanded = fabMenuExpanded
                                         Icon(
-                                            painter = painterResource(
-                                                if (isExpanded) {
-                                                    R.drawable.ic_close
-                                                } else {
-                                                    R.drawable.ic_more_horiz
-                                                }
-                                            ),
-                                            contentDescription = null,
-                                            tint = if (isExpanded) {
-                                                MaterialTheme.colorScheme.onPrimary
-                                            } else {
-                                                MaterialTheme.colorScheme.primary
-                                            }
+                                        painter = painterResource(
+                                        if (isExpanded) {
+                                        R.drawable.ic_close
+                                        } else {
+                                        R.drawable.ic_more_horiz
+                                        }
+                                        ),
+                                        contentDescription = null,
+                                        tint = if (isExpanded) {
+                                        MaterialTheme.colorScheme.onPrimary
+                                        } else {
+                                        MaterialTheme.colorScheme.primary
+                                        }
                                         )
-                                    }
+                                        }
                                 }
                             )
                         }
@@ -657,7 +654,7 @@ private fun EditorSearchBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 8.dp)
-                .animateContentSize(),
+                ,
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             // 搜索结果计数

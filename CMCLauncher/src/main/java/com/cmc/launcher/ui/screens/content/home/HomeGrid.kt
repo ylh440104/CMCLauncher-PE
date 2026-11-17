@@ -1,8 +1,5 @@
 package com.cmc.launcher.ui.screens.content.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -228,15 +225,7 @@ fun HomeGrid(
         )
 
         //调整态底部操作栏
-        AnimatedVisibility(
-            visible = state.isAdjusting,
-            enter = fadeIn() + slideInVertically { it / 2 },
-            exit = fadeOut() + slideOutVertically { it / 2 },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(bottom = 9.dp)
-        ) {
+        if (state.isAdjusting)  {
             AdjustingBar(
                 state = state,
                 onShowSettings = {
@@ -294,7 +283,7 @@ private fun AdjustingBar(
             modifier = Modifier.padding(all = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AnimatedVisibility(visible = isServerCard && adjustingId != null) {
+            if (isServerCard && adjustingId != null)  {
                 IconButton(
                     modifier = Modifier.size(34.dp),
                     onClick = { adjustingId?.let(onShowSettings) }

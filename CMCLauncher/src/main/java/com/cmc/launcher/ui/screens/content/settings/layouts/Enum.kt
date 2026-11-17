@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.content.settings.layouts
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -71,7 +70,7 @@ fun <E: Enum<E>> EnumSettingsCard(
                 FlowRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateContentSize(animationSpec = getAnimateTween()),
+                        ,
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     maxItemsInEachRow = maxItemsInEachRow
                 ) {

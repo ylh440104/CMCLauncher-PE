@@ -1,10 +1,5 @@
 package com.cmc.launcher.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
@@ -43,16 +38,7 @@ fun CheckChip(
         selected = selected,
         onClick = onClick,
         leadingIcon = {
-            AnimatedVisibility(
-                visible = selected,
-                enter = expandIn(
-                    animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-                    expandFrom = Alignment.CenterStart
-                ) + fadeIn(),
-                exit = shrinkOut(
-                    shrinkTowards = Alignment.CenterStart
-                ) + fadeOut()
-            ) {
+            if (selected)  {
                 Icon(
                     painter = painterResource(R.drawable.ic_check),
                     contentDescription = null,

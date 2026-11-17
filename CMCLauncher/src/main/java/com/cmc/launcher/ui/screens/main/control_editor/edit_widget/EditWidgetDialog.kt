@@ -1,9 +1,6 @@
 package com.cmc.launcher.ui.screens.main.control_editor.edit_widget
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -102,12 +99,7 @@ fun EditWidgetDialog(
 ) {
     val tween = rememberSwapTween()
 
-    AnimatedVisibility(
-        modifier = Modifier.fillMaxSize(),
-        visible = visible,
-        enter = fadeIn(animationSpec = tween),
-        exit = fadeOut(animationSpec = tween)
-    ) {
+    if (visible)  {
         val backStack = rememberTitledNavBackStack(EditWidgetCategory.Info)
         var dialogTransparent by remember { mutableStateOf(EditWidgetDialogState.OPAQUE) }
 

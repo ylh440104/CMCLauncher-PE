@@ -1,9 +1,7 @@
 package com.cmc.launcher.ui.screens.content.settings.layouts
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -134,12 +132,7 @@ private fun <E> BaseListSettingsCard(
                 }
 
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    AnimatedVisibility(
-                        modifier = Modifier.fillMaxWidth(),
-                        visible = expanded,
-                        enter = expandVertically(animationSpec = getAnimateTween()),
-                        exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
-                    ) {
+                    if (expanded)  {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()

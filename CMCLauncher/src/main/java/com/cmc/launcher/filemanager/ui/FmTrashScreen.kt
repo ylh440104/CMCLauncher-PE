@@ -3,15 +3,11 @@ package com.cmc.launcher.filemanager.ui
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -265,90 +261,84 @@ private fun TrashContent(
         enabled = !list.loading,
         onRefresh = vm::refreshTrashList,
     ) {
-        AnimatedContent(
-            targetState = contentState,
-            transitionSpec = {
-                fadeIn(tween(FmAnimations.FADE_IN_MS)) togetherWith
-                    fadeOut(tween(FmAnimations.FADE_OUT_MS))
-            },
-            label = "fm-trash-content"
-        ) { items ->
+        run {
+            val items = contentState
             when {
-                items == null -> {
-                    TrashStatusBox(stringResource(R.string.generic_loading))
-                }
-                items.isEmpty() -> {
-                    TrashStatusBox(stringResource(R.string.fm_trash_empty))
-                }
-                else -> {
-                    val rawItemByUuid = remember(trash.rawItems) {
-                        trash.rawItems.associateBy { it.uuid }
-                    }
-                    val itemContent: @Composable (TrashItemView, FmCardPosition) -> Unit = { item, position ->
-                        FmTrashItem(
-                            item = item,
-                            position = position,
-                            multiSelect = list.multiSelect,
-                            selected = item.uuid in list.selection,
-                            onClick = {
-                                if (list.multiSelect) vm.toggleTrashSelection(item.uuid)
-                            },
-                            onSwipeTrigger = {
-                                rawItemByUuid[item.uuid]?.let { vm.trashRangeSelect(it) }
-                            },
-                            onDetail = {
-                                rawItemByUuid[item.uuid]?.let { updateTrashOperation(FmTrashOperation.ItemDetail(it)) }
-                            },
-                            onMultiRestoreWithConfirm = {
-                                updateTrashOperation(FmTrashOperation.RestoreAllConfirm)
-                            },
-                            onMultiPurgeWithConfirm = {
-                                updateTrashOperation(FmTrashOperation.PurgeAllConfirm)
-                            },
-                            onRestoreWithConfirm = {
-                                rawItemByUuid[item.uuid]?.let { updateTrashOperation(FmTrashOperation.RestoreConfirm(it)) }
-                            },
-                            onPurgeWithConfirm = {
-                                rawItemByUuid[item.uuid]?.let { updateTrashOperation(FmTrashOperation.PurgeConfirm(it)) }
-                            }
-                        )
-                    }
-
-                    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-                    if (isLandscape) {
-                        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                            val gap = 2.dp
-                            val minColumnSize = 280.dp
-                            // 与 GridCells.Adaptive 相同的列数公式，保证条目方位与实际网格一致
-                            val columns = floor(
-                                (maxWidth - 24.dp + gap).value / (minColumnSize + gap).value
-                            ).toInt().coerceAtLeast(1)
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(columns),
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 12.dp),
-                                horizontalArrangement = Arrangement.spacedBy(gap),
-                                verticalArrangement = Arrangement.spacedBy(gap)
-                            ) {
-                                itemsIndexed(items, key = { _, item -> item.uuid }) { index, item ->
-                                    itemContent(item, FmCardPosition.of(index, items.size, columns))
-                                }
-                            }
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            itemsIndexed(items, key = { _, item -> item.uuid }) { index, item ->
-                                itemContent(item, FmCardPosition.of(index, items.size))
-                            }
-                        }
-                    }
-                }
+            items == null -> {
+            TrashStatusBox(stringResource(R.string.generic_loading))
             }
-        }
+            items.isEmpty() -> {
+            TrashStatusBox(stringResource(R.string.fm_trash_empty))
+            }
+            else -> {
+            val rawItemByUuid = remember(trash.rawItems) {
+            trash.rawItems.associateBy { it.uuid }
+            }
+            val itemContent: @Composable (TrashItemView, FmCardPosition) -> Unit = { item, position ->
+            FmTrashItem(
+            item = item,
+            position = position,
+            multiSelect = list.multiSelect,
+            selected = item.uuid in list.selection,
+            onClick = {
+            if (list.multiSelect) vm.toggleTrashSelection(item.uuid)
+            },
+            onSwipeTrigger = {
+            rawItemByUuid[item.uuid]?.let { vm.trashRangeSelect(it) }
+            },
+            onDetail = {
+            rawItemByUuid[item.uuid]?.let { updateTrashOperation(FmTrashOperation.ItemDetail(it)) }
+            },
+            onMultiRestoreWithConfirm = {
+            updateTrashOperation(FmTrashOperation.RestoreAllConfirm)
+            },
+            onMultiPurgeWithConfirm = {
+            updateTrashOperation(FmTrashOperation.PurgeAllConfirm)
+            },
+            onRestoreWithConfirm = {
+            rawItemByUuid[item.uuid]?.let { updateTrashOperation(FmTrashOperation.RestoreConfirm(it)) }
+            },
+            onPurgeWithConfirm = {
+            rawItemByUuid[item.uuid]?.let { updateTrashOperation(FmTrashOperation.PurgeConfirm(it)) }
+            }
+            )
+            }
+
+            val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+            if (isLandscape) {
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val gap = 2.dp
+            val minColumnSize = 280.dp
+            // 与 GridCells.Adaptive 相同的列数公式，保证条目方位与实际网格一致
+            val columns = floor(
+            (maxWidth - 24.dp + gap).value / (minColumnSize + gap).value
+            ).toInt().coerceAtLeast(1)
+            LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(gap),
+            verticalArrangement = Arrangement.spacedBy(gap)
+            ) {
+            itemsIndexed(items, key = { _, item -> item.uuid }) { index, item ->
+            itemContent(item, FmCardPosition.of(index, items.size, columns))
+            }
+            }
+            }
+            } else {
+            LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+            itemsIndexed(items, key = { _, item -> item.uuid }) { index, item ->
+            itemContent(item, FmCardPosition.of(index, items.size))
+            }
+            }
+            }
+            }
+            }
+            }
     }
 }
 

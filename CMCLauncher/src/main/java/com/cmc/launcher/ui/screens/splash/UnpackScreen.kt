@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.splash
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -185,7 +184,7 @@ private fun TaskItem(
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 12.dp, top = 8.dp, bottom = 8.dp)
-                    .animateContentSize(animationSpec = getAnimateTween())
+                    
             ) {
                 Text(
                     text = item.name,

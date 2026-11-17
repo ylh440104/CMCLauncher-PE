@@ -6,7 +6,6 @@ import android.webkit.CookieManager
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -83,9 +82,7 @@ fun WebViewScreen(
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.surface)
             ) {
-                AnimatedVisibility(
-                    visible = isWebLoading
-                ) {
+                if (isWebLoading)  {
                     LinearProgressIndicator(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -94,9 +91,7 @@ fun WebViewScreen(
                 }
 
                 //网址，可供用户复制
-                AnimatedVisibility(
-                    visible = webUrl.isNotEmptyOrBlank()
-                ) {
+                if (webUrl.isNotEmptyOrBlank())  {
                     MarqueeText(
                         modifier = Modifier
                             .fillMaxWidth()

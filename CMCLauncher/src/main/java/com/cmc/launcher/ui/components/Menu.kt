@@ -1,11 +1,8 @@
 package com.cmc.launcher.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -113,11 +110,7 @@ fun MenuSubscreen(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
+        if (visible)  {
             //背景阴影层
             Box(
                 modifier = Modifier
@@ -139,17 +132,7 @@ fun MenuSubscreen(
                 .fillMaxHeight()
                 .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
         ) {
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn() + slideInHorizontally(
-                    animationSpec = getEnterTween()
-                ) {
-                    if (isRtl) -40 else 40
-                  },
-                exit = fadeOut() + slideOutHorizontally {
-                    if (isRtl) -40 else 40
-                }
-            ) {
+            if (visible)  {
                 BackgroundCard(
                     shape = shape,
                     influencedByBackground = false,
@@ -177,11 +160,7 @@ fun DualMenuSubscreen(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
+        if (visible)  {
             //背景阴影层
             Box(
                 modifier = Modifier
@@ -203,17 +182,7 @@ fun DualMenuSubscreen(
                 .fillMaxHeight()
                 .padding(top = 12.dp, start = 12.dp, bottom = 12.dp)
         ) {
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn() + slideInHorizontally(
-                    animationSpec = getEnterTween()
-                ) {
-                    if (isRtl) 40 else -40
-                  },
-                exit = fadeOut() + slideOutHorizontally {
-                    if (isRtl) 40 else -40
-                }
-            ) {
+            if (visible)  {
                 BackgroundCard(
                     shape = shape,
                     influencedByBackground = false,
@@ -240,17 +209,7 @@ fun DualMenuSubscreen(
                 .fillMaxHeight()
                 .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
         ) {
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn() + slideInHorizontally(
-                    animationSpec = getEnterTween()
-                ) {
-                    if (isRtl) -40 else 40
-                  },
-                exit = fadeOut() + slideOutHorizontally {
-                    if (isRtl) -40 else 40
-                }
-            ) {
+            if (visible)  {
                 BackgroundCard(
                     shape = shape,
                     influencedByBackground = false,
@@ -420,12 +379,7 @@ fun <E> MenuListLayout(
 
             if (enabled && items.isNotEmpty()) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    AnimatedVisibility(
-                        visible = expanded,
-                        enter = expandVertically(animationSpec = getAnimateTween()),
-                        exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    if (expanded)  {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()

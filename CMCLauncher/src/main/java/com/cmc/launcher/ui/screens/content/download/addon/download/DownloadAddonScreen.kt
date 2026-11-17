@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.content.download.addon.download
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -586,7 +585,7 @@ private fun Versions(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Column(
-                        modifier = Modifier.animateContentSize()
+                        modifier = Modifier
                     ) {
                         when (val state = viewModel.versionsLoading) {
                             is DownloadAddonVersionLoading.None -> {}

@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.main.control_editor.edit_joystick
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -114,7 +113,7 @@ fun JoystickStyleListDialog(
                                     state = scrollState.scrollIndicatorState!!,
                                     orientation = Orientation.Vertical,
                                 )
-                                .animateContentSize(),
+                                ,
                             state = scrollState,
                             contentPadding = PaddingValues(vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)

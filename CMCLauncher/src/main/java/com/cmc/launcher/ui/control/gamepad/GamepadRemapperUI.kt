@@ -2,7 +2,6 @@ package com.cmc.launcher.ui.control.gamepad
 
 import android.view.KeyEvent
 import android.view.MotionEvent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -226,10 +225,7 @@ fun GamepadRemapperDialog(
             //UI交互页面，这里无法使用Dialog，因为这里不应该获得焦点
             //----------------------
 
-            AnimatedVisibility(
-                modifier = Modifier.fillMaxSize(),
-                visible = true
-            ) {
+            if (true)  {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

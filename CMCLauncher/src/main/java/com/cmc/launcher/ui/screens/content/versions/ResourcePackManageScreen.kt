@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.content.versions
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.basicMarquee
@@ -471,10 +470,7 @@ private fun ResourcePackHeader(
                     singleLine = true
                 )
 
-                AnimatedVisibility(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    visible = isFilesSelected
-                ) {
+                if (isFilesSelected)  {
                     Row {
                         IconButton(
                             onClick = onDeleteAll

@@ -1,7 +1,5 @@
 package com.cmc.launcher.ui.screens.content.download.game
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -313,9 +311,7 @@ fun DownloadGameWithAddonScreen(
                                         !viewModel.addonList.fabricAPIList.isNullOrEmpty() &&
                                         viewModel.currentAddon.fabricAPIVersion.value == null
 
-                            AnimatedVisibility(
-                                visible = isFabricAPIWarning
-                            ) {
+                            if (isFabricAPIWarning)  {
                                 AddonWarningItem(
                                     modifier = Modifier.padding(bottom = 12.dp),
                                     text = stringResource(
@@ -366,9 +362,7 @@ fun DownloadGameWithAddonScreen(
                                         !viewModel.addonList.legacyFabricAPIList.isNullOrEmpty() &&
                                         viewModel.currentAddon.legacyFabricAPIVersion.value == null
 
-                            AnimatedVisibility(
-                                visible = isFabricAPIWarning
-                            ) {
+                            if (isFabricAPIWarning)  {
                                 AddonWarningItem(
                                     modifier = Modifier.padding(bottom = 12.dp),
                                     text = stringResource(
@@ -419,9 +413,7 @@ fun DownloadGameWithAddonScreen(
                                         !viewModel.addonList.quiltAPIList.isNullOrEmpty() &&
                                         viewModel.currentAddon.quiltAPIVersion.value == null
 
-                            AnimatedVisibility(
-                                visible = isQuiltAPIWarning
-                            ) {
+                            if (isQuiltAPIWarning)  {
                                 AddonWarningItem(
                                     modifier = Modifier.padding(bottom = 12.dp),
                                     text = stringResource(
@@ -522,7 +514,7 @@ private fun ScreenHeader(
                 modifier = Modifier
                     .weight(1f)
                     .padding(vertical = 8.dp)
-                    .animateContentSize(animationSpec = getAnimateTween())
+                    
             ) {
                 SimpleTextInputField(
                     modifier = Modifier

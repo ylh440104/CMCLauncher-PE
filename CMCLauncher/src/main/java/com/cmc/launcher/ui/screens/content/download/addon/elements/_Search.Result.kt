@@ -1,11 +1,8 @@
 package com.cmc.launcher.ui.screens.content.download.addon.elements
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -237,11 +234,7 @@ private fun PageController(
             modifier = modifier,
             contentAlignment = Alignment.CenterStart
         ) {
-            AnimatedVisibility(
-                visible = editPageNumber,
-                enter = expandHorizontally() + fadeIn(),
-                exit = shrinkHorizontally() + fadeOut(),
-            ) {
+            if (editPageNumber)  {
                 var number by remember { mutableIntStateOf(page.pageNumber) }
                 var numberText by remember { mutableStateOf("${page.pageNumber}") }
                 //编辑页码
@@ -279,11 +272,7 @@ private fun PageController(
             }
 
             //页码
-            AnimatedVisibility(
-                visible = !editPageNumber,
-                enter = expandHorizontally() + fadeIn(),
-                exit = shrinkHorizontally() + fadeOut(),
-            ) {
+            if (!editPageNumber)  {
                 Text(
                     modifier = Modifier.padding(start = 16.dp),
                     text = "${page.pageNumber} ",

@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -640,10 +639,7 @@ private fun ScreenshotHeader(
                 )
 
                 val scrollState = rememberScrollState()
-                AnimatedVisibility(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    visible = isFilesSelected
-                ) {
+                if (isFilesSelected)  {
                     Row(
                         modifier = Modifier
                             .fadeEdge(

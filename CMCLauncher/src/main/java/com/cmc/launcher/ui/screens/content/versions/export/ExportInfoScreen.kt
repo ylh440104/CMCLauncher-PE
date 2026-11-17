@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.content.versions.export
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -363,9 +362,7 @@ fun ExportInfoScreen(
                     }
 
                     //对于打包远端资源的提示
-                    AnimatedVisibility(
-                        visible = packRemote
-                    ) {
+                    if (packRemote)  {
                         Column(
                             modifier = Modifier.fillMaxWidth()
                         ) {

@@ -1,8 +1,5 @@
 package com.cmc.launcher.ui.screens.main.control_editor.edit_style
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -79,12 +76,7 @@ fun EditButtonStyleDialog(
 ) {
     val tween = rememberSwapTween()
 
-    AnimatedVisibility(
-        modifier = Modifier.fillMaxSize(),
-        visible = visible,
-        enter = fadeIn(animationSpec = tween),
-        exit = fadeOut(animationSpec = tween)
-    ) {
+    if (visible)  {
         val tabs = remember {
             listOf(
                 TabItem(R.string.control_editor_edit_style_config_light),

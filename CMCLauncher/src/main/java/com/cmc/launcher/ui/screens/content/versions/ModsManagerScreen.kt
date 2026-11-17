@@ -2,9 +2,6 @@ package com.cmc.launcher.ui.screens.content.versions
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.basicMarquee
@@ -931,10 +928,7 @@ private fun ModsActionsHeader(
                     singleLine = true
                 )
 
-                AnimatedVisibility(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    visible = isModsSelected
-                ) {
+                if (isModsSelected)  {
                     Row {
                         if (hasModLoader && canUpdate) {
                             IconButton(
@@ -1208,99 +1202,98 @@ private fun ModItemLayout(
             val titleAlpha = if (isDisabled) 0.8f else 1f
 
             //模组简要信息
-            Crossfade(
-                modifier = Modifier
+            run {
+                val isUnknown = //在本地是否为未知文件
+                targetState = mod.localMod.notMod && projectInfo == null
+                Box(modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .weight(1f),
-                //在本地是否为未知文件
-                targetState = mod.localMod.notMod && projectInfo == null,
-                label = "ModItemInfoCrossfade"
-            ) { isUnknown ->
-                Column(
+                    .weight(1f)) {
+                    Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+                    ) {
                     val localMod = mod.localMod
                     when {
-                        isUnknown -> {
-                            //非模组，只展示文件名称
-                            Text(
-                                modifier = Modifier
-                                    .alpha(titleAlpha)
-                                    .basicMarquee(iterations = Int.MAX_VALUE),
-                                text = localMod.file.name,
-                                style = MaterialTheme.typography.titleSmall,
-                                textDecoration = titleDecoration,
-                                fontStyle = titleStyle,
-                                maxLines = 1
-                            )
+                    isUnknown -> {
+                    //非模组，只展示文件名称
+                    Text(
+                    modifier = Modifier
+                    .alpha(titleAlpha)
+                    .basicMarquee(iterations = Int.MAX_VALUE),
+                    text = localMod.file.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    textDecoration = titleDecoration,
+                    fontStyle = titleStyle,
+                    maxLines = 1
+                    )
 
-                            if (localMod.loader != ModLoader.UNKNOWN) {
-                                LittleTextLabel(
-                                    text = localMod.loader.displayName,
-                                    shape = MaterialTheme.shapes.small
-                                )
-                            }
-                        }
-                        else -> {
-                            Row(
-                                modifier = Modifier.height(IntrinsicSize.Max),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val displayTitle = if (projectInfo != null) {
-                                    val title = projectInfo.title
-                                    mod.mcMod?.getMcmodTitle(title, context) ?: title
-                                } else {
-                                    localMod.name
-                                }
-                                Text(
-                                    modifier = Modifier
-                                        .alpha(titleAlpha)
-                                        .weight(1f, fill = false)
-                                        .basicMarquee(iterations = Int.MAX_VALUE)
-                                        .animateContentSize(),
-                                    text = displayTitle,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    textDecoration = titleDecoration,
-                                    fontStyle = titleStyle,
-                                    maxLines = 1
-                                )
+                    if (localMod.loader != ModLoader.UNKNOWN) {
+                    LittleTextLabel(
+                    text = localMod.loader.displayName,
+                    shape = MaterialTheme.shapes.small
+                    )
+                    }
+                    }
+                    else -> {
+                    Row(
+                    modifier = Modifier.height(IntrinsicSize.Max),
+                    verticalAlignment = Alignment.CenterVertically
+                    ) {
+                    val displayTitle = if (projectInfo != null) {
+                    val title = projectInfo.title
+                    mod.mcMod?.getMcmodTitle(title, context) ?: title
+                    } else {
+                    localMod.name
+                    }
+                    Text(
+                    modifier = Modifier
+                    .alpha(titleAlpha)
+                    .weight(1f, fill = false)
+                    .basicMarquee(iterations = Int.MAX_VALUE)
+                    ,
+                    text = displayTitle,
+                    style = MaterialTheme.typography.titleSmall,
+                    textDecoration = titleDecoration,
+                    fontStyle = titleStyle,
+                    maxLines = 1
+                    )
 
-                                Row(
-                                    modifier = Modifier
-                                        .padding(start = 8.dp)
-                                        .basicMarquee(iterations = Int.MAX_VALUE)
-                                        .animateContentSize(),
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    val remoteLoaders = mod.remoteFile?.loaders
-                                    if (!remoteLoaders.isNullOrEmpty()) {
-                                        remoteLoaders.forEach { loader ->
-                                            LittleTextLabel(
-                                                text = loader.getDisplayName(),
-                                                shape = MaterialTheme.shapes.small
-                                            )
-                                        }
-                                    } else if (localMod.loader != ModLoader.UNKNOWN) {
-                                        LittleTextLabel(
-                                            text = localMod.loader.displayName,
-                                            shape = MaterialTheme.shapes.small
-                                        )
-                                    }
-                                }
-                            }
+                    Row(
+                    modifier = Modifier
+                    .padding(start = 8.dp)
+                    .basicMarquee(iterations = Int.MAX_VALUE)
+                    ,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                    val remoteLoaders = mod.remoteFile?.loaders
+                    if (!remoteLoaders.isNullOrEmpty()) {
+                    remoteLoaders.forEach { loader ->
+                    LittleTextLabel(
+                    text = loader.getDisplayName(),
+                    shape = MaterialTheme.shapes.small
+                    )
+                    }
+                    } else if (localMod.loader != ModLoader.UNKNOWN) {
+                    LittleTextLabel(
+                    text = localMod.loader.displayName,
+                    shape = MaterialTheme.shapes.small
+                    )
+                    }
+                    }
+                    }
 
-                            Text(
-                                modifier = Modifier
-                                    .alpha(0.7f)
-                                    .basicMarquee(iterations = Int.MAX_VALUE),
-                                text = stringResource(R.string.generic_file_name, localMod.file.name),
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 1
-                            )
-                        }
+                    Text(
+                    modifier = Modifier
+                    .alpha(0.7f)
+                    .basicMarquee(iterations = Int.MAX_VALUE),
+                    text = stringResource(R.string.generic_file_name, localMod.file.name),
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1
+                    )
+                    }
+                    }
                     }
                 }
-            }
+                }
 
             Row(
                 modifier = Modifier.align(Alignment.CenterVertically),

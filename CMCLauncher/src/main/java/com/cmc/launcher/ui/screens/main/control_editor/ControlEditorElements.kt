@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.main.control_editor
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -125,19 +124,20 @@ fun MenuBox(
                 .size(28.dp),
             contentAlignment = Alignment.Center
         ) {
-            Crossfade(opened) { state ->
+            run {
+                val state = opened
                 Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(
-                        if (state) {
-                            R.drawable.ic_menu_open
-                        } else {
-                            R.drawable.ic_menu
-                        }
-                    ),
-                    contentDescription = null
+                modifier = Modifier.size(24.dp),
+                painter = painterResource(
+                if (state) {
+                R.drawable.ic_menu_open
+                } else {
+                R.drawable.ic_menu
+                }
+                ),
+                contentDescription = null
                 )
-            }
+                }
         }
     }
 }
@@ -216,20 +216,19 @@ fun EditorMenu(
                 },
                 enabled = isPreviewMode.not() && selectedLayer != null
             ) {
-                Crossfade(
-                    targetState = isLayerFocus
-                ) { isFocus ->
+                run {
+                    val isFocus = isLayerFocus
                     Icon(
-                        painter = painterResource(
-                            if (isFocus) {
-                                R.drawable.ic_center_focus_strong_filled
-                            } else {
-                                R.drawable.ic_center_focus_strong_outlined
-                            }
-                        ),
-                        contentDescription = null
+                    painter = painterResource(
+                    if (isFocus) {
+                    R.drawable.ic_center_focus_strong_filled
+                    } else {
+                    R.drawable.ic_center_focus_strong_outlined
+                    }
+                    ),
+                    contentDescription = null
                     )
-                }
+                    }
             }
         },
         rightMenuContent = {
@@ -736,20 +735,19 @@ private fun ControlLayerItem(
                 onClick = onHideSwitch,
                 enabled = enabled
             ) {
-                Crossfade(
-                    targetState = layer.editorHide
-                ) { isHide ->
+                run {
+                    val isHide = layer.editorHide
                     Icon(
-                        painter = painterResource(
-                            if (isHide) {
-                                R.drawable.ic_visibility_off_outlined
-                            } else {
-                                R.drawable.ic_visibility_outlined
-                            }
-                        ),
-                        contentDescription = null
+                    painter = painterResource(
+                    if (isHide) {
+                    R.drawable.ic_visibility_off_outlined
+                    } else {
+                    R.drawable.ic_visibility_outlined
+                    }
+                    ),
+                    contentDescription = null
                     )
-                }
+                    }
             }
             MarqueeText(
                 modifier = Modifier.weight(1f),

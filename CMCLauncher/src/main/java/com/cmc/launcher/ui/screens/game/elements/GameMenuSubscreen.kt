@@ -1,9 +1,6 @@
 package com.cmc.launcher.ui.screens.game.elements
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -74,7 +71,7 @@ fun GameMenuSubscreen(
     val visible = state == MenuState.SHOW
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
+        if (visible)  {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -87,11 +84,7 @@ fun GameMenuSubscreen(
             )
         }
 
-        AnimatedVisibility(
-            visible = visible,
-            enter = fadeIn() + slideInHorizontally { -60 },
-            exit = fadeOut() + slideOutHorizontally { -60 }
-        ) {
+        if (visible)  {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth(0.94f)
@@ -352,9 +345,7 @@ private fun GameMenuContent(
             )
         }
         item {
-            AnimatedVisibility(
-                visible = AllSettings.resolutionRule.state == ResolutionRule.PERCENTAGE
-            ) {
+            if (AllSettings.resolutionRule.state == ResolutionRule.PERCENTAGE)  {
                 MenuSliderLayout(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.settings_renderer_resolution_scale_title),
@@ -372,9 +363,7 @@ private fun GameMenuContent(
                     contentColor = content
                 )
             }
-            AnimatedVisibility(
-                visible = AllSettings.resolutionRule.state == ResolutionRule.CUSTOM
-            ) {
+            if (AllSettings.resolutionRule.state == ResolutionRule.CUSTOM)  {
                 CustomResolutionRow(onCommit = onRefreshWindowSize)
             }
         }

@@ -1,6 +1,5 @@
 package com.cmc.launcher.ui.screens.content
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -233,9 +232,7 @@ private fun MainMenu(
                 verticalAlignment = Alignment.CenterVertically,
                 enabled = AllSettings.enableTerracotta.state,
                 columnLayout = {
-                    AnimatedVisibility(
-                        visible = AllSettings.enableTerracotta.state && AllSettings.enableTerracottaNodes.state,
-                    ) {
+                    if (AllSettings.enableTerracotta.state && AllSettings.enableTerracottaNodes.state)  {
                         OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = AllSettings.terracottaNodes.state,

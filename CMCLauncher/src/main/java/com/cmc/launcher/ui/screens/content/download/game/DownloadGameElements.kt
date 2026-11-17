@@ -1,9 +1,7 @@
 package com.cmc.launcher.ui.screens.content.download.game
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -233,12 +231,7 @@ fun <E> AddonListLayout(
 
             if (state == AddonState.None && !items.isNullOrEmpty() && error == null) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    AnimatedVisibility(
-                        visible = expanded,
-                        enter = expandVertically(animationSpec = getAnimateTween()),
-                        exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    if (expanded)  {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()

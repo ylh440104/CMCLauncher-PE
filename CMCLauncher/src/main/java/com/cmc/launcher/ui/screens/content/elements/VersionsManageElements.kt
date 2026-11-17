@@ -1,7 +1,6 @@
 package com.cmc.launcher.ui.screens.content.elements
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -747,20 +746,20 @@ fun VersionItemLayout(
                 },
                 enabled = version.isValid()
             ) {
-                Crossfade(
-                    targetState = version.pinnedState
-                ) { pinned ->
+                run {
+                    val it = version.pinnedState
+                    pinned ->
                     val icon = if (pinned) {
-                        painterResource(R.drawable.ic_pinned_filled)
+                    painterResource(R.drawable.ic_pinned_filled)
                     } else {
-                        painterResource(R.drawable.ic_pinned_outlined)
+                    painterResource(R.drawable.ic_pinned_outlined)
                     }
                     Icon(
-                        modifier = Modifier.rotate(45.0f),
-                        painter = icon,
-                        contentDescription = stringResource(R.string.versions_manage_pin)
+                    modifier = Modifier.rotate(45.0f),
+                    painter = icon,
+                    contentDescription = stringResource(R.string.versions_manage_pin)
                     )
-                }
+                    }
             }
 
             IconButton(

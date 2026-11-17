@@ -10,7 +10,6 @@ import android.graphics.RectF
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
@@ -927,9 +926,7 @@ fun LocalLoginDialog(
                         }
 
                         //编辑自定义 UUID
-                        AnimatedVisibility(
-                            visible = editUUID
-                        ) {
+                        if (editUUID)  {
                             Column(
                                 modifier = Modifier.fillMaxWidth()
                             ) {

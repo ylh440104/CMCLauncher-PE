@@ -1,9 +1,7 @@
 package com.cmc.launcher.ui.screens.content.settings
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -349,11 +347,7 @@ private fun ChoiceConfigItem(state: ConfigEntryState, position: CardPosition) {
             }
         }
 
-        AnimatedVisibility(
-            visible = expanded,
-            enter = expandVertically(animationSpec = getAnimateTween()),
-            exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut()
-        ) {
+        if (expanded)  {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -421,11 +415,7 @@ private fun OrderedChoiceConfigItem(state: ConfigEntryState, position: CardPosit
             }
         }
 
-        AnimatedVisibility(
-            visible = expanded && enabled,
-            enter = expandVertically(animationSpec = getAnimateTween()),
-            exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut()
-        ) {
+        if (expanded && enabled)  {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

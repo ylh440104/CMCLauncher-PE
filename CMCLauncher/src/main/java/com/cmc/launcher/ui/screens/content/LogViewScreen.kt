@@ -1,8 +1,5 @@
 package com.cmc.launcher.ui.screens.content
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -93,11 +90,7 @@ fun LogViewScreen(
         screenKey = key,
         currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
+        if (isVisible)  {
             val fallbackScheme = remember(isDark) {
                 if (isDark) SchemeIDEADark() else SchemeIDEALight()
             }

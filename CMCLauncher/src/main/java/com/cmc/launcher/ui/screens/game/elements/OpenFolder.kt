@@ -4,10 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
@@ -160,17 +157,7 @@ fun OpenFolderLayer(
         Box(
             modifier = Modifier.fillMaxWidth(0.4f)
         ) {
-            AnimatedVisibility(
-                visible = operation is OpenFolderOperation.OpenFolder,
-                enter = fadeIn() + slideInHorizontally(
-                    animationSpec = getEnterTween()
-                ) {
-                    if (isRtl) -40 else 40
-                },
-                exit = fadeOut() + slideOutHorizontally {
-                    if (isRtl) -40 else 40
-                }
-            ) {
+            if (operation is OpenFolderOperation.OpenFolder)  {
                 BackgroundCard(
                     modifier = Modifier.padding(all = 12.dp),
                     influencedByBackground = false,

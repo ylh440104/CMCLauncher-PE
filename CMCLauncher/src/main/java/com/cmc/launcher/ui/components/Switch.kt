@@ -1,7 +1,6 @@
 package com.cmc.launcher.ui.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -38,19 +37,19 @@ fun DefaultSwitch(
                 if (checked) 0.0f else -(180.0f),
                 label = "switch_thumb_rotation"
             )
-            Crossfade(
-                modifier = Modifier.rotate(rotation),
-                targetState = checked
-            ) {
-                Icon(
+            run {
+                val it = checked
+                Box(modifier = Modifier.rotate(rotation)) {
+                    Icon(
                     modifier = Modifier.size(16.dp),
                     painter = painterResource(
-                        if (it) R.drawable.ic_check else R.drawable.ic_close
+                    if (it) R.drawable.ic_check else R.drawable.ic_close
                     ),
                     contentDescription = null,
                     tint = colors.trackColor(enabled, checked)
-                )
-            }
+                    )
+                }
+                }
         },
         interactionSource = interactionSource
     )

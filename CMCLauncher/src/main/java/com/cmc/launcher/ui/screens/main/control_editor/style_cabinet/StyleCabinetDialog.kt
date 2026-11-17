@@ -1,9 +1,5 @@
 package com.cmc.launcher.ui.screens.main.control_editor.style_cabinet
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -79,12 +75,7 @@ fun StyleCabinetDialog(
 ) {
     val tween = rememberSwapTween()
 
-    AnimatedVisibility(
-        modifier = Modifier.fillMaxSize(),
-        visible = visible,
-        enter = fadeIn(animationSpec = tween),
-        exit = fadeOut(animationSpec = tween)
-    ) {
+    if (visible)  {
         var filter by remember { mutableStateOf(CabinetFilter.ALL) }
         var pendingDelete by remember { mutableStateOf<CabinetStyleItem?>(null) }
 
@@ -124,7 +115,7 @@ fun StyleCabinetDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .animateContentSize()
+                            
                     ) {
                         Column(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),

@@ -2,7 +2,6 @@ package com.cmc.launcher.ui.screens.content.versions
 
 import android.os.Build
 import android.os.Vibrator
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -373,10 +372,7 @@ private fun GameConfigs(
             suffix = "MB",
             onValueChange = { stateful.ramAllocation = it },
             previewContent = {
-                AnimatedVisibility(
-                    modifier = Modifier.fillMaxWidth(),
-                    visible = stateful.ramAllocation >= 256
-                ) {
+                if (stateful.ramAllocation >= 256)  {
                     MemoryPreview(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -494,7 +490,7 @@ private fun SupportConfigs(
             }
         )
 
-        AnimatedVisibility(effectiveVibrateKind == VibrationHandler.VibrateKind.ONE_SHOT) {
+        if (effectiveVibrateKind == VibrationHandler.VibrateKind.ONE_SHOT) {
             IntSliderSettingsCard(
                 modifier = Modifier.fillMaxWidth(),
                 position = CardPosition.Middle,
