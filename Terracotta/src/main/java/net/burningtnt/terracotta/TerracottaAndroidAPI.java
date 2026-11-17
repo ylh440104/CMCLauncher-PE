@@ -23,77 +23,20 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * <p>An API to handle Terracotta Android.</p>
- *
- * <p>Unlike normal JNI bindings, relocating this class to another package is supported.</p>
- *
- * <h1>State Definition</h1>
- *
- * <p>For Android platform, developers must invoke {@link #initialize} with a {@link VpnServiceCallback} to initialize the rust backend.
- * Then, {@link #getState()}, {@link #setWaiting()}, {@link #setGuesting}, {@link #setScanning} are available to hook states from Terracotta.</p>
- *
- * <p>All methods here are thread-safe and can be invoked concurrently from multiple threads.</p>
- *
- * <p>For each state, self-increased {@code index} and {@code state} fields are provided.
- * A state with a greater {@code index} should be considered as a new state, while {@code state} reveals the type of the specific state.</p>
- *
- * <p>For state definitions, view <a href="https://github.com/HMCL-dev/HMCL/blob/main/HMCL/src/main/java/org/jackhuang/hmcl/terracotta/TerracottaState.java#L108-L120">all subclasses of Ready</a></p>
- *
- * <h1>VpnService</h1>
- *
- * <p>Terracotta will submit VpnService Requests when EasyTier is acquiring one.
- * To configure the callback for receiving requests, see {@link #initialize}</p>
- *
- * <p>When receiving one, {@link #getPendingVpnServiceRequest()} is available to get the pending request.
- * Developer must make sure either {@link VpnServiceRequest#startVpnService} or {@link VpnServiceRequest#reject()} is invoked,
- * or Terracotta would stuck and EasyTier cannot submit a new VpnService Request.</p>
- *
- * <p>The VpnServiceRequest must be fulfilled in 30 seconds, or it will be considered as timeout.</p>
- *
- * <h1>Panic</h1>
- *
- * <p>A RuntimeException will be thrown if an error occured in native level.</p>
- */
 @Keep
 public final class TerracottaAndroidAPI {
-    /**
-     * <p>Callback for receiving VpnService Requests</p>
-     *
-     * <p>When receiving one, {@link #getPendingVpnServiceRequest()} is available to get the pending request.
-     * Developer must make sure either {@link VpnServiceRequest#startVpnService} or {@link VpnServiceRequest#reject()} is invoked,
-     * or Terracotta would stuck and EasyTier cannot submit a new VpnService Request.</p>
-     *
-     * @implNote The VpnServiceRequest must be fulfilled in 30 seconds, or it will be considered as timeout.
-     */
+
     public interface VpnServiceCallback {
         void onStartVpnService();
     }
 
-    /**
-     * <p>A VpnService Request submitted by Terracotta. See {@link VpnServiceCallback}</p>
-     */
     public interface VpnServiceRequest {
-        /**
-         * Create a Vpn Connection and fulfill the VpnService Request.
-         *
-         * @param builder A pre-configured VpnService builder.
-         * @return The established Vpn Connection. Developers must close this file descriptor after EasyTier exits.
-         * @throws RuntimeException if {@link VpnService.Builder#establish()} returns null.
-         * @implNote Developers is able to configure the builder before passing it into Terracotta
-         * to fully-custom the connection.
-         */
+
         ParcelFileDescriptor startVpnService(VpnService.Builder builder);
 
-        /**
-         * <p>Reject the VpnServiceRequest.</p>
-         */
         void reject();
     }
 
-    /**
-     * <p>Metadata of Terracotta Android</p>
-     */
     public static final class Metadata {
         private final String terracottaVersion;
 
@@ -107,23 +50,14 @@ public final class TerracottaAndroidAPI {
             this.easyTierVersion = easyTierVersion;
         }
 
-        /**
-         * @return Terracotta Android version.
-         */
         public String getTerracottaVersion() {
             return terracottaVersion;
         }
 
-        /**
-         * @return Terracotta Android compile timestamp. The format is identical with {@link System#currentTimeMillis()}.
-         */
         public long getTerracottaCompileTime() {
             return terracottaCompileTime;
         }
 
-        /**
-         * @return EasyTier version.
-         */
         public String getEasyTierVersion() {
             return easyTierVersion;
         }
@@ -149,12 +83,6 @@ public final class TerracottaAndroidAPI {
 
     private static volatile RuntimeContext runtimeContext = null;
 
-    /**
-     * <p>Get current pending VpnService Request.</p>
-     *
-     * @return The pending VpnService Request.
-     * @throws IllegalStateException if no pending VpnService Request exists.
-     */
     public static VpnServiceRequest getPendingVpnServiceRequest() {
         VpnServiceRequest handle = pendingRequest;
         if (handle == null) {
@@ -163,13 +91,6 @@ public final class TerracottaAndroidAPI {
         return handle;
     }
 
-    /**
-     * <p>Initialize the Terracotta Android.</p>
-     *
-     * @param root The root directory where Terracotta runs.
-     * @param logFile The log file written by Terracotta.
-     * @param callback A callback to handle VpnService for EasyTier. See {@link VpnServiceCallback} for more information.
-     */
     public static synchronized Metadata initialize(String root, String logFile, VpnServiceCallback callback) {
         Objects.requireNonNull(root, "root");
         Objects.requireNonNull(logFile, "logFile");
@@ -216,58 +137,21 @@ public final class TerracottaAndroidAPI {
         return new Metadata(parts[0], Long.parseLong(parts[1]), parts[2]);
     }
 
-    /**
-     * <p>Fetch current state from Terracotta Android.</p>
-     *
-     * @return A json representing the current state. See {@link TerracottaAndroidAPI} for state definitions.
-     * @throws IllegalStateException if Terracotta Android hasn't been initialized.
-     * @implNote Usually, this method doesn't take a long time to fetch states.
-     * However, when initializing the EasyTier, state fetching may block for ~1 seconds.
-     */
     public static String getState() {
         assertStarted();
         return getState0();
     }
 
-    /**
-     * <p>Set Terracotta Android into 'waiting' state.</p>
-     *
-     * @throws IllegalStateException if Terracotta Android hasn't been initialized.
-     * @implNote Usually, this method doesn't take a long time to fetch states.
-     * However, when initializing the EasyTier, state fetching may block for ~1 seconds.
-     */
     public static void setWaiting() {
         assertStarted();
         setWaiting0();
     }
 
-    /**
-     * <p>Set Terracotta Android into 'host-scanning' state.</p>
-     *
-     * @param room       the room code, which may be used if it's valid.
-     * @param player     the player's name. A default value will be taken if it's null.
-     * @param extraNodes extra public server nodes for EasyTier.
-     * @throws IllegalStateException if Terracotta Android hasn't been initialized.
-     * @implNote Usually, this method doesn't take a long time to fetch states.
-     * However, when initializing the EasyTier, state fetching may block for ~1 seconds.
-     */
     public static void setScanning(@Nullable String room, @Nullable String player, @Nullable List<String> extraNodes) {
         assertStarted();
         setScanning0(room, player, extraNodes == null ? null : String.join("\0", extraNodes));
     }
 
-    /**
-     * <p>Set Terracotta Android into 'guest-connecting' state.</p>
-     *
-     * @param room       the room code. False will be returned if it's invalid.
-     * @param player     the player's name. A default value will be taken if it's null.
-     * @param extraNodes extra public server nodes for EasyTier.
-     * @return True if room code is valid, false otherwise.
-     * @throws IllegalStateException if Terracotta Android hasn't been initialized.
-     * @throws NullPointerException  if room is null.
-     * @implNote Usually, this method doesn't take a long time to fetch states.
-     * However, when initializing the EasyTier, state fetching may block for ~1 seconds.
-     */
     public static boolean setGuesting(String room, @Nullable String player, @Nullable List<String> extraNodes) {
         Objects.requireNonNull(room, "room");
 
@@ -275,23 +159,10 @@ public final class TerracottaAndroidAPI {
         return setGuesting0(room, player, extraNodes == null ? null : String.join("\0", extraNodes));
     }
 
-    /**
-     * Room types supported by Terracotta Android
-     */
     public enum RoomType {
         TERRACOTTA_LEGACY, PCL2CE, SCAFFOLDING
     }
 
-    /**
-     * <p>Parse the given room code.</p>
-     *
-     * @param room A room code.
-     * @return The type of the room, or null if invalid.
-     * @throws NullPointerException if room is null
-     * @implNote Though this method is fast enough to be invoked in UI thread,
-     * dispatch all invocation to a separated worker is better in order to
-     * prevent potential UI freezing issues.
-     */
     public static RoomType parseRoomCode(String room) {
         Objects.requireNonNull(room, "room");
 
@@ -310,15 +181,6 @@ public final class TerracottaAndroidAPI {
         }
     }
 
-    /**
-     * <p>Collect logs of Terracotta Android.</p>
-     *
-     * <p>Developers must immediately copy all data out of the returned reader and close it.
-     * Otherwise all methods, except 'parseRoomCode', will be blocked.</p>
-     *
-     * @return A reader containing logs.
-     * @throws RuntimeException if logging export is unsupported.
-     */
     public static Reader collectLogs() throws IOException {
         assertStarted();
 
@@ -383,9 +245,6 @@ public final class TerracottaAndroidAPI {
         }, StandardCharsets.UTF_8));
     }
 
-    /**
-     * @deprecated This API is exposed for debug purpose.
-     */
     @Deprecated
     public static void panic() {
         panic0();
@@ -396,7 +255,7 @@ public final class TerracottaAndroidAPI {
     private static final long FD_REJECT = FD_PENDING + 1;
 
     @Keep
-    @SuppressWarnings("unused") // Native callback
+    @SuppressWarnings("unused")
     private static int onVpnServiceStateChanged(byte ip1, byte ip2, byte ip3, byte ip4, short network_length, String cidr) throws UnknownHostException {
         if (pendingRequest != null) {
             throw new AssertionError("Should NOT be here.");

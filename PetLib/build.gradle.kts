@@ -47,11 +47,6 @@ dependencies {
     implementation(libs.androidx.material3)
 }
 
-/*
- * Rust 交叉编译：经 cargo-ndk 构建 cdylib 并注入 jniLibs。
- * 需要本机安装 rustup、cargo-ndk（cargo install cargo-ndk），
- * 以及四个 Android target（rustup target add <triple>）。
- */
 val rustAbis = mapOf(
     "arm64-v8a" to "aarch64-linux-android",
     "armeabi-v7a" to "armv7-linux-androideabi",
@@ -119,7 +114,7 @@ val cargoBuild = tasks.register("cargoBuild") {
 
 androidComponents {
     onVariants { variant ->
-        // cargo-ndk 产物目录（build/petlib-jniLibs/<abi>/libpetlib.so）。
+
         variant.sources.jniLibs?.addStaticSourceDirectory(
             petlibJniLibs.get().asFile.apply { mkdirs() }.absolutePath
         )

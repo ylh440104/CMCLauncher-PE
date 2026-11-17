@@ -189,7 +189,7 @@ android {
     }
 
     compileOptions {
-        // sora-editor language-textmate
+
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -202,7 +202,7 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
-            //让 android.util.Log 等框架方法在本地单测中返回默认值而非抛出异常
+
             isReturnDefaultValues = true
         }
     }
@@ -283,7 +283,6 @@ androidComponents {
     }
 }
 
-
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
@@ -343,7 +342,7 @@ dependencies {
     implementation(libs.editor)
     implementation(libs.editor.language.textmate)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-    //Project
+
     implementation(project(":LayerController"))
     implementation(project(":ColorPicker"))
     implementation(project(":CardGrid"))
@@ -351,7 +350,7 @@ dependencies {
     implementation(project(":InputMap"))
     implementation(project(":Guide"))
     implementation(project(":PetLib"))
-    //Utils
+
     implementation(libs.bytehook)
     implementation(libs.gson)
     implementation(libs.jetbrains.annotations)
@@ -378,18 +377,18 @@ dependencies {
     implementation(libs.process.phoenix)
     implementation(libs.lunarcalendar)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-    //Safe
+
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.sqlcipher.android)
     ksp(libs.androidx.room.compiler)
-    //Support
+
     implementation(libs.proxy.client.android)
-    //Hilt
+
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    //Test
+
     testImplementation(libs.junit)
     testImplementation(libs.mockwebserver3)
     androidTestImplementation(libs.androidx.junit)

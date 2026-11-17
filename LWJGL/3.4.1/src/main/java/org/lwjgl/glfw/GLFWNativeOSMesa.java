@@ -7,7 +7,6 @@ import org.lwjgl.system.NativeType;
 
 import java.nio.IntBuffer;
 
-
 public class GLFWNativeOSMesa {
     @NativeType("int")
     public static boolean glfwGetOSMesaColorBuffer(@NativeType("GLFWwindow *") long window, @Nullable @NativeType("int *") IntBuffer width, @Nullable @NativeType("int *") IntBuffer height, @Nullable @NativeType("int *") IntBuffer format, @Nullable @NativeType("void **") PointerBuffer buffer) {

@@ -1,34 +1,3 @@
-/*
- * Copyright (c) 2002-2011 LWJGL Project
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- *
- * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
- * * Neither the name of 'LWJGL' nor the names of
- *   its contributors may be used to endorse or promote products derived
- *   from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package org.lwjgl.util.mapped;
 
 import static org.lwjgl.util.mapped.MappedObjectUnsafe.INSTANCE;
@@ -38,13 +7,6 @@ import org.lwjgl.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-/**
- * [INTERNAL USE ONLY]
- * <p/>
- * Helper class used by the bytecode transformer.
- *
- * @author Riven
- */
 public class MappedHelper {
 
 	public static void setup(MappedObject mo, ByteBuffer buffer, int align, int sizeof) {
@@ -112,7 +74,7 @@ public class MappedHelper {
 	}
 
 	public static MappedObject slice(MappedObject src, MappedObject dst) {
-		dst.baseAddress = src.viewAddress; // !
+		dst.baseAddress = src.viewAddress;
 		dst.viewAddress = src.viewAddress;
 		dst.preventGC = src.preventGC;
 		return dst;
@@ -130,10 +92,6 @@ public class MappedHelper {
 	public static ByteBuffer newBuffer(long address, int capacity) {
 		return MappedObjectUnsafe.newBuffer(address, capacity);
 	}
-
-	// ---- primitive fields read/write
-
-	// byte
 
 	public static void bput(byte value, long addr) {
 		INSTANCE.putByte(addr, value);
@@ -167,8 +125,6 @@ public class MappedHelper {
 		return INSTANCE.getByteVolatile(null, mapped.viewAddress + fieldOffset);
 	}
 
-	// short
-
 	public static void sput(short value, long addr) {
 		INSTANCE.putShort(addr, value);
 	}
@@ -200,8 +156,6 @@ public class MappedHelper {
 	public static short svget(MappedObject mapped, int fieldOffset) {
 		return INSTANCE.getShortVolatile(null, mapped.viewAddress + fieldOffset);
 	}
-
-	// char
 
 	public static void cput(char value, long addr) {
 		INSTANCE.putChar(addr, value);
@@ -235,8 +189,6 @@ public class MappedHelper {
 		return INSTANCE.getCharVolatile(null, mapped.viewAddress + fieldOffset);
 	}
 
-	// int
-
 	public static void iput(int value, long addr) {
 		INSTANCE.putInt(addr, value);
 	}
@@ -268,8 +220,6 @@ public class MappedHelper {
 	public static int ivget(MappedObject mapped, int fieldOffset) {
 		return INSTANCE.getIntVolatile(null, mapped.viewAddress + fieldOffset);
 	}
-
-	// float
 
 	public static void fput(float value, long addr) {
 		INSTANCE.putFloat(addr, value);
@@ -303,8 +253,6 @@ public class MappedHelper {
 		return INSTANCE.getFloatVolatile(null, mapped.viewAddress + fieldOffset);
 	}
 
-	// long
-
 	public static void jput(long value, long addr) {
 		INSTANCE.putLong(addr, value);
 	}
@@ -337,8 +285,6 @@ public class MappedHelper {
 		return INSTANCE.getLongVolatile(null, mapped.viewAddress + fieldOffset);
 	}
 
-	// address
-
 	public static void aput(long value, long addr) {
 		INSTANCE.putAddress(addr, value);
 	}
@@ -354,8 +300,6 @@ public class MappedHelper {
 	public static long aget(MappedObject mapped, int fieldOffset) {
 		return INSTANCE.getAddress(mapped.viewAddress + fieldOffset);
 	}
-
-	// double
 
 	public static void dput(double value, long addr) {
 		INSTANCE.putDouble(addr, value);

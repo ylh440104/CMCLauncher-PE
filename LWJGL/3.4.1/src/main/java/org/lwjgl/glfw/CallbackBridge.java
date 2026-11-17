@@ -25,26 +25,10 @@ public class CallbackBridge {
 
     public static boolean sGamepadDirectEnabled;
 
-    // TODO send grab state event to Android
-
     static {
         INPUT_DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty("glfwstub.debugInput", "false"));
 
-
-/*
-        if (isDebugEnabled) {
-            //try {
-                //debugEventStream = new PrintStream(new File(System.getProperty("user.dir"), "glfwstub_inputeventlog.txt"));
-		    debugEventStream = System.out;
-            //} catch (FileNotFoundException e) {
-            //    e.printStackTrace();
-            //}
-        }
-
-	    //Quick and dirty: debul all key inputs to System.out
-*/
     }
-
 
     public static void enableGamepadDirectInput() {
         if (sGamepadDirectEnabled) return;
@@ -64,4 +48,3 @@ public class CallbackBridge {
     public static native ByteBuffer nativeCreateGamepadAxisBuffer();
     public static native void nativeSetCursorShape(int shape);
 }
-

@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.cmclauncher.utils.file
 
 import org.apache.commons.codec.digest.MurmurHash2
@@ -38,7 +20,6 @@ class MurmurHash2IncrementalTest {
         println("Way 2 hash = $hash2")
     }
 
-    //Old
     private fun way1(file: File): Long {
         val baos = ByteArrayOutputStream()
         Files.newInputStream(file.toPath()).use { stream ->
@@ -60,9 +41,6 @@ class MurmurHash2IncrementalTest {
         return MurmurHash2Incremental.computeHash(file, byteToSkip = listOf(0x9, 0xa, 0xd, 0x20))
     }
 
-    /**
-     * 参考实现：过滤字节后交由 commons-codec 整体哈希
-     */
     private fun referenceHash(file: File, byteToSkip: List<Int>): Long {
         val baos = ByteArrayOutputStream()
         Files.newInputStream(file.toPath()).use { stream ->
@@ -84,7 +62,7 @@ class MurmurHash2IncrementalTest {
     fun computeHashMatchesReference() {
         val byteToSkip = listOf(0x9, 0xa, 0xd, 0x20)
         val random = Random(seed = 42)
-        //覆盖空文件、块边界前后、以及大量需要剔除的字节等场景
+
         val sizes = intArrayOf(0, 1, 3, 4, 5, 8191, 8192, 8193, 100_003)
 
         val dir = createTempDirectory("murmur2-test").toFile()

@@ -2,9 +2,6 @@ package com.movtery.colorpicker
 
 import androidx.compose.ui.graphics.Color
 
-/**
- * 在颜色渐变中，根据当前X坐标获取对应的颜色
- */
 internal fun List<Color>.getGradientColorAtPosition(x: Float, widthPx: Float): Color {
     if (this.isEmpty()) return Color.Black
     if (x <= 0f) return this.first()

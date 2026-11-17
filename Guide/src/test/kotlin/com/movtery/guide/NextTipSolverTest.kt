@@ -72,15 +72,14 @@ class NextTipSolverTest {
 
         val rect = tipRect(offset, margin)
         assertFalse(obstacles.any { rect.overlaps(it) })
-        // 网格采样（步长 = 提示尺寸一半）：左下角占用带上方的 (24, 664)
-        // 是全部空白候选中提示中心离屏幕中心 (500, 400) 最远者
+
         assertEquals(IntOffset(24, 664), offset)
     }
 
     @Test
     fun `全部不可用时回落左下角`() {
         val obstacles = listOf(
-            Rect(0f, 0f, 1000f, 800f) // 全屏障碍
+            Rect(0f, 0f, 1000f, 800f)
         )
 
         val offset = solveNextTip(tip, container, 24f, 16f, obstacles)
@@ -90,7 +89,7 @@ class NextTipSolverTest {
 
     @Test
     fun `外扩边距计入占用判定`() {
-        // 障碍物与左下角提示仅相距 8dp，小于 16dp 边距，视为占用
+
         val obstacle = Rect(24f, 700f, 400f, 704f)
         val offset = solveNextTip(tip, container, 24f, 16f, listOf(obstacle))
 

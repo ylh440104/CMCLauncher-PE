@@ -1,39 +1,5 @@
-/*
- * Copyright (c) 2002-2008 LWJGL Project
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- *
- * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
- * * Neither the name of 'LWJGL' nor the names of
- *   its contributors may be used to endorse or promote products derived
- *   from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package com.movtery.inputmap.keycodes;
 
-/**
- * @see <a href="https://github.com/LWJGL/lwjgl/blob/master/src/java/org/lwjgl/input/Keyboard.java">java.org.lwjgl.input.Keyboard</a>
- */
 public class Lwjgl2Keycode {
     public static final int KEY_NONE            = 0x00;
 
@@ -48,9 +14,9 @@ public class Lwjgl2Keycode {
     public static final int KEY_8               = 0x09;
     public static final int KEY_9               = 0x0A;
     public static final int KEY_0               = 0x0B;
-    public static final int KEY_MINUS           = 0x0C; /* - on main keyboard */
+    public static final int KEY_MINUS           = 0x0C;
     public static final int KEY_EQUALS          = 0x0D;
-    public static final int KEY_BACK            = 0x0E; /* backspace */
+    public static final int KEY_BACK            = 0x0E;
     public static final int KEY_TAB             = 0x0F;
     public static final int KEY_Q               = 0x10;
     public static final int KEY_W               = 0x11;
@@ -64,7 +30,7 @@ public class Lwjgl2Keycode {
     public static final int KEY_P               = 0x19;
     public static final int KEY_LBRACKET        = 0x1A;
     public static final int KEY_RBRACKET        = 0x1B;
-    public static final int KEY_RETURN          = 0x1C; /* Enter on main keyboard */
+    public static final int KEY_RETURN          = 0x1C;
     public static final int KEY_LCONTROL        = 0x1D;
     public static final int KEY_A               = 0x1E;
     public static final int KEY_S               = 0x1F;
@@ -77,7 +43,7 @@ public class Lwjgl2Keycode {
     public static final int KEY_L               = 0x26;
     public static final int KEY_SEMICOLON       = 0x27;
     public static final int KEY_APOSTROPHE      = 0x28;
-    public static final int KEY_GRAVE           = 0x29; /* accent grave */
+    public static final int KEY_GRAVE           = 0x29;
     public static final int KEY_LSHIFT          = 0x2A;
     public static final int KEY_BACKSLASH       = 0x2B;
     public static final int KEY_Z               = 0x2C;
@@ -88,11 +54,11 @@ public class Lwjgl2Keycode {
     public static final int KEY_N               = 0x31;
     public static final int KEY_M               = 0x32;
     public static final int KEY_COMMA           = 0x33;
-    public static final int KEY_PERIOD          = 0x34; /* . on main keyboard */
-    public static final int KEY_SLASH           = 0x35; /* / on main keyboard */
+    public static final int KEY_PERIOD          = 0x34;
+    public static final int KEY_SLASH           = 0x35;
     public static final int KEY_RSHIFT          = 0x36;
-    public static final int KEY_MULTIPLY        = 0x37; /* * on numeric keypad */
-    public static final int KEY_LMENU           = 0x38; /* left Alt */
+    public static final int KEY_MULTIPLY        = 0x37;
+    public static final int KEY_LMENU           = 0x38;
     public static final int KEY_SPACE           = 0x39;
     public static final int KEY_CAPITAL         = 0x3A;
     public static final int KEY_F1              = 0x3B;
@@ -106,79 +72,71 @@ public class Lwjgl2Keycode {
     public static final int KEY_F9              = 0x43;
     public static final int KEY_F10             = 0x44;
     public static final int KEY_NUMLOCK         = 0x45;
-    public static final int KEY_SCROLL          = 0x46; /* Scroll Lock */
+    public static final int KEY_SCROLL          = 0x46;
     public static final int KEY_NUMPAD7         = 0x47;
     public static final int KEY_NUMPAD8         = 0x48;
     public static final int KEY_NUMPAD9         = 0x49;
-    public static final int KEY_SUBTRACT        = 0x4A; /* - on numeric keypad */
+    public static final int KEY_SUBTRACT        = 0x4A;
     public static final int KEY_NUMPAD4         = 0x4B;
     public static final int KEY_NUMPAD5         = 0x4C;
     public static final int KEY_NUMPAD6         = 0x4D;
-    public static final int KEY_ADD             = 0x4E; /* + on numeric keypad */
+    public static final int KEY_ADD             = 0x4E;
     public static final int KEY_NUMPAD1         = 0x4F;
     public static final int KEY_NUMPAD2         = 0x50;
     public static final int KEY_NUMPAD3         = 0x51;
     public static final int KEY_NUMPAD0         = 0x52;
-    public static final int KEY_DECIMAL         = 0x53; /* . on numeric keypad */
+    public static final int KEY_DECIMAL         = 0x53;
     public static final int KEY_F11             = 0x57;
     public static final int KEY_F12             = 0x58;
-    public static final int KEY_F13             = 0x64; /*                     (NEC PC98) */
-    public static final int KEY_F14             = 0x65; /*                     (NEC PC98) */
-    public static final int KEY_F15             = 0x66; /*                     (NEC PC98) */
-    public static final int KEY_F16             = 0x67; /* Extended Function keys - (Mac) */
+    public static final int KEY_F13             = 0x64;
+    public static final int KEY_F14             = 0x65;
+    public static final int KEY_F15             = 0x66;
+    public static final int KEY_F16             = 0x67;
     public static final int KEY_F17             = 0x68;
     public static final int KEY_F18             = 0x69;
-    public static final int KEY_KANA            = 0x70; /* (Japanese keyboard)            */
-    public static final int KEY_F19             = 0x71; /* Extended Function keys - (Mac) */
-    public static final int KEY_CONVERT         = 0x79; /* (Japanese keyboard)            */
-    public static final int KEY_NOCONVERT       = 0x7B; /* (Japanese keyboard)            */
-    public static final int KEY_YEN             = 0x7D; /* (Japanese keyboard)            */
-    public static final int KEY_NUMPADEQUALS    = 0x8D; /* = on numeric keypad (NEC PC98) */
-    public static final int KEY_CIRCUMFLEX      = 0x90; /* (Japanese keyboard)            */
-    public static final int KEY_AT              = 0x91; /*                     (NEC PC98) */
-    public static final int KEY_COLON           = 0x92; /*                     (NEC PC98) */
-    public static final int KEY_UNDERLINE       = 0x93; /*                     (NEC PC98) */
-    public static final int KEY_KANJI           = 0x94; /* (Japanese keyboard)            */
-    public static final int KEY_STOP            = 0x95; /*                     (NEC PC98) */
-    public static final int KEY_AX              = 0x96; /*                     (Japan AX) */
-    public static final int KEY_UNLABELED       = 0x97; /*                        (J3100) */
-    public static final int KEY_NUMPADENTER     = 0x9C; /* Enter on numeric keypad */
+    public static final int KEY_KANA            = 0x70;
+    public static final int KEY_F19             = 0x71;
+    public static final int KEY_CONVERT         = 0x79;
+    public static final int KEY_NOCONVERT       = 0x7B;
+    public static final int KEY_YEN             = 0x7D;
+    public static final int KEY_NUMPADEQUALS    = 0x8D;
+    public static final int KEY_CIRCUMFLEX      = 0x90;
+    public static final int KEY_AT              = 0x91;
+    public static final int KEY_COLON           = 0x92;
+    public static final int KEY_UNDERLINE       = 0x93;
+    public static final int KEY_KANJI           = 0x94;
+    public static final int KEY_STOP            = 0x95;
+    public static final int KEY_AX              = 0x96;
+    public static final int KEY_UNLABELED       = 0x97;
+    public static final int KEY_NUMPADENTER     = 0x9C;
     public static final int KEY_RCONTROL        = 0x9D;
-    public static final int KEY_SECTION         = 0xA7; /* Section symbol (Mac) */
-    public static final int KEY_NUMPADCOMMA     = 0xB3; /* , on numeric keypad (NEC PC98) */
-    public static final int KEY_DIVIDE          = 0xB5; /* / on numeric keypad */
+    public static final int KEY_SECTION         = 0xA7;
+    public static final int KEY_NUMPADCOMMA     = 0xB3;
+    public static final int KEY_DIVIDE          = 0xB5;
     public static final int KEY_SYSRQ           = 0xB7;
-    public static final int KEY_RMENU           = 0xB8; /* right Alt */
-    public static final int KEY_FUNCTION        = 0xC4; /* Function (Mac) */
-    public static final int KEY_PAUSE           = 0xC5; /* Pause */
-    public static final int KEY_HOME            = 0xC7; /* Home on arrow keypad */
-    public static final int KEY_UP              = 0xC8; /* UpArrow on arrow keypad */
-    public static final int KEY_PRIOR           = 0xC9; /* PgUp on arrow keypad */
-    public static final int KEY_LEFT            = 0xCB; /* LeftArrow on arrow keypad */
-    public static final int KEY_RIGHT           = 0xCD; /* RightArrow on arrow keypad */
-    public static final int KEY_END             = 0xCF; /* End on arrow keypad */
-    public static final int KEY_DOWN            = 0xD0; /* DownArrow on arrow keypad */
-    public static final int KEY_NEXT            = 0xD1; /* PgDn on arrow keypad */
-    public static final int KEY_INSERT          = 0xD2; /* Insert on arrow keypad */
-    public static final int KEY_DELETE          = 0xD3; /* Delete on arrow keypad */
-    public static final int KEY_CLEAR           = 0xDA; /* Clear key (Mac) */
-    public static final int KEY_LMETA           = 0xDB; /* Left Windows/Option key */
-    /**
-     * The left windows key, mapped to KEY_LMETA
-     *
-     * @deprecated Use KEY_LMETA instead
-     */
+    public static final int KEY_RMENU           = 0xB8;
+    public static final int KEY_FUNCTION        = 0xC4;
+    public static final int KEY_PAUSE           = 0xC5;
+    public static final int KEY_HOME            = 0xC7;
+    public static final int KEY_UP              = 0xC8;
+    public static final int KEY_PRIOR           = 0xC9;
+    public static final int KEY_LEFT            = 0xCB;
+    public static final int KEY_RIGHT           = 0xCD;
+    public static final int KEY_END             = 0xCF;
+    public static final int KEY_DOWN            = 0xD0;
+    public static final int KEY_NEXT            = 0xD1;
+    public static final int KEY_INSERT          = 0xD2;
+    public static final int KEY_DELETE          = 0xD3;
+    public static final int KEY_CLEAR           = 0xDA;
+    public static final int KEY_LMETA           = 0xDB;
+
     @Deprecated
-    public static final int KEY_LWIN            = KEY_LMETA; /* Left Windows key */
-    public static final int KEY_RMETA            = 0xDC; /* Right Windows/Option key */
-    /**
-     * The right windows key, mapped to KEY_RMETA
-     *
-     * @deprecated Use KEY_RMETA instead
-     */
+    public static final int KEY_LWIN            = KEY_LMETA;
+    public static final int KEY_RMETA            = 0xDC;
+
     @Deprecated
-    public static final int KEY_RWIN            = KEY_RMETA; /* Right Windows key */
-    public static final int KEY_APPS            = 0xDD; /* AppMenu key */
+    public static final int KEY_RWIN            = KEY_RMETA;
+    public static final int KEY_APPS            = 0xDD;
     public static final int KEY_POWER           = 0xDE;
     public static final int KEY_SLEEP           = 0xDF;
 
@@ -244,8 +202,8 @@ public class Lwjgl2Keycode {
             case KEY_DELETE: return LwjglGlfwKeycode.GLFW_KEY_DELETE;
             case KEY_HOME: return LwjglGlfwKeycode.GLFW_KEY_HOME;
             case KEY_END: return LwjglGlfwKeycode.GLFW_KEY_END;
-            case KEY_PRIOR: return LwjglGlfwKeycode.GLFW_KEY_PAGE_UP;   // PageUp
-            case KEY_NEXT: return LwjglGlfwKeycode.GLFW_KEY_PAGE_DOWN;  // PageDown
+            case KEY_PRIOR: return LwjglGlfwKeycode.GLFW_KEY_PAGE_UP;
+            case KEY_NEXT: return LwjglGlfwKeycode.GLFW_KEY_PAGE_DOWN;
 
             case KEY_UP: return LwjglGlfwKeycode.GLFW_KEY_UP;
             case KEY_DOWN: return LwjglGlfwKeycode.GLFW_KEY_DOWN;
@@ -278,8 +236,8 @@ public class Lwjgl2Keycode {
             case KEY_RCONTROL: return LwjglGlfwKeycode.GLFW_KEY_RIGHT_CONTROL;
             case KEY_LMENU: return LwjglGlfwKeycode.GLFW_KEY_LEFT_ALT;
             case KEY_RMENU: return LwjglGlfwKeycode.GLFW_KEY_RIGHT_ALT;
-            case KEY_LMETA: return LwjglGlfwKeycode.GLFW_KEY_LEFT_SUPER;   // Win / Meta
-            case KEY_RMETA: return LwjglGlfwKeycode.GLFW_KEY_RIGHT_SUPER;  // Win / Meta
+            case KEY_LMETA: return LwjglGlfwKeycode.GLFW_KEY_LEFT_SUPER;
+            case KEY_RMETA: return LwjglGlfwKeycode.GLFW_KEY_RIGHT_SUPER;
 
             case KEY_CAPITAL: return LwjglGlfwKeycode.GLFW_KEY_CAPS_LOCK;
             case KEY_NUMLOCK: return LwjglGlfwKeycode.GLFW_KEY_NUM_LOCK;
@@ -393,8 +351,8 @@ public class Lwjgl2Keycode {
             case KEY_DELETE: return ControlEventKeycode.GLFW_KEY_DELETE;
             case KEY_HOME: return ControlEventKeycode.GLFW_KEY_HOME;
             case KEY_END: return ControlEventKeycode.GLFW_KEY_END;
-            case KEY_PRIOR: return ControlEventKeycode.GLFW_KEY_PAGE_UP;   // PageUp
-            case KEY_NEXT: return ControlEventKeycode.GLFW_KEY_PAGE_DOWN;  // PageDown
+            case KEY_PRIOR: return ControlEventKeycode.GLFW_KEY_PAGE_UP;
+            case KEY_NEXT: return ControlEventKeycode.GLFW_KEY_PAGE_DOWN;
 
             case KEY_UP: return ControlEventKeycode.GLFW_KEY_UP;
             case KEY_DOWN: return ControlEventKeycode.GLFW_KEY_DOWN;
@@ -427,8 +385,8 @@ public class Lwjgl2Keycode {
             case KEY_RCONTROL: return ControlEventKeycode.GLFW_KEY_RIGHT_CONTROL;
             case KEY_LMENU: return ControlEventKeycode.GLFW_KEY_LEFT_ALT;
             case KEY_RMENU: return ControlEventKeycode.GLFW_KEY_RIGHT_ALT;
-            case KEY_LMETA: return ControlEventKeycode.GLFW_KEY_LEFT_SUPER;   // Win / Meta
-            case KEY_RMETA: return ControlEventKeycode.GLFW_KEY_RIGHT_SUPER;  // Win / Meta
+            case KEY_LMETA: return ControlEventKeycode.GLFW_KEY_LEFT_SUPER;
+            case KEY_RMETA: return ControlEventKeycode.GLFW_KEY_RIGHT_SUPER;
 
             case KEY_CAPITAL: return ControlEventKeycode.GLFW_KEY_CAPS_LOCK;
             case KEY_NUMLOCK: return ControlEventKeycode.GLFW_KEY_NUM_LOCK;

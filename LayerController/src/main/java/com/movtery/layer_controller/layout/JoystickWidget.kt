@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.layer_controller.layout
 
 import androidx.compose.foundation.Canvas
@@ -73,9 +55,6 @@ import com.movtery.layer_controller.utils.editMode
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.SnapMode
 
-/**
- * 摇杆控件渲染组件
- */
 @Composable
 internal fun JoystickWidgetRenderer(
     data: ObservableJoystickData,
@@ -101,7 +80,6 @@ internal fun JoystickWidgetRenderer(
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
 
-    // 获取样式
     val joystickStyle = data.joystickStyleId?.let { id ->
         joystickStyles.find { it.uuid == id }
     }
@@ -112,9 +90,6 @@ internal fun JoystickWidgetRenderer(
         joystickStyle?.darkStyle ?: DefaultObservableJoystickStyle.darkStyle
     }
 
-    //已经经过验证，如果使用Modifier.alpha设置不透明度，会导致摇杆强制裁切超出范围的内容
-    //graphicsLayer(alpha = alpha, clip = false)也一样
-    //这里暂时只能统一修改颜色的alpha
     val alpha = themeConfig.alpha
     val currentBackgroundColor = remember(themeConfig.backgroundColor, alpha) {
         themeConfig.backgroundColor.applyAlpha(alpha)
@@ -135,7 +110,6 @@ internal fun JoystickWidgetRenderer(
         themeConfig.borderColor.applyAlpha(alpha)
     }
 
-    // 形状
     val backgroundShape = remember(themeConfig.backgroundShape) {
         if (themeConfig.backgroundShape == 50) CircleShape
         else RoundedCornerShape(percent = themeConfig.backgroundShape)
@@ -145,20 +119,16 @@ internal fun JoystickWidgetRenderer(
         else RoundedCornerShape(percent = themeConfig.joystickShape)
     }
 
-    // 边框宽度比例
     val borderWidthRatio = remember(themeConfig.borderWidthRatio) {
         (themeConfig.borderWidthRatio.toFloat() / 100f).coerceIn(0.0f, 0.5f)
     }
 
-    // 摇杆头大小
     val joystickSizeRatio = remember(themeConfig.joystickSize) {
         themeConfig.joystickSize.coerceIn(0.0f, 1.0f)
     }
 
-    // 当大小变化时重新初始化
     var currentSize by remember { mutableStateOf(IntSize.Zero) }
 
-    // 缓存绘制对象，拖动摇杆导致的连续重绘不再重复创建轮廓与路径
     val drawCache = remember(
         backgroundShape, joystickShape, currentSize,
         borderWidthRatio, joystickSizeRatio, layoutDirection, density
@@ -179,7 +149,6 @@ internal fun JoystickWidgetRenderer(
         }
     }
 
-    // 当形状变化时重新计算区域
     LaunchedEffect(backgroundShape) {
         if (visible && currentSize != IntSize.Zero) {
             val sizePx = Size(currentSize.width.toFloat(), currentSize.height.toFloat())
@@ -197,7 +166,7 @@ internal fun JoystickWidgetRenderer(
                 .onSizeChanged { size ->
                     currentSize = size
                     if (size != IntSize.Zero) {
-                        // 计算并设置背景区域
+
                         val sizePx = Size(size.width.toFloat(), size.height.toFloat())
                         data.backgroundRegion = backgroundShape.toRegion(
                             size = sizePx,
@@ -242,14 +211,12 @@ internal fun JoystickWidgetRenderer(
                 val cache = drawCache ?: return@Canvas
                 val bgCenter = Offset(size.width / 2f, size.height / 2f)
 
-                // 背景层
                 drawBackgroundLayer(
                     cache = cache,
                     backgroundColor = currentBackgroundColor,
                     borderColor = currentBorderColor
                 )
 
-                // 摇杆头
                 drawJoystick(
                     outline = cache.knobOutline,
                     color = when {
@@ -264,7 +231,6 @@ internal fun JoystickWidgetRenderer(
                     size = cache.knobSize
                 )
 
-                // 绘制锁定标记
                 if (data.isLocked) {
                     drawCircle(
                         color = currentLockMarkColor,
@@ -292,9 +258,6 @@ internal fun JoystickWidgetRenderer(
     }
 }
 
-/**
- * 绘制背景层
- */
 private fun DrawScope.drawBackgroundLayer(
     cache: DrawCache,
     backgroundColor: Color,
@@ -316,9 +279,6 @@ private fun DrawScope.drawBackgroundLayer(
     }
 }
 
-/**
- * 绘制摇杆层
- */
 private fun DrawScope.drawJoystick(
     outline: Outline,
     color: Color,
@@ -336,9 +296,6 @@ private fun DrawScope.drawJoystick(
     }
 }
 
-/**
- * 缓存的绘制对象
- */
 private class DrawCache(
     val backgroundOutline: Outline,
     val backgroundClipPath: Path,

@@ -1,34 +1,3 @@
-/*
- * Copyright (c) 2002-2011 LWJGL Project
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- *
- * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
- * * Neither the name of 'LWJGL' nor the names of
- *   its contributors may be used to endorse or promote products derived
- *   from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package org.lwjgl.util.mapped;
 
 import static org.objectweb.asm.ClassWriter.*;
@@ -73,18 +42,6 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * This class implements the bytecode transformation that mapped object go through.
- * Mapped object classes need to first be registered with the transformer, see {@link #register(Class)}.
- * <p/>
- * The transformer supports some debugging tools, enabled through JVM system properties:<br/>
- * org.lwjgl.util.mapped.PrintTiming=true, prints timing information for the transformation step.<br/>
- * org.lwjgl.util.mapped.PrintActivity=true, prints activity information.<br/>
- * org.lwjgl.util.mapped.PrintBytecode=true, prints the transformed bytecode.<br/>
- * org.lwjgl.util.Debug must also be set to true for the above to work.
- *
- * @author Riven
- */
 public class MappedObjectTransformer {
 
 	static final boolean PRINT_ACTIVITY = LWJGLUtil.DEBUG && LWJGLUtil.getPrivilegedBoolean("org.lwjgl.util.mapped.PrintActivity");
@@ -103,15 +60,13 @@ public class MappedObjectTransformer {
 
 	static final String CACHE_LINE_PAD_JVM = "L" + jvmClassName(CacheLinePad.class) + ";";
 
-	// Public methods
 	static final String VIEWADDRESS_METHOD_NAME = "getViewAddress";
 	static final String NEXT_METHOD_NAME        = "next";
 	static final String ALIGN_METHOD_NAME       = "getAlign";
 	static final String SIZEOF_METHOD_NAME      = "getSizeof";
-	static final String CAPACITY_METHOD_NAME    = "capacity"; // Used for .asArray().length
+	static final String CAPACITY_METHOD_NAME    = "capacity";
 
-	// Internal methods
-	static final String VIEW_CONSTRUCTOR_NAME = "constructView$LWJGL"; // Used by runViewConstructor
+	static final String VIEW_CONSTRUCTOR_NAME = "constructView$LWJGL";
 
 	static final Map<Integer, String> OPCODE_TO_NAME   = new HashMap<Integer, String>();
 	static final Map<Integer, String> INSNTYPE_TO_NAME = new HashMap<Integer, String>();
@@ -125,20 +80,7 @@ public class MappedObjectTransformer {
 		className_to_subtype = new HashMap<String, MappedSubtypeInfo>();
 
 		{
-			// HACK: required for mapped.view++
-			//
-			// because the compiler generates:
-			// => GETFIELD MappedObject.view
-			// => ICONST_1
-			// => IADD
-			// => PUTFIELD MyMappedType.view
-			//
-			// instead of:
-			// => GETFIELD MyMappedType.view
-			// => ICONST_1
-			// => IADD
-			// => PUTFIELD MyMappedType.view
-			//
+
 			className_to_subtype.put(MAPPED_OBJECT_JVM, new MappedSubtypeInfo(MAPPED_OBJECT_JVM, null, -1, -1, -1, false));
 		}
 
@@ -148,12 +90,6 @@ public class MappedObjectTransformer {
 		}
 	}
 
-	/**
-	 * Registers a class as a mapped object.
-	 * The class must extend {@link MappedObject} and be annotated with {@link MappedField}.
-	 *
-	 * @param type the mapped object class.
-	 */
 	public static void register(Class<? extends MappedObject> type) {
 		if ( MappedObjectClassLoader.FORKED )
 			return;
@@ -207,10 +143,9 @@ public class MappedObjectTransformer {
 	}
 
 	private static FieldInfo registerField(final boolean autoGenerateOffsets, final String className, long advancingOffset, final Field field) {
-		if ( Modifier.isStatic(field.getModifiers()) ) // static fields are never mapped
+		if ( Modifier.isStatic(field.getModifiers()) )
 			return null;
 
-		// we only support primitives and ByteBuffers
 		if ( !field.getType().isPrimitive() && field.getType() != ByteBuffer.class )
 			throw new ClassFormatError("field '" + className + "." + field.getName() + "' not supported: " + field.getType());
 
@@ -225,7 +160,6 @@ public class MappedObjectTransformer {
 		if ( Modifier.isVolatile(field.getModifiers()) && (pointer != null || field.getType() == ByteBuffer.class) )
 			throw new ClassFormatError("The volatile keyword is not supported for @Pointer or ByteBuffer fields. Volatile field found: " + className + "." + field.getName() + ": " + field.getType());
 
-		// quick hack
 		long byteLength;
 		if ( field.getType() == long.class || field.getType() == double.class ) {
 			if ( pointer == null )
@@ -264,11 +198,10 @@ public class MappedObjectTransformer {
 
 		long byteLengthPadded = byteLength;
 		if ( pad != null ) {
-			// Pad before
+
 			if ( pad.before() && byteOffset % CacheUtil.getCacheLineSize() != 0 )
 				byteOffset += CacheUtil.getCacheLineSize() - (byteOffset & (CacheUtil.getCacheLineSize() - 1));
 
-			// Pad after
 			if ( pad.after() && (byteOffset + byteLength) % CacheUtil.getCacheLineSize() != 0 )
 				byteLengthPadded += CacheUtil.getCacheLineSize() - (byteOffset + byteLength) % CacheUtil.getCacheLineSize();
 
@@ -282,7 +215,6 @@ public class MappedObjectTransformer {
 		return new FieldInfo(byteOffset, byteLength, byteLengthPadded, Type.getType(field.getType()), Modifier.isVolatile(field.getModifiers()), pointer != null);
 	}
 
-	/** Removes final from methods that will be overriden by subclasses. */
 	static byte[] transformMappedObject(byte[] bytecode) {
 		final ClassWriter cw = new ClassWriter(0);
 
@@ -316,7 +248,7 @@ public class MappedObjectTransformer {
 
 			@Override
 			protected String getCommonSuperClass(String a, String b) {
-				// HACK: prevent user-code static-initialization-blocks to be executed
+
 				if ( is_currently_computing_frames && !a.startsWith("java/") || !b.startsWith("java/") )
 					return "java/lang/Object";
 
@@ -328,7 +260,7 @@ public class MappedObjectTransformer {
 		final TransformationAdapter ta = new TransformationAdapter(cw, className);
 
 		ClassVisitor cv = ta;
-		if ( className_to_subtype.containsKey(className) ) // Do a first pass to generate address getters
+		if ( className_to_subtype.containsKey(className) )
 			cv = getMethodGenAdapter(className, cv);
 
 		new ClassReader(bytecode).accept(cv, ClassReader.SKIP_FRAMES);
@@ -359,7 +291,7 @@ public class MappedObjectTransformer {
 				for ( String fieldName : mappedSubtype.fields.keySet() ) {
 					final FieldInfo field = mappedSubtype.fields.get(fieldName);
 
-					if ( field.type.getDescriptor().length() > 1 ) {  // ByteBuffer, getter only
+					if ( field.type.getDescriptor().length() > 1 ) {
 						generateByteBufferGetter(fieldName, field);
 					} else {
 						generateFieldGetter(fieldName, field);
@@ -391,7 +323,7 @@ public class MappedObjectTransformer {
 			}
 
 			private void generateCapacity() {
-				// return (backingByteBuffer().capacity() + (int)(MemoryUtil.getAddress0(backingByteBuffer()) - baseAddress)) / SIZEOF;
+
 				MethodVisitor mv = super.visitMethod(ACC_PUBLIC, CAPACITY_METHOD_NAME, "()I", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(ALOAD, 0);
@@ -527,7 +459,7 @@ public class MappedObjectTransformer {
 
 		@Override
 		public FieldVisitor visitField(final int access, final String name, final String desc, final String signature, final Object value) {
-			// remove redirected fields
+
 			final MappedSubtypeInfo mappedSubtype = className_to_subtype.get(className);
 			if ( mappedSubtype != null && mappedSubtype.fields.containsKey(name) ) {
 				if ( PRINT_ACTIVITY )
@@ -538,7 +470,7 @@ public class MappedObjectTransformer {
 			if ( (access & ACC_STATIC) == 0 ) {
 				return new FieldNode(access, name, desc, signature, value) {
 					public void visitEnd() {
-						if ( visibleAnnotations == null ) { // early-out
+						if ( visibleAnnotations == null ) {
 							accept(cv);
 							return;
 						}
@@ -575,14 +507,6 @@ public class MappedObjectTransformer {
 							}
 						}
 
-						/*
-							We make the fields public to force the JVM to keep the fields in the object.
-							Instead of using only longs or integers, we use the same type as the original
-							field. That's because modern JVMs usually reorder fields by type:
-							longs, then doubles, then integers, then booleans, etc. This way it's more
-							likely that the padding will work as expected.
-						 */
-
 						if ( before ) {
 							final int count = CacheUtil.getCacheLineSize() / byteLength - 1;
 							for ( int i = count; i >= 1; i-- )
@@ -604,7 +528,7 @@ public class MappedObjectTransformer {
 
 		@Override
 		public MethodVisitor visitMethod(final int access, String name, final String desc, final String signature, final String[] exceptions) {
-			// Move MappedSubtype constructors to another method
+
 			if ( "<init>".equals(name) ) {
 				final MappedSubtypeInfo mappedSubtype = className_to_subtype.get(className);
 				if ( mappedSubtype != null ) {
@@ -617,7 +541,6 @@ public class MappedObjectTransformer {
 					mv.visitInsn(RETURN);
 					mv.visitMaxs(0, 0);
 
-					// put the method body in another method
 					name = VIEW_CONSTRUCTOR_NAME;
 				}
 			}
@@ -625,8 +548,6 @@ public class MappedObjectTransformer {
 			final MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 			return new MethodNode(access, name, desc, signature, exceptions) {
 
-				/** When true, the method has touched a mapped object and needs to be transformed. We track this
-				 * so we can skip the expensive frame analysis and tree API usage. */
 				boolean needsTransformation;
 
 				@Override
@@ -657,8 +578,8 @@ public class MappedObjectTransformer {
 
 				@Override
 				public void visitEnd() {
-					if ( needsTransformation ) { // Early-out for methods that do not touch a mapped object.
-						//System.err.println("\nTRANSFORMING: " + className + "." + name + desc);
+					if ( needsTransformation ) {
+
 						transformed = true;
 						try {
 							transformMethod(analyse());
@@ -667,7 +588,6 @@ public class MappedObjectTransformer {
 						}
 					}
 
-					// Pass the instruction stream to the adapter's MethodVisitor
 					accept(mv);
 				}
 
@@ -682,19 +602,12 @@ public class MappedObjectTransformer {
 
 					final Map<Integer, MappedSubtypeInfo> arrayVars = new HashMap<Integer, MappedSubtypeInfo>();
 
-					/*
-					We need this map because we insert/remove instructions from the stream and we need a way
-					to match each original instruction with the corresponding frame.
-					TODO: Can we keep track of everything more efficiently without a map?
-					 */
 					final Map<AbstractInsnNode, Frame<BasicValue>> frameMap = new HashMap<AbstractInsnNode, Frame<BasicValue>>();
 					for ( int i = 0; i < frames.length; i++ )
 						frameMap.put(instructions.get(i), frames[i]);
 
-					for ( int i = 0; i < instructions.size(); i++ ) { // f is a separate cursor for frames
+					for ( int i = 0; i < instructions.size(); i++ ) {
 						final AbstractInsnNode instruction = instructions.get(i);
-
-						//System.out.println("MAIN LOOP #" + i + " - " + getOpcodeName(instruction));
 
 						switch ( instruction.getType() ) {
 							case AbstractInsnNode.VAR_INSN:
@@ -730,9 +643,7 @@ public class MappedObjectTransformer {
 		switch ( methodInsn.getOpcode() ) {
 			case INVOKEVIRTUAL:
 				if ( "asArray".equals(methodInsn.name) && methodInsn.desc.equals("()[L" + MAPPED_OBJECT_JVM + ";") ) {
-					// Go forward and store the local variable index.
-					// We only allow this pattern: INVOKEVIRTUAL -> CHECKCAST -> ASTORE.
-					// We remove the first two and store the target MappedSubtype in the ASTORE variable
+
 					AbstractInsnNode nextInstruction;
 					checkInsnAfterIsArray(nextInstruction = methodInsn.getNext(), CHECKCAST);
 					checkInsnAfterIsArray(nextInstruction = nextInstruction.getNext(), ASTORE);
@@ -740,12 +651,7 @@ public class MappedObjectTransformer {
 					final Frame<BasicValue> frame = frameMap.get(nextInstruction);
 					final String targetType = frame.getStack(frame.getStackSize() - 1).getType().getElementType().getInternalName();
 					if ( !methodInsn.owner.equals(targetType) ) {
-						/*
-						This may happen with the current API, like so:
-							MappedA foo = MappedA.malloc(...);
-							MappedB[] cursor = foo.asArray();
-						We have to parameterize MappedObject to avoid this.
-						 */
+
 						throw new ClassCastException("Source: " + methodInsn.owner + " - Target: " + targetType);
 					}
 
@@ -753,8 +659,8 @@ public class MappedObjectTransformer {
 
 					arrayVars.put(varInstruction.var, mappedType);
 
-					instructions.remove(methodInsn.getNext()); // Remove CHECKCAST
-					instructions.remove(methodInsn); // Remove INVOKEVIRTUAL
+					instructions.remove(methodInsn.getNext());
+					instructions.remove(methodInsn);
 				}
 
 				if ( "dup".equals(methodInsn.name) && methodInsn.desc.equals("()L" + MAPPED_OBJECT_JVM + ";") ) {
@@ -784,10 +690,10 @@ public class MappedObjectTransformer {
 
 				break;
 			case INVOKESPECIAL:
-				// super() in VIEW_CONSTRUCTOR_NAME, remove
+
 				if ( methodInsn.owner.equals(MAPPED_OBJECT_JVM) && "<init>".equals(methodInsn.name) && "()V".equals(methodInsn.desc) ) {
-					instructions.remove(methodInsn.getPrevious()); // ALOAD
-					instructions.remove(methodInsn); // INVOKESPECIAL
+					instructions.remove(methodInsn.getPrevious());
+					instructions.remove(methodInsn);
 
 					i -= 2;
 				}
@@ -808,13 +714,11 @@ public class MappedObjectTransformer {
 	private static InsnList generateCopyRangeInstructions(final MappedSubtypeInfo mappedType) {
 		final InsnList list = new InsnList();
 
-		// stack: instances, target, this
 		list.add(getIntNode(mappedType.sizeof));
-		// stack: sizeof, instances, target, this
+
 		list.add(new InsnNode(IMUL));
-		// stack: bytes, target, this
+
 		list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "copy", "(L" + MAPPED_OBJECT_JVM + ";L" + MAPPED_OBJECT_JVM + ";I)V"));
-		// stack: -
 
 		return list;
 	}
@@ -822,11 +726,9 @@ public class MappedObjectTransformer {
 	private static InsnList generateCopyToInstructions(final MappedSubtypeInfo mappedType) {
 		final InsnList list = new InsnList();
 
-		// stack: target, this
 		list.add(getIntNode(mappedType.sizeof - mappedType.padding));
-		// stack: sizeof, target, this
+
 		list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "copy", "(L" + MAPPED_OBJECT_JVM + ";L" + MAPPED_OBJECT_JVM + ";I)V"));
-		// stack: -
 
 		return list;
 	}
@@ -834,11 +736,9 @@ public class MappedObjectTransformer {
 	private static InsnList generateRunViewConstructorInstructions(final MethodInsnNode methodInsn) {
 		final InsnList list = new InsnList();
 
-		// stack: this
 		list.add(new InsnNode(DUP));
-		// stack: this, this
+
 		list.add(new MethodInsnNode(INVOKEVIRTUAL, methodInsn.owner, VIEW_CONSTRUCTOR_NAME, "()V"));
-		// stack: this
 
 		return list;
 	}
@@ -846,15 +746,13 @@ public class MappedObjectTransformer {
 	private static InsnList generateSliceInstructions(final MethodInsnNode methodInsn) {
 		final InsnList list = new InsnList();
 
-		// stack: this
 		list.add(new TypeInsnNode(NEW, methodInsn.owner));
-		// stack: new, this
+
 		list.add(new InsnNode(DUP));
-		// stack: new, new, this
+
 		list.add(new MethodInsnNode(INVOKESPECIAL, methodInsn.owner, "<init>", "()V"));
-		// stack: new, this
+
 		list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "slice", "(L" + MAPPED_OBJECT_JVM + ";L" + MAPPED_OBJECT_JVM + ";)L" + MAPPED_OBJECT_JVM + ";"));
-		// stack: new
 
 		return list;
 	}
@@ -862,15 +760,13 @@ public class MappedObjectTransformer {
 	private static InsnList generateDupInstructions(final MethodInsnNode methodInsn) {
 		final InsnList list = new InsnList();
 
-		// stack: this
 		list.add(new TypeInsnNode(NEW, methodInsn.owner));
-		// stack: new, this
+
 		list.add(new InsnNode(DUP));
-		// stack: new, new, this
+
 		list.add(new MethodInsnNode(INVOKESPECIAL, methodInsn.owner, "<init>", "()V"));
-		// stack: new, this
+
 		list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "dup", "(L" + MAPPED_OBJECT_JVM + ";L" + MAPPED_OBJECT_JVM + ";)L" + MAPPED_OBJECT_JVM + ";"));
-		// stack: new
 
 		return list;
 	}
@@ -879,36 +775,34 @@ public class MappedObjectTransformer {
 		final InsnList trg = new InsnList();
 
 		if ( mallocMethod ) {
-			// stack: count
+
 			trg.add(getIntNode(mappedType.sizeof));
-			// stack: sizeof, count
+
 			trg.add(new InsnNode(IMUL));
-			// stack: bytes
+
 			trg.add(new MethodInsnNode(INVOKESTATIC, mappedType.cacheLinePadded ? jvmClassName(CacheUtil.class) : jvmClassName(BufferUtils.class), "createByteBuffer", "(I)L" + jvmClassName(ByteBuffer.class) + ";"));
-			// stack: buffer
+
 		} else if ( mapDirectMethod ) {
-			// stack: capacity, address
+
 			trg.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "newBuffer", "(JI)L" + jvmClassName(ByteBuffer.class) + ";"));
-			// stack: buffer
+
 		}
 
-		// stack: buffer
 		trg.add(new TypeInsnNode(NEW, className));
-		// stack: new, buffer
+
 		trg.add(new InsnNode(DUP));
-		// stack: new, new, buffer
+
 		trg.add(new MethodInsnNode(INVOKESPECIAL, className, "<init>", "()V"));
-		// stack: new, buffer
+
 		trg.add(new InsnNode(DUP_X1));
-		// stack: new, buffer, new
+
 		trg.add(new InsnNode(SWAP));
-		// stack: buffer, new, new
+
 		trg.add(getIntNode(mappedType.align));
-		// stack: int, buffer, new, new
+
 		trg.add(getIntNode(mappedType.sizeof));
-		// stack: int, int, buffer, new, new
+
 		trg.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "setup", "(L" + MAPPED_OBJECT_JVM + ";Ljava/nio/ByteBuffer;II)V"));
-		// stack: new
 
 		return trg;
 	}
@@ -916,13 +810,13 @@ public class MappedObjectTransformer {
 	static InsnList transformFieldAccess(final FieldInsnNode fieldInsn) {
 		final MappedSubtypeInfo mappedSubtype;
 		mappedSubtype = className_to_subtype.get(fieldInsn.owner);
-		if ( mappedSubtype == null ) { // early out
-			// MappedSet.view
+		if ( mappedSubtype == null ) {
+
 			outer:
 			if ( "view".equals(fieldInsn.name) && fieldInsn.owner.startsWith(MAPPEDSET_PREFIX) )
 				return generateSetViewInstructions(fieldInsn);
 
-			return null; // early out
+			return null;
 		}
 
 		if ( "SIZEOF".equals(fieldInsn.name) )
@@ -936,14 +830,12 @@ public class MappedObjectTransformer {
 		}
 
 		final FieldInfo field = mappedSubtype.fields.get(fieldInsn.name);
-		if ( field == null ) // early out
+		if ( field == null )
 			return null;
 
-		// now we're going to transform ByteBuffer-typed field access
 		if ( fieldInsn.desc.equals("L" + jvmClassName(ByteBuffer.class) + ";") )
 			return generateByteBufferInstructions(fieldInsn, mappedSubtype, field.offset);
 
-		// we're now going to transform the field access
 		return generateFieldInstructions(fieldInsn, field);
 	}
 
@@ -955,7 +847,6 @@ public class MappedObjectTransformer {
 
 		final InsnList list = new InsnList();
 
-		// stack: index, this
 		if ( MAPPED_SET2_JVM.equals(fieldInsn.owner) )
 			list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "put_views", "(L" + MAPPED_SET2_JVM + ";I)V"));
 		else if ( MAPPED_SET3_JVM.equals(fieldInsn.owner) )
@@ -964,7 +855,6 @@ public class MappedObjectTransformer {
 			list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "put_views", "(L" + MAPPED_SET4_JVM + ";I)V"));
 		else
 			throw new InternalError();
-		// stack: -
 
 		return list;
 	}
@@ -994,34 +884,34 @@ public class MappedObjectTransformer {
 
 		if ( fieldInsn.getOpcode() == GETFIELD ) {
 			if ( mappedSubtype.sizeof_shift != 0 ) {
-				// stack: instance
+
 				list.add(getIntNode(mappedSubtype.sizeof_shift));
-				// stack: sizeof, instance
+
 				list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "get_view_shift", "(L" + MAPPED_OBJECT_JVM + ";I)I"));
-				// stack: view
+
 			} else {
-				// stack: instance
+
 				list.add(getIntNode(mappedSubtype.sizeof));
-				// stack: sizeof, instance
+
 				list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "get_view", "(L" + MAPPED_OBJECT_JVM + ";I)I"));
-				// stack: view
+
 			}
 			return list;
 		}
 
 		if ( fieldInsn.getOpcode() == PUTFIELD ) {
 			if ( mappedSubtype.sizeof_shift != 0 ) {
-				// stack: view, instance
+
 				list.add(getIntNode(mappedSubtype.sizeof_shift));
-				// stack: sizeof, view, instance
+
 				list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "put_view_shift", "(L" + MAPPED_OBJECT_JVM + ";II)V"));
-				// stack: -
+
 			} else {
-				// stack: view, instance
+
 				list.add(getIntNode(mappedSubtype.sizeof));
-				// stack: sizeof, view, instance
+
 				list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "put_view", "(L" + MAPPED_OBJECT_JVM + ";II)V"));
-				// stack: -
+
 			}
 			return list;
 		}
@@ -1033,7 +923,7 @@ public class MappedObjectTransformer {
 		if ( !"J".equals(fieldInsn.desc) )
 			throw new IllegalStateException();
 
-		if ( fieldInsn.getOpcode() == GETFIELD ) // do not change a thing
+		if ( fieldInsn.getOpcode() == GETFIELD )
 			return null;
 
 		if ( fieldInsn.getOpcode() == PUTFIELD )
@@ -1049,19 +939,17 @@ public class MappedObjectTransformer {
 		if ( fieldInsn.getOpcode() == GETFIELD ) {
 			final InsnList list = new InsnList();
 
-			// stack: ref
 			list.add(new FieldInsnNode(GETFIELD, mappedSubtype.className, "viewAddress", "J"));
-			// stack: long
+
 			list.add(new LdcInsnNode(fieldOffset));
-			// stack: long, long
+
 			list.add(new InsnNode(LADD));
-			// stack: long
+
 			list.add(new LdcInsnNode(mappedSubtype.fields.get(fieldInsn.name).length));
-			// stack: long, long
+
 			list.add(new InsnNode(L2I));
-			// stack: int, long
+
 			list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, "newBuffer", "(JI)L" + jvmClassName(ByteBuffer.class) + ";"));
-			// stack: buffer
 
 			return list;
 		}
@@ -1073,20 +961,20 @@ public class MappedObjectTransformer {
 		final InsnList list = new InsnList();
 
 		if ( fieldInsn.getOpcode() == PUTFIELD ) {
-			// stack: value, ref
+
 			list.add(getIntNode((int)field.offset));
-			// stack: fieldOffset, value, ref
+
 			list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, field.getAccessType() + "put", "(L" + MAPPED_OBJECT_JVM + ";" + fieldInsn.desc + "I)V"));
-			// stack -
+
 			return list;
 		}
 
 		if ( fieldInsn.getOpcode() == GETFIELD ) {
-			// stack: ref
+
 			list.add(getIntNode((int)field.offset));
-			// stack: fieldOffset, ref
+
 			list.add(new MethodInsnNode(INVOKESTATIC, MAPPED_HELPER_JVM, field.getAccessType() + "get", "(L" + MAPPED_OBJECT_JVM + ";I)" + fieldInsn.desc));
-			// stack: -
+
 			return list;
 		}
 
@@ -1094,7 +982,7 @@ public class MappedObjectTransformer {
 	}
 
 	static int transformArrayAccess(final InsnList instructions, int i, final Map<AbstractInsnNode, Frame<BasicValue>> frameMap, final VarInsnNode loadInsn, final MappedSubtypeInfo mappedSubtype, final int var) {
-		// We need to go forward in time to find how we use the array var
+
 		final int loadStackSize = frameMap.get(loadInsn).getStackSize() + 1;
 
 		AbstractInsnNode nextInsn = loadInsn;
@@ -1126,32 +1014,28 @@ public class MappedObjectTransformer {
 					if ( stackSize == loadStackSize + 1 && nextInsn.getOpcode() == PUTFIELD ) {
 						final FieldInsnNode fieldInsn = (FieldInsnNode)nextInsn;
 
-						// stack: value, view, ref
 						instructions.insert(nextInsn, new MethodInsnNode(INVOKESTATIC, mappedSubtype.className, setterName(fieldInsn.name), "(L" + mappedSubtype.className + ";I" + fieldInsn.desc + ")V"));
-						// stack: -
+
 						instructions.remove(nextInsn);
 
 						break;
 					} else if ( stackSize == loadStackSize && nextInsn.getOpcode() == GETFIELD ) {
 						final FieldInsnNode fieldInsn = (FieldInsnNode)nextInsn;
 
-						// stack: view, ref
 						instructions.insert(nextInsn, new MethodInsnNode(INVOKESTATIC, mappedSubtype.className, getterName(fieldInsn.name), "(L" + mappedSubtype.className + ";I)" + fieldInsn.desc));
-						// stack: value
+
 						instructions.remove(nextInsn);
 
 						break;
 					} else if ( stackSize == loadStackSize && nextInsn.getOpcode() == DUP && nextInsn.getNext().getOpcode() == GETFIELD ) {
-						// May happen with operator+assignment (e.g. cursor[i].value += 10)
+
 						final FieldInsnNode fieldInsn = (FieldInsnNode)nextInsn.getNext();
 
 						final MethodInsnNode getter = new MethodInsnNode(INVOKESTATIC, mappedSubtype.className, getterName(fieldInsn.name), "(L" + mappedSubtype.className + ";I)" + fieldInsn.desc);
 
-						// stack: view, ref
 						instructions.insert(nextInsn, new InsnNode(DUP2));
-						// stack: view, ref, view, ref
+
 						instructions.insert(nextInsn.getNext(), getter);
-						// stack: value, view, ref
 
 						instructions.remove(nextInsn);
 						instructions.remove(fieldInsn);
@@ -1174,7 +1058,7 @@ public class MappedObjectTransformer {
 				instructions.insert(loadInsn, new MethodInsnNode(INVOKEVIRTUAL, mappedSubtype.className, CAPACITY_METHOD_NAME, "()I"));
 
 				return i + 1;
-			} else if ( stackSize < loadStackSize ) // Consumed by something other than AALOAD or ARRAYLENGTH
+			} else if ( stackSize < loadStackSize )
 				throw new ClassFormatError("Invalid " + mappedSubtype.className + " view array usage detected: " + getOpcodeName(nextInsn));
 		}
 	}
@@ -1240,10 +1124,6 @@ public class MappedObjectTransformer {
 		}
 
 	}
-
-	// -------------------------------------------------------
-	// -------------------[ MACROS & UTILS ]------------------
-	// -------------------------------------------------------
 
 	private static void getClassEnums(final Class clazz, final Map<Integer, String> map, final String... prefixFilters) {
 		try {
@@ -1314,7 +1194,6 @@ public class MappedObjectTransformer {
 			mv.visitLdcInsn(value);
 	}
 
-	/** Replace an instruction with a list of instructions. */
 	static int replace(final InsnList instructions, final int i, final AbstractInsnNode location, final InsnList list) {
 		final int size = list.size();
 

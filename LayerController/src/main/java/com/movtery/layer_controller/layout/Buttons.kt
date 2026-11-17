@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.layer_controller.layout
 
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -59,18 +41,6 @@ private data class ButtonTextStyle(
     val textUnderline: Boolean
 )
 
-/**
- * 基础文本控件
- * @param allStyles 当前控制布局所有的样式（用于加载控件的样式）
- * @param enableSnap 编辑模式下，是否开启吸附功能
- * @param snapMode 吸附模式
- * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
- * @param getOtherWidgets 获取其他控件的信息，在编辑模式下，用于计算吸附位置
- * @param snapThresholdValue 吸附距离阈值
- * @param eventHandler 事件处理器
- * @param drawLine 绘制吸附参考线
- * @param onLineCancel 取消吸附参考线
- */
 @Composable
 internal fun TextButton(
     isEditMode: Boolean,
@@ -174,16 +144,13 @@ internal fun TextButton(
             }
         }
     } else {
-        //虚假的控件，使用一个空的组件，只是让Layout有东西能测
+
         Spacer(
             modifier = Modifier.buttonSize(data, screenSize)
         )
     }
 }
 
-/**
- * 仅渲染控件外观的组件
- */
 @Composable
 fun RendererStyleBox(
     style: ObservableButtonStyle,

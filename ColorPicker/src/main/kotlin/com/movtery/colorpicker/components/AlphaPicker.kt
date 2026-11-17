@@ -15,11 +15,6 @@ import androidx.compose.ui.graphics.Brush
 import com.movtery.colorpicker.ColorPickerController
 import com.movtery.colorpicker.getGradientColorAtPosition
 
-/**
- * 透明度条拾色器
- * @param controller [ColorPickerController] 的实例，用于控制和响应透明度变化
- * @param onChangeFinished 当滚动条结束拖动后的回调
- */
 @Composable
 fun AlphaBarPicker(
     controller: ColorPickerController,
@@ -36,10 +31,8 @@ fun AlphaBarPicker(
         }
     }
 
-    //当前颜色
     val currentColor by controller.color
 
-    //透明 -> 当前颜色
     val colors by remember(currentColor) {
         derivedStateOf {
             listOf(

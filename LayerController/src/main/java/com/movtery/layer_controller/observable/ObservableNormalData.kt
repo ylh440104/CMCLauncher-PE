@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.layer_controller.observable
 
 import androidx.compose.runtime.getValue
@@ -30,9 +12,6 @@ import com.movtery.layer_controller.data.filterValidEvent
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.event.EventHandler
 
-/**
- * 可观察的NormalData包装类
- */
 class ObservableNormalData(data: NormalData) : ObservableWidget() {
     val text = ObservableTranslatableString(data.text)
     val uuid: String = data.uuid
@@ -55,15 +34,9 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
             isToggleable = isToggleable
         )
 
-    /**
-     * 当前是否处于按下状态
-     */
     var isPressed by mutableStateOf(false)
         private set
 
-    /**
-     * 开始触摸事件处理
-     */
     private fun pressStart(
         eventHandler: EventHandler,
         allLayers: List<ObservableControlLayer>
@@ -116,7 +89,7 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
 
     override fun onCompositionDispose(eventHandler: EventHandler?) {
         if (isPressed) {
-            //fix: 若本身未按下，不应该输出抬起事件
+
             isPressed = false
             eventHandler?.onKeyPressed(clickEvents, isPressed)
         }
@@ -127,13 +100,12 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
     }
 
     override fun supportsDeepTouchDetection(): Boolean {
-        //如果有不可穿透按钮，只保留最顶层的一个不可穿透按钮及其上层的所有可穿透按钮
+
         return !isSwipple || !(isSwipple && isPenetrable)
     }
 
     override fun canProcess(): Boolean {
-        //作为特性存在，筛除即可穿透又可滑动的按钮
-        //因为我发现我怎么都修不好:(
+
         return isPenetrable && isSwipple
     }
 
@@ -145,13 +117,12 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         consumeEvent: (Boolean) -> Unit
     ) {
         if (activeWidgets.isEmpty()) {
-            //新的按下事件
+
             addThis()
             consumeEvent(!isPenetrable)
             pressStart(eventHandler, allLayers)
         } else if (this !in activeWidgets && behavior.canBeSwipedTo) {
-            //滑动联动
-            //该控件允许被滑入，且活跃控件中无阻止滑动链的类型
+
             if (activeWidgets.none { it.behavior.blocksSwipeChain }) {
                 addThis()
                 pressStart(eventHandler, allLayers)
@@ -193,9 +164,6 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         clickEvents = clickEvents.filterNot { it.type == eventType && it.key == key }
     }
 
-    /**
-     * 移除所有匹配类型的点击事件
-     */
     fun removeAllEvent(eventType: ClickEvent.Type) {
         clickEvents = clickEvents.filterNot { it.type == eventType }
     }

@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.petlib
 
 import android.graphics.SurfaceTexture
@@ -38,22 +20,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlin.math.PI
 
-/** 点按模型命中时的反馈形式 */
 enum class PetTapReaction {
-    /** 无反馈 */
+
     None,
-    /** 压扁脉冲 */
+
     Squash,
-    /** 点击反应动画 */
+
     Interact
 }
 
-/**
- * 玩家模型预览组件
- *
- * @param tapReaction 点按模型命中时的反馈形式
- * @param dragYaw 是否响应拖拽旋转偏航
- */
 @Composable
 fun PetPreview(
     controller: PetController,
@@ -84,7 +59,7 @@ fun PetPreview(
         }) else it
     }.let {
         if (dragYaw) it.then(Modifier.pointerInput(controller) {
-            // 整宽水平拖拽对应一整圈偏航
+
             detectDragGestures { change, dragAmount ->
                 change.consume()
                 if (size.width > 0) {
@@ -112,8 +87,7 @@ fun PetPreview(
         } else {
             val listener = TextureLifecycle(controller)
             view.surfaceTextureListener = listener
-            // 视图附着即渲染、分离即停止：窗口分离时宿主会废弃底层缓冲队列，
-            // 该信号不依赖导航实现与生命周期分发，是停帧的最后防线。
+
             val attachStateListener = object : View.OnAttachStateChangeListener {
                 override fun onViewAttachedToWindow(v: View) {
                     val st = (v as? TextureView)?.surfaceTexture ?: return
@@ -125,7 +99,7 @@ fun PetPreview(
                 }
             }
             view.addOnAttachStateChangeListener(attachStateListener)
-            // 视图复用时 SurfaceTexture 可能已就绪，直接补挂。
+
             view.surfaceTexture?.let { st ->
                 listener.ensureAttached(st, view.width, view.height)
             }

@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.cardgrid.state
 
 import androidx.compose.ui.geometry.Offset
@@ -37,7 +19,6 @@ import org.junit.Test
 
 class CardGridStateTest {
 
-    // 动画协程挂起后随作用域废弃，状态断言只关心同步发生的布局结算
     private val scope = CoroutineScope(
         SupervisorJob() + CoroutineExceptionHandler { _, _ -> }
     )
@@ -48,7 +29,6 @@ class CardGridStateTest {
         content = { _ -> }
     )
 
-    /** 几何就绪的 10 列网格，单元格 20px */
     private fun state(): CardGridState {
         val state = CardGridState(scope)
         state.updateGeometry(200f, Density(1f))
@@ -76,8 +56,6 @@ class CardGridStateTest {
         assertEquals(800f, state.viewportHeightPx, 0f)
     }
 
-    // ---------- 播种 ----------
-
     @Test
     fun testSeedValidatesOverlappingLayouts() {
         val state = seededState(
@@ -92,7 +70,7 @@ class CardGridStateTest {
     @Test
     fun testSeedReflowsOnColumnMismatch() {
         val state = state()
-        // 持久化时的列数为 5，与当前 10 列不一致：跨度按比例折算
+
         state.seed(
             types = listOf(testType),
             seeds = listOf(CardSeed("A", "test", CardRect("A", 0, 0, 2, 2))),
@@ -123,7 +101,7 @@ class CardGridStateTest {
 
     @Test
     fun testSeedBeforeFirstMeasurementSkipsInitialGeometryReflow() {
-        // 播种早于首次有效测量：卡片按持久化布局落位，不按初始默认几何重排
+
         val state = CardGridState(scope)
         state.seed(
             types = listOf(testType),
@@ -136,7 +114,7 @@ class CardGridStateTest {
 
     @Test
     fun testSeedWithUnknownStoredColumnsValidates() {
-        // 存储列数未知时不做比例折算，仅校验修复
+
         val state = state()
         state.seed(
             types = listOf(testType),
@@ -148,7 +126,7 @@ class CardGridStateTest {
 
     @Test
     fun testSeedReplacesPreMaterializedCard() {
-        // 几何未就绪时补位逻辑先行加入同 id 卡片，播种应以持久化布局替换而非重复追加
+
         val state = CardGridState(scope)
         state.seed(
             types = listOf(testType),
@@ -171,16 +149,16 @@ class CardGridStateTest {
 
     @Test
     fun testReflowSpanGrowthNotEatenByPerStepRounding() {
-        //小跨度卡片在逐级列数变化下跨度增长不应被取整吞噬（否则卡片宽度在超宽屏上停滞）
+
         val state = CardGridState(scope)
-        state.updateGeometry(1280f, Density(1f)) // 64 列
+        state.updateGeometry(1280f, Density(1f))
         state.seed(
             types = listOf(testType),
             seeds = listOf(CardSeed("A", "test", CardRect("A", 0, 0, 10, 4))),
             storedColumns = 64
         )
-        state.updateGeometry(1320f, Density(1f)) // 66 列
-        state.updateGeometry(1360f, Density(1f)) // 68 列
+        state.updateGeometry(1320f, Density(1f))
+        state.updateGeometry(1360f, Density(1f))
         assertEquals(CardRect("A", 0, 0, 11, 4), layoutOf(state, "A"))
     }
 
@@ -192,8 +170,6 @@ class CardGridStateTest {
         state.addCard(testType, "A")
         assertFalse(committed)
     }
-
-    // ---------- 卡片管理 ----------
 
     @Test
     fun testAddCardPlacesAtTopLeftFreeSlot() {
@@ -222,11 +198,9 @@ class CardGridStateTest {
         state.removeCard("A")
         assertEquals("A", removed)
         assertTrue(committed)
-        // 其余卡片保持原位，A 留下的空洞不上浮填补
+
         assertEquals(CardRect("B", 0, 8, 4, 4), layoutOf(state, "B"))
     }
-
-    // ---------- 命中测试 ----------
 
     @Test
     fun testCardAtHitsPlacedCard() {
@@ -241,8 +215,6 @@ class CardGridStateTest {
         assertNull(state.resizeEdgeAt(Offset(74f, 40f)))
     }
 
-    // ---------- 拖动会话 ----------
-
     @Test
     fun testDragSessionDisplacesLiveAndCommits() {
         val state = seededState(
@@ -250,13 +222,12 @@ class CardGridStateTest {
             CardRect("B", 4, 0, 4, 4)
         )
         state.onCardDragStart(state.cards.first { it.id == "A" }, Offset(50f, 50f))
-        // 指针拖到第 8 格：拖动中 B 实时让位预览（指针压在 B 中心右侧 → 向左滑开）
+
         state.onCardDrag(Offset(170f, 50f))
 
         assertEquals(CardRect("A", 6, 0, 4, 4), state.dragPreview)
         assertEquals(mapOf("B" to CardRect("B", 2, 0, 4, 4)), state.displaced)
 
-        // 松手提交让位结果并持久化
         state.onCardDragEnd()
         assertEquals(CardRect("A", 6, 0, 4, 4), layoutOf(state, "A"))
         assertEquals(CardRect("B", 2, 0, 4, 4), layoutOf(state, "B"))
@@ -280,7 +251,7 @@ class CardGridStateTest {
 
     @Test
     fun testDragDirectionLocksWhileCardStaysDisplaced() {
-        // 20 列网格：向右的让位链条有足够的滑动空间，方向差异才能从结果上体现
+
         val state = CardGridState(scope)
         state.updateGeometry(400f, Density(1f))
         state.seed(
@@ -292,12 +263,11 @@ class CardGridStateTest {
             storedColumns = 20
         )
         state.onCardDragStart(state.cards.first { it.id == "A" }, Offset(50f, 50f))
-        // 首帧：指针压在 B 中心左侧 → B 向右滑让位
+
         state.onCardDrag(Offset(105f, 50f))
         assertEquals(CardRect("A", 3, 0, 4, 4), state.dragPreview)
         assertEquals(mapOf("B" to CardRect("B", 7, 0, 4, 4)), state.displaced)
 
-        // 指针扫过 B 中心右侧：方向已锁定，B 继续向右滑而不是掉头向左
         state.onCardDrag(Offset(164f, 50f))
         assertEquals(CardRect("A", 6, 0, 4, 4), state.dragPreview)
         assertEquals(mapOf("B" to CardRect("B", 10, 0, 4, 4)), state.displaced)
@@ -311,7 +281,7 @@ class CardGridStateTest {
             CardRect("C", 4, 0, 4, 4)
         )
         state.onCardDragStart(state.cards.first { it.id == "A" }, Offset(50f, 200f))
-        // 指针压在 B 右半：横向让位两侧都被顶死（B 顶着左缘、C 顶死右缘），垂直轴向下开门
+
         state.onCardDrag(Offset(50f, 40f))
         assertEquals(CardRect("A", 0, 0, 4, 4), state.dragPreview)
         assertEquals(mapOf("B" to CardRect("B", 0, 4, 4, 4)), state.displaced)
@@ -321,13 +291,11 @@ class CardGridStateTest {
         assertEquals(CardRect("C", 4, 0, 4, 4), layoutOf(state, "C"))
     }
 
-    // ---------- 缩放会话 ----------
-
     @Test
     fun testResizeSessionCommit() {
         val state = seededState(CardRect("A", 0, 0, 4, 4))
         state.onResizeStart(state.cards.first(), ResizeEdge.End, Offset(74f, 40f))
-        // 指针拖到第 8 格右缘
+
         state.onResize(Offset(150f, 40f))
 
         assertEquals(CardRect("A", 0, 0, 8, 4), state.dragPreview)
@@ -343,11 +311,9 @@ class CardGridStateTest {
         state.onResizeStart(state.cards.first { it.id == "A" }, ResizeEdge.End, Offset(74f, 40f))
         state.onResize(Offset(190f, 40f))
         state.onResizeEnd()
-        // B 被推到贴合右缘后链条推不动，A 跨度止步于原位
+
         assertEquals(CardRect("A", 0, 0, 4, 4), layoutOf(state, "A"))
     }
-
-    // ---------- 调整态 ----------
 
     @Test
     fun testInteractionStates() {

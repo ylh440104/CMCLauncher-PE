@@ -15,11 +15,6 @@ import androidx.compose.ui.graphics.Color
 import com.movtery.colorpicker.ColorPickerController
 import com.movtery.colorpicker.getGradientColorAtPosition
 
-/**
- * 色相条拾色器
- * @param controller [ColorPickerController] 的实例，用于控制和响应色相变化
- * @param onChangeFinished 当滚动条结束拖动后的回调
- */
 @Composable
 fun HueBarPicker(
     controller: ColorPickerController,
@@ -36,7 +31,6 @@ fun HueBarPicker(
         }
     }
 
-    //构造色相渐变颜色（分段实现 0~360°）
     val hueColors = remember {
         buildList {
             for (i in 0..6) {
@@ -61,7 +55,7 @@ fun HueBarPicker(
                 onChangeFinished = onChangeFinished
             )
     ) {
-        //绘制色相条
+
         drawRect(
             brush = Brush.horizontalGradient(colors = hueColors),
             size = size

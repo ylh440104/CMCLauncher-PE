@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.layer_controller
 
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -60,15 +42,6 @@ import com.movtery.layer_controller.observable.PointerEventBus
 import com.movtery.layer_controller.observable.TouchProcessor
 import com.movtery.layer_controller.utils.getWidgetPosition
 
-/**
- * 控制布局画布
- * @param observedLayout 需要监听并绘制的控制布局
- * @param eventHandler 处理控制布局事件用到的处理器
- * @param checkOccupiedPointers 检查已占用的指针
- * @param opacity 控制布局画布整体不透明度 0f~1f
- * @param markPointerAsMoveOnly 标记指针为仅接受滑动处理
- * @param hideLayerWhen 根据情况决定是否隐藏指定控件层
- */
 @Composable
 fun ControlBoxLayout(
     modifier: Modifier = Modifier,
@@ -122,9 +95,6 @@ fun ControlBoxLayout(
     }
 }
 
-/**
- * 控制布局画布
- */
 @Composable
 private fun BoxWithConstraintsScope.BaseControlBoxLayout(
     modifier: Modifier = Modifier,
@@ -159,7 +129,6 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
         }
     }
 
-    // 共享的多指针状态管理器
     val pointerEventBus = remember { PointerEventBus() }
     pointerEventBus.checkOccupiedPointers = currentCheckOccupiedPointers
     pointerEventBus.markPointerAsMoveOnly = markPointerAsMoveOnly
@@ -182,20 +151,19 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
 
                         event.changes.forEach { change ->
                             val pointerId = change.id
-                            //手指抬起，清理该指针所有状态
+
                             if (!change.pressed) {
                                 pointerEventBus.endPointer(pointerId).forEach { widget ->
-                                    //释放该指针事件
+
                                     widget.onReleaseEvent(eventHandler, reversedLayers)
                                 }
                                 return@forEach
                             }
 
                             if (change.isConsumed || currentCheckOccupiedPointers(pointerId)) {
-                                return@forEach //跳过已消费或被占用的指针
+                                return@forEach
                             }
 
-                            //收集可见控件
                             val visibleWidgets = collectVisibleWidgets(
                                 layers = layers,
                                 hideLayerWhen = currentHideLayerWhen,
@@ -252,7 +220,7 @@ private fun ControlsRendererLayer(
     Layout(
         modifier = Modifier.alpha(alpha = opacity()),
         content = {
-            //按图层顺序渲染所有可见的控件
+
             layers.forEach { layer ->
                 val layerVisibility = checkLayerVisibility(
                     layer = layer,
@@ -272,7 +240,7 @@ private fun ControlsRendererLayer(
                         screenSize = screenSize,
                         isDark = isDark,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
-                        getOtherWidgets = { emptyList() }, //不需要计算吸附
+                        getOtherWidgets = { emptyList() },
                         snapThresholdValue = 4.dp,
                         eventHandler = eventHandler
                     )
@@ -286,7 +254,7 @@ private fun ControlsRendererLayer(
                         screenSize = screenSize,
                         isDark = isDark,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
-                        getOtherWidgets = { emptyList() }, //不需要计算吸附
+                        getOtherWidgets = { emptyList() },
                         snapThresholdValue = 4.dp,
                         eventHandler = eventHandler
                     )
@@ -352,9 +320,6 @@ private fun ControlsRendererLayer(
     }
 }
 
-/**
- * 收集所有可见控件层中的可触控控件
- */
 private fun collectVisibleWidgets(
     layers: List<ObservableControlLayer>,
     hideLayerWhen: HideLayerWhen,
@@ -370,7 +335,7 @@ private fun collectVisibleWidgets(
             )
         }
         .flatMap { layer ->
-            //反转，从顶到底
+
             layer.normalButtons.value.reversed()
         }
         .filter { widget ->
@@ -398,9 +363,6 @@ private fun checkLayerVisibility(
     }
 }
 
-/**
- * 通过虚拟鼠标抓获情况，判断当前是否应当展示控件
- */
 private fun checkVisibility(
     isCursorGrabbing: Boolean,
     visibilityType: VisibilityType

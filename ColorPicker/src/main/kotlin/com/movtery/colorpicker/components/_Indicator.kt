@@ -7,14 +7,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * 竖条指示器
- * @param currentColor 当前颜色，函数内部会取反色显示
- * @param xPos 横向位置
- * @param height 竖条高度
- * @param width 竖条宽度
- * @param overshoot 让指示器上下各超出的距离
- */
 internal fun DrawScope.drawVerticalIndicator(
     currentColor: Color,
     xPos: Float,
@@ -22,7 +14,7 @@ internal fun DrawScope.drawVerticalIndicator(
     width: Dp = 2.dp,
     overshoot: Dp = 2.dp
 ) {
-    //计算反色
+
     val invertedColor = invertColor(currentColor)
     val overshootPx = overshoot.toPx()
 
@@ -34,19 +26,13 @@ internal fun DrawScope.drawVerticalIndicator(
     )
 }
 
-/**
- * 圆圈指示器
- * @param currentColor 当前颜色，函数内部会取反色显示
- * @param pressOffset 按下位置
- * @param radius 半径
- */
 internal fun DrawScope.drawCenterIndicator(
     currentColor: Color,
     pressOffset: Offset,
     radius: Dp = 6.dp,
     width: Dp = 2.dp
 ) {
-    //计算反色
+
     val invertedColor = invertColor(currentColor)
 
     drawCircle(
@@ -57,10 +43,6 @@ internal fun DrawScope.drawCenterIndicator(
     )
 }
 
-/**
- * 计算反色，red, green, blue取反
- * 忽略alpha，默认255
- */
 private fun invertColor(color: Color): Color {
     val r = 255 - (color.red * 255).toInt()
     val g = 255 - (color.green * 255).toInt()

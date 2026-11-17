@@ -1,8 +1,3 @@
-/*
- * Copyright LWJGL. All rights reserved.
- * License terms: https://www.lwjgl.org/license
- * MACHINE GENERATED FILE, DO NOT EDIT
- */
 package org.lwjgl.opengl;
 
 import org.lwjgl.system.*;
@@ -18,7 +13,6 @@ public final class GLCapabilities {
 
     static final int ADDRESS_BUFFER_SIZE = 2236;
 
-    // GL11
     public final long
             glEnable,
             glDisable,
@@ -357,14 +351,12 @@ public final class GLCapabilities {
             glVertexPointer,
             glViewport;
 
-    // GL12
     public final long
             glTexImage3D,
             glTexSubImage3D,
             glCopyTexSubImage3D,
             glDrawRangeElements;
 
-    // GL13
     public final long
             glCompressedTexImage3D,
             glCompressedTexImage2D,
@@ -413,7 +405,6 @@ public final class GLCapabilities {
             glMultTransposeMatrixf,
             glMultTransposeMatrixd;
 
-    // GL14
     public final long
             glBlendColor,
             glBlendEquation,
@@ -463,7 +454,6 @@ public final class GLCapabilities {
             glWindowPos3fv,
             glWindowPos3dv;
 
-    // GL15
     public final long
             glBindBuffer,
             glDeleteBuffers,
@@ -485,7 +475,6 @@ public final class GLCapabilities {
             glGetQueryObjectiv,
             glGetQueryObjectuiv;
 
-    // GL20
     public final long
             glCreateProgram,
             glDeleteProgram,
@@ -581,7 +570,6 @@ public final class GLCapabilities {
             glStencilFuncSeparate,
             glStencilMaskSeparate;
 
-    // GL21
     public final long
             glUniformMatrix2x3fv,
             glUniformMatrix3x2fv,
@@ -590,7 +578,6 @@ public final class GLCapabilities {
             glUniformMatrix3x4fv,
             glUniformMatrix4x3fv;
 
-    // GL30
     public final long
             glGetStringi,
             glClearBufferiv,
@@ -677,7 +664,6 @@ public final class GLCapabilities {
             glGenVertexArrays,
             glIsVertexArray;
 
-    // GL31
     public final long
             glDrawArraysInstanced,
             glDrawElementsInstanced,
@@ -692,7 +678,6 @@ public final class GLCapabilities {
             glGetActiveUniformBlockName,
             glUniformBlockBinding;
 
-    // GL32
     public final long
             glGetBufferParameteri64v,
             glDrawElementsBaseVertex,
@@ -714,7 +699,6 @@ public final class GLCapabilities {
             glGetInteger64i_v,
             glGetSynciv;
 
-    // GL33
     public final long
             glBindFragDataLocationIndexed,
             glGetFragDataIndex,
@@ -775,7 +759,6 @@ public final class GLCapabilities {
             glVertexAttribP3uiv,
             glVertexAttribP4uiv;
 
-    // GL40
     public final long
             glBlendEquationi,
             glBlendEquationSeparatei,
@@ -824,7 +807,6 @@ public final class GLCapabilities {
             glEndQueryIndexed,
             glGetQueryIndexediv;
 
-    // GL41
     public final long
             glReleaseShaderCompiler,
             glShaderBinary,
@@ -915,7 +897,6 @@ public final class GLCapabilities {
             glGetFloati_v,
             glGetDoublei_v;
 
-    // GL42
     public final long
             glGetActiveAtomicCounterBufferiv,
             glTexStorage1D,
@@ -930,7 +911,6 @@ public final class GLCapabilities {
             glMemoryBarrier,
             glGetInternalformativ;
 
-    // GL43
     public final long
             glClearBufferData,
             glClearBufferSubData,
@@ -976,7 +956,6 @@ public final class GLCapabilities {
             glVertexAttribBinding,
             glVertexBindingDivisor;
 
-    // GL44
     public final long
             glBufferStorage,
             glClearTexSubImage,
@@ -988,7 +967,6 @@ public final class GLCapabilities {
             glBindImageTextures,
             glBindVertexBuffers;
 
-    // GL45
     public final long
             glClipControl,
             glCreateTransformFeedbacks,
@@ -1113,33 +1091,28 @@ public final class GLCapabilities {
             glGetnUniformiv,
             glGetnUniformuiv;
 
-    // GL46
     public final long
             glMultiDrawArraysIndirectCount,
             glMultiDrawElementsIndirectCount,
             glPolygonOffsetClamp,
             glSpecializeShader;
 
-    // AMD_debug_output
     public final long
             glDebugMessageEnableAMD,
             glDebugMessageInsertAMD,
             glDebugMessageCallbackAMD,
             glGetDebugMessageLogAMD;
 
-    // AMD_draw_buffers_blend
     public final long
             glBlendFuncIndexedAMD,
             glBlendFuncSeparateIndexedAMD,
             glBlendEquationIndexedAMD,
             glBlendEquationSeparateIndexedAMD;
 
-    // AMD_framebuffer_multisample_advanced
     public final long
             glRenderbufferStorageMultisampleAdvancedAMD,
             glNamedRenderbufferStorageMultisampleAdvancedAMD;
 
-    // AMD_gpu_shader_int64
     public final long
             glUniform1i64NV,
             glUniform2i64NV,
@@ -1176,15 +1149,12 @@ public final class GLCapabilities {
             glProgramUniform3ui64vNV,
             glProgramUniform4ui64vNV;
 
-    // AMD_interleaved_elements
     public final long
             glVertexAttribParameteriAMD;
 
-    // AMD_occlusion_query_event
     public final long
             glQueryObjectParameteruiAMD;
 
-    // AMD_performance_monitor
     public final long
             glGetPerfMonitorGroupsAMD,
             glGetPerfMonitorCountersAMD,
@@ -1198,25 +1168,20 @@ public final class GLCapabilities {
             glEndPerfMonitorAMD,
             glGetPerfMonitorCounterDataAMD;
 
-    // AMD_sample_positions
     public final long
             glSetMultisamplefvAMD;
 
-    // AMD_sparse_texture
     public final long
             glTexStorageSparseAMD,
             glTextureStorageSparseAMD;
 
-    // AMD_stencil_operation_extended
     public final long
             glStencilOpValueAMD;
 
-    // AMD_vertex_shader_tessellator
     public final long
             glTessellationFactorAMD,
             glTessellationModeAMD;
 
-    // ARB_bindless_texture
     public final long
             glGetTextureHandleARB,
             glGetTextureSamplerHandleARB,
@@ -1235,71 +1200,57 @@ public final class GLCapabilities {
             glVertexAttribL1ui64vARB,
             glGetVertexAttribLui64vARB;
 
-    // ARB_buffer_storage
     public final long
             glNamedBufferStorageEXT;
 
-    // ARB_cl_event
     public final long
             glCreateSyncFromCLeventARB;
 
-    // ARB_clear_buffer_object
     public final long
             glClearNamedBufferDataEXT,
             glClearNamedBufferSubDataEXT;
 
-    // ARB_color_buffer_float
     public final long
             glClampColorARB;
 
-    // ARB_compute_variable_group_size
     public final long
             glDispatchComputeGroupSizeARB;
 
-    // ARB_debug_output
     public final long
             glDebugMessageControlARB,
             glDebugMessageInsertARB,
             glDebugMessageCallbackARB,
             glGetDebugMessageLogARB;
 
-    // ARB_draw_buffers
     public final long
             glDrawBuffersARB;
 
-    // ARB_draw_buffers_blend
     public final long
             glBlendEquationiARB,
             glBlendEquationSeparateiARB,
             glBlendFunciARB,
             glBlendFuncSeparateiARB;
 
-    // ARB_draw_instanced
     public final long
             glDrawArraysInstancedARB,
             glDrawElementsInstancedARB;
 
-    // ARB_ES3_2_compatibility
     public final long
             glPrimitiveBoundingBoxARB;
 
-    // ARB_framebuffer_no_attachments
     public final long
             glNamedFramebufferParameteriEXT,
             glGetNamedFramebufferParameterivEXT;
 
-    // ARB_geometry_shader4
     public final long
             glProgramParameteriARB,
             glFramebufferTextureARB,
             glFramebufferTextureLayerARB,
             glFramebufferTextureFaceARB;
 
-    // ARB_gl_spirv
     public final long
             glSpecializeShaderARB;
 
-    // ARB_gpu_shader_fp64
     public final long
             glProgramUniform1dEXT,
             glProgramUniform2dEXT,
@@ -1319,7 +1270,6 @@ public final class GLCapabilities {
             glProgramUniformMatrix4x2dvEXT,
             glProgramUniformMatrix4x3dvEXT;
 
-    // ARB_gpu_shader_int64
     public final long
             glUniform1i64ARB,
             glUniform1i64vARB,
@@ -1358,7 +1308,6 @@ public final class GLCapabilities {
             glGetnUniformi64vARB,
             glGetnUniformui64vARB;
 
-    // ARB_imaging
     public final long
             glColorTable,
             glCopyColorTable,
@@ -1393,17 +1342,14 @@ public final class GLCapabilities {
             glGetMinmaxParameteriv,
             glGetMinmaxParameterfv;
 
-    // ARB_indirect_parameters
     public final long
             glMultiDrawArraysIndirectCountARB,
             glMultiDrawElementsIndirectCountARB;
 
-    // ARB_instanced_arrays
     public final long
             glVertexAttribDivisorARB,
             glVertexArrayVertexAttribDivisorEXT;
 
-    // ARB_matrix_palette
     public final long
             glCurrentPaletteMatrixARB,
             glMatrixIndexuivARB,
@@ -1411,11 +1357,9 @@ public final class GLCapabilities {
             glMatrixIndexusvARB,
             glMatrixIndexPointerARB;
 
-    // ARB_multisample
     public final long
             glSampleCoverageARB;
 
-    // ARB_multitexture
     public final long
             glActiveTextureARB,
             glClientActiveTextureARB,
@@ -1452,7 +1396,6 @@ public final class GLCapabilities {
             glMultiTexCoord4ivARB,
             glMultiTexCoord4dvARB;
 
-    // ARB_occlusion_query
     public final long
             glGenQueriesARB,
             glDeleteQueriesARB,
@@ -1463,16 +1406,13 @@ public final class GLCapabilities {
             glGetQueryObjectivARB,
             glGetQueryObjectuivARB;
 
-    // ARB_parallel_shader_compile
     public final long
             glMaxShaderCompilerThreadsARB;
 
-    // ARB_point_parameters
     public final long
             glPointParameterfARB,
             glPointParameterfvARB;
 
-    // ARB_robustness
     public final long
             glGetGraphicsResetStatusARB,
             glGetnMapdvARB,
@@ -1495,17 +1435,14 @@ public final class GLCapabilities {
             glGetnUniformuivARB,
             glGetnUniformdvARB;
 
-    // ARB_sample_locations
     public final long
             glFramebufferSampleLocationsfvARB,
             glNamedFramebufferSampleLocationsfvARB,
             glEvaluateDepthValuesARB;
 
-    // ARB_sample_shading
     public final long
             glMinSampleShadingARB;
 
-    // ARB_shader_objects
     public final long
             glDeleteObjectARB,
             glGetHandleARB,
@@ -1547,7 +1484,6 @@ public final class GLCapabilities {
             glGetUniformivARB,
             glGetShaderSourceARB;
 
-    // ARB_shading_language_include
     public final long
             glNamedStringARB,
             glDeleteNamedStringARB,
@@ -1556,26 +1492,21 @@ public final class GLCapabilities {
             glGetNamedStringARB,
             glGetNamedStringivARB;
 
-    // ARB_sparse_buffer
     public final long
             glBufferPageCommitmentARB,
             glNamedBufferPageCommitmentEXT,
             glNamedBufferPageCommitmentARB;
 
-    // ARB_sparse_texture
     public final long
             glTexPageCommitmentARB,
             glTexturePageCommitmentEXT;
 
-    // ARB_texture_buffer_object
     public final long
             glTexBufferARB;
 
-    // ARB_texture_buffer_range
     public final long
             glTextureBufferRangeEXT;
 
-    // ARB_texture_compression
     public final long
             glCompressedTexImage3DARB,
             glCompressedTexImage2DARB,
@@ -1585,29 +1516,24 @@ public final class GLCapabilities {
             glCompressedTexSubImage1DARB,
             glGetCompressedTexImageARB;
 
-    // ARB_texture_storage
     public final long
             glTextureStorage1DEXT,
             glTextureStorage2DEXT,
             glTextureStorage3DEXT;
 
-    // ARB_texture_storage_multisample
     public final long
             glTextureStorage2DMultisampleEXT,
             glTextureStorage3DMultisampleEXT;
 
-    // ARB_transpose_matrix
     public final long
             glLoadTransposeMatrixfARB,
             glLoadTransposeMatrixdARB,
             glMultTransposeMatrixfARB,
             glMultTransposeMatrixdARB;
 
-    // ARB_vertex_attrib_64bit
     public final long
             glVertexArrayVertexAttribLOffsetEXT;
 
-    // ARB_vertex_attrib_binding
     public final long
             glVertexArrayBindVertexBufferEXT,
             glVertexArrayVertexAttribFormatEXT,
@@ -1616,7 +1542,6 @@ public final class GLCapabilities {
             glVertexArrayVertexAttribBindingEXT,
             glVertexArrayVertexBindingDivisorEXT;
 
-    // ARB_vertex_blend
     public final long
             glWeightfvARB,
             glWeightbvARB,
@@ -1629,7 +1554,6 @@ public final class GLCapabilities {
             glWeightPointerARB,
             glVertexBlendARB;
 
-    // ARB_vertex_buffer_object
     public final long
             glBindBufferARB,
             glDeleteBuffersARB,
@@ -1643,7 +1567,6 @@ public final class GLCapabilities {
             glGetBufferParameterivARB,
             glGetBufferPointervARB;
 
-    // ARB_vertex_program
     public final long
             glVertexAttrib1sARB,
             glVertexAttrib1fARB,
@@ -1708,13 +1631,11 @@ public final class GLCapabilities {
             glGetVertexAttribPointervARB,
             glIsProgramARB;
 
-    // ARB_vertex_shader
     public final long
             glBindAttribLocationARB,
             glGetActiveAttribARB,
             glGetAttribLocationARB;
 
-    // ARB_window_pos
     public final long
             glWindowPos2iARB,
             glWindowPos2sARB,
@@ -1733,49 +1654,39 @@ public final class GLCapabilities {
             glWindowPos3fvARB,
             glWindowPos3dvARB;
 
-    // EXT_bindable_uniform
     public final long
             glUniformBufferEXT,
             glGetUniformBufferSizeEXT,
             glGetUniformOffsetEXT;
 
-    // EXT_blend_color
     public final long
             glBlendColorEXT;
 
-    // EXT_blend_equation_separate
     public final long
             glBlendEquationSeparateEXT;
 
-    // EXT_blend_func_separate
     public final long
             glBlendFuncSeparateEXT;
 
-    // EXT_blend_minmax
     public final long
             glBlendEquationEXT;
 
-    // EXT_compiled_vertex_array
     public final long
             glLockArraysEXT,
             glUnlockArraysEXT;
 
-    // EXT_debug_label
     public final long
             glLabelObjectEXT,
             glGetObjectLabelEXT;
 
-    // EXT_debug_marker
     public final long
             glInsertEventMarkerEXT,
             glPushGroupMarkerEXT,
             glPopGroupMarkerEXT;
 
-    // EXT_depth_bounds_test
     public final long
             glDepthBoundsEXT;
 
-    // EXT_direct_state_access
     public final long
             glClientAttribDefaultEXT,
             glPushClientAttribDefaultEXT,
@@ -1995,46 +1906,37 @@ public final class GLCapabilities {
             glMapNamedBufferRangeEXT,
             glFlushMappedNamedBufferRangeEXT;
 
-    // EXT_draw_buffers2
     public final long
             glColorMaskIndexedEXT;
 
-    // EXT_draw_instanced
     public final long
             glDrawArraysInstancedEXT,
             glDrawElementsInstancedEXT;
 
-    // EXT_EGL_image_storage
     public final long
             glEGLImageTargetTexStorageEXT,
             glEGLImageTargetTextureStorageEXT;
 
-    // EXT_external_buffer
     public final long
             glBufferStorageExternalEXT,
             glNamedBufferStorageExternalEXT;
 
-    // EXT_fragment_shading_rate
     public final long
             glShadingRateEXT,
             glShadingRateCombinerOpsEXT,
             glFramebufferShadingRateEXT,
             glGetFragmentShadingRatesEXT;
 
-    // EXT_framebuffer_blit
     public final long
             glBlitFramebufferEXT;
 
-    // EXT_framebuffer_blit_layers
     public final long
             glBlitFramebufferLayersEXT,
             glBlitFramebufferLayerEXT;
 
-    // EXT_framebuffer_multisample
     public final long
             glRenderbufferStorageMultisampleEXT;
 
-    // EXT_framebuffer_object
     public final long
             glIsRenderbufferEXT,
             glBindRenderbufferEXT,
@@ -2054,19 +1956,16 @@ public final class GLCapabilities {
             glGetFramebufferAttachmentParameterivEXT,
             glGenerateMipmapEXT;
 
-    // EXT_geometry_shader4
     public final long
             glProgramParameteriEXT,
             glFramebufferTextureEXT,
             glFramebufferTextureLayerEXT,
             glFramebufferTextureFaceEXT;
 
-    // EXT_gpu_program_parameters
     public final long
             glProgramEnvParameters4fvEXT,
             glProgramLocalParameters4fvEXT;
 
-    // EXT_gpu_shader4
     public final long
             glVertexAttribI1iEXT,
             glVertexAttribI2iEXT,
@@ -2103,7 +2002,6 @@ public final class GLCapabilities {
             glUniform3uivEXT,
             glUniform4uivEXT;
 
-    // EXT_memory_object
     public final long
             glGetUnsignedBytevEXT,
             glGetUnsignedBytei_vEXT,
@@ -2125,40 +2023,32 @@ public final class GLCapabilities {
             glTexStorageMem1DEXT,
             glTextureStorageMem1DEXT;
 
-    // EXT_memory_object_fd
     public final long
             glImportMemoryFdEXT;
 
-    // EXT_memory_object_win32
     public final long
             glImportMemoryWin32HandleEXT,
             glImportMemoryWin32NameEXT;
 
-    // EXT_mesh_shader
     public final long
             glDrawMeshTasksEXT,
             glDrawMeshTasksIndirectEXT,
             glMultiDrawMeshTasksIndirectEXT,
             glMultiDrawMeshTasksIndirectCountEXT;
 
-    // EXT_point_parameters
     public final long
             glPointParameterfEXT,
             glPointParameterfvEXT;
 
-    // EXT_polygon_offset_clamp
     public final long
             glPolygonOffsetClampEXT;
 
-    // EXT_provoking_vertex
     public final long
             glProvokingVertexEXT;
 
-    // EXT_raster_multisample
     public final long
             glRasterSamplesEXT;
 
-    // EXT_secondary_color
     public final long
             glSecondaryColor3bEXT,
             glSecondaryColor3sEXT,
@@ -2178,7 +2068,6 @@ public final class GLCapabilities {
             glSecondaryColor3uivEXT,
             glSecondaryColorPointerEXT;
 
-    // EXT_semaphore
     public final long
             glGenSemaphoresEXT,
             glDeleteSemaphoresEXT,
@@ -2188,43 +2077,34 @@ public final class GLCapabilities {
             glWaitSemaphoreEXT,
             glSignalSemaphoreEXT;
 
-    // EXT_semaphore_fd
     public final long
             glImportSemaphoreFdEXT;
 
-    // EXT_semaphore_win32
     public final long
             glImportSemaphoreWin32HandleEXT,
             glImportSemaphoreWin32NameEXT;
 
-    // EXT_separate_shader_objects
     public final long
             glUseShaderProgramEXT,
             glActiveProgramEXT,
             glCreateShaderProgramEXT;
 
-    // EXT_shader_framebuffer_fetch_non_coherent
     public final long
             glFramebufferFetchBarrierEXT;
 
-    // EXT_shader_image_load_store
     public final long
             glBindImageTextureEXT,
             glMemoryBarrierEXT;
 
-    // EXT_stencil_clear_tag
     public final long
             glStencilClearTagEXT;
 
-    // EXT_stencil_two_side
     public final long
             glActiveStencilFaceEXT;
 
-    // EXT_texture_buffer_object
     public final long
             glTexBufferEXT;
 
-    // EXT_texture_integer
     public final long
             glClearColorIiEXT,
             glClearColorIuiEXT,
@@ -2233,18 +2113,15 @@ public final class GLCapabilities {
             glGetTexParameterIivEXT,
             glGetTexParameterIuivEXT;
 
-    // EXT_texture_storage
     public final long
             glTexStorage1DEXT,
             glTexStorage2DEXT,
             glTexStorage3DEXT;
 
-    // EXT_timer_query
     public final long
             glGetQueryObjecti64vEXT,
             glGetQueryObjectui64vEXT;
 
-    // EXT_transform_feedback
     public final long
             glBindBufferRangeEXT,
             glBindBufferOffsetEXT,
@@ -2254,7 +2131,6 @@ public final class GLCapabilities {
             glTransformFeedbackVaryingsEXT,
             glGetTransformFeedbackVaryingEXT;
 
-    // EXT_vertex_attrib_64bit
     public final long
             glVertexAttribL1dEXT,
             glVertexAttribL2dEXT,
@@ -2267,38 +2143,30 @@ public final class GLCapabilities {
             glVertexAttribLPointerEXT,
             glGetVertexAttribLdvEXT;
 
-    // EXT_win32_keyed_mutex
     public final long
             glAcquireKeyedMutexWin32EXT,
             glReleaseKeyedMutexWin32EXT;
 
-    // EXT_window_rectangles
     public final long
             glWindowRectanglesEXT;
 
-    // EXT_x11_sync_object
     public final long
             glImportSyncEXT;
 
-    // GREMEDY_frame_terminator
     public final long
             glFrameTerminatorGREMEDY;
 
-    // GREMEDY_string_marker
     public final long
             glStringMarkerGREMEDY;
 
-    // INTEL_framebuffer_CMAA
     public final long
             glApplyFramebufferAttachmentCMAAINTEL;
 
-    // INTEL_map_texture
     public final long
             glSyncTextureINTEL,
             glUnmapTexture2DINTEL,
             glMapTexture2DINTEL;
 
-    // INTEL_performance_query
     public final long
             glBeginPerfQueryINTEL,
             glCreatePerfQueryINTEL,
@@ -2311,34 +2179,27 @@ public final class GLCapabilities {
             glGetPerfQueryIdByNameINTEL,
             glGetPerfQueryInfoINTEL;
 
-    // KHR_blend_equation_advanced
     public final long
             glBlendBarrierKHR;
 
-    // KHR_parallel_shader_compile
     public final long
             glMaxShaderCompilerThreadsKHR;
 
-    // MESA_framebuffer_flip_y
     public final long
             glFramebufferParameteriMESA,
             glGetFramebufferParameterivMESA;
 
-    // NV_alpha_to_coverage_dither_control
     public final long
             glAlphaToCoverageDitherControlNV;
 
-    // NV_bindless_multi_draw_indirect
     public final long
             glMultiDrawArraysIndirectBindlessNV,
             glMultiDrawElementsIndirectBindlessNV;
 
-    // NV_bindless_multi_draw_indirect_count
     public final long
             glMultiDrawArraysIndirectBindlessCountNV,
             glMultiDrawElementsIndirectBindlessCountNV;
 
-    // NV_bindless_texture
     public final long
             glGetTextureHandleNV,
             glGetTextureSamplerHandleNV,
@@ -2354,16 +2215,13 @@ public final class GLCapabilities {
             glIsTextureHandleResidentNV,
             glIsImageHandleResidentNV;
 
-    // NV_blend_equation_advanced
     public final long
             glBlendParameteriNV,
             glBlendBarrierNV;
 
-    // NV_clip_space_w_scaling
     public final long
             glViewportPositionWScaleNV;
 
-    // NV_command_list
     public final long
             glCreateStatesNV,
             glDeleteStatesNV,
@@ -2383,38 +2241,30 @@ public final class GLCapabilities {
             glCompileCommandListNV,
             glCallCommandListNV;
 
-    // NV_conditional_render
     public final long
             glBeginConditionalRenderNV,
             glEndConditionalRenderNV;
 
-    // NV_conservative_raster
     public final long
             glSubpixelPrecisionBiasNV;
 
-    // NV_conservative_raster_dilate
     public final long
             glConservativeRasterParameterfNV;
 
-    // NV_conservative_raster_pre_snap_triangles
     public final long
             glConservativeRasterParameteriNV;
 
-    // NV_copy_image
     public final long
             glCopyImageSubDataNV;
 
-    // NV_depth_buffer_float
     public final long
             glDepthRangedNV,
             glClearDepthdNV,
             glDepthBoundsdNV;
 
-    // NV_draw_texture
     public final long
             glDrawTextureNV;
 
-    // NV_draw_vulkan_image
     public final long
             glDrawVkImageNV,
             glGetVkProcAddrNV,
@@ -2422,13 +2272,11 @@ public final class GLCapabilities {
             glSignalVkSemaphoreNV,
             glSignalVkFenceNV;
 
-    // NV_explicit_multisample
     public final long
             glGetMultisamplefvNV,
             glSampleMaskIndexedNV,
             glTexRenderbufferNV;
 
-    // NV_fence
     public final long
             glDeleteFencesNV,
             glGenFencesNV,
@@ -2438,21 +2286,17 @@ public final class GLCapabilities {
             glFinishFenceNV,
             glSetFenceNV;
 
-    // NV_fragment_coverage_to_color
     public final long
             glFragmentCoverageColorNV;
 
-    // NV_framebuffer_mixed_samples
     public final long
             glCoverageModulationTableNV,
             glGetCoverageModulationTableNV,
             glCoverageModulationNV;
 
-    // NV_framebuffer_multisample_coverage
     public final long
             glRenderbufferStorageMultisampleCoverageNV;
 
-    // NV_gpu_multicast
     public final long
             glRenderGpuMaskNV,
             glMulticastBufferSubDataNV,
@@ -2467,7 +2311,6 @@ public final class GLCapabilities {
             glMulticastGetQueryObjecti64vNV,
             glMulticastGetQueryObjectui64vNV;
 
-    // NV_half_float
     public final long
             glVertex2hNV,
             glVertex2hvNV,
@@ -2516,11 +2359,9 @@ public final class GLCapabilities {
             glVertexAttribs3hvNV,
             glVertexAttribs4hvNV;
 
-    // NV_internalformat_sample_query
     public final long
             glGetInternalformatSampleivNV;
 
-    // NV_memory_attachment
     public final long
             glGetMemoryObjectDetachedResourcesuivNV,
             glResetMemoryObjectParameterNV,
@@ -2529,21 +2370,18 @@ public final class GLCapabilities {
             glTextureAttachMemoryNV,
             glNamedBufferAttachMemoryNV;
 
-    // NV_memory_object_sparse
     public final long
             glBufferPageCommitmentMemNV,
             glNamedBufferPageCommitmentMemNV,
             glTexPageCommitmentMemNV,
             glTexturePageCommitmentMemNV;
 
-    // NV_mesh_shader
     public final long
             glDrawMeshTasksNV,
             glDrawMeshTasksIndirectNV,
             glMultiDrawMeshTasksIndirectNV,
             glMultiDrawMeshTasksIndirectCountNV;
 
-    // NV_path_rendering
     public final long
             glPathCommandsNV,
             glPathCoordsNV,
@@ -2610,43 +2448,35 @@ public final class GLCapabilities {
             glMatrixMultTranspose3x3fNV,
             glGetProgramResourcefvNV;
 
-    // NV_pixel_data_range
     public final long
             glPixelDataRangeNV,
             glFlushPixelDataRangeNV;
 
-    // NV_point_sprite
     public final long
             glPointParameteriNV,
             glPointParameterivNV;
 
-    // NV_primitive_restart
     public final long
             glPrimitiveRestartNV,
             glPrimitiveRestartIndexNV;
 
-    // NV_query_resource
     public final long
             glQueryResourceNV;
 
-    // NV_query_resource_tag
     public final long
             glGenQueryResourceTagNV,
             glDeleteQueryResourceTagNV,
             glQueryResourceTagNV;
 
-    // NV_sample_locations
     public final long
             glFramebufferSampleLocationsfvNV,
             glNamedFramebufferSampleLocationsfvNV,
             glResolveDepthValuesNV;
 
-    // NV_scissor_exclusive
     public final long
             glScissorExclusiveArrayvNV,
             glScissorExclusiveNV;
 
-    // NV_shader_buffer_load
     public final long
             glMakeBufferResidentNV,
             glMakeBufferNonResidentNV,
@@ -2662,7 +2492,6 @@ public final class GLCapabilities {
             glProgramUniformui64NV,
             glProgramUniformui64vNV;
 
-    // NV_shading_rate_image
     public final long
             glBindShadingRateImageNV,
             glShadingRateImagePaletteNV,
@@ -2672,11 +2501,9 @@ public final class GLCapabilities {
             glShadingRateSampleOrderCustomNV,
             glGetShadingRateSampleLocationivNV;
 
-    // NV_texture_barrier
     public final long
             glTextureBarrierNV;
 
-    // NV_texture_multisample
     public final long
             glTexImage2DMultisampleCoverageNV,
             glTexImage3DMultisampleCoverageNV,
@@ -2685,13 +2512,11 @@ public final class GLCapabilities {
             glTextureImage2DMultisampleCoverageNV,
             glTextureImage3DMultisampleCoverageNV;
 
-    // NV_timeline_semaphore
     public final long
             glCreateSemaphoresNV,
             glSemaphoreParameterivNV,
             glGetSemaphoreParameterivNV;
 
-    // NV_transform_feedback
     public final long
             glBeginTransformFeedbackNV,
             glEndTransformFeedbackNV,
@@ -2706,7 +2531,6 @@ public final class GLCapabilities {
             glGetTransformFeedbackVaryingNV,
             glTransformFeedbackStreamAttribsNV;
 
-    // NV_transform_feedback2
     public final long
             glBindTransformFeedbackNV,
             glDeleteTransformFeedbacksNV,
@@ -2716,12 +2540,10 @@ public final class GLCapabilities {
             glResumeTransformFeedbackNV,
             glDrawTransformFeedbackNV;
 
-    // NV_vertex_array_range
     public final long
             glVertexArrayRangeNV,
             glFlushVertexArrayRangeNV;
 
-    // NV_vertex_attrib_integer_64bit
     public final long
             glVertexAttribL1i64NV,
             glVertexAttribL2i64NV,
@@ -2743,7 +2565,6 @@ public final class GLCapabilities {
             glGetVertexAttribLui64vNV,
             glVertexAttribLFormatNV;
 
-    // NV_vertex_buffer_unified_memory
     public final long
             glBufferAddressRangeNV,
             glVertexFormatNV,
@@ -2758,16 +2579,13 @@ public final class GLCapabilities {
             glVertexAttribIFormatNV,
             glGetIntegerui64i_vNV;
 
-    // NV_viewport_swizzle
     public final long
             glViewportSwizzleNV;
 
-    // NVX_conditional_render
     public final long
             glBeginConditionalRenderNVX,
             glEndConditionalRenderNVX;
 
-    // NVX_gpu_multicast2
     public final long
             glAsyncCopyImageSubDataNVX,
             glAsyncCopyBufferSubDataNVX,
@@ -2776,913 +2594,908 @@ public final class GLCapabilities {
             glMulticastScissorArrayvNVX,
             glMulticastViewportPositionWScaleNVX;
 
-    // NVX_progress_fence
     public final long
             glCreateProgressFenceNVX,
             glSignalSemaphoreui64NVX,
             glWaitSemaphoreui64NVX,
             glClientWaitSemaphoreui64NVX;
 
-    // OVR_multiview
     public final long
             glFramebufferTextureMultiviewOVR,
             glNamedFramebufferTextureMultiviewOVR;
 
-    /** When true, {@code GL11} is supported. */
     public final boolean OpenGL11;
-    /** When true, {@code GL12} is supported. */
+
     public final boolean OpenGL12;
-    /** When true, {@code GL13} is supported. */
+
     public final boolean OpenGL13;
-    /** When true, {@code GL14} is supported. */
+
     public final boolean OpenGL14;
-    /** When true, {@code GL15} is supported. */
+
     public final boolean OpenGL15;
-    /** When true, {@code GL20} is supported. */
+
     public final boolean OpenGL20;
-    /** When true, {@code GL21} is supported. */
+
     public final boolean OpenGL21;
-    /** When true, {@code GL30} is supported. */
+
     public final boolean OpenGL30;
-    /** When true, {@code GL31} is supported. */
+
     public final boolean OpenGL31;
-    /** When true, {@code GL32} is supported. */
+
     public final boolean OpenGL32;
-    /** When true, {@code GL33} is supported. */
+
     public final boolean OpenGL33;
-    /** When true, {@code GL40} is supported. */
+
     public final boolean OpenGL40;
-    /** When true, {@code GL41} is supported. */
+
     public final boolean OpenGL41;
-    /** When true, {@code GL42} is supported. */
+
     public final boolean OpenGL42;
-    /** When true, {@code GL43} is supported. */
+
     public final boolean OpenGL43;
-    /** When true, {@code GL44} is supported. */
+
     public final boolean OpenGL44;
-    /** When true, {@code GL45} is supported. */
+
     public final boolean OpenGL45;
-    /** When true, {@code GL46} is supported. */
+
     public final boolean OpenGL46;
-    /** When true, {@code 3DFX_texture_compression_FXT1} is supported. */
+
     public final boolean GL_3DFX_texture_compression_FXT1;
-    /** When true, {@code AMD_blend_minmax_factor} is supported. */
+
     public final boolean GL_AMD_blend_minmax_factor;
-    /** When true, {@code AMD_conservative_depth} is supported. */
+
     public final boolean GL_AMD_conservative_depth;
-    /** When true, {@code AMD_debug_output} is supported. */
+
     public final boolean GL_AMD_debug_output;
-    /** When true, {@code AMD_depth_clamp_separate} is supported. */
+
     public final boolean GL_AMD_depth_clamp_separate;
-    /** When true, {@code AMD_draw_buffers_blend} is supported. */
+
     public final boolean GL_AMD_draw_buffers_blend;
-    /** When true, {@code AMD_framebuffer_multisample_advanced} is supported. */
+
     public final boolean GL_AMD_framebuffer_multisample_advanced;
-    /** When true, {@code AMD_gcn_shader} is supported. */
+
     public final boolean GL_AMD_gcn_shader;
-    /** When true, {@code AMD_gpu_shader_half_float} is supported. */
+
     public final boolean GL_AMD_gpu_shader_half_float;
-    /** When true, {@code AMD_gpu_shader_half_float_fetch} is supported. */
+
     public final boolean GL_AMD_gpu_shader_half_float_fetch;
-    /** When true, {@code AMD_gpu_shader_int16} is supported. */
+
     public final boolean GL_AMD_gpu_shader_int16;
-    /** When true, {@code AMD_gpu_shader_int64} is supported. */
+
     public final boolean GL_AMD_gpu_shader_int64;
-    /** When true, {@code AMD_interleaved_elements} is supported. */
+
     public final boolean GL_AMD_interleaved_elements;
-    /** When true, {@code AMD_occlusion_query_event} is supported. */
+
     public final boolean GL_AMD_occlusion_query_event;
-    /** When true, {@code AMD_performance_monitor} is supported. */
+
     public final boolean GL_AMD_performance_monitor;
-    /** When true, {@code AMD_pinned_memory} is supported. */
+
     public final boolean GL_AMD_pinned_memory;
-    /** When true, {@code AMD_query_buffer_object} is supported. */
+
     public final boolean GL_AMD_query_buffer_object;
-    /** When true, {@code AMD_sample_positions} is supported. */
+
     public final boolean GL_AMD_sample_positions;
-    /** When true, {@code AMD_seamless_cubemap_per_texture} is supported. */
+
     public final boolean GL_AMD_seamless_cubemap_per_texture;
-    /** When true, {@code AMD_shader_atomic_counter_ops} is supported. */
+
     public final boolean GL_AMD_shader_atomic_counter_ops;
-    /** When true, {@code AMD_shader_ballot} is supported. */
+
     public final boolean GL_AMD_shader_ballot;
-    /** When true, {@code AMD_shader_explicit_vertex_parameter} is supported. */
+
     public final boolean GL_AMD_shader_explicit_vertex_parameter;
-    /** When true, {@code AMD_shader_image_load_store_lod} is supported. */
+
     public final boolean GL_AMD_shader_image_load_store_lod;
-    /** When true, {@code AMD_shader_stencil_export} is supported. */
+
     public final boolean GL_AMD_shader_stencil_export;
-    /** When true, {@code AMD_shader_trinary_minmax} is supported. */
+
     public final boolean GL_AMD_shader_trinary_minmax;
-    /** When true, {@code AMD_sparse_texture} is supported. */
+
     public final boolean GL_AMD_sparse_texture;
-    /** When true, {@code AMD_stencil_operation_extended} is supported. */
+
     public final boolean GL_AMD_stencil_operation_extended;
-    /** When true, {@code AMD_texture_gather_bias_lod} is supported. */
+
     public final boolean GL_AMD_texture_gather_bias_lod;
-    /** When true, {@code AMD_texture_texture4} is supported. */
+
     public final boolean GL_AMD_texture_texture4;
-    /** When true, {@code AMD_transform_feedback3_lines_triangles} is supported. */
+
     public final boolean GL_AMD_transform_feedback3_lines_triangles;
-    /** When true, {@code AMD_transform_feedback4} is supported. */
+
     public final boolean GL_AMD_transform_feedback4;
-    /** When true, {@code AMD_vertex_shader_layer} is supported. */
+
     public final boolean GL_AMD_vertex_shader_layer;
-    /** When true, {@code AMD_vertex_shader_tessellator} is supported. */
+
     public final boolean GL_AMD_vertex_shader_tessellator;
-    /** When true, {@code AMD_vertex_shader_viewport_index} is supported. */
+
     public final boolean GL_AMD_vertex_shader_viewport_index;
-    /** When true, {@code ARB_arrays_of_arrays} is supported. */
+
     public final boolean GL_ARB_arrays_of_arrays;
-    /** When true, {@code ARB_base_instance} is supported. */
+
     public final boolean GL_ARB_base_instance;
-    /** When true, {@code ARB_bindless_texture} is supported. */
+
     public final boolean GL_ARB_bindless_texture;
-    /** When true, {@code ARB_blend_func_extended} is supported. */
+
     public final boolean GL_ARB_blend_func_extended;
-    /** When true, {@code ARB_buffer_storage} is supported. */
+
     public final boolean GL_ARB_buffer_storage;
-    /** When true, {@code ARB_cl_event} is supported. */
+
     public final boolean GL_ARB_cl_event;
-    /** When true, {@code ARB_clear_buffer_object} is supported. */
+
     public final boolean GL_ARB_clear_buffer_object;
-    /** When true, {@code ARB_clear_texture} is supported. */
+
     public final boolean GL_ARB_clear_texture;
-    /** When true, {@code ARB_clip_control} is supported. */
+
     public final boolean GL_ARB_clip_control;
-    /** When true, {@code ARB_color_buffer_float} is supported. */
+
     public final boolean GL_ARB_color_buffer_float;
-    /** When true, {@code ARB_compatibility} is supported. */
+
     public final boolean GL_ARB_compatibility;
-    /** When true, {@code ARB_compressed_texture_pixel_storage} is supported. */
+
     public final boolean GL_ARB_compressed_texture_pixel_storage;
-    /** When true, {@code ARB_compute_shader} is supported. */
+
     public final boolean GL_ARB_compute_shader;
-    /** When true, {@code ARB_compute_variable_group_size} is supported. */
+
     public final boolean GL_ARB_compute_variable_group_size;
-    /** When true, {@code ARB_conditional_render_inverted} is supported. */
+
     public final boolean GL_ARB_conditional_render_inverted;
-    /** When true, {@code ARB_conservative_depth} is supported. */
+
     public final boolean GL_ARB_conservative_depth;
-    /** When true, {@code ARB_copy_buffer} is supported. */
+
     public final boolean GL_ARB_copy_buffer;
-    /** When true, {@code ARB_copy_image} is supported. */
+
     public final boolean GL_ARB_copy_image;
-    /** When true, {@code ARB_cull_distance} is supported. */
+
     public final boolean GL_ARB_cull_distance;
-    /** When true, {@code ARB_debug_output} is supported. */
+
     public final boolean GL_ARB_debug_output;
-    /** When true, {@code ARB_depth_buffer_float} is supported. */
+
     public final boolean GL_ARB_depth_buffer_float;
-    /** When true, {@code ARB_depth_clamp} is supported. */
+
     public final boolean GL_ARB_depth_clamp;
-    /** When true, {@code ARB_depth_texture} is supported. */
+
     public final boolean GL_ARB_depth_texture;
-    /** When true, {@code ARB_derivative_control} is supported. */
+
     public final boolean GL_ARB_derivative_control;
-    /** When true, {@code ARB_direct_state_access} is supported. */
+
     public final boolean GL_ARB_direct_state_access;
-    /** When true, {@code ARB_draw_buffers} is supported. */
+
     public final boolean GL_ARB_draw_buffers;
-    /** When true, {@code ARB_draw_buffers_blend} is supported. */
+
     public final boolean GL_ARB_draw_buffers_blend;
-    /** When true, {@code ARB_draw_elements_base_vertex} is supported. */
+
     public final boolean GL_ARB_draw_elements_base_vertex;
-    /** When true, {@code ARB_draw_indirect} is supported. */
+
     public final boolean GL_ARB_draw_indirect;
-    /** When true, {@code ARB_draw_instanced} is supported. */
+
     public final boolean GL_ARB_draw_instanced;
-    /** When true, {@code ARB_enhanced_layouts} is supported. */
+
     public final boolean GL_ARB_enhanced_layouts;
-    /** When true, {@code ARB_ES2_compatibility} is supported. */
+
     public final boolean GL_ARB_ES2_compatibility;
-    /** When true, {@code ARB_ES3_1_compatibility} is supported. */
+
     public final boolean GL_ARB_ES3_1_compatibility;
-    /** When true, {@code ARB_ES3_2_compatibility} is supported. */
+
     public final boolean GL_ARB_ES3_2_compatibility;
-    /** When true, {@code ARB_ES3_compatibility} is supported. */
+
     public final boolean GL_ARB_ES3_compatibility;
-    /** When true, {@code ARB_explicit_attrib_location} is supported. */
+
     public final boolean GL_ARB_explicit_attrib_location;
-    /** When true, {@code ARB_explicit_uniform_location} is supported. */
+
     public final boolean GL_ARB_explicit_uniform_location;
-    /** When true, {@code ARB_fragment_coord_conventions} is supported. */
+
     public final boolean GL_ARB_fragment_coord_conventions;
-    /** When true, {@code ARB_fragment_layer_viewport} is supported. */
+
     public final boolean GL_ARB_fragment_layer_viewport;
-    /** When true, {@code ARB_fragment_program} is supported. */
+
     public final boolean GL_ARB_fragment_program;
-    /** When true, {@code ARB_fragment_program_shadow} is supported. */
+
     public final boolean GL_ARB_fragment_program_shadow;
-    /** When true, {@code ARB_fragment_shader} is supported. */
+
     public final boolean GL_ARB_fragment_shader;
-    /** When true, {@code ARB_fragment_shader_interlock} is supported. */
+
     public final boolean GL_ARB_fragment_shader_interlock;
-    /** When true, {@code ARB_framebuffer_no_attachments} is supported. */
+
     public final boolean GL_ARB_framebuffer_no_attachments;
-    /** When true, {@code ARB_framebuffer_object} is supported. */
+
     public final boolean GL_ARB_framebuffer_object;
-    /** When true, {@code ARB_framebuffer_sRGB} is supported. */
+
     public final boolean GL_ARB_framebuffer_sRGB;
-    /** When true, {@code ARB_geometry_shader4} is supported. */
+
     public final boolean GL_ARB_geometry_shader4;
-    /** When true, {@code ARB_get_program_binary} is supported. */
+
     public final boolean GL_ARB_get_program_binary;
-    /** When true, {@code ARB_get_texture_sub_image} is supported. */
+
     public final boolean GL_ARB_get_texture_sub_image;
-    /** When true, {@code ARB_gl_spirv} is supported. */
+
     public final boolean GL_ARB_gl_spirv;
-    /** When true, {@code ARB_gpu_shader5} is supported. */
+
     public final boolean GL_ARB_gpu_shader5;
-    /** When true, {@code ARB_gpu_shader_fp64} is supported. */
+
     public final boolean GL_ARB_gpu_shader_fp64;
-    /** When true, {@code ARB_gpu_shader_int64} is supported. */
+
     public final boolean GL_ARB_gpu_shader_int64;
-    /** When true, {@code ARB_half_float_pixel} is supported. */
+
     public final boolean GL_ARB_half_float_pixel;
-    /** When true, {@code ARB_half_float_vertex} is supported. */
+
     public final boolean GL_ARB_half_float_vertex;
-    /** When true, {@code ARB_imaging} is supported. */
+
     public final boolean GL_ARB_imaging;
-    /** When true, {@code ARB_indirect_parameters} is supported. */
+
     public final boolean GL_ARB_indirect_parameters;
-    /** When true, {@code ARB_instanced_arrays} is supported. */
+
     public final boolean GL_ARB_instanced_arrays;
-    /** When true, {@code ARB_internalformat_query} is supported. */
+
     public final boolean GL_ARB_internalformat_query;
-    /** When true, {@code ARB_internalformat_query2} is supported. */
+
     public final boolean GL_ARB_internalformat_query2;
-    /** When true, {@code ARB_invalidate_subdata} is supported. */
+
     public final boolean GL_ARB_invalidate_subdata;
-    /** When true, {@code ARB_map_buffer_alignment} is supported. */
+
     public final boolean GL_ARB_map_buffer_alignment;
-    /** When true, {@code ARB_map_buffer_range} is supported. */
+
     public final boolean GL_ARB_map_buffer_range;
-    /** When true, {@code ARB_matrix_palette} is supported. */
+
     public final boolean GL_ARB_matrix_palette;
-    /** When true, {@code ARB_multi_bind} is supported. */
+
     public final boolean GL_ARB_multi_bind;
-    /** When true, {@code ARB_multi_draw_indirect} is supported. */
+
     public final boolean GL_ARB_multi_draw_indirect;
-    /** When true, {@code ARB_multisample} is supported. */
+
     public final boolean GL_ARB_multisample;
-    /** When true, {@code ARB_multitexture} is supported. */
+
     public final boolean GL_ARB_multitexture;
-    /** When true, {@code ARB_occlusion_query} is supported. */
+
     public final boolean GL_ARB_occlusion_query;
-    /** When true, {@code ARB_occlusion_query2} is supported. */
+
     public final boolean GL_ARB_occlusion_query2;
-    /** When true, {@code ARB_parallel_shader_compile} is supported. */
+
     public final boolean GL_ARB_parallel_shader_compile;
-    /** When true, {@code ARB_pipeline_statistics_query} is supported. */
+
     public final boolean GL_ARB_pipeline_statistics_query;
-    /** When true, {@code ARB_pixel_buffer_object} is supported. */
+
     public final boolean GL_ARB_pixel_buffer_object;
-    /** When true, {@code ARB_point_parameters} is supported. */
+
     public final boolean GL_ARB_point_parameters;
-    /** When true, {@code ARB_point_sprite} is supported. */
+
     public final boolean GL_ARB_point_sprite;
-    /** When true, {@code ARB_polygon_offset_clamp} is supported. */
+
     public final boolean GL_ARB_polygon_offset_clamp;
-    /** When true, {@code ARB_post_depth_coverage} is supported. */
+
     public final boolean GL_ARB_post_depth_coverage;
-    /** When true, {@code ARB_program_interface_query} is supported. */
+
     public final boolean GL_ARB_program_interface_query;
-    /** When true, {@code ARB_provoking_vertex} is supported. */
+
     public final boolean GL_ARB_provoking_vertex;
-    /** When true, {@code ARB_query_buffer_object} is supported. */
+
     public final boolean GL_ARB_query_buffer_object;
-    /** When true, {@code ARB_robust_buffer_access_behavior} is supported. */
+
     public final boolean GL_ARB_robust_buffer_access_behavior;
-    /** When true, {@code ARB_robustness} is supported. */
+
     public final boolean GL_ARB_robustness;
-    /** When true, {@code ARB_robustness_application_isolation} is supported. */
+
     public final boolean GL_ARB_robustness_application_isolation;
-    /** When true, {@code ARB_robustness_share_group_isolation} is supported. */
+
     public final boolean GL_ARB_robustness_share_group_isolation;
-    /** When true, {@code ARB_sample_locations} is supported. */
+
     public final boolean GL_ARB_sample_locations;
-    /** When true, {@code ARB_sample_shading} is supported. */
+
     public final boolean GL_ARB_sample_shading;
-    /** When true, {@code ARB_sampler_objects} is supported. */
+
     public final boolean GL_ARB_sampler_objects;
-    /** When true, {@code ARB_seamless_cube_map} is supported. */
+
     public final boolean GL_ARB_seamless_cube_map;
-    /** When true, {@code ARB_seamless_cubemap_per_texture} is supported. */
+
     public final boolean GL_ARB_seamless_cubemap_per_texture;
-    /** When true, {@code ARB_separate_shader_objects} is supported. */
+
     public final boolean GL_ARB_separate_shader_objects;
-    /** When true, {@code ARB_shader_atomic_counter_ops} is supported. */
+
     public final boolean GL_ARB_shader_atomic_counter_ops;
-    /** When true, {@code ARB_shader_atomic_counters} is supported. */
+
     public final boolean GL_ARB_shader_atomic_counters;
-    /** When true, {@code ARB_shader_ballot} is supported. */
+
     public final boolean GL_ARB_shader_ballot;
-    /** When true, {@code ARB_shader_bit_encoding} is supported. */
+
     public final boolean GL_ARB_shader_bit_encoding;
-    /** When true, {@code ARB_shader_clock} is supported. */
+
     public final boolean GL_ARB_shader_clock;
-    /** When true, {@code ARB_shader_draw_parameters} is supported. */
+
     public final boolean GL_ARB_shader_draw_parameters;
-    /** When true, {@code ARB_shader_group_vote} is supported. */
+
     public final boolean GL_ARB_shader_group_vote;
-    /** When true, {@code ARB_shader_image_load_store} is supported. */
+
     public final boolean GL_ARB_shader_image_load_store;
-    /** When true, {@code ARB_shader_image_size} is supported. */
+
     public final boolean GL_ARB_shader_image_size;
-    /** When true, {@code ARB_shader_objects} is supported. */
+
     public final boolean GL_ARB_shader_objects;
-    /** When true, {@code ARB_shader_precision} is supported. */
+
     public final boolean GL_ARB_shader_precision;
-    /** When true, {@code ARB_shader_stencil_export} is supported. */
+
     public final boolean GL_ARB_shader_stencil_export;
-    /** When true, {@code ARB_shader_storage_buffer_object} is supported. */
+
     public final boolean GL_ARB_shader_storage_buffer_object;
-    /** When true, {@code ARB_shader_subroutine} is supported. */
+
     public final boolean GL_ARB_shader_subroutine;
-    /** When true, {@code ARB_shader_texture_image_samples} is supported. */
+
     public final boolean GL_ARB_shader_texture_image_samples;
-    /** When true, {@code ARB_shader_texture_lod} is supported. */
+
     public final boolean GL_ARB_shader_texture_lod;
-    /** When true, {@code ARB_shader_viewport_layer_array} is supported. */
+
     public final boolean GL_ARB_shader_viewport_layer_array;
-    /** When true, {@code ARB_shading_language_100} is supported. */
+
     public final boolean GL_ARB_shading_language_100;
-    /** When true, {@code ARB_shading_language_420pack} is supported. */
+
     public final boolean GL_ARB_shading_language_420pack;
-    /** When true, {@code ARB_shading_language_include} is supported. */
+
     public final boolean GL_ARB_shading_language_include;
-    /** When true, {@code ARB_shading_language_packing} is supported. */
+
     public final boolean GL_ARB_shading_language_packing;
-    /** When true, {@code ARB_shadow} is supported. */
+
     public final boolean GL_ARB_shadow;
-    /** When true, {@code ARB_shadow_ambient} is supported. */
+
     public final boolean GL_ARB_shadow_ambient;
-    /** When true, {@code ARB_sparse_buffer} is supported. */
+
     public final boolean GL_ARB_sparse_buffer;
-    /** When true, {@code ARB_sparse_texture} is supported. */
+
     public final boolean GL_ARB_sparse_texture;
-    /** When true, {@code ARB_sparse_texture2} is supported. */
+
     public final boolean GL_ARB_sparse_texture2;
-    /** When true, {@code ARB_sparse_texture_clamp} is supported. */
+
     public final boolean GL_ARB_sparse_texture_clamp;
-    /** When true, {@code ARB_spirv_extensions} is supported. */
+
     public final boolean GL_ARB_spirv_extensions;
-    /** When true, {@code ARB_stencil_texturing} is supported. */
+
     public final boolean GL_ARB_stencil_texturing;
-    /** When true, {@code ARB_sync} is supported. */
+
     public final boolean GL_ARB_sync;
-    /** When true, {@code ARB_tessellation_shader} is supported. */
+
     public final boolean GL_ARB_tessellation_shader;
-    /** When true, {@code ARB_texture_barrier} is supported. */
+
     public final boolean GL_ARB_texture_barrier;
-    /** When true, {@code ARB_texture_border_clamp} is supported. */
+
     public final boolean GL_ARB_texture_border_clamp;
-    /** When true, {@code ARB_texture_buffer_object} is supported. */
+
     public final boolean GL_ARB_texture_buffer_object;
-    /** When true, {@code ARB_texture_buffer_object_rgb32} is supported. */
+
     public final boolean GL_ARB_texture_buffer_object_rgb32;
-    /** When true, {@code ARB_texture_buffer_range} is supported. */
+
     public final boolean GL_ARB_texture_buffer_range;
-    /** When true, {@code ARB_texture_compression} is supported. */
+
     public final boolean GL_ARB_texture_compression;
-    /** When true, {@code ARB_texture_compression_bptc} is supported. */
+
     public final boolean GL_ARB_texture_compression_bptc;
-    /** When true, {@code ARB_texture_compression_rgtc} is supported. */
+
     public final boolean GL_ARB_texture_compression_rgtc;
-    /** When true, {@code ARB_texture_cube_map} is supported. */
+
     public final boolean GL_ARB_texture_cube_map;
-    /** When true, {@code ARB_texture_cube_map_array} is supported. */
+
     public final boolean GL_ARB_texture_cube_map_array;
-    /** When true, {@code ARB_texture_env_add} is supported. */
+
     public final boolean GL_ARB_texture_env_add;
-    /** When true, {@code ARB_texture_env_combine} is supported. */
+
     public final boolean GL_ARB_texture_env_combine;
-    /** When true, {@code ARB_texture_env_crossbar} is supported. */
+
     public final boolean GL_ARB_texture_env_crossbar;
-    /** When true, {@code ARB_texture_env_dot3} is supported. */
+
     public final boolean GL_ARB_texture_env_dot3;
-    /** When true, {@code ARB_texture_filter_anisotropic} is supported. */
+
     public final boolean GL_ARB_texture_filter_anisotropic;
-    /** When true, {@code ARB_texture_filter_minmax} is supported. */
+
     public final boolean GL_ARB_texture_filter_minmax;
-    /** When true, {@code ARB_texture_float} is supported. */
+
     public final boolean GL_ARB_texture_float;
-    /** When true, {@code ARB_texture_gather} is supported. */
+
     public final boolean GL_ARB_texture_gather;
-    /** When true, {@code ARB_texture_mirror_clamp_to_edge} is supported. */
+
     public final boolean GL_ARB_texture_mirror_clamp_to_edge;
-    /** When true, {@code ARB_texture_mirrored_repeat} is supported. */
+
     public final boolean GL_ARB_texture_mirrored_repeat;
-    /** When true, {@code ARB_texture_multisample} is supported. */
+
     public final boolean GL_ARB_texture_multisample;
-    /** When true, {@code ARB_texture_non_power_of_two} is supported. */
+
     public final boolean GL_ARB_texture_non_power_of_two;
-    /** When true, {@code ARB_texture_query_levels} is supported. */
+
     public final boolean GL_ARB_texture_query_levels;
-    /** When true, {@code ARB_texture_query_lod} is supported. */
+
     public final boolean GL_ARB_texture_query_lod;
-    /** When true, {@code ARB_texture_rectangle} is supported. */
+
     public final boolean GL_ARB_texture_rectangle;
-    /** When true, {@code ARB_texture_rg} is supported. */
+
     public final boolean GL_ARB_texture_rg;
-    /** When true, {@code ARB_texture_rgb10_a2ui} is supported. */
+
     public final boolean GL_ARB_texture_rgb10_a2ui;
-    /** When true, {@code ARB_texture_stencil8} is supported. */
+
     public final boolean GL_ARB_texture_stencil8;
-    /** When true, {@code ARB_texture_storage} is supported. */
+
     public final boolean GL_ARB_texture_storage;
-    /** When true, {@code ARB_texture_storage_multisample} is supported. */
+
     public final boolean GL_ARB_texture_storage_multisample;
-    /** When true, {@code ARB_texture_swizzle} is supported. */
+
     public final boolean GL_ARB_texture_swizzle;
-    /** When true, {@code ARB_texture_view} is supported. */
+
     public final boolean GL_ARB_texture_view;
-    /** When true, {@code ARB_timer_query} is supported. */
+
     public final boolean GL_ARB_timer_query;
-    /** When true, {@code ARB_transform_feedback2} is supported. */
+
     public final boolean GL_ARB_transform_feedback2;
-    /** When true, {@code ARB_transform_feedback3} is supported. */
+
     public final boolean GL_ARB_transform_feedback3;
-    /** When true, {@code ARB_transform_feedback_instanced} is supported. */
+
     public final boolean GL_ARB_transform_feedback_instanced;
-    /** When true, {@code ARB_transform_feedback_overflow_query} is supported. */
+
     public final boolean GL_ARB_transform_feedback_overflow_query;
-    /** When true, {@code ARB_transpose_matrix} is supported. */
+
     public final boolean GL_ARB_transpose_matrix;
-    /** When true, {@code ARB_uniform_buffer_object} is supported. */
+
     public final boolean GL_ARB_uniform_buffer_object;
-    /** When true, {@code ARB_vertex_array_bgra} is supported. */
+
     public final boolean GL_ARB_vertex_array_bgra;
-    /** When true, {@code ARB_vertex_array_object} is supported. */
+
     public final boolean GL_ARB_vertex_array_object;
-    /** When true, {@code ARB_vertex_attrib_64bit} is supported. */
+
     public final boolean GL_ARB_vertex_attrib_64bit;
-    /** When true, {@code ARB_vertex_attrib_binding} is supported. */
+
     public final boolean GL_ARB_vertex_attrib_binding;
-    /** When true, {@code ARB_vertex_blend} is supported. */
+
     public final boolean GL_ARB_vertex_blend;
-    /** When true, {@code ARB_vertex_buffer_object} is supported. */
+
     public final boolean GL_ARB_vertex_buffer_object;
-    /** When true, {@code ARB_vertex_program} is supported. */
+
     public final boolean GL_ARB_vertex_program;
-    /** When true, {@code ARB_vertex_shader} is supported. */
+
     public final boolean GL_ARB_vertex_shader;
-    /** When true, {@code ARB_vertex_type_10f_11f_11f_rev} is supported. */
+
     public final boolean GL_ARB_vertex_type_10f_11f_11f_rev;
-    /** When true, {@code ARB_vertex_type_2_10_10_10_rev} is supported. */
+
     public final boolean GL_ARB_vertex_type_2_10_10_10_rev;
-    /** When true, {@code ARB_viewport_array} is supported. */
+
     public final boolean GL_ARB_viewport_array;
-    /** When true, {@code ARB_window_pos} is supported. */
+
     public final boolean GL_ARB_window_pos;
-    /** When true, {@code ATI_meminfo} is supported. */
+
     public final boolean GL_ATI_meminfo;
-    /** When true, {@code ATI_shader_texture_lod} is supported. */
+
     public final boolean GL_ATI_shader_texture_lod;
-    /** When true, {@code ATI_texture_compression_3dc} is supported. */
+
     public final boolean GL_ATI_texture_compression_3dc;
-    /** When true, {@code EXT_422_pixels} is supported. */
+
     public final boolean GL_EXT_422_pixels;
-    /** When true, {@code EXT_abgr} is supported. */
+
     public final boolean GL_EXT_abgr;
-    /** When true, {@code EXT_bgra} is supported. */
+
     public final boolean GL_EXT_bgra;
-    /** When true, {@code EXT_bindable_uniform} is supported. */
+
     public final boolean GL_EXT_bindable_uniform;
-    /** When true, {@code EXT_blend_color} is supported. */
+
     public final boolean GL_EXT_blend_color;
-    /** When true, {@code EXT_blend_equation_separate} is supported. */
+
     public final boolean GL_EXT_blend_equation_separate;
-    /** When true, {@code EXT_blend_func_separate} is supported. */
+
     public final boolean GL_EXT_blend_func_separate;
-    /** When true, {@code EXT_blend_minmax} is supported. */
+
     public final boolean GL_EXT_blend_minmax;
-    /** When true, {@code EXT_blend_subtract} is supported. */
+
     public final boolean GL_EXT_blend_subtract;
-    /** When true, {@code EXT_clip_volume_hint} is supported. */
+
     public final boolean GL_EXT_clip_volume_hint;
-    /** When true, {@code EXT_compiled_vertex_array} is supported. */
+
     public final boolean GL_EXT_compiled_vertex_array;
-    /** When true, {@code EXT_debug_label} is supported. */
+
     public final boolean GL_EXT_debug_label;
-    /** When true, {@code EXT_debug_marker} is supported. */
+
     public final boolean GL_EXT_debug_marker;
-    /** When true, {@code EXT_depth_bounds_test} is supported. */
+
     public final boolean GL_EXT_depth_bounds_test;
-    /** When true, {@code EXT_direct_state_access} is supported. */
+
     public final boolean GL_EXT_direct_state_access;
-    /** When true, {@code EXT_draw_buffers2} is supported. */
+
     public final boolean GL_EXT_draw_buffers2;
-    /** When true, {@code EXT_draw_instanced} is supported. */
+
     public final boolean GL_EXT_draw_instanced;
-    /** When true, {@code EXT_EGL_image_storage} is supported. */
+
     public final boolean GL_EXT_EGL_image_storage;
-    /** When true, {@code EXT_EGL_sync} is supported. */
+
     public final boolean GL_EXT_EGL_sync;
-    /** When true, {@code EXT_external_buffer} is supported. */
+
     public final boolean GL_EXT_external_buffer;
-    /** When true, {@code EXT_fragment_shading_rate} is supported. */
+
     public final boolean GL_EXT_fragment_shading_rate;
-    /** When true, {@code EXT_fragment_shading_rate_attachment} is supported. */
+
     public final boolean GL_EXT_fragment_shading_rate_attachment;
-    /** When true, {@code EXT_fragment_shading_rate_primitive} is supported. */
+
     public final boolean GL_EXT_fragment_shading_rate_primitive;
-    /** When true, {@code EXT_framebuffer_blit} is supported. */
+
     public final boolean GL_EXT_framebuffer_blit;
-    /** When true, {@code EXT_framebuffer_blit_layers} is supported. */
+
     public final boolean GL_EXT_framebuffer_blit_layers;
-    /** When true, {@code EXT_framebuffer_multisample} is supported. */
+
     public final boolean GL_EXT_framebuffer_multisample;
-    /** When true, {@code EXT_framebuffer_multisample_blit_scaled} is supported. */
+
     public final boolean GL_EXT_framebuffer_multisample_blit_scaled;
-    /** When true, {@code EXT_framebuffer_object} is supported. */
+
     public final boolean GL_EXT_framebuffer_object;
-    /** When true, {@code EXT_framebuffer_sRGB} is supported. */
+
     public final boolean GL_EXT_framebuffer_sRGB;
-    /** When true, {@code EXT_geometry_shader4} is supported. */
+
     public final boolean GL_EXT_geometry_shader4;
-    /** When true, {@code EXT_gpu_program_parameters} is supported. */
+
     public final boolean GL_EXT_gpu_program_parameters;
-    /** When true, {@code EXT_gpu_shader4} is supported. */
+
     public final boolean GL_EXT_gpu_shader4;
-    /** When true, {@code EXT_memory_object} is supported. */
+
     public final boolean GL_EXT_memory_object;
-    /** When true, {@code EXT_memory_object_fd} is supported. */
+
     public final boolean GL_EXT_memory_object_fd;
-    /** When true, {@code EXT_memory_object_win32} is supported. */
+
     public final boolean GL_EXT_memory_object_win32;
-    /** When true, {@code EXT_mesh_shader} is supported. */
+
     public final boolean GL_EXT_mesh_shader;
-    /** When true, {@code EXT_multiview_tessellation_geometry_shader} is supported. */
+
     public final boolean GL_EXT_multiview_tessellation_geometry_shader;
-    /** When true, {@code EXT_multiview_texture_multisample} is supported. */
+
     public final boolean GL_EXT_multiview_texture_multisample;
-    /** When true, {@code EXT_multiview_timer_query} is supported. */
+
     public final boolean GL_EXT_multiview_timer_query;
-    /** When true, {@code EXT_packed_depth_stencil} is supported. */
+
     public final boolean GL_EXT_packed_depth_stencil;
-    /** When true, {@code EXT_packed_float} is supported. */
+
     public final boolean GL_EXT_packed_float;
-    /** When true, {@code EXT_pixel_buffer_object} is supported. */
+
     public final boolean GL_EXT_pixel_buffer_object;
-    /** When true, {@code EXT_point_parameters} is supported. */
+
     public final boolean GL_EXT_point_parameters;
-    /** When true, {@code EXT_polygon_offset_clamp} is supported. */
+
     public final boolean GL_EXT_polygon_offset_clamp;
-    /** When true, {@code EXT_post_depth_coverage} is supported. */
+
     public final boolean GL_EXT_post_depth_coverage;
-    /** When true, {@code EXT_provoking_vertex} is supported. */
+
     public final boolean GL_EXT_provoking_vertex;
-    /** When true, {@code EXT_raster_multisample} is supported. */
+
     public final boolean GL_EXT_raster_multisample;
-    /** When true, {@code EXT_secondary_color} is supported. */
+
     public final boolean GL_EXT_secondary_color;
-    /** When true, {@code EXT_semaphore} is supported. */
+
     public final boolean GL_EXT_semaphore;
-    /** When true, {@code EXT_semaphore_fd} is supported. */
+
     public final boolean GL_EXT_semaphore_fd;
-    /** When true, {@code EXT_semaphore_win32} is supported. */
+
     public final boolean GL_EXT_semaphore_win32;
-    /** When true, {@code EXT_separate_shader_objects} is supported. */
+
     public final boolean GL_EXT_separate_shader_objects;
-    /** When true, {@code EXT_shader_framebuffer_fetch} is supported. */
+
     public final boolean GL_EXT_shader_framebuffer_fetch;
-    /** When true, {@code EXT_shader_framebuffer_fetch_non_coherent} is supported. */
+
     public final boolean GL_EXT_shader_framebuffer_fetch_non_coherent;
-    /** When true, {@code EXT_shader_image_load_formatted} is supported. */
+
     public final boolean GL_EXT_shader_image_load_formatted;
-    /** When true, {@code EXT_shader_image_load_store} is supported. */
+
     public final boolean GL_EXT_shader_image_load_store;
-    /** When true, {@code EXT_shader_integer_mix} is supported. */
+
     public final boolean GL_EXT_shader_integer_mix;
-    /** When true, {@code EXT_shader_realtime_clock} is supported. */
+
     public final boolean GL_EXT_shader_realtime_clock;
-    /** When true, {@code EXT_shader_samples_identical} is supported. */
+
     public final boolean GL_EXT_shader_samples_identical;
-    /** When true, {@code EXT_shader_texture_samples} is supported. */
+
     public final boolean GL_EXT_shader_texture_samples;
-    /** When true, {@code EXT_shadow_funcs} is supported. */
+
     public final boolean GL_EXT_shadow_funcs;
-    /** When true, {@code EXT_shared_texture_palette} is supported. */
+
     public final boolean GL_EXT_shared_texture_palette;
-    /** When true, {@code EXT_sparse_texture2} is supported. */
+
     public final boolean GL_EXT_sparse_texture2;
-    /** When true, {@code EXT_stencil_clear_tag} is supported. */
+
     public final boolean GL_EXT_stencil_clear_tag;
-    /** When true, {@code EXT_stencil_two_side} is supported. */
+
     public final boolean GL_EXT_stencil_two_side;
-    /** When true, {@code EXT_stencil_wrap} is supported. */
+
     public final boolean GL_EXT_stencil_wrap;
-    /** When true, {@code EXT_texture_array} is supported. */
+
     public final boolean GL_EXT_texture_array;
-    /** When true, {@code EXT_texture_buffer_object} is supported. */
+
     public final boolean GL_EXT_texture_buffer_object;
-    /** When true, {@code EXT_texture_compression_latc} is supported. */
+
     public final boolean GL_EXT_texture_compression_latc;
-    /** When true, {@code EXT_texture_compression_rgtc} is supported. */
+
     public final boolean GL_EXT_texture_compression_rgtc;
-    /** When true, {@code EXT_texture_compression_s3tc} is supported. */
+
     public final boolean GL_EXT_texture_compression_s3tc;
-    /** When true, {@code EXT_texture_filter_anisotropic} is supported. */
+
     public final boolean GL_EXT_texture_filter_anisotropic;
-    /** When true, {@code EXT_texture_filter_minmax} is supported. */
+
     public final boolean GL_EXT_texture_filter_minmax;
-    /** When true, {@code EXT_texture_integer} is supported. */
+
     public final boolean GL_EXT_texture_integer;
-    /** When true, {@code EXT_texture_mirror_clamp} is supported. */
+
     public final boolean GL_EXT_texture_mirror_clamp;
-    /** When true, {@code EXT_texture_shadow_lod} is supported. */
+
     public final boolean GL_EXT_texture_shadow_lod;
-    /** When true, {@code EXT_texture_shared_exponent} is supported. */
+
     public final boolean GL_EXT_texture_shared_exponent;
-    /** When true, {@code EXT_texture_snorm} is supported. */
+
     public final boolean GL_EXT_texture_snorm;
-    /** When true, {@code EXT_texture_sRGB} is supported. */
+
     public final boolean GL_EXT_texture_sRGB;
-    /** When true, {@code EXT_texture_sRGB_decode} is supported. */
+
     public final boolean GL_EXT_texture_sRGB_decode;
-    /** When true, {@code EXT_texture_sRGB_R8} is supported. */
+
     public final boolean GL_EXT_texture_sRGB_R8;
-    /** When true, {@code EXT_texture_sRGB_RG8} is supported. */
+
     public final boolean GL_EXT_texture_sRGB_RG8;
-    /** When true, {@code EXT_texture_storage} is supported. */
+
     public final boolean GL_EXT_texture_storage;
-    /** When true, {@code EXT_texture_swizzle} is supported. */
+
     public final boolean GL_EXT_texture_swizzle;
-    /** When true, {@code EXT_timer_query} is supported. */
+
     public final boolean GL_EXT_timer_query;
-    /** When true, {@code EXT_transform_feedback} is supported. */
+
     public final boolean GL_EXT_transform_feedback;
-    /** When true, {@code EXT_vertex_array_bgra} is supported. */
+
     public final boolean GL_EXT_vertex_array_bgra;
-    /** When true, {@code EXT_vertex_attrib_64bit} is supported. */
+
     public final boolean GL_EXT_vertex_attrib_64bit;
-    /** When true, {@code EXT_win32_keyed_mutex} is supported. */
+
     public final boolean GL_EXT_win32_keyed_mutex;
-    /** When true, {@code EXT_window_rectangles} is supported. */
+
     public final boolean GL_EXT_window_rectangles;
-    /** When true, {@code EXT_x11_sync_object} is supported. */
+
     public final boolean GL_EXT_x11_sync_object;
-    /** When true, {@code GREMEDY_frame_terminator} is supported. */
+
     public final boolean GL_GREMEDY_frame_terminator;
-    /** When true, {@code GREMEDY_string_marker} is supported. */
+
     public final boolean GL_GREMEDY_string_marker;
-    /** When true, {@code INTEL_blackhole_render} is supported. */
+
     public final boolean GL_INTEL_blackhole_render;
-    /** When true, {@code INTEL_conservative_rasterization} is supported. */
+
     public final boolean GL_INTEL_conservative_rasterization;
-    /** When true, {@code INTEL_fragment_shader_ordering} is supported. */
+
     public final boolean GL_INTEL_fragment_shader_ordering;
-    /** When true, {@code INTEL_framebuffer_CMAA} is supported. */
+
     public final boolean GL_INTEL_framebuffer_CMAA;
-    /** When true, {@code INTEL_map_texture} is supported. */
+
     public final boolean GL_INTEL_map_texture;
-    /** When true, {@code INTEL_performance_query} is supported. */
+
     public final boolean GL_INTEL_performance_query;
-    /** When true, {@code INTEL_shader_integer_functions2} is supported. */
+
     public final boolean GL_INTEL_shader_integer_functions2;
-    /** When true, {@code KHR_blend_equation_advanced} is supported. */
+
     public final boolean GL_KHR_blend_equation_advanced;
-    /** When true, {@code KHR_blend_equation_advanced_coherent} is supported. */
+
     public final boolean GL_KHR_blend_equation_advanced_coherent;
-    /** When true, {@code KHR_context_flush_control} is supported. */
+
     public final boolean GL_KHR_context_flush_control;
-    /** When true, {@code KHR_debug} is supported. */
+
     public final boolean GL_KHR_debug;
-    /** When true, {@code KHR_no_error} is supported. */
+
     public final boolean GL_KHR_no_error;
-    /** When true, {@code KHR_parallel_shader_compile} is supported. */
+
     public final boolean GL_KHR_parallel_shader_compile;
-    /** When true, {@code KHR_robust_buffer_access_behavior} is supported. */
+
     public final boolean GL_KHR_robust_buffer_access_behavior;
-    /** When true, {@code KHR_robustness} is supported. */
+
     public final boolean GL_KHR_robustness;
-    /** When true, {@code KHR_shader_subgroup} is supported. */
+
     public final boolean GL_KHR_shader_subgroup;
-    /** When true, {@code KHR_texture_compression_astc_hdr} is supported. */
+
     public final boolean GL_KHR_texture_compression_astc_hdr;
-    /** When true, {@code KHR_texture_compression_astc_ldr} is supported. */
+
     public final boolean GL_KHR_texture_compression_astc_ldr;
-    /** When true, {@code KHR_texture_compression_astc_sliced_3d} is supported. */
+
     public final boolean GL_KHR_texture_compression_astc_sliced_3d;
-    /** When true, {@code MESA_framebuffer_flip_x} is supported. */
+
     public final boolean GL_MESA_framebuffer_flip_x;
-    /** When true, {@code MESA_framebuffer_flip_y} is supported. */
+
     public final boolean GL_MESA_framebuffer_flip_y;
-    /** When true, {@code MESA_framebuffer_swap_xy} is supported. */
+
     public final boolean GL_MESA_framebuffer_swap_xy;
-    /** When true, {@code MESA_tile_raster_order} is supported. */
+
     public final boolean GL_MESA_tile_raster_order;
-    /** When true, {@code NV_alpha_to_coverage_dither_control} is supported. */
+
     public final boolean GL_NV_alpha_to_coverage_dither_control;
-    /** When true, {@code NV_bindless_multi_draw_indirect} is supported. */
+
     public final boolean GL_NV_bindless_multi_draw_indirect;
-    /** When true, {@code NV_bindless_multi_draw_indirect_count} is supported. */
+
     public final boolean GL_NV_bindless_multi_draw_indirect_count;
-    /** When true, {@code NV_bindless_texture} is supported. */
+
     public final boolean GL_NV_bindless_texture;
-    /** When true, {@code NV_blend_equation_advanced} is supported. */
+
     public final boolean GL_NV_blend_equation_advanced;
-    /** When true, {@code NV_blend_equation_advanced_coherent} is supported. */
+
     public final boolean GL_NV_blend_equation_advanced_coherent;
-    /** When true, {@code NV_blend_minmax_factor} is supported. */
+
     public final boolean GL_NV_blend_minmax_factor;
-    /** When true, {@code NV_blend_square} is supported. */
+
     public final boolean GL_NV_blend_square;
-    /** When true, {@code NV_clip_space_w_scaling} is supported. */
+
     public final boolean GL_NV_clip_space_w_scaling;
-    /** When true, {@code NV_command_list} is supported. */
+
     public final boolean GL_NV_command_list;
-    /** When true, {@code NV_compute_shader_derivatives} is supported. */
+
     public final boolean GL_NV_compute_shader_derivatives;
-    /** When true, {@code NV_conditional_render} is supported. */
+
     public final boolean GL_NV_conditional_render;
-    /** When true, {@code NV_conservative_raster} is supported. */
+
     public final boolean GL_NV_conservative_raster;
-    /** When true, {@code NV_conservative_raster_dilate} is supported. */
+
     public final boolean GL_NV_conservative_raster_dilate;
-    /** When true, {@code NV_conservative_raster_pre_snap} is supported. */
+
     public final boolean GL_NV_conservative_raster_pre_snap;
-    /** When true, {@code NV_conservative_raster_pre_snap_triangles} is supported. */
+
     public final boolean GL_NV_conservative_raster_pre_snap_triangles;
-    /** When true, {@code NV_conservative_raster_underestimation} is supported. */
+
     public final boolean GL_NV_conservative_raster_underestimation;
-    /** When true, {@code NV_copy_depth_to_color} is supported. */
+
     public final boolean GL_NV_copy_depth_to_color;
-    /** When true, {@code NV_copy_image} is supported. */
+
     public final boolean GL_NV_copy_image;
-    /** When true, {@code NV_deep_texture3D} is supported. */
+
     public final boolean GL_NV_deep_texture3D;
-    /** When true, {@code NV_depth_buffer_float} is supported. */
+
     public final boolean GL_NV_depth_buffer_float;
-    /** When true, {@code NV_depth_clamp} is supported. */
+
     public final boolean GL_NV_depth_clamp;
-    /** When true, {@code NV_draw_texture} is supported. */
+
     public final boolean GL_NV_draw_texture;
-    /** When true, {@code NV_draw_vulkan_image} is supported. */
+
     public final boolean GL_NV_draw_vulkan_image;
-    /** When true, {@code NV_ES3_1_compatibility} is supported. */
+
     public final boolean GL_NV_ES3_1_compatibility;
-    /** When true, {@code NV_explicit_multisample} is supported. */
+
     public final boolean GL_NV_explicit_multisample;
-    /** When true, {@code NV_fence} is supported. */
+
     public final boolean GL_NV_fence;
-    /** When true, {@code NV_fill_rectangle} is supported. */
+
     public final boolean GL_NV_fill_rectangle;
-    /** When true, {@code NV_float_buffer} is supported. */
+
     public final boolean GL_NV_float_buffer;
-    /** When true, {@code NV_fog_distance} is supported. */
+
     public final boolean GL_NV_fog_distance;
-    /** When true, {@code NV_fragment_coverage_to_color} is supported. */
+
     public final boolean GL_NV_fragment_coverage_to_color;
-    /** When true, {@code NV_fragment_program4} is supported. */
+
     public final boolean GL_NV_fragment_program4;
-    /** When true, {@code NV_fragment_program_option} is supported. */
+
     public final boolean GL_NV_fragment_program_option;
-    /** When true, {@code NV_fragment_shader_barycentric} is supported. */
+
     public final boolean GL_NV_fragment_shader_barycentric;
-    /** When true, {@code NV_fragment_shader_interlock} is supported. */
+
     public final boolean GL_NV_fragment_shader_interlock;
-    /** When true, {@code NV_framebuffer_mixed_samples} is supported. */
+
     public final boolean GL_NV_framebuffer_mixed_samples;
-    /** When true, {@code NV_framebuffer_multisample_coverage} is supported. */
+
     public final boolean GL_NV_framebuffer_multisample_coverage;
-    /** When true, {@code NV_geometry_shader4} is supported. */
+
     public final boolean GL_NV_geometry_shader4;
-    /** When true, {@code NV_geometry_shader_passthrough} is supported. */
+
     public final boolean GL_NV_geometry_shader_passthrough;
-    /** When true, {@code NV_gpu_multicast} is supported. */
+
     public final boolean GL_NV_gpu_multicast;
-    /** When true, {@code NV_gpu_shader5} is supported. */
+
     public final boolean GL_NV_gpu_shader5;
-    /** When true, {@code NV_half_float} is supported. */
+
     public final boolean GL_NV_half_float;
-    /** When true, {@code NV_internalformat_sample_query} is supported. */
+
     public final boolean GL_NV_internalformat_sample_query;
-    /** When true, {@code NV_light_max_exponent} is supported. */
+
     public final boolean GL_NV_light_max_exponent;
-    /** When true, {@code NV_memory_attachment} is supported. */
+
     public final boolean GL_NV_memory_attachment;
-    /** When true, {@code NV_memory_object_sparse} is supported. */
+
     public final boolean GL_NV_memory_object_sparse;
-    /** When true, {@code NV_mesh_shader} is supported. */
+
     public final boolean GL_NV_mesh_shader;
-    /** When true, {@code NV_multisample_coverage} is supported. */
+
     public final boolean GL_NV_multisample_coverage;
-    /** When true, {@code NV_multisample_filter_hint} is supported. */
+
     public final boolean GL_NV_multisample_filter_hint;
-    /** When true, {@code NV_packed_depth_stencil} is supported. */
+
     public final boolean GL_NV_packed_depth_stencil;
-    /** When true, {@code NV_path_rendering} is supported. */
+
     public final boolean GL_NV_path_rendering;
-    /** When true, {@code NV_path_rendering_shared_edge} is supported. */
+
     public final boolean GL_NV_path_rendering_shared_edge;
-    /** When true, {@code NV_pixel_data_range} is supported. */
+
     public final boolean GL_NV_pixel_data_range;
-    /** When true, {@code NV_point_sprite} is supported. */
+
     public final boolean GL_NV_point_sprite;
-    /** When true, {@code NV_primitive_restart} is supported. */
+
     public final boolean GL_NV_primitive_restart;
-    /** When true, {@code NV_primitive_shading_rate} is supported. */
+
     public final boolean GL_NV_primitive_shading_rate;
-    /** When true, {@code NV_query_resource} is supported. */
+
     public final boolean GL_NV_query_resource;
-    /** When true, {@code NV_query_resource_tag} is supported. */
+
     public final boolean GL_NV_query_resource_tag;
-    /** When true, {@code NV_representative_fragment_test} is supported. */
+
     public final boolean GL_NV_representative_fragment_test;
-    /** When true, {@code NV_robustness_video_memory_purge} is supported. */
+
     public final boolean GL_NV_robustness_video_memory_purge;
-    /** When true, {@code NV_sample_locations} is supported. */
+
     public final boolean GL_NV_sample_locations;
-    /** When true, {@code NV_sample_mask_override_coverage} is supported. */
+
     public final boolean GL_NV_sample_mask_override_coverage;
-    /** When true, {@code NV_scissor_exclusive} is supported. */
+
     public final boolean GL_NV_scissor_exclusive;
-    /** When true, {@code NV_shader_atomic_float} is supported. */
+
     public final boolean GL_NV_shader_atomic_float;
-    /** When true, {@code NV_shader_atomic_float64} is supported. */
+
     public final boolean GL_NV_shader_atomic_float64;
-    /** When true, {@code NV_shader_atomic_fp16_vector} is supported. */
+
     public final boolean GL_NV_shader_atomic_fp16_vector;
-    /** When true, {@code NV_shader_atomic_int64} is supported. */
+
     public final boolean GL_NV_shader_atomic_int64;
-    /** When true, {@code NV_shader_buffer_load} is supported. */
+
     public final boolean GL_NV_shader_buffer_load;
-    /** When true, {@code NV_shader_buffer_store} is supported. */
+
     public final boolean GL_NV_shader_buffer_store;
-    /** When true, {@code NV_shader_subgroup_partitioned} is supported. */
+
     public final boolean GL_NV_shader_subgroup_partitioned;
-    /** When true, {@code NV_shader_texture_footprint} is supported. */
+
     public final boolean GL_NV_shader_texture_footprint;
-    /** When true, {@code NV_shader_thread_group} is supported. */
+
     public final boolean GL_NV_shader_thread_group;
-    /** When true, {@code NV_shader_thread_shuffle} is supported. */
+
     public final boolean GL_NV_shader_thread_shuffle;
-    /** When true, {@code NV_shading_rate_image} is supported. */
+
     public final boolean GL_NV_shading_rate_image;
-    /** When true, {@code NV_stereo_view_rendering} is supported. */
+
     public final boolean GL_NV_stereo_view_rendering;
-    /** When true, {@code NV_texgen_reflection} is supported. */
+
     public final boolean GL_NV_texgen_reflection;
-    /** When true, {@code NV_texture_barrier} is supported. */
+
     public final boolean GL_NV_texture_barrier;
-    /** When true, {@code NV_texture_compression_vtc} is supported. */
+
     public final boolean GL_NV_texture_compression_vtc;
-    /** When true, {@code NV_texture_multisample} is supported. */
+
     public final boolean GL_NV_texture_multisample;
-    /** When true, {@code NV_texture_rectangle_compressed} is supported. */
+
     public final boolean GL_NV_texture_rectangle_compressed;
-    /** When true, {@code NV_texture_shader} is supported. */
+
     public final boolean GL_NV_texture_shader;
-    /** When true, {@code NV_texture_shader2} is supported. */
+
     public final boolean GL_NV_texture_shader2;
-    /** When true, {@code NV_texture_shader3} is supported. */
+
     public final boolean GL_NV_texture_shader3;
-    /** When true, {@code NV_timeline_semaphore} is supported. */
+
     public final boolean GL_NV_timeline_semaphore;
-    /** When true, {@code NV_transform_feedback} is supported. */
+
     public final boolean GL_NV_transform_feedback;
-    /** When true, {@code NV_transform_feedback2} is supported. */
+
     public final boolean GL_NV_transform_feedback2;
-    /** When true, {@code NV_uniform_buffer_std430_layout} is supported. */
+
     public final boolean GL_NV_uniform_buffer_std430_layout;
-    /** When true, {@code NV_uniform_buffer_unified_memory} is supported. */
+
     public final boolean GL_NV_uniform_buffer_unified_memory;
-    /** When true, {@code NV_vertex_array_range} is supported. */
+
     public final boolean GL_NV_vertex_array_range;
-    /** When true, {@code NV_vertex_array_range2} is supported. */
+
     public final boolean GL_NV_vertex_array_range2;
-    /** When true, {@code NV_vertex_attrib_integer_64bit} is supported. */
+
     public final boolean GL_NV_vertex_attrib_integer_64bit;
-    /** When true, {@code NV_vertex_buffer_unified_memory} is supported. */
+
     public final boolean GL_NV_vertex_buffer_unified_memory;
-    /** When true, {@code NV_viewport_array2} is supported. */
+
     public final boolean GL_NV_viewport_array2;
-    /** When true, {@code NV_viewport_swizzle} is supported. */
+
     public final boolean GL_NV_viewport_swizzle;
-    /** When true, {@code NVX_blend_equation_advanced_multi_draw_buffers} is supported. */
+
     public final boolean GL_NVX_blend_equation_advanced_multi_draw_buffers;
-    /** When true, {@code NVX_conditional_render} is supported. */
+
     public final boolean GL_NVX_conditional_render;
-    /** When true, {@code NVX_gpu_memory_info} is supported. */
+
     public final boolean GL_NVX_gpu_memory_info;
-    /** When true, {@code NVX_gpu_multicast2} is supported. */
+
     public final boolean GL_NVX_gpu_multicast2;
-    /** When true, {@code NVX_progress_fence} is supported. */
+
     public final boolean GL_NVX_progress_fence;
-    /** When true, {@code OVR_multiview} is supported. */
+
     public final boolean GL_OVR_multiview;
-    /** When true, {@code OVR_multiview2} is supported. */
+
     public final boolean GL_OVR_multiview2;
-    /** When true, {@code S3_s3tc} is supported. */
+
     public final boolean GL_S3_s3tc;
 
-    /** When true, deprecated functions are not available. */
     public final boolean forwardCompatible;
 
-    /** Off-heap array of the above function addresses. */
     final PointerBuffer addresses;
 
     GLCapabilities(FunctionProvider provider, Set<String> ext, boolean fc, IntFunction<PointerBuffer> bufferFactory) {
@@ -6373,14 +6186,12 @@ public final class GLCapabilities {
         addresses = ThreadLocalUtil.setupAddressBuffer(caps);
     }
 
-    /** Returns the buffer of OpenGL function pointers. */
     public PointerBuffer getAddressBuffer() {
         return addresses;
     }
 
-    /** Ensures that the lwjgl_opengl shared library has been loaded. */
     public static void initialize() {
-        // intentionally empty to trigger static initializer
+
     }
 
     private static boolean check_GL11(FunctionProvider provider, PointerBuffer caps, Set<String> ext, boolean fc) {

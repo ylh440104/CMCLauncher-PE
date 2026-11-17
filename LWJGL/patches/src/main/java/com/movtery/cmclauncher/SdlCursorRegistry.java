@@ -35,14 +35,14 @@ public final class SdlCursorRegistry {
 
     public static int toGlfwShape(int sdlSystemCursor) {
         switch (sdlSystemCursor) {
-            case 1: return GLFW_IBEAM_CURSOR;        // SDL_SYSTEM_CURSOR_TEXT
-            case 3: return GLFW_CROSSHAIR_CURSOR;    // SDL_SYSTEM_CURSOR_CROSSHAIR
-            case 11: return GLFW_HAND_CURSOR;        // SDL_SYSTEM_CURSOR_POINTER
-            case 7: return GLFW_RESIZE_EW_CURSOR;    // SDL_SYSTEM_CURSOR_EW_RESIZE
-            case 8: return GLFW_RESIZE_NS_CURSOR;    // SDL_SYSTEM_CURSOR_NS_RESIZE
-            case 9: return GLFW_RESIZE_ALL_CURSOR;   // SDL_SYSTEM_CURSOR_MOVE
-            case 10: return GLFW_NOT_ALLOWED_CURSOR; // SDL_SYSTEM_CURSOR_NOT_ALLOWED
-            default: return GLFW_ARROW_CURSOR;       // DEFAULT/WAIT/PROGRESS/单边 resize 等
+            case 1: return GLFW_IBEAM_CURSOR;
+            case 3: return GLFW_CROSSHAIR_CURSOR;
+            case 11: return GLFW_HAND_CURSOR;
+            case 7: return GLFW_RESIZE_EW_CURSOR;
+            case 8: return GLFW_RESIZE_NS_CURSOR;
+            case 9: return GLFW_RESIZE_ALL_CURSOR;
+            case 10: return GLFW_NOT_ALLOWED_CURSOR;
+            default: return GLFW_ARROW_CURSOR;
         }
     }
 }

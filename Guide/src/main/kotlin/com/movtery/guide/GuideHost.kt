@@ -15,13 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
-/**
- * 引导画布
- * 任一引导流激活时渲染遮罩、镂空与该流的引导内容
- * @param guides 画布观察的全部引导流
- * @param nextTip 下一步提示的布局，引导层推导 [NextTip] 状态并负责定位
- * @param animations 引导层动画配置
- */
 @Composable
 fun GuideHost(
     vararg guides: GuideController,
@@ -45,7 +38,6 @@ fun GuideHost(
         }
     }
 
-    // 淡出期间保留最后一次激活的引导流，透明后自然卸载
     var shown by remember { mutableStateOf<GuideController?>(null) }
     var shownState by remember { mutableStateOf<GuideState.Active?>(null) }
     if (activeController != null && activeState != null) {

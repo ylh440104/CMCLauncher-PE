@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.layer_controller.data
 
 import androidx.compose.ui.graphics.Color
@@ -26,27 +8,12 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * 圆角比例取值范围
- */
 val SHAPE_PERCENT_RANGE: IntRange = 0..50
 
-/**
- * 大小比例计算取值范围
- */
 val SIZE_PERCENT_RANGE: ClosedFloatingPointRange<Float> = 0.0f..1.0f
 
-/**
- * 边框比例计算取值范围
- */
 val BORDER_RADIO_RANGE: IntRange = 0..50
 
-/**
- * @param name 样式显示名称
- * @param commonStyle 共用亮色主题
- * @param lightStyle 亮色模式样式
- * @param darkStyle 暗色模式样式
- */
 @Serializable
 data class JoystickStyle(
     @SerialName("name")
@@ -60,19 +27,7 @@ data class JoystickStyle(
     @SerialName("darkStyle")
     val darkStyle: StyleConfig
 ): Modifiable<JoystickStyle> {
-    /**
-     * @param alpha 整体不透明度
-     * @param backgroundColor 背景层的颜色
-     * @param joystickColor 摇杆的颜色
-     * @param joystickCanLockColor 摇杆移动到可以锁定的位置时，摇杆的颜色
-     * @param joystickLockedColor 摇杆锁定时的颜色
-     * @param lockMarkColor 锁定标记的颜色
-     * @param borderWidthRatio 边框粗细
-     * @param borderColor 边框颜色
-     * @param backgroundShape 背景层的形状：圆角百分比值 0.0f~50.0f
-     * @param joystickShape 摇杆的形状：圆角百分比值 0.0f~50.0f
-     * @param joystickSize 摇杆的大小：根据背景层的大小进行缩放 0.0f~1.0f
-     */
+
     @Serializable
     data class StyleConfig(
         @SerialName("alpha")

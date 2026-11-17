@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.cardgrid.ui
 
 import android.annotation.SuppressLint
@@ -77,20 +59,14 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-/** 网格线以卡片矩形为基准向外淡化的范围 */
 private val GridFadeExtent = 72.dp
-/** 网格线的最大不透明度（卡片矩形处） */
+
 private const val GridLineMaxAlpha = 0.35f
 
-/** 会话卡幽灵的透明度 */
 private const val GhostAlpha = 0.5f
-/** 空槽描边的不透明度 */
+
 private const val SlotStrokeAlpha = 0.5f
 
-/**
- * 卡片网格容器
- * @param cardBackground 卡片内容的背景装饰，在卡片表面内部应用
- */
 @Composable
 fun CardGrid(
     state: CardGridState,
@@ -156,18 +132,17 @@ private fun CardGridCanvas(
             }
             .height(animatedHeight)
             .pointerInput(Unit) {
-                // key 恒为 Unit：调整态通过 state.isAdjusting 在每次手势开始时动态读取，
-                // 若以此为 key 会在长按进入调整态时重启并取消进行中的会话
+
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    // 已被子树交互组件（如调整态工具条）消费的手势不属于网格
+
                     if (down.isConsumed) return@awaitEachGesture
                     val start = down.position
                     val slopPx = viewConfiguration.touchSlop
                     val longPressMillis = viewConfiguration.longPressTimeoutMillis
 
                     if (!state.isAdjusting) {
-                        // 非调整态：卡片上长按进入调整态并直接开始拖动
+
                         val hit = state.cardAt(start) ?: return@awaitEachGesture
                         val longPressed = awaitLongPressOrAbort(down.id, start, slopPx, longPressMillis)
                         if (!longPressed) return@awaitEachGesture
@@ -187,7 +162,7 @@ private fun CardGridCanvas(
                         val edgeHit = state.resizeEdgeAt(start)
                         val card = state.cardAt(start)
                         when {
-                            // 调整态：按到手柄直接进入缩放
+
                             edgeHit != null -> {
                                 val (hitCard, edge) = edgeHit
                                 state.onResizeStart(hitCard, edge, start)
@@ -200,7 +175,7 @@ private fun CardGridCanvas(
                                     onUp = { state.onResizeEnd() }
                                 )
                             }
-                            // 调整态：按到卡片直接拖动，无移动的松手视为点按
+
                             card != null -> {
                                 state.onCardDragStart(card, start)
                                 runSession(
@@ -221,7 +196,7 @@ private fun CardGridCanvas(
                                     }
                                 )
                             }
-                            // 调整态：空白处点按退出调整态
+
                             else -> {
                                 val tapped = awaitUpWithoutSlop(down.id, start, slopPx)
                                 if (tapped) state.exitAdjusting()
@@ -288,9 +263,6 @@ private fun CardSlot(
     }
 }
 
-/**
- * 卡片表面的容器：交互态的抬升动画与调整态的选中手柄
- */
 @Composable
 private fun CardSurface(
     interaction: CardInteraction,
@@ -330,10 +302,6 @@ private fun CardSurface(
     }
 }
 
-/**
- * 拖动/缩放期间显示网格线：以吸附预览矩形为中心，
- * 网格线随所在位置到卡片的距离增加而逐格淡化消失，如光晕般收敛于卡片周围。
- */
 @Composable
 private fun CardGridGlowEffect(state: CardGridState, modifier: Modifier = Modifier) {
     val preview = state.dragPreview ?: return
@@ -343,7 +311,7 @@ private fun CardGridGlowEffect(state: CardGridState, modifier: Modifier = Modifi
     val cell = state.cellPx
     val columns = state.geometry.columns
     Canvas(modifier = modifier.zIndex(0.1f)) {
-        // 空槽落点：邻居让位后开出的空位，以浅色填充与淡描边表达
+
         drawRoundRect(
             color = primary.copy(alpha = 0.06f),
             topLeft = previewRect.topLeft,
@@ -364,7 +332,6 @@ private fun CardGridGlowEffect(state: CardGridState, modifier: Modifier = Modifi
         val startRow = floor((previewRect.top - fadePx) / cell).toInt().coerceAtLeast(0)
         val endRow = ceil((previewRect.bottom + fadePx) / cell).toInt()
 
-        // 线段到预览矩形的距离越远，透明度越低（smoothstep 衰减）
         fun segmentAlpha(seg: Rect): Float {
             val dx = maxOf(0f, previewRect.left - seg.right, seg.left - previewRect.right)
             val dy = maxOf(0f, previewRect.top - seg.bottom, seg.top - previewRect.bottom)
@@ -406,9 +373,6 @@ private fun CardGridGlowEffect(state: CardGridState, modifier: Modifier = Modifi
     }
 }
 
-/**
- * 调整态选中节点，在包围盒四边中央绘制纯色手柄
- */
 @SuppressLint("ModifierNodeInspectableProperties")
 private data class SelectionHandlesElement(
     val color: Color,
@@ -450,16 +414,12 @@ private class SelectionHandlesNode(
     }
 }
 
-/**
- * 调整态选中手柄，绘制在节点包围盒四边中央
- */
 private fun Modifier.selectionHandles(
     color: Color,
     handleLength: Dp = 16.dp,
     handleThickness: Dp = 5.dp,
 ): Modifier = then(SelectionHandlesElement(color, handleLength, handleThickness))
 
-/** 以网格坐标矩形定位并定尺寸的修饰符，矩形变化时触发重新测量 */
 private fun Modifier.cardBounds(rectProvider: () -> Rect): Modifier = this
     .absoluteOffset {
         val rect = rectProvider()
@@ -480,10 +440,6 @@ private fun Modifier.cardBounds(rectProvider: () -> Rect): Modifier = this
         layout(width, height) { placeable.place(0, 0) }
     }
 
-/**
- * 等待长按成立：指针在超时前移动超过 [slopPx] 或抬起则中止（返回 false，
- * 事件不被消费，滚动照常进行），长按成立返回 true。
- */
 private suspend fun AwaitPointerEventScope.awaitLongPressOrAbort(
     pointerId: PointerId,
     startPosition: Offset,
@@ -506,10 +462,6 @@ private suspend fun AwaitPointerEventScope.awaitLongPressOrAbort(
     return longPressed
 }
 
-/**
- * 等待指针在未超过 [slopPx] 的前提下抬起（点按成立返回 true）；
- * 移动超限则返回 false，事件保持不消费，滚动照常进行。
- */
 private suspend fun AwaitPointerEventScope.awaitUpWithoutSlop(
     pointerId: PointerId,
     startPosition: Offset,
@@ -523,10 +475,6 @@ private suspend fun AwaitPointerEventScope.awaitUpWithoutSlop(
     }
 }
 
-/**
- * 会话拖动循环：消费全部指针事件并分发网格坐标，
- * 抬起时回调 [onUp]（是否发生了有效移动），会话被中断时取消结算。
- */
 private suspend fun AwaitPointerEventScope.runSession(
     pointerId: PointerId,
     startPosition: Offset,

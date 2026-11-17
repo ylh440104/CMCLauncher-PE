@@ -20,16 +20,14 @@ dependencies {
     )
     add("lwjglModules", project(":LWJGL:patches"))
     implementation(project(":LWJGL:patches"))
-    implementation(libs.jspecify) // lwjgl3.3.3 has jsr305 included as a jar
+    implementation(libs.jspecify)
 
 }
 
 tasks.jar {
-    // 被排除的模块只经 doLast 复制、不参与合并，需显式声明为输入，
-    // 否则更新这些 jar 后任务会误判 UP-TO-DATE，导致排除模块不复制
+
     inputs.files(configurations["lwjglModules"])
 
-    // Modules to copy over to the components directory instead of patching and merging
     val excludedModules = arrayOf(
         "lwjgl-lwjglx.jar",
         "lwjgl.jar",
@@ -52,9 +50,7 @@ tasks.jar {
     destinationDirectory.set(file("$rootDir/CMCLauncher/src/main/assets/app_runtime/lwjgl/${lwjglVersion}"))
 
     from({
-        // Ensure that the core lwjgl jar is processed first so duplicates in META-INF from other classes
-        // are ignored. This avoids InvalidModuleDescriptorException due to say, using the module-info.class
-        // from lwjgl-jemalloc.
+
         val includedModules = configurations["lwjglModules"].filter { dep ->
             !excludedModules.any { it == dep.name }
         }
@@ -68,7 +64,6 @@ tasks.jar {
         }
     })
 
-    // 让 jar 可复现，保证 manifest.json 的 SHA-1 清单在重新构建时保持稳定
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 
@@ -77,7 +72,7 @@ tasks.jar {
             configurations["lwjglModules"].filter { it.name == fileName }
         }
         copy {
-            // Copy excluded modules to the lwjgl classes dir
+
             from(excludedModulesFileList)
             into(archiveFile.get().asFile.parentFile)
         }

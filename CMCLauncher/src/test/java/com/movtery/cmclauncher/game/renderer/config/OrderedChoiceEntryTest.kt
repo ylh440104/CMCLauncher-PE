@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.cmclauncher.game.renderer.config
 
 import com.movtery.cmclauncher.game.renderer.renderers.MobileGluesRenderer
@@ -99,7 +81,6 @@ class OrderedChoiceEntryTest {
             globalStore = store
         )
 
-        // 全量落盘：未编辑的项也按默认值写入，保证界面展示与实际生效一致
         assertEquals(ConfigScalar.IntValue(0), config.jsonFields["enableANGLE"])
         assertEquals(ConfigScalar.IntValue(1), config.jsonFields["enableExtTimerQuery"])
         assertEquals(ConfigScalar.IntValue(32), config.jsonFields["maxGlslCacheSize"])
@@ -115,7 +96,7 @@ class OrderedChoiceEntryTest {
             globalStore = store
         )
         assertEquals(true, default.sfpewLayerEnabled)
-        // 开关只属于启动器，不进 config.json，也不产出环境变量
+
         assertFalse(default.jsonFields.containsKey("sfpewLayer"))
         assertFalse(default.environment.containsKey("sfpewLayer"))
 

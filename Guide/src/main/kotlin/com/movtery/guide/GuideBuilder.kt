@@ -7,17 +7,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * [rememberGuide] 的步骤收集器
- */
 class GuideBuilder internal constructor() {
     internal val entries = mutableListOf<GuideEntry>()
 
-    /**
-     * 声明一个引导步骤，声明顺序即步骤顺序
-     * @param showNextTip 是否显示下一步提示
-     * @param waitForNextNode 门控推进，仅在锚点点击放行模式下默认开启
-     */
     fun entry(
         key: GuideKey,
         nodeClick: NodeClickMode = NodeClickMode.Intercept,
@@ -38,10 +30,6 @@ class GuideBuilder internal constructor() {
         )
     }
 
-    /**
-     * 声明一个介绍步骤
-     * @param showNextTip 是否显示下一步提示
-     */
     fun intro(showNextTip: Boolean = true, content: @Composable (GuideScope) -> Unit) {
         entries += GuideEntry(
             key = object : GuideKey {},
@@ -55,14 +43,6 @@ class GuideBuilder internal constructor() {
     }
 }
 
-/**
- * 构建并记住一条引导流
- *
- * @param colors 引导层配色：遮罩、内容默认色
- * @param holeRadius 锚点未声明镂空圆角时的全局默认值
- * @param holeBorderWidth 锚点未声明镂空描边时的全局默认值，0 表示无边框
- * @param shape 锚点未声明内容裁剪形状时的全局默认值
- */
 @Composable
 fun rememberGuide(
     colors: GuideColors = GuideDefaults.colors,

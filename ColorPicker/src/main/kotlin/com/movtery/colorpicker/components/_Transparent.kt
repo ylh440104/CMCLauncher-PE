@@ -6,12 +6,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 
-/**
- * 绘制透明棋盘格背景。
- * @param width 宽度
- * @param height 高度
- * @param gridSize 网格大小 Px
- */
 internal fun DrawScope.transparentCheckerBackground(
     width: Float,
     height: Float,

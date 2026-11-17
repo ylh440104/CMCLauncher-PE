@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.cmclauncher.game.download.engine
 
 import com.movtery.cmclauncher.path.URL_USER_AGENT
@@ -43,7 +25,6 @@ import java.util.Random
 import java.util.concurrent.TimeUnit
 import java.util.zip.GZIPOutputStream
 
-/** 按请求序号回放的假源，并记录全部请求供断言使用 */
 private class ScriptedSource(
     private val handler: (index: Int, request: RecordedRequest) -> MockResponse
 ) : Dispatcher() {
@@ -121,7 +102,7 @@ class FetcherHttpTest {
         val candidate = failure!!.cause
         assertTrue(candidate is DownloadException)
         assertTrue(candidate!!.cause is ChecksumMismatchException)
-        //重试了 retry 次，临时文件全部清理
+
         assertEquals(2, source.requests.size)
         assertTrue(dir.listFiles().isEmpty())
         assertFalse(target.exists())
@@ -137,7 +118,6 @@ class FetcherHttpTest {
 
         Fetcher.downloadFile(listOf(server1.url("/f").toString(), server2.url("/f").toString()), target)
 
-        //404 不消耗重试次数，该源仅请求一次
         assertEquals(1, missing.requests.size)
         assertArrayEquals(payload, target.readBytes())
     }
@@ -242,7 +222,7 @@ class FetcherHttpTest {
         assertTrue(failure is AllSourcesFailedException)
         assertTrue(failure!!.message!!.contains(url1))
         assertTrue(failure.message!!.contains(url2))
-        //因果链上是最后一个源的失败；404 源的失败记录在 suppressed 里
+
         assertEquals(503, failure.findHttpCode())
         val suppressed = failure.cause!!.suppressed.single()
         assertEquals(404, (suppressed.cause as HttpResultException).code)
@@ -264,7 +244,7 @@ class FetcherHttpTest {
         val job = launch(Dispatchers.IO) {
             Fetcher.downloadFile(listOf(server.url("/file").toString()), target)
         }
-        //等临时文件开始增长再取消
+
         val startedAt = System.currentTimeMillis()
         while ((dir.listFiles().orEmpty()).none { it.length() > 0 }) {
             if (System.currentTimeMillis() - startedAt > 15_000) break

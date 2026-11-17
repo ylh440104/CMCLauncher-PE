@@ -1,29 +1,8 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.layer_controller.observable
 
 import com.movtery.layer_controller.data.JoystickDirection
 import com.movtery.layer_controller.event.ClickEvent
 
-/**
- * 可观察控件的点击事件编辑提供器
- */
 abstract class ObservableClickEventsProvider {
     abstract val clickEvents: List<ClickEvent>
     abstract fun onRemoveAllEvents(events: List<ClickEvent>)
@@ -32,9 +11,6 @@ abstract class ObservableClickEventsProvider {
     abstract fun onRemoveEvent(event: ClickEvent)
 }
 
-/**
- * 为普通按钮控件创建点击事件编辑提供器
- */
 fun clickEventsProvider(data: ObservableNormalData): ObservableClickEventsProvider {
     return object : ObservableClickEventsProvider() {
         override val clickEvents: List<ClickEvent>
@@ -54,9 +30,6 @@ fun clickEventsProvider(data: ObservableNormalData): ObservableClickEventsProvid
     }
 }
 
-/**
- * 为摇杆控件创建锁定状态触发事件编辑提供其
- */
 fun joystickLockEventsProvider(data: ObservableJoystickData): ObservableClickEventsProvider {
     return object : ObservableClickEventsProvider() {
         override val clickEvents: List<ClickEvent>
@@ -78,9 +51,6 @@ fun joystickLockEventsProvider(data: ObservableJoystickData): ObservableClickEve
     }
 }
 
-/**
- * 为摇杆控件创建方向触发事件编辑提供其
- */
 fun joystickDirectionEventsProvider(
     data: ObservableJoystickData,
     direction: JoystickDirection?,

@@ -74,7 +74,7 @@ class GuidePlacementSolverTest {
         val distance = hypot(rect.center.x - anchorCenterX, rect.center.y - anchorCenterY)
 
         assertFalse(rect.overlaps(anchor))
-        // 可行解的距离应不劣于任一方向贴边候选
+
         val sides = listOf(GuideSide.Below, GuideSide.Above, GuideSide.Start, GuideSide.End)
         sides.forEach { side ->
             val candidateRect = candidateRect(anchor, side)
@@ -99,7 +99,7 @@ class GuidePlacementSolverTest {
         val rect = result.rect()
 
         anchors.forEach { assertFalse(rect.overlaps(it)) }
-        // 包围盒中心 (540, 960)，内容应贴在包围盒内部空隙（Start 侧）
+
         assertEquals(GuideSide.Start, result.side)
     }
 
@@ -108,7 +108,6 @@ class GuidePlacementSolverTest {
         val anchor = Rect(0f, 0f, 1080f, 1920f)
         val result = solve(listOf(anchor), contentSize = IntSize(1200, 2000))
 
-        // 全部候选不可行，按交叠面积→出屏量兜底取第一个最不坏候选
         assertEquals(IntOffset(16, 16), result.offset)
         assertEquals(GuideSide.Below, result.side)
     }
@@ -141,7 +140,6 @@ class GuidePlacementSolverTest {
         val start = solve(listOf(anchor), placement = PreferSide(GuideSide.Start), layoutDirection = LayoutDirection.Rtl)
         val end = solve(listOf(anchor), placement = PreferSide(GuideSide.End), layoutDirection = LayoutDirection.Rtl)
 
-        // RTL 中 Start 在锚点右侧，End 在锚点左侧
         assertTrue(start.rect().left >= anchor.right + gap - 0.5f)
         assertTrue(end.rect().right <= anchor.left - gap + 0.5f)
     }
@@ -184,11 +182,10 @@ class GuidePlacementSolverTest {
         val visible = listOf(Rect(100f, 100f, 300f, 200f))
         assertTrue(anchorsVisibleIn(visible, container))
 
-        // 部分出屏
         assertFalse(anchorsVisibleIn(listOf(Rect(-10f, 100f, 300f, 200f)), container))
-        // 完全出屏
+
         assertFalse(anchorsVisibleIn(listOf(Rect(0f, container.height + 10f, 300f, container.height + 100f)), container))
-        // 多锚点时要求全部可见
+
         assertFalse(anchorsVisibleIn(visible + listOf(Rect(0f, -50f, 100f, 0f)), container))
     }
 

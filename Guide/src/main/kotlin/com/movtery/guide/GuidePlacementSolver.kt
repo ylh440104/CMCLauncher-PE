@@ -9,17 +9,11 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-/**
- * 放置策略求解结果
- */
 internal data class PlacementResult(
     val offset: IntOffset,
     val side: GuideSide?
 )
 
-/**
- * 全部锚点的包围盒
- */
 internal fun List<Rect>.boundsUnion(): Rect {
     if (isEmpty()) return Rect.Zero
     var left = Float.MAX_VALUE
@@ -35,9 +29,6 @@ internal fun List<Rect>.boundsUnion(): Rect {
     return Rect(left, top, right, bottom)
 }
 
-/**
- * 合成有效摆放策略：显式摆放策略优先，其次单锚点节点的方向推荐（映射为方向偏好），无推荐时自动求解
- */
 internal fun resolvePlacement(
     placement: GuidePlacement,
     sideHint: GuideSide?,
@@ -48,21 +39,12 @@ internal fun resolvePlacement(
     else -> GuidePlacement.Auto
 }
 
-/**
- * 全部锚点是否完全落在视口内
- */
 internal fun anchorsVisibleIn(anchors: List<Rect>, containerSize: IntSize): Boolean =
     anchors.isNotEmpty() && anchors.all { anchor ->
         anchor.left >= 0f && anchor.top >= 0f &&
                 anchor.right <= containerSize.width && anchor.bottom <= containerSize.height
     }
 
-/**
- * 求解引导内容的摆放位置：
- * 以锚点包围盒的中心（多个锚点时即其中心点）为参照，内容尽可能贴近该点；
- * 不遮挡锚点、不出屏为硬约束，可行解中取内容中心距参照点最近者；
- * 全部不可行时按「锚点交叠面积 → 出屏量 → 距参照点距离」字典序兜底
- */
 internal fun solvePlacement(
     placement: GuidePlacement,
     anchors: List<Rect>,
@@ -134,9 +116,6 @@ internal fun solvePlacement(
     return PlacementResult(IntOffset(chosen.x.roundToInt(), chosen.y.roundToInt()), chosen.side)
 }
 
-/**
- * 单个候选位置
- */
 private data class Evaluated(
     val side: GuideSide,
     val x: Float,
@@ -157,9 +136,6 @@ private fun Rect.overlapArea(other: Rect): Float {
 
 private enum class Corner { BottomStart, BottomEnd, TopEnd, TopStart }
 
-/**
- * 求解下一步提示的位置
- */
 internal fun solveNextTip(
     tipSize: IntSize,
     containerSize: IntSize,
@@ -198,7 +174,6 @@ internal fun solveNextTip(
     val ordered = listOf(Corner.BottomStart, Corner.BottomEnd, Corner.TopEnd, Corner.TopStart)
     ordered.firstOrNull { !occupied(cornerOffset(it)) }?.let { return cornerOffset(it) }
 
-    // 网格采样：步长为提示尺寸的一半，取中心离屏幕中心最远的空白位置
     val minX = paddingPx.roundToInt()
     val minY = paddingPx.roundToInt()
     val maxX = cornerOffset(Corner.BottomEnd).x

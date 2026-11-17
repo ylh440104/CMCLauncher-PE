@@ -60,11 +60,6 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * 激活引导流的覆盖层：解析锚点、绘制遮罩与镂空、展示引导内容。
- * 遮罩层与宿主内容共享命中，镂空位置的事件放行到宿主内容；
- * 引导内容层独占命中，事件不下穿宿主内容
- */
 @Composable
 internal fun GuideOverlay(
     controller: GuideController,
@@ -77,21 +72,17 @@ internal fun GuideOverlay(
 ) {
     val entry = state.entry
 
-    // 观察注册表版本，解析当前步骤的锚点节点
     val version = registry.version
     val nodes = remember(entry.key, version) { registry.nodesFor(entry.key) }
     val anchors = nodes.map(GuideNode::bounds)
 
     val contentShape = nodes.firstNotNullOfOrNull { it.shape } ?: controller.shape
 
-    // 回写锚点，供应用侧通过 GuideState.Active.anchors 观察就绪情况
     LaunchedEffect(state.index, anchors) {
-        // 介绍步骤无锚点，不回写
+
         if (!entry.isIntro) controller.updateAnchors(state.index, anchors)
     }
 
-    // 锚点缺失时，轮询询问容器侧注册的定位能力直到锚点就绪
-    // 容器可能比引导步骤更晚组合，故反复询问
     LaunchedEffect(state.index) {
         if (entry.isIntro) return@LaunchedEffect
         var handled = 0
@@ -101,7 +92,6 @@ internal fun GuideOverlay(
         }
     }
 
-    // 门控推进：点击仅表达推进意图，待下一步骤的锚点注册就绪后自动推进
     var armedForNext by remember(state.index) { mutableStateOf(false) }
     val gateActive = arbiter.gateActive(controller, state)
     val nextNodesReady = gateActive && arbiter.nextAnchorReady(controller, state)
@@ -116,7 +106,6 @@ internal fun GuideOverlay(
     val paddingPx = with(density) { GuideDefaults.screenPadding.toPx() }
     val layoutDirection = LocalLayoutDirection.current
 
-    // 节点声明的镂空样式优先，未声明时回落引导流全局配置或库默认值
     val holes = nodes.map { node ->
         HoleTarget(
             rect = node.bounds,
@@ -169,10 +158,9 @@ internal fun GuideOverlay(
             onPlaced = { rect -> if (contentRect != rect) contentRect = rect }
         )
 
-        // 下一步提示
         val tip: NextTip? = when {
             !entry.showNextTip -> null
-            entry.nodeClick == NodeClickMode.PassThrough -> null // 用户点击元素推进，无提示
+            entry.nodeClick == NodeClickMode.PassThrough -> null
             state.index == controller.entries.lastIndex -> NextTip.Finish
             entry.advanceOnScrimClick -> NextTip.TapBlank
             else -> null
@@ -188,9 +176,6 @@ internal fun GuideOverlay(
     }
 }
 
-/**
- * 遮罩层
- */
 @Composable
 private fun Scrim(
     controller: GuideController,
@@ -283,7 +268,7 @@ private fun Scrim(
                             blendMode = BlendMode.Clear
                         )
                         if (style.borderWidthPx > 0f) {
-                            // 描边整体落在镂空外侧，不侵入被引导组件
+
                             val border = hole.rect.inflate(style.borderWidthPx / 2f)
                             drawRoundRect(
                                 color = style.borderColor,
@@ -304,8 +289,6 @@ private fun Scrim(
                     )
                     val startPos = down.position
 
-                    // 放行策略由仲裁器统一裁决，仅放行模式的锚点区域只观察不消费；
-                    // 引导内容自身的可交互节点位于遮罩上层，命中时遮罩不参与命中，不受拦截影响
                     val observeOnly = currentArbiter.passThroughAt(startPos)
                     if (!observeOnly) down.consume()
 
@@ -343,9 +326,6 @@ private fun Scrim(
     )
 }
 
-/**
- * 镂空矩形的弹性随动：锚点位置变化时聚光灯平滑跟随
- */
 @Composable
 private fun animateHoleRect(target: Rect, spec: FiniteAnimationSpec<Float>): Rect {
     val left by animateFloatAsState(target.left, spec, label = "holeLeft")
@@ -367,37 +347,22 @@ private fun animateHoleStyle(
     return HoleStyle(radiusPx, borderWidthPx, borderColor)
 }
 
-/**
- * 单个镂空的绘制样式，像素已解析
- */
 private data class HoleStyle(
     val radiusPx: Float,
     val borderWidthPx: Float,
     val borderColor: Color
 )
 
-/**
- * 单个镂空的动画帧
- */
 private data class HoleFrame(val rect: Rect, val style: HoleStyle)
 
-/**
- * 单个镂空的静态目标：锚点矩形与已解析样式
- */
 private data class HoleTarget(val rect: Rect, val style: HoleStyle)
 
-/**
- * 洞槽位：按目标序号跟踪入场/出场缩放与最近目标
- */
 private class HoleSlot(val index: Int) {
     var exiting by mutableStateOf(false)
     var lastTarget: HoleTarget? = null
     val scale = Animatable(0f)
 }
 
-/**
- * 围绕矩形中心缩放，负值按 0 处理，避免出场回弹时翻转
- */
 private fun Rect.scaleAroundCenter(scale: Float): Rect {
     val s = scale.coerceAtLeast(0f)
     if (s == 1f) return this
@@ -410,11 +375,6 @@ private fun Rect.scaleAroundCenter(scale: Float): Rect {
     )
 }
 
-/**
- * 下一步提示槽位：组合宿主提供的提示布局并负责定位。
- * 位置默认在左下角，被锚点或引导内容占用时求解新位置并弹性随动；
- * 提示出现与隐藏时整体淡入淡出，隐藏动画结束后移除内容
- */
 @Composable
 private fun NextTipSlot(
     tip: NextTip?,
@@ -447,7 +407,6 @@ private fun NextTipSlot(
         if (tip == null) displayedTip = null
     }
 
-    // 首次求解前为 null，此时直接摆放求解结果，避免提示从原点飞入
     val targetState = remember { mutableStateOf<IntOffset?>(null) }
 
     BoxWithConstraints(
@@ -495,10 +454,6 @@ private fun NextTipSlot(
     }
 }
 
-/**
- * 引导内容容器，测量内容并按放置策略求解目标位置，
- * 位置以弹性动画随步骤移动，步骤内容切换时淡入淡出
- */
 @Composable
 private fun GuideCardContainer(
     controller: GuideController,
@@ -520,7 +475,7 @@ private fun GuideCardContainer(
 ) {
     val entry = state.entry
     val sideState = remember { mutableStateOf<GuideSide?>(null) }
-    // 首次求解前为 null，此时直接摆放求解结果，避免内容从原点飞入
+
     val targetState = remember { mutableStateOf<IntOffset?>(null) }
 
     val currentArbiter by rememberUpdatedState(arbiter)
@@ -628,7 +583,7 @@ private fun GuideCardContainer(
                 placeables.maxOf { it.width },
                 placeables.maxOf { it.height }
             )
-            // 锚点未就绪时保持上次求解的位置，仅随 alpha 淡出
+
             val solved = if (entry.isIntro || anchors.isNotEmpty()) {
                 solvePlacement(
                     placement = effectivePlacement,

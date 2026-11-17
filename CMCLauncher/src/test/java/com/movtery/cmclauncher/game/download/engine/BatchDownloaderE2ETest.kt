@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.cmclauncher.game.download.engine
 
 import kotlinx.coroutines.runBlocking
@@ -136,7 +118,7 @@ class BatchDownloaderE2ETest {
             val failure = runCatching { batch.run() }.exceptionOrNull()
 
             assertTrue(failure is BatchDownloadException)
-            //两轮整批重试，404 每轮只请求一次
+
             assertEquals(2, requestsSeen.get())
             assertEquals(setOf(missingFile.absolutePath), batch.lastRunFailures.keys)
             assertEquals(404, batch.lastRunFailures.values.first().findHttpCode())
@@ -164,7 +146,6 @@ class BatchDownloaderE2ETest {
 
             val failure = runCatching { batch.run() }.exceptionOrNull()
 
-            //10 个文件里只有少数被真正尝试，剩余的随熔断取消，不再空转
             assertTrue(failure is BatchDownloadException)
             assertTrue(failure!!.message!!.contains("aborted"))
             assertTrue(requestsSeen.get() < 10)
@@ -195,7 +176,6 @@ class BatchDownloaderE2ETest {
 
             val failure = runCatching { batch.run() }.exceptionOrNull()
 
-            //有文件持续成功：不触发熔断，走常规失败聚合
             assertTrue(failure is BatchDownloadException)
             assertFalse(failure!!.message!!.contains("aborted"))
             assertEquals(6, batch.stats.downloadedFiles)

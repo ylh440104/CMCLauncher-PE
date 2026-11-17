@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.layer_controller.layout
 
 import com.movtery.layer_controller.EDITOR_VERSION
@@ -37,12 +19,6 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 
-/**
- * 描述一个控制布局结构
- * @param info 控制布局基本信息
- * @param layers 控制层级列表
- * @param editorVersion 使用编辑器版本
- */
 @Serializable
 data class ControlLayout(
     @SerialName("info")
@@ -103,9 +79,6 @@ val EmptyControlLayout = ControlLayout(
     joystickStyles = emptyList(),
 )
 
-/**
- * 从文件加载控制布局配置（检查版本号，大于编辑器版本则抛出`IllegalArgumentException`）
- */
 fun loadLayoutFromFile(file: File): ControlLayout {
     val jsonString = file.readText()
     return loadLayoutFromString(jsonString)
@@ -118,7 +91,7 @@ fun loadLayoutFromString(jsonString: String): ControlLayout {
     if (version <= EDITOR_VERSION) {
         val legacyJoystickStyle = if (version < 12) {
             jsonObject["special"]?.let { specialElement ->
-                //在反序列化前尝试提取旧版 special 字段
+
                 try {
                     layoutJson.decodeFromJsonElement(LegacySpecial.serializer(), specialElement).joystickStyle?.toJoystickStyle()
                 } catch (_: Exception) {
@@ -131,7 +104,7 @@ fun loadLayoutFromString(jsonString: String): ControlLayout {
         if (version < EDITOR_VERSION) layout = updateLayoutToNew(layout)
 
         if (legacyJoystickStyle != null) {
-            //迁移至新版摇杆样式列表
+
             layout = layout.copy(
                 joystickStyles = layout.joystickStyles + legacyJoystickStyle
             )
@@ -143,9 +116,6 @@ fun loadLayoutFromString(jsonString: String): ControlLayout {
     }
 }
 
-/**
- * 从文件加载控制布局配置（不检查版本号）
- */
 fun loadLayoutFromFileUncheck(file: File): ControlLayout {
     val jsonString = file.readText()
     return layoutJson.decodeFromString<ControlLayout>(jsonString)

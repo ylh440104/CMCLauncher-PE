@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.cmclauncher.game.download.engine
 
 import org.junit.Assert.assertEquals
@@ -25,7 +7,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.net.URL
 
-/** Range 续传资格的逐字段校验语义 */
 class ResumeContextTest {
 
     private val url = URL("https://example.test/file.bin")
@@ -67,7 +48,7 @@ class ResumeContextTest {
                 )
             )
         )
-        //弱 ETag 且无 Last-Modified：没有可用验证器
+
         assertNull(
             ResumeContext.of(
                 response(
@@ -82,7 +63,7 @@ class ResumeContextTest {
                 )
             )
         )
-        //强 ETag + Last-Modified + 全部资格条件：建立成功
+
         val established = ResumeContext.of(
             response(
                 headers = mapOf(
@@ -110,27 +91,26 @@ class ResumeContextTest {
         val context = established()
         context.addBytes(4)
 
-        //非 206 拒绝
         assertFalse(
             context.canResume(200, response(headers = partialHeaders(6)))
         )
-        //编码非 identity 拒绝
+
         assertFalse(
             context.canResume(
                 206, response(code = 206, headers = partialHeaders(6) + ("Content-Encoding" to "gzip"))
             )
         )
-        //总长度对不上拒绝
+
         assertFalse(
             context.canResume(206, response(code = 206, headers = partialHeaders(100)))
         )
-        //ETag 不一致拒绝
+
         assertFalse(
             context.canResume(
                 206, response(code = 206, headers = partialHeaders(6) + ("ETag" to "\"b\""))
             )
         )
-        //Content-Range 起点不等于已收字节拒绝
+
         assertFalse(
             context.canResume(
                 206,
@@ -143,7 +123,7 @@ class ResumeContextTest {
                 )
             )
         )
-        //Content-Range 结束值与响应长度不符拒绝
+
         assertFalse(
             context.canResume(
                 206,
@@ -156,7 +136,7 @@ class ResumeContextTest {
                 )
             )
         )
-        //完全匹配放行
+
         assertTrue(
             context.canResume(
                 206,
@@ -181,7 +161,6 @@ class ResumeContextTest {
         )
         context.addBytes(4)
 
-        //同 URL + 同 Last-Modified：放行
         assertTrue(
             context.canResume(
                 206,
@@ -194,7 +173,7 @@ class ResumeContextTest {
                 )
             )
         )
-        //URL 不同：拒绝
+
         assertFalse(
             context.canResume(
                 206,
@@ -208,7 +187,7 @@ class ResumeContextTest {
                 )
             )
         )
-        //Last-Modified 不同：拒绝
+
         assertFalse(
             context.canResume(
                 206,

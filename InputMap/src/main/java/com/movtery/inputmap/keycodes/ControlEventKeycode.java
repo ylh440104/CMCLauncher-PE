@@ -1,31 +1,9 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.movtery.inputmap.keycodes;
 
 import androidx.annotation.Nullable;
 
 public class ControlEventKeycode {
-    /**
-     * 利用Java语言switch的性能，快速匹配点击事件对应的键值
-     * @param event 点击事件
-     * @return 匹配到的键值，若为null则未匹配到
-     */
+
     public static @Nullable Short getKeycodeFromEvent(String event) {
         switch (event) {
             case GLFW_KEY_UNKNOWN: return LwjglGlfwKeycode.GLFW_KEY_UNKNOWN;
@@ -173,7 +151,6 @@ public class ControlEventKeycode {
         }
     }
 
-    // Printable keys
     public static final String GLFW_KEY_UNKNOWN = "GLFW_KEY_UNKNOWN";
     public static final String GLFW_KEY_SPACE = "GLFW_KEY_SPACE";
     public static final String GLFW_KEY_APOSTROPHE = "GLFW_KEY_APOSTROPHE";
@@ -226,7 +203,6 @@ public class ControlEventKeycode {
     public static final String GLFW_KEY_WORLD_1 = "GLFW_KEY_WORLD_1";
     public static final String GLFW_KEY_WORLD_2 = "GLFW_KEY_WORLD_2";
 
-    // Function keys
     public static final String GLFW_KEY_ESCAPE = "GLFW_KEY_ESCAPE";
     public static final String GLFW_KEY_ENTER = "GLFW_KEY_ENTER";
     public static final String GLFW_KEY_TAB = "GLFW_KEY_TAB";
@@ -299,7 +275,6 @@ public class ControlEventKeycode {
     public static final String GLFW_KEY_MENU = "GLFW_KEY_MENU";
     public static final String GLFW_KEY_LAST = "GLFW_KEY_LAST";
 
-    // Modifier keys
     public static final String GLFW_MOD_SHIFT = "GLFW_MOD_SHIFT";
     public static final String GLFW_MOD_CONTROL = "GLFW_MOD_CONTROL";
     public static final String GLFW_MOD_ALT = "GLFW_MOD_ALT";
@@ -307,7 +282,6 @@ public class ControlEventKeycode {
     public static final String GLFW_MOD_CAPS_LOCK = "GLFW_MOD_CAPS_LOCK";
     public static final String GLFW_MOD_NUM_LOCK = "GLFW_MOD_NUM_LOCK";
 
-    // Mouse buttons
     public static final String GLFW_MOUSE_BUTTON_1 = "GLFW_MOUSE_BUTTON_1";
     public static final String GLFW_MOUSE_BUTTON_2 = "GLFW_MOUSE_BUTTON_2";
     public static final String GLFW_MOUSE_BUTTON_3 = "GLFW_MOUSE_BUTTON_3";

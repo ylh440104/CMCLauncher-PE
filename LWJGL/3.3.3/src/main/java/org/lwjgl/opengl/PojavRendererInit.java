@@ -5,11 +5,6 @@ import org.lwjgl.system.SharedLibrary;
 
 import javax.annotation.Nullable;
 
-/**
- * Class for initializing renderer-specific callbacks. Allows to reliably initialize
- * any callbacks needed for renderers by using the same FunctionProvider as used for loading
- * GL symbols.
- * */
 public class PojavRendererInit {
 
     public static void onCreateCapabilities(FunctionProvider functionProvider) {
@@ -25,7 +20,7 @@ public class PojavRendererInit {
             System.out.println("PojavRendererInit: Failed to find Pojav renderer name! " +
                     "Renderer-specific initialization may not work properly");
         }
-        // NOTE: hardcoded gl4es libname
+
         if (rendererName.endsWith("libgl4es_114.so") || rendererName.endsWith("libng_gl4es.so")) {
             nativeInitGl4esInternals(functionProvider);
         }
