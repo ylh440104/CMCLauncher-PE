@@ -143,13 +143,13 @@ cd CMCLauncher-PE
 
 ### ZalithLauncher
 
-本项目大量抄用了 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 的代码。
+本项目抄了很多 ZalithLauncher 的代码。
 
-非常感谢 Zalith 团队、MovTery 以及所有贡献者的开源工作。没有他们，就没有这个项目。
+非常感谢 Zalith 团队、MovTery 以及所有贡献者的开源工作
 
 ### PojavLauncher
 
-启动核心基于 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)，感谢 PojavLauncherTeam 让 Minecraft: Java Edition 能在 Android 上运行。
+启动核心基于 PojavLauncher，感谢 PojavLauncherTeam 让 Minecraft: Java Edition 能在 Android 上运行。
 
 ### 其它开源项目
 
