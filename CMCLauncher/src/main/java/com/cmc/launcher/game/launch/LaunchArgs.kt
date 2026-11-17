@@ -180,7 +180,7 @@ class LaunchArgs(
             }
         } else if (account.isAuthServerAccount()) {
             if (account.otherBaseUrl!!.contains("auth.mc-user.com")) {
-                argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https:
+                argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https://auth.mc-user.com:233/", "")}")
                 argsList.add("-Dnide8auth.client=true")
             } else {
                 argsList.add("-javaagent:${LibPath.AUTHLIB_INJECTOR.absolutePath}=${account.otherBaseUrl}")
