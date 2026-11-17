@@ -43,9 +43,6 @@ private var nodeList: List<URI>? = null
 
 private val fetchMutex = Mutex()
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/a70b8d7/HMCL/src/main/java/org/jackhuang/hmcl/terracotta/TerracottaNodeList.java)
- */
 suspend fun fetchNodes(): List<URI> {
     nodeList?.let { return it }
 
@@ -53,14 +50,14 @@ suspend fun fetchNodes(): List<URI> {
         nodeList?.let { return it }
 
         if (AllSettings.enableTerracottaNodes.getValue()) {
-            // 使用自定义的 EasyTier 服务器节点
+
             val url = AllSettings.terracottaNodes.getValue()
             if (url.isNotEmptyOrBlank()) {
                 val tempList = listOf(URI(url))
                 nodeList = tempList
                 return tempList
             }
-            // 为空则继续使用默认的节点逻辑
+
         }
 
         withContext(Dispatchers.IO) {
@@ -119,7 +116,6 @@ private fun shouldUseNode(
 ): Boolean {
     if (region.isNullOrBlank()) return true
 
-    //仅限中国大陆地区使用
     val isMainLand = isChinaMainland()
     return isMainLand && region.equals("CN", ignoreCase = true)
 }

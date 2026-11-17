@@ -117,10 +117,6 @@ class AuthServerApi(private var baseUrl: String) {
         }
     }
 
-    /**
-     * 校验缓存的 accessToken 是否仍被服务端接受
-     * @returm false 表示服务端已拒绝该凭据
-     */
     @Throws(IOException::class)
     suspend fun validate(context: Context, account: Account): Boolean {
         requireBaseUrl(context)

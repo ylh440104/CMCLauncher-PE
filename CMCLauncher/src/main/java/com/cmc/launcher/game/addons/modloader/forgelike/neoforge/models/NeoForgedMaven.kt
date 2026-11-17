@@ -5,9 +5,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
-/**
- * NeoForged Maven
- */
 @Serializable
 data class NeoForgedMaven(
     @SerialName("isSnapshot")

@@ -20,14 +20,10 @@ import java.io.File
 const val DOWNLOADER_TAG = "MinecraftDownloader"
 const val MINECRAFT_RES: String = "https://resources.download.minecraft.net/"
 
-/**
- * 设计为通用化 Minecraft 原版完整下载
- * @param gameHome 下载目标所在的游戏目录
- */
 class BaseMinecraftDownloader(
     gameHome: String = getGameHome()
 ) {
-    //Dir
+
     val assetsTarget = File(getAssetsHome(gameHome)).ensureDirectory()
     val resourcesTarget = File(getResourcesHome(gameHome)).ensureDirectory()
     val versionsTarget = File(getVersionsHome(gameHome)).ensureDirectory()
@@ -45,17 +41,10 @@ class BaseMinecraftDownloader(
     fun getVersionJarPath(version: String, mcFolder: File = versionsTarget) =
         File(mcFolder, "$version/$version.jar".replace("/", File.separator)).ensureParentDirectory()
 
-    /**
-     * 创建版本 Json
-     */
     suspend fun createVersionJson(version: Version): GameManifest {
         return createVersionJson(version, version.id)
     }
 
-    /**
-     * 创建版本 Json
-     * @param targetVersion 目标版本名称
-     */
     suspend fun createVersionJson(
         version: Version,
         targetVersion: String,
@@ -69,9 +58,6 @@ class BaseMinecraftDownloader(
         )
     }
 
-    /**
-     * 创建 assets 索引 Json
-     */
     suspend fun createAssetIndex(
         assetIndexTarget: File,
         gameManifest: GameManifest
@@ -87,7 +73,6 @@ class BaseMinecraftDownloader(
         }
     }
 
-    /** 计划客户端jar下载 */
     fun loadClientJarDownload(
         gameManifest: GameManifest,
         clientName: String,
@@ -101,12 +86,11 @@ class BaseMinecraftDownloader(
             ?.let { client ->
                 scheduleDownload(client.url.mapBMCLMirrorUrls(), client.sha1, clientFile, client.size)
             } ?: run {
-                //如果未提供下载方式，则很可能是需要复制原版的Jar文件
+
                 scheduleCopy(clientFile)
             }
     }
 
-    /** 计划assets资产下载 */
     suspend fun loadAssetsDownload(
         assetIndex: AssetIndexJson?,
         resourcesTargetDir: File = resourcesTarget,
@@ -127,7 +111,6 @@ class BaseMinecraftDownloader(
         }
     }
 
-    /** 计划库文件下载 */
     suspend fun loadLibraryDownloads(
         gameManifest: GameManifest,
         targetDir: File = librariesTarget,
@@ -141,7 +124,7 @@ class BaseMinecraftDownloader(
                 if (library.name.startsWith("org.lwjgl")) return@forEach
 
                 val artifactPath: String = artifactToPath(library) ?: return@forEach
-                //downloads 存在但没有 artifact 时，说明是仅含 natives/classifiers 的条目，跳过
+
                 val artifact = library.downloads?.let { it.artifact ?: return@forEach }
                 val sha1: String? = artifact?.sha1 ?: library.sha1
                 val size: Long = artifact?.size ?: library.size
@@ -151,14 +134,13 @@ class BaseMinecraftDownloader(
                     ?.takeIf { it.isNotEmptyOrBlank() }
                     ?: library.url
                         ?.takeIf {
-                            // fix(#53): Forge 明明可以不写，但还是给留了个空的值 >:(
+
                             it.isNotEmptyOrBlank()
                         }
                         ?.replace("http://", "https://")
                         ?.let { base -> "${base}$artifactPath" }
                     ?: run {
-                        //对于没有提供下载链接的，可能是需要文件已经安装，而不是临时获取
-                        //不过尝试使用官方源下载，若下载失败则表明这个版本 文件有缺失的情况
+
                         isDownloadable = false
                         "https://libraries.minecraft.net/$artifactPath"
                     }
@@ -168,15 +150,4 @@ class BaseMinecraftDownloader(
         }
     }
 
-//    /** 计划日志格式化配置下载 */
-//    fun loadLog4jXMLDownload(
-//        gameManifest: GameManifest,
-//        version: String,
-//        scheduleDownload: (url: String, hash: String?, targetFile: File, size: Long) -> Unit
-//    ) {
-//        val versionLoggingTarget = getLog4jXMLPath(version)
-//        gameManifest.logging?.client?.file?.let { loggingConfig ->
-//            scheduleDownload(loggingConfig.url, loggingConfig.sha1, versionLoggingTarget, loggingConfig.size)
-//        }
-//    }
 }

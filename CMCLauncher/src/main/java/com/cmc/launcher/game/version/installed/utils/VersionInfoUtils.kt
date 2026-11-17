@@ -15,20 +15,14 @@ private const val TAG = "VersionInfoUtils"
 
 private const val VERSION_PATTERN = """(\d+\.\d+\.\d+|\d{2}w\d{2}[a-z])"""
 
-// "1.20.4-OptiFine_HD_U_I7_pre3"       -> 1.20.4
-// "1.21.3-OptiFine_HD_U_J2_pre6"       -> 1.21.3
 private val OPTIFINE_ID_REGEX = """$VERSION_PATTERN-OptiFine""".toRegex()
-// "1.20.2-forge-48.1.0"                -> 1.20.2
-// "1.21.3-forge-53.0.23"               -> 1.21.3
+
 private val FORGE_REGEX = """$VERSION_PATTERN-forge""".toRegex()
-// "1.7.10-Forge10.13.4.1614-1.7.10"    -> 1.7.10
-// "1.7.2-10.12.2.1161-mc172"           -> 1.7.2
+
 private val FORGE_OLD_REGEX = """^$VERSION_PATTERN-(Forge[\d.]*)-mc\d+""".toRegex()
-// "fabric-loader-0.15.7-1.20.4"        -> 1.20.4
-// "fabric-loader-0.16.9-1.21.3"        -> 1.21.3
+
 private val FABRIC_REGEX = """fabric-loader-[\w.-]+-$VERSION_PATTERN""".toRegex()
-// "quilt-loader-0.23.1-1.20.4"         -> 1.20.4
-// "quilt-loader-0.27.1-beta.1-1.21.3"  -> 1.21.3
+
 private val QUILT_REGEX = """quilt-loader-[\w.-]+-$VERSION_PATTERN""".toRegex()
 
 private val LOADER_DETECTORS = listOf<(String) -> String?>(
@@ -49,10 +43,6 @@ private val LOADER_DETECTORS = listOf<(String) -> String?>(
     }
 )
 
-/**
- * 在版本的json文件中，找到版本信息
- * @return 版本号、ModLoader信息
- */
 fun parseJsonToVersionInfo(jsonFile: File): VersionInfo? {
     return runCatching {
         val jsonObject = JsonParser.parseString(jsonFile.readText()).asJsonObject
@@ -80,9 +70,6 @@ fun parseJsonToVersionInfo(jsonFile: File): VersionInfo? {
     }
 }
 
-/**
- * 确认是否可以使用 Quick Play
- */
 private fun ensureQuickPlay(versionJson: JsonObject): VersionInfo.QuickPlay {
     var hasQuickPlaysSupport = false
     var isQuickPlaySingleplayer = false
@@ -131,7 +118,7 @@ private fun detectMinecraftType(versionJson: JsonObject): String? {
 }
 
 private fun extractMinecraftVersion(json: JsonObject): String {
-    //尝试识别HMCL版本
+
     if (json.has("patches") && json.get("patches").isJsonArray) {
         val patches = json.getAsJsonArray("patches")
         if (patches.size() > 0) {
@@ -142,14 +129,11 @@ private fun extractMinecraftVersion(json: JsonObject): String {
         }
     }
 
-    //尝试识别PCL导出的整合包给的版本
-    //PCL顺手加的 [按住 W 开始思索]
     if (json.has("clientVersion") && json.get("clientVersion").isJsonPrimitive) {
         val clientVersion = json.get("clientVersion").asString
         if (clientVersion.isNotEmptyOrBlank()) return clientVersion
     }
 
-    //尝试从 LaunchFor (ZL安装的版本) 获取信息
     json.getAsJsonObject("launchFor")
         ?.getAsJsonArray("infos")
         ?.firstOrNull { it.asJsonObject["name"]?.asString == "Minecraft" }
@@ -160,7 +144,6 @@ private fun extractMinecraftVersion(json: JsonObject): String {
             return it
         }
 
-    //从minecraft库中获取
     json.getAsJsonArray("libraries")?.forEach { lib ->
         val (group, artifact, version) = lib.asJsonObject["name"].asString.split(":").let {
             Triple(it[0], it[1], it.getOrNull(2) ?: "")
@@ -172,14 +155,10 @@ private fun extractMinecraftVersion(json: JsonObject): String {
 
     val id = json["id"].asString
     return if (json.has("inheritsFrom")) json["inheritsFrom"].asString
-    //尝试从ID中解析MC版本
+
     else LOADER_DETECTORS.firstNotNullOfOrNull { it(id) } ?: id
 }
 
-/**
- * 通过库收集已安装的全部ModLoader信息
- * @return 按 [VersionInfo.PRIMARY_PRIORITY] 优先级排序的加载器列表
- */
 private fun detectModLoaders(versionJson: JsonObject): List<VersionInfo.LoaderInfo> {
     var hasFabric = false
     var hasLegacyFabric = false
@@ -194,29 +173,25 @@ private fun detectModLoaders(versionJson: JsonObject): List<VersionInfo.LoaderIn
         }
 
         when {
-            //Fabric Loader
+
             group == "net.fabricmc" && artifact == "fabric-loader" -> {
                 hasFabric = true
                 fabricLoaderVer = version
             }
 
-            //Legacy Fabric
             group == "net.legacyfabric" && artifact == "intermediary" -> {
                 hasLegacyFabric = true
             }
 
-            //Babric
             group == "babric" && artifact == "intermediary-upstream" -> {
                 hasBabric = true
             }
 
-            //Forge
             group == "net.minecraftforge" && (artifact == "forge" || artifact == "fmlloader") -> {
                 val forgeVersion = when {
-                    //新版：1.21.4-54.0.26                 -> 54.0.26
+
                     version.count { it == '-' } == 1 -> version.substringAfterLast('-')
-                    //旧版：1.7.10-10.13.4.1614-1.7.10     -> 10.13.4.1614
-                    //旧版：1.7.2-10.12.2.1161-mc172       -> 10.12.2.1161
+
                     version.count { it == '-' } >= 2 -> version.split("-").let { parts ->
                         when {
                             parts.size >= 3 && parts.last().startsWith("mc") -> parts[1]
@@ -229,7 +204,6 @@ private fun detectModLoaders(versionJson: JsonObject): List<VersionInfo.LoaderIn
                 loaderInfos.add(VersionInfo.LoaderInfo(ModLoader.FORGE, forgeVersion))
             }
 
-            //NeoForge
             group == "net.neoforged.fancymodloader" && artifact == "loader" -> {
                 val neoVersion = versionJson.getAsJsonObject("arguments")
                     ?.getAsJsonArray("game")
@@ -238,23 +212,19 @@ private fun detectModLoaders(versionJson: JsonObject): List<VersionInfo.LoaderIn
                 loaderInfos.add(VersionInfo.LoaderInfo(ModLoader.NEOFORGE, neoVersion))
             }
 
-            //OptiFine
             (group == "optifine" || group == "net.optifine") && artifact == "OptiFine" ->
                 loaderInfos.add(VersionInfo.LoaderInfo(ModLoader.OPTIFINE, version))
 
-            //Quilt
             group == "org.quiltmc" && artifact == "quilt-loader" ->
                 loaderInfos.add(VersionInfo.LoaderInfo(ModLoader.QUILT, version))
 
-            //LiteLoader
             group == "com.mumfrey" && artifact == "liteloader" ->
                 loaderInfos.add(VersionInfo.LoaderInfo(ModLoader.LITE_LOADER, version))
         }
     }
 
-    //Fabric 全家桶
     if (hasFabric && fabricLoaderVer != null) {
-        //包含Fabric加载器
+
         val loader = if (hasLegacyFabric) {
             ModLoader.LEGACY_FABRIC
         } else if (hasBabric) {
@@ -275,10 +245,6 @@ private fun detectModLoaders(versionJson: JsonObject): List<VersionInfo.LoaderIn
         }
 }
 
-/**
- * NeoForge会将版本号存放到游戏参数内
- * 尝试在 arguments: { "game": [] } 中寻找NeoForge的版本
- */
 private fun JsonArray.findNeoForgeVersion(): String? {
     val args = this.mapNotNull { it.takeIf(JsonElement::isJsonPrimitive)?.asString }
     return args.zipWithNext().find { it.first == "--fml.neoForgeVersion" }?.second

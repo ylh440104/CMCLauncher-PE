@@ -139,7 +139,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import android.graphics.Color as NativeColor
 import android.view.WindowInsets as AndroidWindowInsets
 
-
 private const val INTENT_RUN_GAME = "BUNDLE_RUN_GAME"
 private const val INTENT_RUN_JAR = "INTENT_RUN_JAR"
 private const val INTENT_GAME_CONFIG = "INTENT_GAME_CONFIG"
@@ -152,15 +151,9 @@ data class LaunchSession(
     val inputSender: CharacterSenderStrategy
 )
 
-/**
- * 一些关键状态须在此存放
- */
 class VMViewModel : ViewModel() {
     var isRunning = false
 
-    /**
-     * 是否允许VMActivity处理按键
-     */
     var keyHandle = true
 
     val screenSizeBridge = DataBridge<IntSize>()
@@ -177,10 +170,9 @@ class VMViewModel : ViewModel() {
         private set
 
     private val _openFolderOperation = MutableStateFlow<OpenFolderOperation>(OpenFolderOperation.None)
-    /** 启动器内浏览目录（将文件导入该目录） */
+
     val openFolderOperation = _openFolderOperation.asStateFlow()
 
-    /** 关闭浏览目录 */
     fun clearFolder() {
         _openFolderOperation.update {
             OpenFolderOperation.None
@@ -277,9 +269,6 @@ class VMViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 当前输入法开启状态
-     */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
 
     val inputMagnifierState = InputMagnifierState()
@@ -288,10 +277,6 @@ class VMViewModel : ViewModel() {
         if (textInputMode == TextInputMode.ENABLE) textInputMode = TextInputMode.DISABLE
     }
 
-
-    /**
-     * 直接发送文本到游戏
-     */
     private fun String.sendText() {
         forEach { char ->
             sender.sendChar(char)
@@ -310,13 +295,10 @@ class VMViewModel : ViewModel() {
         sender.sendEnter()
     }
 
-    /**
-     * 仅处理特殊按键
-     */
     fun handleSpecialKey(keyEvent: KeyEvent) {
         when (keyEvent.keyCode) {
             KeyEvent.KEYCODE_DEL, KeyEvent.KEYCODE_ENTER -> {
-                //忽略掉删除事件，避免状态不同步
+
             }
 
             KeyEvent.KEYCODE_DPAD_LEFT -> sender.sendLeft()
@@ -337,34 +319,23 @@ class VMViewModel : ViewModel() {
         }
     }
 
-    /**
-     * SDL 渲染路径没有输入代理的文本回调，物理字符键需直接发送文本并消费按键事件
-     */
     fun shouldConsumeSdlTextInput(keyEvent: KeyEvent): Boolean {
         return SdlBridge.sdlEnabled && SdlBridge.isSdlRenderActive() &&
                 (keyEvent.flags and KeyEvent.FLAG_SOFT_KEYBOARD) == 0 &&
                 SDLActivity.isTextInputEvent(keyEvent)
     }
 
-    /**
-     * IME 可能清除后续按键的 Meta 状态，Ctrl 本身必须直接同步到 SDL
-     */
     fun shouldConsumeSdlModifierKey(keyEvent: KeyEvent): Boolean {
         return SdlBridge.sdlEnabled && SdlBridge.isSdlRenderActive() &&
                 (keyEvent.keyCode == KeyEvent.KEYCODE_CTRL_LEFT ||
                         keyEvent.keyCode == KeyEvent.KEYCODE_CTRL_RIGHT)
     }
 
-    /**
-     * 返回这个按键事件是否允许被处理
-     */
     fun keyCanHandle(keyEvent: KeyEvent): Boolean {
         val keyCode = keyEvent.keyCode
-        //因为输入法选区时会发出Shift键的事件，但同步为游戏内的文本进行选区会比较复杂
-        //比如选区时没法拿到当前输入框选择了哪些文本，极容易导致输入框与游戏内的文本出现状态差异
-        //这类比较打破预期的情况应该尽量避免，所以应该忽略Shift
+
         val isShift = keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT
-        //避免处理Ctrl，大部分输入法不支持处理这个，而在游戏内可能会影响到指针位置
+
         val isCtrl = keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT
         return !isShift && !isCtrl
     }
@@ -376,14 +347,11 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
     private val errorViewModel: ErrorViewModel by viewModels()
 
     private val eventViewModel: EventViewModel by viewModels()
-    /**
-     * 手柄状态存储 ViewModel
-     */
+
     private val gamepadViewModel: GamepadViewModel by viewModels()
 
     private val vmViewModel: VMViewModel by viewModels()
 
-    /** View used to locate the layout hosting SDL's text input bridge. */
     private var gameTextureView: TextureView? = null
 
     private var magnifierBitmap: Bitmap? = null
@@ -421,18 +389,16 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //加载渲染器
+
         Renderers.init()
-        //加载插件
+
         PluginLoader.loadAllPlugins(this, false)
         refreshData()
 
-        //初始化物理鼠标连接检查器
         PhysicalMouseChecker.initChecker(this)
 
-        //启动前台服务，防止后台网络中断
         runCatching {
-            //应用处于后台等受限状态时系统会拒绝启动，此时无需保活，忽略即可
+
             startService(Intent(this, GameService::class.java))
         }
 
@@ -452,13 +418,12 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                     }
                     showExitMessage(this@VMActivity, exitCode, isSignal, logPath)
                 } else {
-                    //重启启动器
+
                     ProcessPhoenix.triggerRebirth(this@VMActivity)
                 }
             }
         )
 
-        //设置画面渲染输出回调
         CallbackBridge.setGraphicOutputListener {
             withHandler { onGraphicOutput() }
         }
@@ -468,18 +433,17 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             if (AllSettings.sustainedPerformance.getValue()) {
                 setSustainedPerformanceMode(true)
             }
-            addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) // 防止系统息屏
+            addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
         getSystemService(DisplayManager::class.java)?.registerDisplayListener(displayListener, null)
         applyMaxRefreshRatePolicy()
 
         val logFile = withLauncher { getLogFile() }
-        logFile.parentFile?.mkdirs() // 换过一次日志文件路径，此处创建父目录是必要的
+        logFile.parentFile?.mkdirs()
         if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
         LoggerBridge.start(logFile.absolutePath)
 
-        //错误信息展示
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 errorViewModel.errorEvents.collect { tm ->
@@ -492,7 +456,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         }
 
         lifecycleScope.launch {
-            //开始接收事件
+
             eventViewModel.events.collect { event ->
                 when (event) {
                     is EventViewModel.Event.Game.RefreshSize -> {
@@ -511,7 +475,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                             event.duration
                         ).show()
                     }
-                    else -> { /* Ignore */ }
+                    else -> {  }
                 }
             }
         }
@@ -519,7 +483,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (vmViewModel.textInputMode == TextInputMode.ENABLE) {
-                    //那应该是想退出输入框了
+
                     vmViewModel.disableInputMode()
                     return
                 }
@@ -529,7 +493,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             }
         })
 
-        //关闭菜单之后，每次启动游戏都提醒，防止部分人误触了不知道怎么解决 >:(
         if (!AllSettings.showMenuBall.getValue()) {
             Toast.makeText(
                 this@VMActivity,
@@ -541,7 +504,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         setContent {
             CMCLauncherTheme {
                 ObserveFullScreenSetting(AllSettings.gameFullScreen.state)
-                //游戏内菜单切换“请求最高刷新率”后自动重应用策略
+
                 LaunchedEffect(AllSettings.requestMaxRefreshRate.state) {
                     applyMaxRefreshRatePolicy()
                 }
@@ -551,7 +514,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                     }
 
                     if (vmViewModel.textInputMode == TextInputMode.ENABLE) {
-                        //输入栏控制区域
+
                         HidableInputLayout(
                             onSend = { text ->
                                 vmViewModel.sendInputText(text)
@@ -568,7 +531,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                         )
                     }
 
-                    //鼠标变更为抓获模式时，应该关闭输入框
                     val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
                     LaunchedEffect(cursorMode) {
                         if (cursorMode == CURSOR_DISABLED) vmViewModel.disableInputMode()
@@ -632,10 +594,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         vmViewModel.onConfigurationChanged()
     }
 
-    /**
-     * SDL 会在窗口创建等时机按窗口宽高动态请求方向，导致有可能被设置为竖屏,
-     * 在此处重写强制锁定为 sensorLandscape 即可
-     */
     override fun setRequestedOrientation(requestedOrientation: Int) {
         super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
     }
@@ -647,10 +605,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         }
     }
 
-    /**
-     * 尺寸刷新的参照屏幕尺寸
-     * 自定义分辨率下游戏 Surface 不再铺满全屏，其视图尺寸不能作为参照，此时优先使用全屏布局尺寸
-     */
     private fun referenceScreenSize(fallback: IntSize): IntSize {
         return vmViewModel.screenSize.takeIf { it.width > 0 && it.height > 0 } ?: fallback
     }
@@ -658,9 +612,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
     private var lastWindowSize: IntSize? = null
     private var refreshSizeJob: Job? = null
     private var pendingRefreshSize: IntSize? = null
-    /**
-     * 事件驱动的窗口尺寸刷新入口
-     */
+
     private fun requestRefreshWindowSize(screenSize: IntSize) {
         if (screenSize.width <= 0 || screenSize.height <= 0) return
         pendingRefreshSize = screenSize
@@ -712,7 +664,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
     private fun stopAllService() {
         stopService(Intent(this, GameService::class.java))
         if (TerracottaVPNService.isRunning()) {
-            //停止指令必须用 stopService 下发
+
             stopService(Intent(this, TerracottaVPNService::class.java))
         }
     }
@@ -725,8 +677,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
 
         val code = AllSettings.physicalKeyImeCode.state
         if (isPressed && code != null && event.keyCode == code) {
-            //用户按下了绑定呼出输入法的按键
-            //开启或关闭输入法
+
             vmViewModel.textInputMode = vmViewModel.textInputMode.switch()
             return true
         }
@@ -747,11 +698,10 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             }
 
             if (event.keyCode == KeyEvent.KEYCODE_TAB) {
-                //对于Tab键，为了避免选中其他的组件，这里应该直接拦截
+
                 return true
             }
-            //在输入文本的时候，应该避免继续处理按键事件
-            //否则输入法的一些功能键会失效
+
             return super.dispatchKeyEvent(event)
         }
         event.device?.let {
@@ -760,8 +710,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                 source and InputDevice.SOURCE_MOUSE == InputDevice.SOURCE_MOUSE) {
 
                 if (event.keyCode == KeyEvent.KEYCODE_BACK) {
-                    //一些系统会将鼠标右键当成KEYCODE_BACK来处理，需要在这里进行拦截
-                    //然后发送真实的鼠标右键
+
                     withHandler { sendMouseRight(isPressed) }
                     return false
                 }
@@ -788,13 +737,10 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         this, flags, title, message, buttonFlags, buttonIds, buttonTexts, colors
     )
 
-    /** 游戏渲染用的 native Surface，保留引用供系统降档后重新发起刷新率请求 */
     private var gameSurface: Surface? = null
 
-    /** 已请求的目标刷新率，0 表示未请求；DisplayListener 据此判断系统是否中途降档 */
     private var requestedRefreshRate = 0f
 
-    /** 系统中途降档（智能刷新率/省电策略）后重新发起请求；1 秒冷却防御部分 ROM 频繁回调 */
     private val displayListener = object : DisplayManager.DisplayListener {
         private var lastRequestAt = 0L
 
@@ -814,12 +760,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         }
     }
 
-    /**
-     * 应用“请求最高刷新率”策略（设置开关，默认开）：
-     * 窗口级 preferredDisplayModeId 硬请求同分辨率下的最高刷新率档位，
-     * surface 级 setFrameRate 投票（CHANGE_FRAME_RATE_ALWAYS，非无缝切档的机型也生效）。
-     * 关闭时清除两类请求，回落系统自适应刷新。
-     */
     fun applyMaxRefreshRatePolicy() {
         val display = currentDisplay() ?: return
         if (!AllSettings.requestMaxRefreshRate.getValue()) {
@@ -834,13 +774,11 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         voteMaxDisplayRefreshRate()
     }
 
-    /** 当前关联的 Display；API 30 前走已废弃的 getDefaultDisplay */
     private fun currentDisplay(): Display? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) display
         else @Suppress("DEPRECATION") windowManager.defaultDisplay
     }
 
-    /** 在与当前模式同分辨率的档位中取最高刷新率档（只比同分辨率，避免选到低分辨率高刷档） */
     private fun maxRefreshRateMode(display: Display): Display.Mode {
         val current = display.mode
         return display.supportedModes.fold(current) { best, mode ->
@@ -851,7 +789,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         }
     }
 
-    /** surface 级投票：请求系统将屏幕切换到设备支持的最高刷新率，避免游戏帧率被系统限制在自选的较低刷新档位 */
     private fun voteMaxDisplayRefreshRate() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
         val surface = gameSurface ?: return
@@ -863,7 +800,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         )
     }
 
-    /** modeId 传 0 表示清除窗口的显示模式偏好 */
     private fun setPreferredDisplayModeId(modeId: Int) {
         val attributes = window.attributes
         if (attributes.preferredDisplayModeId == modeId) return
@@ -886,14 +822,13 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         gameSurface = nativeSurface
         applyMaxRefreshRatePolicy()
         SdlBridge.prepareSurface(this, nativeSurface, gameTextureView?.parent as? ViewGroup, surface)
-        //游戏请求 GLFW direct gamepad 时的通知接收方
+
         CallbackBridge.setDirectGamepadEnableHandler {
             LoggerBridge.append("CMCLauncher: Direct gamepad handler enabled")
         }
         if (vmViewModel.isRunning) {
             ZLBridge.setupBridgeWindow(nativeSurface)
-            // surface 重建后新 SurfaceTexture 的渲染 buffer 回落视图尺寸，须重新恢复渲染状态；
-            // 复用分支若不重置销毁标记，后续尺寸回调会被持续阻塞，错位状态将无法自愈
+
             withHandler { mIsSurfaceDestroyed = false }
             requestRefreshWindowSize(screenSize = referenceScreenSize(fallback = IntSize(width, height)))
             return
@@ -961,7 +896,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                 }
             }
 
-            //游戏模式下使用自定义分辨率时，游戏画面等比缩放居中显示（黑边）
             val letterboxed = withHandler { type } == HandlerType.GAME &&
                     AllSettings.resolutionRule.state == ResolutionRule.CUSTOM
             val renderSize = rememberGameRenderSize(screenSize)
@@ -1105,10 +1039,6 @@ private fun InputMagnifierContent(
     }
 }
 
-/**
- * 让VMActivity进入运行游戏模式
- * @param version 指定版本
- */
 fun runGame(
     context: Context,
     version: Version,
@@ -1122,12 +1052,6 @@ fun runGame(
     context.startActivity(intent)
 }
 
-/**
- * 让VMActivity进入运行Jar模式
- * @param jarFile 指定 jar 文件
- * @param jreName 指定使用的 Java 环境，null 则为自动选择
- * @param customArgs 指定 jvm 参数
- */
 fun runJar(
     context: Context,
     jarFile: File,
@@ -1158,7 +1082,7 @@ fun runJar(
 
 private fun startGameService(context: Context) {
     runCatching {
-        //应用处于后台等受限状态时系统会拒绝启动，此时无需保活，忽略即可
+
         context.startService(Intent(context, GameService::class.java))
     }
 }

@@ -1,8 +1,5 @@
 package com.cmc.launcher.game.download.game.models
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/6e05b5ee58e67cd40e58c6f6002f3599897ca358/HMCLCore/src/main/java/org/jackhuang/hmcl/game/Artifact.java#L75-L91)
- */
 fun fromDescriptor(descriptor: String): LibraryComponents {
     val arr = descriptor.split(":", limit = 4).toMutableList()
     if (arr.size != 3 && arr.size != 4) {

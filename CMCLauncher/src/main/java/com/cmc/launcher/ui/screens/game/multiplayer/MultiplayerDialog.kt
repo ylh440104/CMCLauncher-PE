@@ -61,29 +61,14 @@ import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.ui.theme.onItemColor
 
 sealed interface TerracottaLogOperation {
-    /** 正常情况下，不展示日志内容，显示对话框 UI */
+
     data object None : TerracottaLogOperation
-    /** 正在收集日志 */
+
     data object CollectingLog : TerracottaLogOperation
-    /** 切换到展示日志的模式 */
+
     data class EnableLog(val logString: String) : TerracottaLogOperation
 }
 
-/**
- * 多人联机菜单Dialog
- * @param logOperation 陶瓦联机核心日志展示状态
- * @param onShowLog 联机菜单请求切换到日志展示状态
- * @param onHideLog 联机菜单请求退出日志展示状态
- * @param isWaitingInteractive 在等待页面是否可以进行交互
- * @param terracottaVer 陶瓦联机核心版本号
- * @param easyTierVer EasyTier版本号
- * @param profiles 陶瓦联机当前房间所有玩家配置
- * @param onHostRoleClick 用户选择成为房主
- * @param onHostCopyCode 房主复制房间邀请码
- * @param onGuestPositive 房客正确输入邀请码
- * @param onGuestCopyUrl 房客复制备用链接
- * @param onBack 退出当前步骤
- */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MultiplayerDialog(
@@ -187,7 +172,7 @@ fun MultiplayerDialog(
                                 is TerracottaState.HostOK -> {
                                     OkRoomUI(
                                         modifier = commonModifier,
-                                        code = dialogState.code ?: "",//不会为null
+                                        code = dialogState.code ?: "",
                                         profiles = profiles,
                                         onCopy = {
                                             onHostCopyCode(dialogState)
@@ -253,7 +238,7 @@ fun MultiplayerDialog(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //版本号
+
                         Column(modifier = Modifier.weight(1f)) {
                             val terracottaVer0 = terracottaVer ?: stringResource(R.string.generic_loading)
                             val easyTierVer0 = easyTierVer ?: stringResource(R.string.generic_loading)
@@ -267,20 +252,18 @@ fun MultiplayerDialog(
                             )
                         }
 
-                        //查看日志
                         TextButton(
                             onClick = onShowLog,
                             enabled = logOperation !is TerracottaLogOperation.CollectingLog
                         ) {
                             if (logOperation is TerracottaLogOperation.EnableLog) {
-                                //切换文字到 -> 刷新
+
                                 Text(text = stringResource(R.string.generic_refresh))
                             } else {
                                 Text(text = stringResource(R.string.terracotta_log))
                             }
                         }
 
-                        //关闭
                         TextButton(
                             onClick = onClose
                         ) {
@@ -293,9 +276,6 @@ fun MultiplayerDialog(
     }
 }
 
-/**
- * 等待选择角色
- */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun WaitingUI(
@@ -316,7 +296,7 @@ private fun WaitingUI(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            //房主
+
             SimpleCardButton(
                 modifier = Modifier.fillMaxWidth(),
                 icon = painterResource(R.drawable.ic_home_filled),
@@ -326,7 +306,6 @@ private fun WaitingUI(
                 enabled = isInteractive
             )
 
-            //房客
             SimpleCardButton(
                 modifier = Modifier.fillMaxWidth(),
                 icon = painterResource(R.drawable.ic_group_filled),
@@ -339,7 +318,6 @@ private fun WaitingUI(
             )
         }
 
-        //禁止交互时，提示用户正在加载中
         if (!isInteractive) {
             LoadingIndicator()
         }
@@ -363,9 +341,6 @@ private fun WaitingUIPreview() {
     )
 }
 
-/**
- * 房客开始中
- */
 @Composable
 private fun GuestStartingUI(
     modifier: Modifier = Modifier,
@@ -425,9 +400,6 @@ private fun GuestStartingUIPreview() {
     )
 }
 
-/**
- * 已进入房间
- */
 @Composable
 private fun OkRoomUI(
     modifier: Modifier = Modifier,
@@ -450,7 +422,7 @@ private fun OkRoomUI(
         Column(
             modifier = Modifier.weight(1f),
         ) {
-            //文字部分
+
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -469,11 +441,11 @@ private fun OkRoomUI(
                     style = MaterialTheme.typography.labelMedium
                 )
             }
-            //按钮部分
+
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                //复制按钮
+
                 SimpleRowButton(
                     modifier = Modifier.fillMaxWidth(),
                     icon = painterResource(R.drawable.ic_copy_all_filled),
@@ -481,7 +453,7 @@ private fun OkRoomUI(
                     description = copyDesc,
                     onClick = onCopy
                 )
-                //退出按钮
+
                 SimpleRowButton(
                     modifier = Modifier.fillMaxWidth(),
                     icon = painterResource(R.drawable.ic_arrow_back),
@@ -492,7 +464,6 @@ private fun OkRoomUI(
             }
         }
 
-        //玩家列表
         ProfileListPanel(
             modifier = Modifier.weight(1f),
             title = profilesLabel,
@@ -501,9 +472,6 @@ private fun OkRoomUI(
     }
 }
 
-/**
- * 通用房间玩家列表
- */
 @Composable
 private fun ProfileListPanel(
     title: String,
@@ -549,9 +517,9 @@ private fun TerracottaProfileLayout(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             maxLines = 2
         ) {
-            //玩家名字
+
             MarqueeText(text = profile.name ?: stringResource(R.string.terracotta_player_anonymous))
-            //身份/类别
+
             Text(text = stringResource(profile.type.textRes))
         }
         MarqueeText(
@@ -562,9 +530,6 @@ private fun TerracottaProfileLayout(
     }
 }
 
-/**
- * 出现错误
- */
 @Composable
 private fun ExceptionUI(
     title: String,
@@ -576,7 +541,7 @@ private fun ExceptionUI(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        //文字部分
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -590,7 +555,7 @@ private fun ExceptionUI(
                 style = MaterialTheme.typography.labelMedium
             )
         }
-        //退出按钮
+
         SimpleRowButton(
             modifier = Modifier.fillMaxWidth(),
             icon = painterResource(R.drawable.ic_arrow_back),
@@ -601,9 +566,6 @@ private fun ExceptionUI(
     }
 }
 
-/**
- * 展示日志
- */
 @Composable
 private fun LogUI(
     logString: String,
@@ -623,7 +585,7 @@ private fun LogUI(
         ) {
             Text(text = logString)
         }
-        //退出按钮
+
         SimpleRowButton(
             modifier = Modifier.fillMaxWidth(),
             icon = painterResource(R.drawable.ic_arrow_back),
@@ -648,7 +610,7 @@ private fun CommonProgressLayout(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        //文字部分
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -659,7 +621,7 @@ private fun CommonProgressLayout(
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             text?.invoke(this@c1)
         }
-        //退出按钮
+
         SimpleCardButton(
             modifier = Modifier.fillMaxWidth(),
             icon = painterResource(R.drawable.ic_arrow_left_rounded),
@@ -670,9 +632,6 @@ private fun CommonProgressLayout(
     }
 }
 
-/**
- * 用Card实现的可点击按钮
- */
 @Composable
 private fun SimpleCardButton(
     modifier: Modifier = Modifier,
@@ -709,13 +668,13 @@ private fun SimpleCardButton(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                //标题
+
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = title,
                     style = MaterialTheme.typography.titleMedium
                 )
-                //描述
+
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -728,9 +687,6 @@ private fun SimpleCardButton(
     }
 }
 
-/**
- * 紧凑型可点击按钮，这个按钮的[description]描述被锁定为单行显示
- */
 @Composable
 private fun SimpleRowButton(
     modifier: Modifier = Modifier,
@@ -756,13 +712,13 @@ private fun SimpleRowButton(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            //标题
+
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = title,
                 style = MaterialTheme.typography.titleSmall
             )
-            //描述
+
             MarqueeText(
                 modifier = Modifier
                     .fillMaxWidth()

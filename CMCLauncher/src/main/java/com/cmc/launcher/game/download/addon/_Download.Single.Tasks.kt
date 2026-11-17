@@ -27,14 +27,6 @@ import java.nio.channels.UnresolvedAddressException
 
 private const val TAG = "DownloadSingle"
 
-/**
- * 为一些版本下载单独的资源文件
- * @param version 要下载单独资源版本信息
- * @param versions 为哪些游戏版本下载
- * @param folder 版本游戏目录下的相对路径
- * @param onFileCopied 文件已成功复制到版本游戏目录后 单独回调
- * @param onFileCancelled 文件安装已取消 单独回调
- */
 fun downloadSingleForVersions(
     version: PlatformVersion,
     versions: List<Version>,
@@ -58,7 +50,7 @@ fun downloadSingleForVersions(
                 val targetFile = File(targetFolder, version.platformFileName())
                 if (targetFile.exists() && !targetFile.delete()) throw IOException("Failed to properly delete the existing target file.")
                 cacheFile.copyTo(targetFile)
-                onFileCopied(targetFile, targetFolder) //文件已复制回调
+                onFileCopied(targetFile, targetFolder)
             }
         },
         onError = { e ->
@@ -77,7 +69,7 @@ fun downloadSingleForVersions(
                 val targetFolder = File(ver.getGameDir(), folder)
                 val targetFile = File(targetFolder, version.platformFileName())
                 if (targetFile.exists()) FileUtils.deleteQuietly(targetFile)
-                onFileCancelled(targetFile, targetFolder) //文件已取消回调
+                onFileCancelled(targetFile, targetFolder)
             }
         },
         onFinally = {
@@ -87,10 +79,6 @@ fun downloadSingleForVersions(
     )
 }
 
-/**
- * 下载任务的Id
- * 同一文件安装到不同的游戏版本时属于不同的任务，避免被误判为重复任务而丢弃目标版本
- */
 private fun downloadTaskId(fileKey: String, versions: List<Version>): String {
     if (versions.isEmpty()) return fileKey
     return "$fileKey|${versions.map { it.getVersionName() }.sorted().joinToString(",")}"
@@ -112,7 +100,6 @@ private fun downloadSingleFile(
                 val totalFileSize = version.platformFileSize()
                 var downloadedSize = 0L
 
-                //更新下载任务进度
                 fun updateProgress() {
                     task.updateProgress(
                         (downloadedSize.toDouble() / totalFileSize.toDouble()).toFloat()

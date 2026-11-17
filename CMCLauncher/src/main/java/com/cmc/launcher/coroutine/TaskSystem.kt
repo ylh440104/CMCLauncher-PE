@@ -21,13 +21,10 @@ object TaskSystem {
     private val allJobs = ConcurrentHashMap<String, Job>()
     private val allListeners = ConcurrentHashMap<String, () -> Unit>()
 
-    /**
-     * 提交并立即运行任务
-     */
     fun submitTask(task: Task) {
         if (containsTask(task)) return
         addTask(task)
-        //持有保活，避免启动器切至后台后任务被系统中断
+
         TaskKeepAlive.acquire()
 
         allJobs[task.id] = scope.launch(task.dispatcher) {
@@ -46,35 +43,22 @@ object TaskSystem {
                 try {
                     onTaskEnded(task)
                 } finally {
-                    //确保保活一定被释放，避免任务异常导致前台服务无法停止
+
                     TaskKeepAlive.release()
                 }
             }
         }
     }
 
-    /**
-     * 提交并立即运行任务
-     * 若任务已存在，则忽略，但任务监听器会被覆盖
-     * @param onEnded 任务结束时的监听器
-     */
     fun submitTask(task: Task, onEnded: () -> Unit) {
         putTaskEndedListener(taskId = task.id, onEnded = onEnded)
         submitTask(task)
     }
 
-    /**
-     * 添加任务结束的监听器，监听器会在任务的一切流程结束时被调用
-     * 任务监听器执行时发生的异常将会被忽略
-     * @param taskId 指定监听器应用到的哪个任务上
-     */
     fun putTaskEndedListener(taskId: String, onEnded: () -> Unit) {
         allListeners[taskId] = onEnded
     }
 
-    /**
-     * 移除任务流程结束的监听器
-     */
     fun removeTaskEndedListener(taskId: String) =
         allListeners.remove(taskId)
 
@@ -94,35 +78,20 @@ object TaskSystem {
         onTaskEnded(task)
     }
 
-    /**
-     * 取消任务
-     */
     fun cancelTask(task: Task) {
         allJobs[task.id]?.cancel()
         onTaskCanceled(task)
     }
 
-    /**
-     * 取消任务
-     */
     fun cancelTask(id: String) {
         allJobs[id]?.cancel()
         _tasksFlow.value.find { it.id == id }?.let { onTaskCanceled(it) }
     }
 
-    /**
-     * @return 是否包括任务
-     */
     fun containsTask(task: Task) = _tasksFlow.value.contains(task)
 
-    /**
-     * @return 是否包括任务
-     */
     fun containsTask(id: String) = _tasksFlow.value.any { it.id == id }
 
-    /**
-     * 停止所有任务
-     */
     fun stopAll() {
         scope.cancel()
         _tasksFlow.update { emptyList() }

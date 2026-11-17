@@ -29,105 +29,55 @@ import java.time.Instant
 
 @Serializable
 class CurseForgeFile(
-    /**
-     * 文件 ID
-     */
+
     @SerialName("id")
     val id: Int,
 
-    /**
-     * 与此文件所属的项目的相关的游戏 ID
-     */
     @SerialName("gameId")
     val gameId: Int,
 
-    /**
-     * 项目 ID
-     */
     @SerialName("modId")
     val modId: Int,
 
-    /**
-     * 文件是否可供下载
-     */
     @SerialName("isAvailable")
     val isAvailable: Boolean,
 
-    /**
-     * 文件的展示名称
-     */
     @SerialName("displayName")
     val displayName: String,
 
-    /**
-     * 确切的文件名
-     */
     @SerialName("fileName")
     val fileName: String? = null,
 
-    /**
-     * 文件的发布类型
-     */
     @SerialName("releaseType")
     val releaseType: PlatformReleaseType,
 
-    /**
-     * 文件的状态
-     */
     @SerialName("fileStatus")
     val fileStatus: Int,
 
-    /**
-     * 文件哈希值（即 md5 或 sha1）
-     */
     @SerialName("hashes")
     val hashes: Array<Hash>,
 
-    /**
-     * 文件的时间戳
-     */
     @SerialName("fileDate")
     val fileDate: String,
 
-    /**
-     * 文件长度（以字节为单位）
-     */
     @SerialName("fileLength")
     val fileLength: Long,
 
-    /**
-     * 文件的下载量
-     */
     @SerialName("downloadCount")
     val downloadCount: Long,
 
-    /**
-     * 文件在硬盘上的大小
-     */
     @SerialName("fileSizeOnDisk")
     val fileSizeOnDisk: Long? = null,
 
-    /**
-     * 文件的下载 URL
-     */
     @SerialName("downloadUrl")
     val downloadUrl: String? = null,
 
-    /**
-     * 此文件相关的游戏版本列表
-     */
     @SerialName("gameVersions")
     val gameVersions: Array<String>,
 
-    /**
-     * 用于按游戏版本排序的元数据
-     */
     @SerialName("sortableGameVersions")
     val sortableGameVersions: JsonArray,
 
-    /**
-     * 依赖项文件列表
-     */
     @SerialName("dependencies")
     val dependencies: Array<Dependency>,
 
@@ -207,22 +157,15 @@ class CurseForgeFile(
         val fingerprint: Long
     )
 
-    /**
-     * 该版本的主要文件
-     */
     @Transient
     private lateinit var thisPrimaryFile: CurseForgeFile
 
-    /**
-     * 主要文件下载链接
-     */
     @Transient
     private lateinit var primaryDownloadUrl: String
 
     override suspend fun initFile(currentProjectId: String): Boolean {
         val file = this.takeIf { it.fileName != null && it.fixedFileUrl() != null }
-        // 文件名或者下载链接为空
-        // 单独获取该文件信息
+
             ?: run {
                 val fileId = id.toString()
                 runCatching {
@@ -300,25 +243,16 @@ class CurseForgeFile(
     override fun platformVersion(): String = displayName
 }
 
-/**
- * 获取修正后的文件下载链接，若下载链接为null，则根据id与文件名称计算下载链接
- */
 fun CurseForgeFile.fixedFileUrl(): String? {
     return downloadUrl
         ?: fileName?.let { curseForgeCDNUrl(id, it) }
 }
 
-/**
- * 根据 CurseForge 的文件 ID 与文件名称拼出 CDN 下载链接
- */
 fun curseForgeCDNUrl(fileId: Int, fileName: String): String {
     val encoded = URLEncoder.encode(fileName, "UTF-8").replace("+", "%20")
     return "https://edge.forgecdn.net/files/${fileId / 1000}/${fileId % 1000}/$encoded"
 }
 
-/**
- * 获取Sha1值
- */
 fun CurseForgeFile.getSHA1(): String? {
     return hashes.find { hash ->
         hash.algo == Hash.Algo.SHA1

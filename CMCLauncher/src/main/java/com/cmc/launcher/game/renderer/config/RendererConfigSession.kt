@@ -4,10 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-/**
- * 配置对话框的编辑会话，管理一个渲染器的全部配置项状态及整体重置；
- * 构建时清理存储中已不在规范内的失效配置项
- */
 class RendererConfigSession(
     private val rendererId: String,
     spec: RendererConfigSpec,
@@ -35,9 +31,6 @@ class RendererConfigSession(
     }
 }
 
-/**
- * 单个配置项的可观察状态，按 本地覆盖、全局配置、规范默认值 解析当前值
- */
 class ConfigEntryState(
     private val rendererId: String,
     val entry: ConfigEntry,

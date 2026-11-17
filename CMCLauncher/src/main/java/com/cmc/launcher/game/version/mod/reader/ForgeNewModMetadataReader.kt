@@ -20,9 +20,6 @@ import java.util.zip.ZipFile as JDKZipFile
 
 private const val TAG = "ForgeNewMetadata"
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/4650287/HMCLCore/src/main/java/org/jackhuang/hmcl/mod/modinfo/ForgeNewModMetadata.java)
- */
 object ForgeNewModMetadataReader : ModMetadataReader {
     private const val ACC_FORGE = 0x01
     private const val ACC_NEO_FORGED = 0x02
@@ -30,7 +27,7 @@ object ForgeNewModMetadataReader : ModMetadataReader {
     override suspend fun fromLocal(modFile: File): LocalMod = withContext(Dispatchers.IO) {
         try {
             JDKZipFile(modFile).use { zip ->
-                //尝试 Forge
+
                 runCatching {
                     readFromToml(
                         zip = zip,
@@ -41,7 +38,6 @@ object ForgeNewModMetadataReader : ModMetadataReader {
                     )
                 }.onSuccess { return@withContext it }
 
-                //尝试 NeoForge
                 runCatching {
                     readFromToml(
                         zip = zip,
@@ -202,11 +198,6 @@ object ForgeNewModMetadataReader : ModMetadataReader {
         }
     }
 
-    /**
-     * 修复作者列表
-     * 有的模组作者名称只是单个字符串；
-     * 有的模组则是作者名称列表
-     */
     @Suppress("UNCHECKED_CAST")
     private fun fixAuthorsField(map: MutableMap<String, Any?>) {
         val mods = map["mods"] as? List<MutableMap<String, Any?>> ?: return
@@ -228,9 +219,6 @@ object ForgeNewModMetadataReader : ModMetadataReader {
         } ?: emptyList()
     }
 
-    /**
-     * 分析模组加载器类型
-     */
     private fun analyzeLoader(
         toml: Toml,
         modID: String,
@@ -242,7 +230,7 @@ object ForgeNewModMetadataReader : ModMetadataReader {
         }.getOrNull()
 
         val dependencies: List<Map<String, Any>>? = when (depsArray) {
-            null -> { //尝试 dependencies.{modID}
+            null -> {
                 val depsTable = toml.getTable("dependencies")
                 val modDepsArray = depsTable?.getTables(modID)
                 modDepsArray?.map { it.toMap() as Map<String, Any> }

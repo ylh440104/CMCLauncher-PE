@@ -22,21 +22,16 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
-/**
- * 文本编辑器控制器
- */
 class EditorController(
     private val store: FmStateStore,
     private val browse: BrowseController,
     private val coroutineScope: CoroutineScope
 ) {
-    /** 当前文件使用的编码，保存时按原编码写回 */
+
     private var charset: Charset = StandardCharsets.UTF_8
 
-    /** 进行中的保存任务 */
     private var saveJob: Job? = null
 
-    /** 打开文件并异步加载内容 */
     fun open(path: Path) {
         store.updateEditorUi { EditorUiState(path = path) }
         coroutineScope.launch(Dispatchers.IO) {
@@ -59,14 +54,10 @@ class EditorController(
         }
     }
 
-    /** 内容被修改（供编辑器事件回调） */
     fun onTextChanged() {
         store.updateEditorUi { it.copy(dirty = true) }
     }
 
-    /**
-     * 保存当前内容到文件
-     */
     fun save(onDone: (Boolean) -> Unit = {}) {
         if (store.editorUiValue().saving) return
         val state = store.editorUiValue()
@@ -80,8 +71,7 @@ class EditorController(
                         Files.write(path, content.toString().toByteArray(charset))
                     }.isSuccess
                 }
-                // 写入完成后若用户已取消（Files.write 为阻塞调用，无法中途中断），
-                // 保持未保存状态，不更新 dirty、不提示结果
+
                 ensureActive()
                 if (!success) {
                     FmLog.error(TAG, "Save editor file failed: $path")
@@ -89,14 +79,14 @@ class EditorController(
                 store.updateEditorUi { it.copy(dirty = false) }
                 if (success) {
                     store.emitSnackbar(FmSnackbar(store.stringResolver(R.string.generic_saved), long = false))
-                    // 文件大小 / 修改时间已变化，刷新列表展示
+
                     browse.refreshDir()
                 } else {
                     store.emitSnackbar(FmSnackbar(store.stringResolver(R.string.fm_editor_save_failed)))
                 }
                 onDone(success)
             } catch (e: CancellationException) {
-                // 用户取消保存：不更新 dirty、不提示结果
+
                 onDone(false)
                 throw e
             } finally {
@@ -105,26 +95,20 @@ class EditorController(
         }
     }
 
-    /**
-     * 取消进行中的保存
-     */
     fun cancelSave() {
         saveJob?.cancel()
         saveJob = null
         store.updateEditorUi { it.copy(saving = false) }
     }
 
-    /** 请求显示退出确认弹窗 */
     fun requestExitConfirm() {
         store.updateEditorUi { it.copy(exitConfirm = true) }
     }
 
-    /** 取消退出确认弹窗 */
     fun cancelExitConfirm() {
         store.updateEditorUi { it.copy(exitConfirm = false) }
     }
 
-    /** 是否存在未保存的修改（供系统返回键判定） */
     fun hasDirty(): Boolean = store.editorUiValue().dirty
 
     private fun loadFile(path: Path): Content {
@@ -142,9 +126,6 @@ class EditorController(
         return Content(text)
     }
 
-    /**
-     * 判断剩余堆内存能否容纳该文件的加载峰值，内存不足时直接拒绝加载
-     */
     private fun hasEnoughMemoryFor(fileSize: Long): Boolean {
         val runtime = Runtime.getRuntime()
         val available = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory())
@@ -152,10 +133,6 @@ class EditorController(
         return estimated <= available * MEMORY_SAFE_RATIO
     }
 
-    /**
-     * 解码文件内容：优先识别 BOM，否则按严格 UTF-8 解码，
-     * 解码失败回退 GBK（兼容旧编码的中文文本文件）。
-     */
     private fun decode(bytes: ByteArray): String {
         val bom = detectBom(bytes)
         val contentBytes = bytes.copyOfRange(bom.length, bytes.size)
@@ -198,11 +175,11 @@ class EditorController(
 
     companion object {
         private const val TAG = "EditorController"
-        /** 加载文本文件时的内存放大系数（字节数组 + UTF-16 字符串 + 编辑器行结构等） */
+
         private const val MEMORY_MULTIPLIER: Long = 6
-        /** 加载过程中的固定内存开销（语法分析等其他分配） */
+
         private const val MEMORY_OVERHEAD: Long = 16L * 1024 * 1024
-        /** 允许占用的可用堆内存比例，保留余量给应用其他部分 */
+
         private const val MEMORY_SAFE_RATIO = 0.75
     }
 }

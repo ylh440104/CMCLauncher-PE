@@ -48,10 +48,6 @@ import com.cmc.launcher.ui.screens.NestedNavDisplay
 import com.cmc.launcher.ui.screens.rememberTransitionSpec
 import com.cmc.launcher.viewmodel.SplashBackStackViewModel
 
-/**
- * @param startAllTask 开启全部的解压任务
- * @param unpackItems 解压任务列表
- */
 @Composable
 fun SplashScreen(
     startAllTask: () -> Unit,

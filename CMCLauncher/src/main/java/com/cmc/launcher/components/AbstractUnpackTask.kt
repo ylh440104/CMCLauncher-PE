@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.update
 
 abstract class AbstractUnpackTask {
     private val _taskMessage = MutableStateFlow<String?>(null)
-    /** 描述当前解压任务进度的状态 */
+
     val taskMessage = _taskMessage.asStateFlow()
 
     fun updateMessage(message: String?) {

@@ -15,9 +15,6 @@ import java.util.Objects
 
 private const val TAG = "AuthServerHelper"
 
-/**
- * 帮助登录外置账号（创建新的外置账号、仅登录当前外置账号）
- */
 class AuthServerHelper(
     private val baseUrl: String,
     private val serverName: String,
@@ -91,10 +88,6 @@ class AuthServerHelper(
         }
     }
 
-    /**
-     * 启动前自检
-     * @return 两者都被服务端拒绝时返回 false
-     */
     suspend fun validateOrRefresh(context: Context, account: Account): Boolean {
         if (apiServer.validate(context, account)) return true
 
@@ -107,9 +100,6 @@ class AuthServerHelper(
         }
     }
 
-    /**
-     * 使用账号密码重新登录并匹配当前角色，仅在 validate 与 refresh 均被拒绝时调用
-     */
     suspend fun passwordLogin(context: Context, account: Account) {
         val authResult = apiServer.authenticate(context, account.otherAccount!!, password)
         val selected = authResult.selectedProfile
@@ -127,17 +117,10 @@ class AuthServerHelper(
         updateAccountInfo(account, authResult, matchedName, matchedId)
     }
 
-    /**
-     * 从账号管理中查找同一个配置Id的账号（当前账号类型）
-     */
     private fun loadFromProfileID(profileId: String): Account {
         return AccountsManager.loadFromProfileID(profileId, serverName) ?: Account()
     }
 
-    /**
-     * 通过账号密码，登录一个新的账号
-     * @param selectRole 当账号拥有多个角色时，需要选择角色
-     */
     fun createNewAccount(
         context: Context,
         selectRole: (List<AuthResult.AvailableProfiles>, (AuthResult.AvailableProfiles) -> Unit) -> Unit
@@ -162,13 +145,8 @@ class AuthServerHelper(
         TaskSystem.submitTask(task)
     }
 
-    /**
-     * 仅仅只是登录外置账号（使用账号密码登录）
-     * JUST DO IT!!!
-     * @return 登陆的任务对象
-     */
     fun justLogin(context: Context, account: Account): Task {
-        fun roleNotFound() { //未找到匹配的ID
+        fun roleNotFound() {
             onFailed(ResponseException(context.getString(R.string.account_other_login_role_not_found)))
         }
 
@@ -185,7 +163,7 @@ class AuthServerHelper(
             hasMultipleRoles = { authResult, task ->
                 authResult.availableProfiles!!.forEach { profile ->
                     if (profile.id == account.profileId) {
-                        //匹配当前账号的ID时，那么这个角色就是这个账号
+
                         updateAccountInfo(account, authResult, profile.name, profile.id)
                         onSuccess(account, task)
                         return@login

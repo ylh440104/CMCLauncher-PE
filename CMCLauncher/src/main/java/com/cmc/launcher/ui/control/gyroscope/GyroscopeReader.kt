@@ -12,27 +12,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import kotlin.math.abs
 
-/**
- * 检查陀螺仪是否可以使用，一些设备并不具备陀螺仪传感器
- */
 fun isGyroscopeAvailable(context: Context): Boolean {
     val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     val gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
     return gyroscopeSensor != null
 }
 
-/**
- * 读取陀螺仪传感器数据
- *
- * @param xEvent x轴偏移量回调
- * @param yEvent y轴偏移量回调
- * @param zEvent z轴偏移量回调
- * @param sampleRate 采样率
- * @param smoothing 是否平滑数据
- * @param smoothingWindow 平滑窗口大小，越大越平滑
- * @param threshold 低通阈值，避免微小抖动
- * @param sensitivity 灵敏度倍数，控制放大倍数
- */
 @Composable
 fun GyroscopeReader(
     xEvent: (Float) -> Unit = {},
@@ -76,7 +61,7 @@ private fun GyroscopeReaderMain(
     val sensorManager = remember {
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     }
-    //陀螺仪传感器
+
     val gyroscopeSensor = remember {
         sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
     }
@@ -124,7 +109,6 @@ private fun GyroscopeReaderMain(
                     z = zTotal / angleBuffer.size
                 }
 
-                //阈值过滤，避免微小抖动
                 if (abs(x) > threshold) xEvent(x)
                 if (abs(y) > threshold) yEvent(y)
                 if (abs(z) > threshold) zEvent(z)

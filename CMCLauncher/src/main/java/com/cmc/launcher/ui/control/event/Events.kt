@@ -3,9 +3,6 @@ package com.cmc.launcher.ui.control.event
 import com.movtery.inputmap.keycodes.ControlEventKeycode
 import org.lwjgl.glfw.CallbackBridge
 
-/**
- * 点击按键时，处理LWJGL按键事件
- */
 fun lwjglEvent(
     eventKey: String,
     isMouse: Boolean,
@@ -21,24 +18,18 @@ fun lwjglEvent(
     }
 }
 
-//启动器点击事件
-
-/** 切换输入法 */
 const val LAUNCHER_EVENT_SWITCH_IME = "launcher.event.switch_ime"
-/** 切换菜单 */
+
 const val LAUNCHER_EVENT_SWITCH_MENU = "launcher.event.switch_menu"
-/** 控制虚拟鼠标滚轮上-长按一直触发 */
+
 const val LAUNCHER_EVENT_SCROLL_UP = "launcher.event.scroll_up"
-/** 控制虚拟鼠标滚轮上-单次点击 */
+
 const val LAUNCHER_EVENT_SCROLL_UP_SINGLE = "launcher.event.scroll_up.single"
-/** 控制虚拟鼠标滚轮下-长按一直触发 */
+
 const val LAUNCHER_EVENT_SCROLL_DOWN = "launcher.event.scroll_down"
-/** 控制虚拟鼠标滚轮下-单次点击 */
+
 const val LAUNCHER_EVENT_SCROLL_DOWN_SINGLE = "launcher.event.scroll_down.single"
 
-/**
- * 点击按键时，处理启动器事件
- */
 fun launcherEvent(
     eventKey: String,
     isPressed: Boolean,
@@ -52,7 +43,7 @@ fun launcherEvent(
     onLongScrollDownCancel: () -> Unit
 ) {
     if (eventKey.startsWith("GLFW_MOUSE_", false)) {
-        //处理鼠标事件
+
         lwjglEvent(eventKey = eventKey, isMouse = true, isPressed = isPressed)
     } else {
         if (isPressed) {

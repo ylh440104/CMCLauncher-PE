@@ -35,23 +35,17 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** 纵轴分割段数 */
 private const val FPS_SEGMENTS = 5
 
-/** 纵轴刻度步长的候选"好数" */
 private val FPS_AXIS_STEPS = intArrayOf(1, 2, 5, 10, 15, 20, 30, 60, 120, 240)
 
-/**
- * 计算纵轴的"好数"范围
- * 完整覆盖实际帧率范围，两端尽量对称地留出余量，且最低刻度不小于0
- */
 private fun niceFpsBounds(fpsMin: Int, fpsMax: Int): Pair<Int, Int> {
     val range = (fpsMax - fpsMin).coerceAtLeast(0)
     for (step in FPS_AXIS_STEPS) {
         val span = step * FPS_SEGMENTS
         if (span < range) continue
         val extra = span - range
-        //向下取整到步长网格（余量为负时向负无穷取整）
+
         val raw = fpsMin - extra / 2
         var axisMin = raw / step * step
         if (raw < 0 && raw % step != 0) axisMin -= step
@@ -69,18 +63,10 @@ private fun niceFpsBounds(fpsMin: Int, fpsMax: Int): Pair<Int, Int> {
     return fpsMin to fpsMax
 }
 
-/** 纵轴标注字号：尽可能小但可读 */
 private val FpsLabelStyle = TextStyle(fontSize = 9.sp)
 
-/** 纵轴标注框高度，数字在其中垂直居中，使中心与对应分割线对齐 */
 private val FpsLabelHeight = 12.dp
 
-/**
- * 游戏内帧率历史图表：
- * 纵轴为帧率（范围向外取整为"好数"后分5段标注刻度），
- * 横轴为时间（最多记录15个时间节点，不显示具体时间）；
- * 最后一个点旁标注当前帧率
- */
 @Composable
 fun FpsChart(
     history: List<Int>,
@@ -96,7 +82,7 @@ fun FpsChart(
         val lineColor = primaryColor.copy(alpha = 0.3f)
         val labelColor = LocalContentColor.current
         val textMeasurer = rememberTextMeasurer()
-        //纵轴刻度数字：范围向外取整为"好数"后均分5段（含两端）
+
         val bounds = remember(fpsMax, fpsMin) { niceFpsBounds(fpsMin, fpsMax) }
         val ticks = remember(bounds) {
             val step = (bounds.second - bounds.first) / FPS_SEGMENTS
@@ -112,7 +98,7 @@ fun FpsChart(
                 .padding(horizontal = 6.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            //纵轴帧率标注：最高帧在上，最低帧在下
+
             Column(
                 modifier = Modifier.fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween,
@@ -132,7 +118,6 @@ fun FpsChart(
                 }
             }
 
-            //帧率曲线与分割线
             Canvas(
                 modifier = Modifier
                     .weight(1f)
@@ -152,11 +137,6 @@ fun FpsChart(
     }
 }
 
-/**
- * 绘制帧率图表：每个刻度一条水平分割线，坐标区左缘以纵轴分割线与数字分隔，
- * 帧率数值对应的点按纵轴范围（好数边界）映射，相邻点之间用带轻微圆滑度的折线相连，
- * 最后一个点旁标注它所代表的帧率
- */
 private fun DrawScope.drawFpsChart(
     history: List<Int>,
     axisMin: Int,
@@ -168,13 +148,11 @@ private fun DrawScope.drawFpsChart(
 ) {
     val pointRadius = 1.25.dp.toPx()
     val gridStroke = 1.dp.toPx()
-    //横向内缩半个点加半条分割线，避免曲线与点被边缘裁切；
-    //纵向内缩半个标注框，使刻度数字中心与分割线对齐
+
     val insetX = pointRadius + gridStroke / 2f
     val insetY = FpsLabelHeight.toPx() / 2f
     val axisRange = axisMax - axisMin
 
-    //水平分割线：每个刻度一条，从纵轴延伸到右缘
     for (k in 0..FPS_SEGMENTS) {
         val fraction = k / FPS_SEGMENTS.toFloat()
         val y = insetY + fraction * (size.height - insetY * 2)
@@ -185,7 +163,7 @@ private fun DrawScope.drawFpsChart(
             strokeWidth = gridStroke
         )
     }
-    //纵轴分割线：坐标区与数字的交界
+
     drawLine(
         color = lineColor,
         start = Offset(insetX, insetY),
@@ -195,7 +173,6 @@ private fun DrawScope.drawFpsChart(
 
     if (history.isEmpty()) return
 
-    //点在全宽范围内均匀分布，帧率映射到纵轴（好数边界为轴范围）
     val points = history.mapIndexed { index, fps ->
         val x = if (history.size == 1) {
             (insetX + size.width) / 2f
@@ -208,7 +185,7 @@ private fun DrawScope.drawFpsChart(
 
     val path = Path().apply {
         moveTo(points.first().x, points.first().y)
-        //控制点沿水平方向偏移一小段距离，形成轻微圆滑的过渡
+
         for (i in 1 until points.size) {
             val start = points[i - 1]
             val end = points[i]
@@ -232,7 +209,6 @@ private fun DrawScope.drawFpsChart(
         drawCircle(color = curveColor, radius = pointRadius, center = point)
     }
 
-    //当前帧率标注：放在最后一个点的上/下方，避开来向线条，且不越过上下刻度线
     val last = points.last()
     val measured = textMeasurer.measure(text = history.last().toString(), style = FpsLabelStyle)
     val gap = 2.dp.toPx()

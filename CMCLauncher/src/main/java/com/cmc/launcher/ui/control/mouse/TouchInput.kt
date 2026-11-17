@@ -46,42 +46,30 @@ import org.libsdl.app.SDLActivity
 import kotlin.math.hypot
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * 拖动状态数据类
- */
 private data class DragState(
     var isDragging: Boolean = false,
     var longPressTriggered: Boolean = false,
     val startPosition: Offset
 )
 
-/**
- * @return 当前是否处于文本输入状态
- */
 @Composable
 fun rememberTextInputActive(): Boolean {
-    // 输入会话的开启与关闭都会触发 composeFocus 变化，作为此处状态的刷新时机
+
     val composeFocusCount by SdlBridge.composeFocus.collectAsStateWithLifecycle()
     return remember(composeFocusCount) {
         TouchCharInput.isActive() || SDLActivity.isUsingSDLTextEdit()
     }
 }
 
-/**
- * 判定双指同时按下的最大时间间隔（ms）
- */
 private const val SCROLL_GESTURE_DOWN_WINDOW_MILLIS = 200L
 
-/**
- * 判断触摸按下位置是否落在被阻止的半屏内
- */
 private fun isHalfScreenBlocked(
     mode: MouseTouchBlockMode,
     cursorMode: CursorMode,
     position: Offset,
     layoutWidth: Int
 ): Boolean {
-    // 仅鼠标抓获时生效
+
     if (cursorMode != CURSOR_DISABLED) return false
     if (layoutWidth <= 0) return false
 
@@ -92,36 +80,9 @@ private fun isHalfScreenBlocked(
         MouseTouchBlockMode.RIGHT -> position.x >= halfWidth
     }
 }
-/**
- * 双指滑动滚动时，滑动该距离对应滚动一次滚轮
- */
+
 private val SCROLL_GESTURE_SCROLL_DISTANCE = 6.dp
 
-/**
- * 原始触摸控制模拟层
- * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
- * @param touchBlockMode            半屏触摸阻止模式，被阻止半屏内开始的触摸不参与虚拟鼠标处理（仅指针被游戏抓取时生效）
- * @param cursorMode                当前指针抓取模式
- * @param enableMouseClick          是否开启虚拟鼠标点击操作（仅适用于滑动控制）
- * @param longPressTimeoutMillis    长按触发检测时长
- * @param requestPointerCapture     是否使用鼠标抓取方案
- * @param pointerIcon               实体指针图标
- * @param onTouch                   触摸到鼠标层
- * @param onMouse                   实体鼠标交互事件
- * @param onTap                     点击回调，参数是触摸点在控件内的绝对坐标
- * @param onLongPress               长按开始回调
- * @param onLongPressEnd            长按结束回调
- * @param onPointerMove             指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
- * @param onMouseMove               实体鼠标指针移动回调
- * @param onMouseScroll             实体鼠标指针滚轮滑动
- * @param onMouseButton             实体鼠标指针按钮按下反馈
- * @param isMoveOnlyPointer         指针是否被父级标记为仅可滑动指针
- * @param onOccupiedPointer         占用指针回调
- * @param onReleasePointer          释放指针回调
- * @param enableScrollGesture       是否启用双指滑动滚动手势
- * @param onScrollGesture           双指滑动滚动回调，参数为滚轮滚动的偏移量
- * @param inputChange               重新启动内部的 pointerInput 块，让触摸逻辑能够实时拿到最新的外部参数
- */
 @Composable
 fun TouchpadLayout(
     modifier: Modifier = Modifier,
@@ -153,7 +114,6 @@ fun TouchpadLayout(
 
     val composeFocusCount by SdlBridge.composeFocus.collectAsStateWithLifecycle()
 
-    //确保 pointerInput 中总是调用到最新的回调，避免闭包捕获旧值
     val currentOnTouch by rememberUpdatedState(onTouch)
     val currentControlMode by rememberUpdatedState(controlMode)
     val currentTouchBlockMode by rememberUpdatedState(touchBlockMode)
@@ -176,28 +136,24 @@ fun TouchpadLayout(
             .pointerHoverIcon(pointerIcon)
             .pointerInput(*inputChange) {
                 coroutineScope {
-                    /** 所有被占用的指针 */
+
                     val occupiedPointers = mutableSetOf<PointerId>()
 
-                    /** 当前正在被处理的指针 */
                     var activePointer: PointerId? = null
                     val longPressJobs = mutableMapOf<PointerId, Job>()
 
-                    /** 每个指针的拖动状态 */
                     val dragStates = mutableMapOf<PointerId, DragState>()
 
-                    /** moveOnly 指针集合，用于处理滑动事件 */
                     val moveOnlyPointers = mutableSetOf<PointerId>()
-                    /** 双指滑动滚动手势占用的指针 */
+
                     val scrollGesturePointers = mutableSetOf<PointerId>()
-                    /** 双指滑动滚动手势是否正在进行 */
+
                     var scrollGestureActive = false
-                    /** 双指滑动滚动手势中，未满一次滚动的位移余量 */
+
                     var scrollGestureRemainder = Offset.Zero
-                    /** 活跃指针的按下时间，用于判定双指是否几乎同时按下 */
+
                     var activePointerDownTime = 0L
 
-                    /** 清除鼠标触摸层的状态 */
                     fun resetTouchState() {
                         activePointer = null
                         dragStates.clear()
@@ -226,27 +182,23 @@ fun TouchpadLayout(
                                             return@forEach
                                         }
 
-                                        //刚触摸到屏幕时，触发触摸事件回调
                                         currentOnTouch()
 
                                         val pointerId = change.id
-                                        //是否被父级标记为仅处理滑动
+
                                         val isMoveOnly = isMoveOnlyPointer(pointerId)
 
-                                        //如果是 moveOnly 指针
                                         if (isMoveOnly) {
-                                            //如果当前没有活跃指针，则成为活跃指针
-                                            //这样当第一根手指被标记为 moveOnly 后，第二根手指可以接管
+
                                             if (activePointer == null) {
                                                 activePointer = pointerId
                                                 dragStates[pointerId] = DragState(startPosition = change.position)
                                             } else {
-                                                //如果已有活跃指针，仅处理滑动
+
                                                 moveOnlyPointers.add(pointerId)
                                             }
                                         } else if (activePointer == null && !change.isConsumed) {
-                                            //如果没有活跃指针，且当前指针未被消费，则开始处理这个指针
-                                            //fix: 只有真正成为 activePointer 的指针，才标记为已占用
+
                                             if (pointerId !in occupiedPointers) {
                                                 onOccupiedPointer(pointerId)
                                                 occupiedPointers.add(pointerId)
@@ -260,7 +212,7 @@ fun TouchpadLayout(
 
                                             if (currentControlMode == MouseControlMode.SLIDE && currentEnableMouseClick) {
                                                 longPressJobs[pointerId] = launch {
-                                                    //只在滑动点击模式下进行长按计时
+
                                                     val timeout =
                                                         if (currentLongPressTimeoutMillis > 0) {
                                                             currentLongPressTimeoutMillis
@@ -269,7 +221,6 @@ fun TouchpadLayout(
                                                         }
                                                     delay(timeout.milliseconds)
 
-                                                    //检查是否仍在处理此指针且未开始拖动
                                                     if (activePointer == pointerId && dragStates[pointerId]?.isDragging != true) {
                                                         dragStates[pointerId]?.longPressTriggered = true
                                                         currentOnLongPress()
@@ -278,21 +229,20 @@ fun TouchpadLayout(
                                             }
 
                                             if (currentControlMode == MouseControlMode.CLICK) {
-                                                //点击模式下，如果触摸，无论如何都应该更新指针位置
+
                                                 currentOnPointerMove(change.position, false)
                                             }
                                         } else if (currentEnableScrollGesture && scrollGesturePointers.isEmpty() && !change.isConsumed) {
-                                            //尝试与已按下的指针组成双指滑动滚动手势
-                                            //两根指针都不能来源于控制布局，需几乎同时按下，且第一根指针尚未开始拖动虚拟鼠标
+
                                             activePointer?.takeIf { it != pointerId }?.let { first ->
                                                 if (!isMoveOnlyPointer(first)
                                                     && change.uptimeMillis - activePointerDownTime <= SCROLL_GESTURE_DOWN_WINDOW_MILLIS
                                                     && dragStates[first]?.let { !it.isDragging && !it.longPressTriggered } == true
                                                 ) {
                                                     longPressJobs.remove(first)?.cancel()
-                                                    //标记第一根指针为拖动状态，避免手势结束后误触点击
+
                                                     dragStates[first]?.isDragging = true
-                                                    //第二根指针同样注册为占用，避免被控制布局抢占
+
                                                     if (pointerId !in occupiedPointers) {
                                                         onOccupiedPointer(pointerId)
                                                         occupiedPointers.add(pointerId)
@@ -306,8 +256,6 @@ fun TouchpadLayout(
                                         }
                                     }
 
-                                //处理双指滑动滚动手势的移动，取双指位移的平均值，
-                                //滑动距离累计满一次阈值时，发送一次滚轮滚动事件
                                 if (scrollGestureActive) {
                                     var deltaSum = Offset.Zero
                                     event.changes
@@ -334,13 +282,12 @@ fun TouchpadLayout(
                                     }
                                 }
 
-                                //处理移动事件，处理活跃指针的移动
                                 activePointer?.takeIf { it !in scrollGesturePointers }?.let { pointerId ->
                                     event.changes
                                         .firstOrNull { it.id == pointerId && it.positionChanged() && !it.isConsumed }
                                         ?.let { moveChange ->
                                             val dragState = dragStates[pointerId] ?: return@let
-                                            //是否被父级标记为仅处理滑动
+
                                             val isMoveOnly = isMoveOnlyPointer(pointerId)
 
                                             if (isMoveOnly) {
@@ -355,10 +302,10 @@ fun TouchpadLayout(
                                                                 (moveChange.position - dragState.startPosition).getDistance()
 
                                                             if (distanceFromStart > viewConfiguration.touchSlop && !dragState.isDragging) {
-                                                                //超出了滑动检测距离，说明是真的在进行滑动
+
                                                                 dragState.isDragging = true
                                                                 longPressJobs.remove(pointerId)
-                                                                    ?.cancel() //取消长按计时
+                                                                    ?.cancel()
                                                             }
 
                                                             if (dragState.isDragging || dragState.longPressTriggered) {
@@ -387,7 +334,6 @@ fun TouchpadLayout(
                                         }
                                 }
 
-                                //处理 moveOnly 指针的移动
                                 event.changes
                                     .filter { moveOnlyPointers.contains(it.id) && it.positionChanged() && !it.isConsumed }
                                     .forEach { moveChange ->
@@ -401,19 +347,18 @@ fun TouchpadLayout(
                                         }
                                     }
 
-                                //释放
                                 event.changes
                                     .filter { it.changedToUpIgnoreConsumed() }
                                     .forEach { change ->
                                         val pointerId = change.id
-                                        //是否被父级标记为仅处理滑动
+
                                         val isMoveOnly = isMoveOnlyPointer(pointerId)
 
                                         longPressJobs.remove(pointerId)?.cancel()
                                         val dragState = dragStates.remove(pointerId)
 
                                         if (pointerId in scrollGesturePointers) {
-                                            //滚动手势的指针抬起，直接结束手势，不触发点击
+
                                             scrollGesturePointers.remove(pointerId)
                                             scrollGestureActive = false
                                             if (pointerId == activePointer) {
@@ -432,7 +377,7 @@ fun TouchpadLayout(
                                                         }
 
                                                         MouseControlMode.CLICK -> {
-                                                            //未进入长按，算一次点击事件
+
                                                             currentOnTap(change.position)
                                                         }
                                                     }
@@ -442,7 +387,6 @@ fun TouchpadLayout(
                                             activePointer = null
                                         }
 
-                                        //从 moveOnly 指针集合中移除
                                         moveOnlyPointers.remove(pointerId)
 
                                         if (!isMoveOnly && pointerId in occupiedPointers) {
@@ -484,14 +428,6 @@ fun TouchpadLayout(
     )
 }
 
-/**
- * 简单的实体鼠标捕获层
- * @param enabled                   是否使用鼠标抓取方案
- * @param onMouse                   实体鼠标开始响应事件的回调
- * @param onMouseMove               实体鼠标指针移动回调
- * @param onMouseScroll             实体鼠标指针滚轮滑动
- * @param onMouseButton             实体鼠标指针按钮按下反馈
- */
 @Composable
 private fun SimpleMouseCapture(
     enabled: Boolean,
@@ -539,13 +475,12 @@ private fun SimpleMouseCapture(
         syncCaptureState()
 
         if (enabled) {
-            //触控板事件的 x/y 是手指在触控板表面的绝对坐标，不能直接当作位移；
-            //未提供相对位移轴时，改用相邻两次位置的差值来计算位移
+
             var touchpadLastPos: Offset? = null
             val twoFingerGesture = TouchpadTwoFingerGesture()
-            //触摸流式触控板以 DOWN/UP 报告板面接触，接触期间视同左键按下
+
             var touchpadLeftPressed = false
-            //双指手势开始时若已补偿过左键抬起，则吞掉手势结束时对应的左键抬起
+
             var touchpadLeftSuppressed = false
 
             val pointerListener = View.OnCapturedPointerListener { _, event ->
@@ -554,7 +489,6 @@ private fun SimpleMouseCapture(
                     physicalButtons.onEvent(event.actionMasked, event.actionButton, event.buttonState)
                 }
 
-                //手指按下、抬起会让触控板坐标跳变，位移差值的基准需要随之重建
                 if (isTouchpad) {
                     when (event.actionMasked) {
                         MotionEvent.ACTION_DOWN,
@@ -567,17 +501,13 @@ private fun SimpleMouseCapture(
                     }
                 }
 
-                //触控板双指手势兜底：固件未合成滚轮/右键事件时，从原始双指
-                //触摸流中识别拖动（滚轮）与点按（右键）；原生手势事件不经
-                //此识别，仍按原样转发
                 if (isTouchpad) {
                     when (event.actionMasked) {
                         MotionEvent.ACTION_POINTER_DOWN ->
                             if (event.pointerCount >= 2 && !twoFingerGesture.isActive()) {
                                 twoFingerGesture.start(event)
                                 if (touchpadLeftPressed) {
-                                    //双指落下意味着不是单击：先补上左键抬起，
-                                    //并吞掉手势结束时对应的左键抬起事件
+
                                     currentOnMouseButton(MotionEvent.BUTTON_PRIMARY, false)
                                     touchpadLeftPressed = false
                                     touchpadLeftSuppressed = true
@@ -593,7 +523,7 @@ private fun SimpleMouseCapture(
                                         }
                                     }
                                 }
-                                //双指期间的移动折算为滚轮，不再转动视角
+
                                 return@OnCapturedPointerListener true
                             }
 
@@ -630,7 +560,7 @@ private fun SimpleMouseCapture(
                         val relY = event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y)
                         if (isTouchpad) {
                             if (relX != 0f || relY != 0f) {
-                                //相对位移轴可用时直接取轴值
+
                                 deltaX += relX
                                 deltaY += relY
                             } else {
@@ -697,7 +627,6 @@ private fun SimpleMouseCapture(
     }
 }
 
-/** 捕获实体鼠标的按键状态，兼容未设置 actionButton 的 DOWN/UP 事件。 */
 internal class CapturedMouseButtons(private val onMouseButton: (Int, Boolean) -> Unit) {
     private var heldButtons = 0
 
@@ -743,12 +672,6 @@ internal class CapturedMouseButtons(private val onMouseButton: (Int, Boolean) ->
     }
 }
 
-/**
- * 触控板双指手势的兜底识别。
- * 固件未合成手势事件时，从原始双指触摸流中识别：
- * 双指拖动 → 滚轮滚动，双指点按 → 右键单击。
- * 判定阈值与滚轮格数按触控板板面尺寸折算，适配不同分辨率。
- */
 private class TouchpadTwoFingerGesture {
     private var active = false
     private var tapCandidate = true
@@ -762,7 +685,6 @@ private class TouchpadTwoFingerGesture {
 
     fun isActive() = active
 
-    /** 第二根手指落下，开始手势 */
     fun start(event: MotionEvent) {
         active = true
         tapCandidate = true
@@ -785,10 +707,6 @@ private class TouchpadTwoFingerGesture {
         lastCentroid = startCentroid
     }
 
-    /**
-     * 双指移动：仍在点按判定范围内时返回 null；
-     * 超出后转为拖动，返回本次累计的 (水平, 垂直) 滚轮格数。
-     */
     fun onMove(event: MotionEvent): Offset? {
         val centroid = centroid(event)
         val last = lastCentroid
@@ -810,14 +728,12 @@ private class TouchpadTwoFingerGesture {
         return Offset(notchesX.toFloat(), notchesY.toFloat())
     }
 
-    /** 一根手指抬起：若仍满足点按条件，则判定为双指点按（只判定一次） */
     fun onFingerUp(event: MotionEvent): Boolean {
         val isTap = active && tapCandidate && event.eventTime - downTime <= TAP_TIMEOUT_MS
         if (isTap) tapCandidate = false
         return isTap
     }
 
-    /** 双指全部抬起，手势结束 */
     fun end() {
         active = false
         lastCentroid = null
@@ -834,19 +750,15 @@ private class TouchpadTwoFingerGesture {
     }
 
     companion object {
-        /** 默认的双指点按最大判定位移（板面尺寸不可知时） */
+
         private const val DEFAULT_TAP_SLOP = 12f
-        /** 默认的每格滚轮对应的手指移动距离（板面尺寸不可知时） */
+
         private const val DEFAULT_SCROLL_NOTCH = 60f
-        /** 双指点按的最大时长 */
+
         private const val TAP_TIMEOUT_MS = 300L
     }
 }
 
-/**
- * 实体鼠标指针事件监听
- * @param disabled 是否禁用
- */
 private fun Modifier.mouseEventModifier(
     disabled: Boolean,
     inputChange: Array<out Any> = arrayOf(Unit),
@@ -867,7 +779,7 @@ private fun Modifier.mouseEventModifier(
     val currentOnMouseButton by rememberUpdatedState(onMouseButton)
 
     var lastButtons by remember(*inputChange) {
-        //位掩码存储鼠标按键按下状态
+
         mutableIntStateOf(0)
     }
 
@@ -878,8 +790,7 @@ private fun Modifier.mouseEventModifier(
 
         val isMouse = event.isFromSource(InputDevice.SOURCE_MOUSE)
         val isStylus = event.isFromSource(InputDevice.SOURCE_STYLUS)
-        //过滤掉不是鼠标或者触控笔的类型
-        //触控笔（Chromebook、三星等）
+
         if (!isMouse && !isStylus) {
             return@pointerInteropFilter false
         }
@@ -913,14 +824,13 @@ private fun Modifier.mouseEventModifier(
                 )
             }
 
-            //检查并处理触控笔按下
             MotionEvent.ACTION_DOWN,
             MotionEvent.ACTION_POINTER_DOWN -> {
                 if (isStylus) {
                     currentOnMouseButton(MotionEvent.BUTTON_PRIMARY, true)
                 }
             }
-            //检查并处理触控笔抬起
+
             MotionEvent.ACTION_UP,
             MotionEvent.ACTION_POINTER_UP -> {
                 if (isStylus) {

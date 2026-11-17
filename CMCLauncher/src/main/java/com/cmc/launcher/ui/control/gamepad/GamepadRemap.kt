@@ -122,9 +122,5 @@ enum class GamepadRemap(
     @Composable
     abstract fun getText(): String
 
-    /**
-     * https://opengameart.org/content/controller-input-icons
-     * This project contains assets by ElDuderino, licensed under CC0 1.0 Universal.
-     */
     abstract fun getIconRes(): Int
 }

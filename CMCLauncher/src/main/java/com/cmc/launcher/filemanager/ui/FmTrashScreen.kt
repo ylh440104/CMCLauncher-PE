@@ -102,19 +102,11 @@ private sealed interface FmTrashOperation {
     data object RangeSelectHelp : FmTrashOperation
 }
 
-/**
- * 回收站页面，展示回收站条目并提供恢复、清空等操作
- * @param vm 文件管理器视图模型
- * @param snackHost 全局 Snackbar 宿主
- * @param onBack 返回主页面回调
- * @param onExit 退出文件管理器回调
- * @param onToggleOrientation 横竖屏切换回调
- */
 @Composable
 fun FmTrashScreen(
     vm: FileManagerViewModel,
     snackHost: SnackbarHostState,
-    /** 返回手势透明度 */
+
     contentAlpha: Animatable<Float, AnimationVector1D>,
     onBack: () -> Unit,
     onExit: () -> Unit,
@@ -126,7 +118,6 @@ fun FmTrashScreen(
     val trash = uiState.trashView as? TrashViewState.Opened
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // 页面加载时加载回收站列表
     LaunchedEffect(Unit) { vm.loadTrashList() }
 
     Scaffold(
@@ -309,7 +300,7 @@ private fun TrashContent(
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val gap = 2.dp
             val minColumnSize = 280.dp
-            // 与 GridCells.Adaptive 相同的列数公式，保证条目方位与实际网格一致
+
             val columns = floor(
             (maxWidth - 24.dp + gap).value / (minColumnSize + gap).value
             ).toInt().coerceAtLeast(1)
@@ -400,7 +391,7 @@ private fun FmTrashItem(
                         if (multiSelect) {
                             onClick()
                         } else {
-                            // 非多选模式点击弹条目菜单
+
                             menuExpanded = true
                         }
                     },
@@ -692,7 +683,7 @@ private fun trashBarActions(
         }
     )
 } else {
-    // 回收站为空时禁用
+
     val enabled = list.items.isNotEmpty()
     listOf(
         TrashBarAction(

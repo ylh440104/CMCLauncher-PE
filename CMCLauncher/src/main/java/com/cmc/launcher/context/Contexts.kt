@@ -111,9 +111,9 @@ fun Context.writeLocalFile(
             return
         }
     } catch (_: IOException) {
-        // handle below
+
     } catch (_: RuntimeException) {
-        // handle below
+
     }
 
     val parentDocumentUri = DocumentsContract.buildDocumentUriUsingTree(

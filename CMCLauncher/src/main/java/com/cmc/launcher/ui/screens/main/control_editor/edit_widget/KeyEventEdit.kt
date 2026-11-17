@@ -37,9 +37,6 @@ import com.cmc.launcher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.cmc.launcher.ui.theme.itemColor
 import com.cmc.launcher.ui.theme.onItemColor
 
-/**
- * 按键事件编辑
- */
 @Composable
 fun KeyEventEdit(
     provider: ObservableClickEventsProvider,

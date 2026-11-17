@@ -12,49 +12,23 @@ import com.cmc.launcher.game.account.microsoft.XboxLoginException.ExceptionStatu
 import com.cmc.launcher.ui.AndroidStringText
 import com.cmc.launcher.ui.androidText
 
-/**
- * Xbox 登陆出现的各种异常
- */
 class XboxLoginException(val status: ExceptionStatus) : RuntimeException() {
     enum class ExceptionStatus {
-        /**
-         * 被封禁
-         */
+
         BANNED,
 
-        /**
-         * 受到限制
-         */
         RESTRICTED,
 
-        /**
-         * 未创建个人资料
-         */
         UNREGISTERED,
 
-        /**
-         * 未同意服务条款
-         */
         NOT_ACCEPTED_SERVICE,
 
-        /**
-         * 地区被禁止登陆
-         */
         BLOCKED_REGION,
 
-        /**
-         * 未提供年龄证明
-         */
         REQUIRES_PROOF_OF_AGE,
 
-        /**
-         * 达到游玩时间限制
-         */
         REACHED_PLAYTIME_LIMIT,
 
-        /**
-         * 未成年
-         */
         UNDERAGE
     }
 }

@@ -16,11 +16,6 @@ import java.io.File
 
 private const val TAG = "ImageUtils"
 
-/**
- * 将 [Drawable] 转换为 [Bitmap]
- * 如果该 Drawable 已经是 [BitmapDrawable] 且其内部 Bitmap 不为 null，则直接返回该 Bitmap
- * 否则渲染到一个新的 Bitmap 上
- */
 fun Drawable.toBitmap(): Bitmap {
     if (this is BitmapDrawable && this.bitmap != null) {
         return this.bitmap
@@ -37,15 +32,6 @@ fun Drawable.toBitmap(): Bitmap {
     return bitmap
 }
 
-/**
- * 遍历 Bitmap 的指定区域并执行谓词判断
- *
- * @param xRange X 轴坐标范围
- * @param yRange Y 轴坐标范围
- * @param predicate 谓词函数，参数为 (颜色值, x, y)
- * @param requireAll 是否要求所有像素都满足谓词，默认为 false (任一满足即返回 true)
- * @return 是否满足条件
- */
 inline fun Bitmap.isColorMatch(
     xRange: IntRange,
     yRange: IntRange,
@@ -70,9 +56,6 @@ inline fun Bitmap.isColorMatch(
     return requireAll
 }
 
-/**
- * 如果 Bitmap 大于指定阈值，则回收它
- */
 fun Bitmap?.recycleIfLarge(thresholdBytes: Int = 8 * 1024 * 1024) {
     this ?: return
 
@@ -81,9 +64,6 @@ fun Bitmap?.recycleIfLarge(thresholdBytes: Int = 8 * 1024 * 1024) {
     }
 }
 
-/**
- * 尝试判断文件是否为一个图片
- */
 fun File.isImageFile(): Boolean {
     if (!this.exists()) return false
 
@@ -100,9 +80,6 @@ fun File.isImageFile(): Boolean {
     }
 }
 
-/**
- * 判断文件是否为 GIF 图片
- */
 fun File.isGifFile(): Boolean {
     if (!this.exists()) return false
 

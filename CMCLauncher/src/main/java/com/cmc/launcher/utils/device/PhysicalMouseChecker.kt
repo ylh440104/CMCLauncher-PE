@@ -9,14 +9,12 @@ import com.cmc.launcher.utils.logging.Logger
 private const val TAG = "PhysicalMouseChecker"
 
 object PhysicalMouseChecker {
-    /**
-     * 当前是否有实体鼠标连接
-     */
+
     var physicalMouseConnected = false
         private set
 
     fun initChecker(activity: Activity) {
-        //粗检测，因为启动软件前可能已经连接实体鼠标了
+
         physicalMouseConnected = isPhysicalMouseConnected()
         Logger.info(TAG, "Initialization complete, physical mouse connection status: $physicalMouseConnected")
 
@@ -39,7 +37,7 @@ object PhysicalMouseChecker {
             }
 
             override fun onInputDeviceChanged(deviceId: Int) {
-                //ignore
+
             }
         }
 
@@ -48,18 +46,12 @@ object PhysicalMouseChecker {
     }
 }
 
-/**
- * 确认这个deviceId是否为实体鼠标
- */
 private fun Int.isMouseId(): Boolean {
     return InputDevice.getDevice(this)?.let { device ->
         device.sources and InputDevice.SOURCE_MOUSE == InputDevice.SOURCE_MOUSE
     } ?: false
 }
 
-/**
- * 粗略检查是否接入实体鼠标
- */
 private fun isPhysicalMouseConnected(): Boolean {
     return InputDevice.getDeviceIds()
         .takeIf { it.isNotEmpty() }

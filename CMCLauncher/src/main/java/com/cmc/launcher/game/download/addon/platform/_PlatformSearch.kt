@@ -41,9 +41,6 @@ private val mirrorCurseForgeSearcher = CurseForgeSearcher(
     source = "MCIM CurseForge"
 )
 
-/**
- * 对资源平台搜索启用镜像源机制进行操作
- */
 suspend fun <E: AbstractPlatformSearcher, T> mirroredPlatformSearcher(
     searchers: List<E>,
     printLog: Boolean = true,
@@ -76,7 +73,7 @@ suspend fun <E: AbstractPlatformSearcher, T> mirroredPlatformSearcher(
     }
 
     if (printLog) {
-        Logger.warning(TAG, 
+        Logger.warning(TAG,
             msg = "An error occurred during this search.",
             t = IOException("All sources have failed to attempt", lastException).apply {
                 errors.forEachIndexed { i, e ->
@@ -88,9 +85,6 @@ suspend fun <E: AbstractPlatformSearcher, T> mirroredPlatformSearcher(
     throw lastException ?: IllegalStateException("Should not have executed to this stage.")
 }
 
-/**
- * 镜像源只能在中国地区使用
- */
 fun mirroredCurseForgeSource(
     enabledMirror: Boolean = isChinaMainland()
 ): List<CurseForgeSearcher> {
@@ -103,9 +97,6 @@ fun mirroredCurseForgeSource(
     }
 }
 
-/**
- * 镜像源只能在中国地区使用
- */
 fun mirroredModrinthSource(
     enabledMirror: Boolean = isChinaMainland()
 ): List<ModrinthSearcher> {
@@ -127,12 +118,10 @@ suspend fun searchAddons(
 ) {
     runCatching {
         val (containsChinese, englishKeywords) = searchFilter.searchName.localizedModSearchKeywords(platformClasses)
-        //参考源代码：[HMCL Github](https://github.com/HMCL-dev/HMCL/blob/d295e60/HMCL/src/main/java/org/jackhuang/hmcl/game/LocalizedRemoteModRepository.java#L56-L68)
-        //逐个英文短语尝试搜索，取第一个有非空结果的
+
         val queries = englishKeywords?.takeIf { it.isNotEmpty() }?.toList()
             ?: listOf(searchFilter.searchName)
-        //参考源代码：[HMCL Github](https://github.com/HMCL-dev/HMCL/blob/8767cc0e/HMCL/src/main/java/org/jackhuang/hmcl/game/LocalizedRemoteAddonRepository.java)
-        //翻译出的英文短语搜索固定使用相关性排序，避免所选的排序方式将目标资源挤出结果页
+
         val searchFilterForQuery = englishKeywords?.takeIf { it.isNotEmpty() }
             ?.let { searchFilter.copy(sortField = PlatformSortField.RELEVANCE) }
             ?: searchFilter
@@ -166,7 +155,7 @@ suspend fun searchAddons(
                 lastResult = r
                 if (r.getAddonPage(platformClasses).data.isNotEmpty()) break
             } catch (e: Exception) {
-                //当前关键词搜索失败，记录异常并继续尝试下一个
+
                 lastException = e
             }
         }
@@ -286,10 +275,6 @@ suspend fun getProjectByVersion(
     }
 }
 
-/**
- * 获取指定平台上的单个版本
- * @param versionId 版本在平台上的Id
- */
 suspend fun getVersionById(
     versionId: String,
     platform: Platform,
@@ -357,14 +342,8 @@ suspend fun getVersionByLocalFile(file: File, sha1: String): PlatformVersion? = 
     }
 }
 
-/** 单次批量指纹匹配的指纹数量上限，防止单次请求数据量过大 */
 const val FINGERPRINT_BATCH_SIZE = 100
 
-/**
- * 通过本地文件的 SHA-1 值批量获取 Modrinth 平台对应的版本
- * @param sha1List SHA-1 值列表，长度不应超过 [FINGERPRINT_BATCH_SIZE]
- * @return 键为 SHA-1 值，值为匹配到的版本，未命中的指纹不在结果中
- */
 suspend fun getModrinthVersBySha1(
     sha1List: List<String>
 ): Map<String, ModrinthVersion> = mirroredPlatformSearcher(
@@ -374,11 +353,6 @@ suspend fun getModrinthVersBySha1(
     searcher.getVersionFiles(sha1List = sha1List)
 }
 
-/**
- * 通过本地文件的 CurseForge 指纹批量获取 CurseForge 平台对应的文件
- * @param fingerprints 指纹列表，长度不应超过 [FINGERPRINT_BATCH_SIZE]
- * @return 键为文件指纹，值为匹配到的文件，未命中的指纹不在结果中
- */
 suspend fun getCFFilesByFingerprints(
     fingerprints: List<Long>
 ): Map<Long, CurseForgeFile> = mirroredPlatformSearcher(

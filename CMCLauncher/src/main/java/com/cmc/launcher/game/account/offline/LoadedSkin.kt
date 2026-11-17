@@ -4,14 +4,6 @@ import com.cmc.launcher.game.account.wardrobe.SkinModelType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * 玩家皮肤和披风的完整信息
- * @param skinHash 皮肤文件的哈希值（SHA-256）
- * @param skinBytes 皮肤文件内容
- * @param capeHash 披风文件的哈希值（SHA-256）
- * @param capeBytes 披风文件内容
- * @param model 皮肤模型类型
- */
 @Serializable
 data class LoadedSkin(
     @SerialName("skinHash")

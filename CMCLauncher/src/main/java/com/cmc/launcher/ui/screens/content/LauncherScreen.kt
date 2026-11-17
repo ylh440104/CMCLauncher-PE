@@ -106,9 +106,6 @@ import kotlin.math.roundToInt
 private const val ContentWeight = 7f
 private const val ActionMenuWeight = 3f
 
-/**
- * 操作菜单停泊槽位与屏幕边缘的间距
- */
 private val ActionMenuOuterPadding = 12.dp
 
 @Composable
@@ -132,7 +129,7 @@ fun LauncherScreen(
         dragState.isRtl = isRtl
 
         LaunchedEffect(isVisible) {
-            //屏幕切走时打断进行中的拖拽
+
             if (!isVisible) dragState.onDragCancel()
         }
 
@@ -148,10 +145,8 @@ fun LauncherScreen(
             dragState.outerPaddingPx = with(LocalDensity.current) { ActionMenuOuterPadding.toPx() }
             dragState.menuSpanPx = parentWidthPx * (ActionMenuWeight / (ActionMenuWeight + ContentWeight))
 
-            //拖拽期间以预览侧为准
             val effectiveSide = dragState.previewSide ?: dockedSide
 
-            //卡片尺寸与停泊槽内容区保持一致
             val cardWidth = maxWidth * (ActionMenuWeight / (ActionMenuWeight + ContentWeight)) - ActionMenuOuterPadding
             val cardHeight = maxHeight - ActionMenuOuterPadding * 2
 
@@ -255,9 +250,9 @@ fun LauncherScreen(
                 }
                 }
             } else {
-            // 内容区域
+
             Row(modifier = Modifier.fillMaxSize()) {
-                // ActionMenu 对接到了 Start，留出空位
+
                 if (dockedSide == ActionMenuSide.START) {
                     Spacer(modifier = Modifier.weight(ActionMenuWeight))
                 }
@@ -321,7 +316,6 @@ fun LauncherScreen(
                 }
                 }
 
-                // ActionMenu 对接到了 End，留出空位
                 if (dockedSide == ActionMenuSide.END) {
                     Spacer(modifier = Modifier.weight(ActionMenuWeight))
                 }
@@ -671,7 +665,7 @@ private fun ActionMenuTallerContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-        // 偏航角符号与停泊侧相反，让模型面向屏幕内容一侧
+
         val yaw = Math.toRadians(
             ((if (dockedSide == ActionMenuSide.START) 35.0 else -(35.0)) * (if (isRtl) -1 else 1))
         ).toFloat()

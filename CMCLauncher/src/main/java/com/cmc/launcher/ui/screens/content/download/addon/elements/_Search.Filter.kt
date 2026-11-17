@@ -66,23 +66,6 @@ import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.utils.animation.getAnimateTween
 import org.jackhuang.hmcl.addon.AddonProjectInfo
 
-/**
- * 搜索资源过滤器UI
- * @param enablePlatform 是否允许更改目标平台
- * @param searchPlatform 目标平台
- * @param searchName 搜索名称
- * @param searchedMcMods 搜索得到的 MCMOD 项目
- * @param searchedVersions 搜索得到的Minecraft版本号
- * @param gameVersion 游戏版本
- * @param sortField 排序方式
- * @param allCategories 可用资源类别列表
- * @param categories 已选择的资源类别
- * @param enableModLoader 是否启用模组加载器过滤
- * @param modloaders 可用模组加载器列表
- * @param modloader 模组加载器
- * @param onModLoaderChange 模组加载器变更时
- * @param extraFilter 额外的过滤器UI
- */
 @Composable
 fun SearchFilter(
     modifier: Modifier = Modifier,
@@ -127,7 +110,7 @@ fun SearchFilter(
                         item.mainName(),
                         style = MaterialTheme.typography.labelMedium
                     )
-                    //英文名/次要名称
+
                     if (item.subName().isNotBlank()) {
                         Text(
                             modifier = Modifier.alpha(0.7f),
@@ -236,17 +219,10 @@ fun SearchFilter(
     }
 }
 
-
-
 enum class FilterSelectionMode {
-    /**
-     * 一次性只能选择一个项
-     */
+
     Single,
 
-    /**
-     * 支持选择更多项
-     */
     Multiple
 }
 
@@ -341,9 +317,6 @@ private fun <E> SuggestionsText(
     }
 }
 
-/**
- * 基础过滤器UI，已经配置好合适的颜色和形状
- */
 @Composable
 fun BaseFilterLayout(
     modifier: Modifier = Modifier,
@@ -380,9 +353,6 @@ fun BaseFilterLayout(
     }
 }
 
-/**
- * 列表过滤器UI
- */
 @Composable
 fun <E> FilterListLayout(
     title: String,

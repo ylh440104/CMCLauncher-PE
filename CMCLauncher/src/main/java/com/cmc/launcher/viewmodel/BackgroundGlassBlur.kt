@@ -26,9 +26,6 @@ import kotlin.math.roundToInt
 
 private const val TAG = "BackgroundGlassBlur"
 
-/**
- * 背景玻璃模糊管线
- */
 class BackgroundGlassBlur(private val backgroundFile: File) {
     var glassLayer by mutableStateOf<GraphicsLayer?>(null)
         private set
@@ -60,7 +57,7 @@ class BackgroundGlassBlur(private val backgroundFile: File) {
 
     suspend fun captureFrame() {
         val layer = captureLayer ?: return
-        //层尚未完成首次录制时尺寸为零，跳过本帧
+
         if (layer.size.width < 1 || layer.size.height < 1) return
         val snapshot = runCatching { layer.toImageBitmap() }
             .onFailure { logSampleFailure(it) }

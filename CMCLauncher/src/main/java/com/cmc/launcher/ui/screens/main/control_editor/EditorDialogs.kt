@@ -41,13 +41,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * 编辑器全部对话框的统一渲染入口
- *
- * 真 Dialog 由三个状态机渲染器按当前状态就地组合；
- * 假 Dialog（样式编辑器、样式收藏柜）常驻组合，以 visible 参数控制显隐以保证过渡动画连续。
- * 所有状态转移均通过 [EditorViewModel] 的 intent 函数完成，此处只读状态。
- */
 @Composable
 fun EditorDialogHost(viewModel: EditorViewModel) {
     val layers by viewModel.observableLayout.layers.collectAsStateWithLifecycle()
@@ -83,7 +76,6 @@ fun EditorDialogHost(viewModel: EditorViewModel) {
 
     EditorStyleEditDialogs(viewModel)
 
-    //样式收藏柜（假Dialog，常驻组合）
     StyleCabinetDialog(
         visible = viewModel.editorOperation is EditorOperation.OpenStyleCabinet,
         items = cabinetItems,
@@ -98,9 +90,6 @@ fun EditorDialogHost(viewModel: EditorViewModel) {
     )
 }
 
-/**
- * 主操作状态机的真 Dialog 渲染
- */
 @Composable
 private fun EditorOperationDialogs(
     viewModel: EditorViewModel,
@@ -109,7 +98,7 @@ private fun EditorOperationDialogs(
     favoriteResultToast: (Boolean) -> Unit,
     editorToast: (Int) -> Unit
 ) {
-    /** 复制控件层时新层的默认名称 */
+
     val defaultLayerName = stringResource(R.string.control_editor_edit_layer_default)
 
     when (val operation = viewModel.editorOperation) {
@@ -291,9 +280,6 @@ private fun EditorOperationDialogs(
     }
 }
 
-/**
- * 控件操作状态机的 Dialog 渲染
- */
 @Composable
 private fun EditorWidgetOperationDialogs(
     viewModel: EditorViewModel,
@@ -336,7 +322,7 @@ private fun EditorWidgetOperationDialogs(
         }
         is EditorWidgetOperation.SendText -> {
             val data = operation.data
-            //文本内容
+
             var value by remember {
                 mutableStateOf(data.clickEvents.find { it.type == ClickEvent.Type.SendText }?.key ?: "")
             }
@@ -372,9 +358,6 @@ private fun EditorWidgetOperationDialogs(
     }
 }
 
-/**
- * 警告状态机的 Dialog 渲染
- */
 @Composable
 private fun EditorWarningOperationDialogs(viewModel: EditorViewModel) {
     when (viewModel.editorWarningOperation) {
@@ -399,9 +382,6 @@ private fun EditorWarningOperationDialogs(viewModel: EditorViewModel) {
     }
 }
 
-/**
- * 样式编辑器渲染
- */
 @Composable
 private fun EditorStyleEditDialogs(viewModel: EditorViewModel) {
     val buttonEditTarget: ObservableButtonStyle? = when (val operation = viewModel.editorOperation) {
@@ -436,7 +416,6 @@ private fun EditorStyleEditDialogs(viewModel: EditorViewModel) {
         onClose = viewModel::closeJoystickStyleEdit,
     )
 
-    //柜内样式编辑防抖保存，避免滑动条等高频修改触发频繁落盘
     (viewModel.editorOperation as? EditorOperation.EditCabinetButtonStyle)?.let { edit ->
         CabinetEditSaveEffect(item = edit.item) {
             viewModel.saveCabinetItem(edit.item)
@@ -449,9 +428,6 @@ private fun EditorStyleEditDialogs(viewModel: EditorViewModel) {
     }
 }
 
-/**
- * 柜内样式编辑会话的防抖保存
- */
 @OptIn(FlowPreview::class)
 @Composable
 private fun CabinetEditSaveEffect(

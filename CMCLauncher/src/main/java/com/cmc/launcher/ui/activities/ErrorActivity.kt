@@ -64,9 +64,6 @@ private data class JvmCrash(
 @AndroidEntryPoint
 class ErrorActivity : BaseAppCompatActivity() {
 
-    /**
-     * 游戏崩溃日志上传逻辑管理 ViewModel
-     */
     private val viewModel: LogsUploadViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +85,7 @@ class ErrorActivity : BaseAppCompatActivity() {
                     messageBody = messageBody,
                     crashType = CrashType.GAME_CRASH,
                     logFile = File(jvmCrash.logPath).also { file ->
-                        //检查日志文件是否适合上传
+
                         viewModel.check(file)
                     }
                 )
@@ -172,24 +169,13 @@ class ErrorActivity : BaseAppCompatActivity() {
     )
 }
 
-/**
- * 崩溃类型
- */
 enum class CrashType(val textRes: Int) {
-    /**
-     * 启动器崩溃
-     */
+
     LAUNCHER_CRASH(R.string.crash_type_launcher),
 
-    /**
-     * 游戏运行崩溃
-     */
     GAME_CRASH(R.string.crash_type_game)
 }
 
-/**
- * 启动软件崩溃信息页面
- */
 fun showLauncherCrash(context: Context, throwable: Throwable, canRestart: Boolean = true) {
     val intent = Intent(context, ErrorActivity::class.java).apply {
         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)

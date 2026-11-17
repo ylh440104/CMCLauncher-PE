@@ -38,7 +38,7 @@ object AWTCharSender : CharacterSenderStrategy {
     }
 
     override fun sendOther(key: KeyEvent) {
-        // Ignore
+
     }
 
     override fun sendCopy() {
@@ -73,9 +73,6 @@ object AWTCharSender : CharacterSenderStrategy {
         ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, if (press) 1 else 0)
     }
 
-    /**
-     * 获取 AWT 鼠标点击事件
-     */
     fun getMouseButton(button: Int): Int? {
         return when (button) {
             MotionEvent.BUTTON_PRIMARY -> AWTInputEvent.BUTTON1_DOWN_MASK

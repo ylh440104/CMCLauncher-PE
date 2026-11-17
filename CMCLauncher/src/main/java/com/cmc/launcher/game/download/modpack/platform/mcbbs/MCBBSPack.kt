@@ -26,14 +26,8 @@ class MCBBSPack(
     private val manifest: MCBBSManifest
 ): AbstractPack(platform = PackPlatform.MCBBS) {
 
-    /**
-     * 用户指定的预安装版本名称
-     */
     private lateinit var targetVersionName: String
 
-    /**
-     * 即将下载的游戏版本的信息
-     */
     private lateinit var gameDownloadInfo: GameDownloadInfo
 
     override fun getFinalClientName(): String {
@@ -51,7 +45,7 @@ class MCBBSPack(
     ): List<TaskFlowExecutor.TaskPhase> {
         return listOf(
             buildPhase {
-                //等待用户输入预安装版本名称
+
                 addTask(
                     id = "ImportModpack.WaitUserForVersionName",
                     title = androidText(R.string.download_install_input_version_name),
@@ -61,7 +55,6 @@ class MCBBSPack(
                     targetVersionName = waitForVersionName(manifest.name)
                 }
 
-                //提取整合包文件
                 addTask(
                     id = "ImportModpack.ExtractFiles",
                     title = androidText(R.string.import_modpack_task_extract_files),
@@ -77,7 +70,6 @@ class MCBBSPack(
                     )
                 }
 
-                //分析并匹配模组加载器信息，并构造出游戏安装信息
                 addTask(
                     id = "ImportModpack.RetrieveLoader",
                     title = androidText(R.string.download_modpack_get_loaders),
@@ -85,13 +77,11 @@ class MCBBSPack(
                 ) {
                     val gameVersion = manifest.getMinecraftVersion()!!
 
-                    //构建游戏安装信息
                     gameDownloadInfo = GameDownloadInfo(
                         gameVersion = gameVersion,
                         customVersionName = targetVersionName
                     )
 
-                    //构建模组加载器安装信息
                     manifest.addons.forEach { addon ->
                         with(manifest) { addon.retrieveLoader() }?.let { pair ->
                             pair.retrieveLoader(
@@ -104,7 +94,6 @@ class MCBBSPack(
                         }
                     }
 
-                    //开始安装游戏！切换到下一阶段！
                     val gameInstaller = GameInstaller(
                         context = context,
                         info = gameDownloadInfo,
@@ -115,8 +104,7 @@ class MCBBSPack(
                         gameInstaller.getTaskPhase(
                             createIsolation = false,
                             onInstalled = { targetClientDir ->
-                                //已经完成游戏安装，开始最终任务
-                                //整合包临时文件安装任务
+
                                 val finalTask = TitledTask(
                                     title = androidText(R.string.download_modpack_final_move),
                                     runningIcon = R.drawable.ic_build_outlined,
@@ -126,7 +114,7 @@ class MCBBSPack(
                                         onClearTemp = onClearTemp
                                     )
                                 )
-                                //切换到安装阶段
+
                                 addPhases(
                                     listOf(
                                         buildPhase { add(finalTask) }
@@ -140,9 +128,6 @@ class MCBBSPack(
         )
     }
 
-    /**
-     * 创建最终安装任务
-     */
     private fun createFinalInstallTask(
         targetClientDir: File,
         tempVersionsDir: File,
@@ -152,7 +137,7 @@ class MCBBSPack(
         dispatcher = Dispatchers.IO,
         task = { task ->
             task.updateProgress(-1f)
-            //复制文件
+
             copyDirectoryContents(
                 tempVersionsDir,
                 targetClientDir
@@ -160,22 +145,20 @@ class MCBBSPack(
                 task.updateProgress(percentage = percentage)
             }
 
-            //创建版本信息
             VersionConfig.createIsolationForModPack(targetClientDir).apply {
-                //游戏参数
+
                 manifest.launchInfo.launchArguments?.joinToString(" ")?.let { arg ->
                     this.gameArgs = arg
                 }
-                //Jvm 参数
+
                 manifest.launchInfo.javaArguments?.joinToString(" ")?.let { arg ->
                     this.jvmArgs = arg
                 }
-                //内存配置
+
                 this.ramAllocation = manifest.launchInfo.minMemory
                 this.versionSummary = manifest.description
             }.save()
 
-            //清理临时整合包目录
             task.updateProgress(-1f)
             task.updateMessage(androidText(R.string.download_install_clear_temp))
             onClearTemp()

@@ -27,10 +27,8 @@ import java.util.Base64
 
 private const val TAG = "ServerCardManager"
 
-/** 特定版本模式的存储标识 */
 private const val MODE_SPECIFIC = "specific"
 
-/** 服务器卡片记录的持久化数据 */
 private data class ServerCardRecordDto(
     @SerializedName("cardId")
     val cardId: String = "",
@@ -91,13 +89,8 @@ private data class ServerCardRecordDto(
     }
 }
 
-/**
- * 服务器卡片管理器：
- * 卡片以服务器 IP 字符串为 id，记录自治（名称与图标自持有，独立 ping），
- * 与任何版本的 servers.dat 无运行时耦合。
- */
 object ServerCardManager {
-    /** 自动刷新的冷却间隔 */
+
     private const val REFRESH_COOLDOWN_MS = 15_000L
 
     private const val KEY_RECORDS = "serverCards"
@@ -108,47 +101,33 @@ object ServerCardManager {
 
     private val _cards = MutableStateFlow<List<ServerCardState>>(emptyList())
 
-    /** 全部服务器卡片及其当前状态 */
     val cards: StateFlow<List<ServerCardState>> = _cards.asStateFlow()
 
-    /** 正在 ping 的卡片 id 集合 */
     private val _inFlight = MutableStateFlow<Set<String>>(emptySet())
 
-    /** 正在刷新（ping 进行中）的卡片 id 集合 */
     val inFlightCards: StateFlow<Set<String>> = _inFlight.asStateFlow()
 
-    /** 进行中的 ping 任务 */
     private val pingJobs = mutableMapOf<String, Job>()
 
-    /** 冷却锚点：每张卡上次 ping 完成的时刻 */
     private val lastPingAt = mutableMapOf<String, Long>()
 
-    /** 当前处于可见状态的卡片 id 集合 */
     private var visibleIds: Set<String> = emptySet()
 
     init {
         _cards.value = loadRecords().map { record ->
             ServerCardState(record, ServerCardPingStatus.Loading)
         }
-        //首次解析绑定版本
+
         recheckVersions()
-        //版本列表刷新后同步绑定版本的可用性
+
         VersionsManager.registerListener {
             recheckVersions()
         }
     }
 
-    /** 指定服务器是否已存在对应卡片 */
     fun hasCard(serverIp: String): Boolean =
         _cards.value.any { it.record.cardId == serverIp }
 
-    /**
-     * 为服务器创建主页卡片，已存在同 IP 卡片时不做任何事
-     * @param name 服务器名称（颜色代码会被剔除），空白时以 IP 兜底
-     * @param serverIp 服务器 IP 字符串，同时作为卡片 id
-     * @param icon 初始图标（取自列表条目已缓存的 favicon）
-     * @return 是否成功创建
-     */
     fun addCard(name: String, serverIp: String, icon: ByteArray? = null): Boolean {
         val ip = serverIp.trim()
         if (ip.isEmpty()) return false
@@ -167,7 +146,6 @@ object ServerCardManager {
         return true
     }
 
-    /** 移除指定卡片 */
     fun removeCard(cardId: String) {
         synchronized(this) {
             if (_cards.value.none { it.record.cardId == cardId }) return
@@ -182,7 +160,6 @@ object ServerCardManager {
         }
     }
 
-    /** 重命名卡片 */
     fun setCardName(cardId: String, name: String) {
         val trimmed = name.stripColorCodes().trim()
         if (trimmed.isEmpty()) return
@@ -192,7 +169,6 @@ object ServerCardManager {
         }
     }
 
-    /** 设置快速启动按钮的启用状态 */
     fun setQuickLaunchEnabled(cardId: String, enabled: Boolean) {
         synchronized(this) {
             updateState(cardId) { it.copy(record = it.record.copy(quickLaunchEnabled = enabled)) } ?: return
@@ -200,11 +176,6 @@ object ServerCardManager {
         }
     }
 
-    /**
-     * 更新版本绑定并重新解析绑定状态
-     * @param dir 特定版本所在的游戏目录，仅 SPECIFIC 模式使用
-     * @param versionName 绑定的版本名，仅 SPECIFIC 模式使用
-     */
     fun setVersionBinding(
         cardId: String,
         mode: ServerCardVersionMode,
@@ -228,11 +199,6 @@ object ServerCardManager {
         }
     }
 
-    /**
-     * 刷新指定服务器的 ping 数据
-     * @param manual 手动刷新：绕过冷却，并取消进行中的刷新后立即重启
-     * @param onFinished 刷新结束回调（主线程），参数为是否成功
-     */
     fun refresh(
         cardId: String,
         manual: Boolean = false,
@@ -257,10 +223,6 @@ object ServerCardManager {
         }
     }
 
-    /**
-     * 主页网格上报可见卡片集合的变化：
-     * 新进入可见集合的卡片触发一次自动刷新（受冷却约束）
-     */
     fun onVisibleCardsChanged(ids: Set<String>) {
         val entered: List<String>
         synchronized(this) {
@@ -270,10 +232,6 @@ object ServerCardManager {
         entered.forEach { refresh(it) }
     }
 
-    /**
-     * 执行一次 ping 并结算结果
-     * @return 返回是否成功
-     */
     private suspend fun ping(cardId: String): Boolean {
         val ip = _cards.value.firstOrNull { it.record.cardId == cardId }?.record?.cardId ?: return false
 
@@ -286,14 +244,14 @@ object ServerCardManager {
         val current = _cards.value.firstOrNull { it.record.cardId == cardId } ?: return false
 
         return synchronized(this) {
-            //冷却锚点为 ping 完成时刻
+
             lastPingAt[cardId] = System.currentTimeMillis()
             pingJobs.remove(cardId)
             _inFlight.update { it - cardId }
 
             when (result) {
                 null -> {
-                    //静默刷新失败保留旧数据；仅在从未成功时落入 Failed
+
                     if (current.ping !is ServerCardPingStatus.Loaded) {
                         _cards.update { states ->
                             states.map {
@@ -306,7 +264,7 @@ object ServerCardManager {
                     false
                 }
                 else -> {
-                    //favicon 与缓存不同时更新记录并落盘
+
                     val newIcon = result.status.favicon?.icon
                     val changed = !newIcon.contentEquals(current.record.icon)
                     val newRecord = if (changed) current.record.copy(icon = newIcon) else current.record
@@ -317,7 +275,7 @@ object ServerCardManager {
                             } else it
                         }
                     }
-                    //内存更新后再落盘，确保序列化的是最新记录
+
                     if (changed) saveRecords()
                     true
                 }
@@ -325,7 +283,6 @@ object ServerCardManager {
         }
     }
 
-    /** 重新解析全部卡片的绑定版本状态 */
     private fun recheckVersions() {
         scope.launch {
             _cards.value.forEach { state ->
@@ -334,10 +291,6 @@ object ServerCardManager {
         }
     }
 
-    /**
-     * 解析指定卡片的绑定版本状态并应用：
-     * 绑定版本已失效时清除绑定，回到未指定（视为启动当前选中版本）
-     */
     private suspend fun resolveBinding(cardId: String) {
         val state = _cards.value.firstOrNull { it.record.cardId == cardId } ?: return
         val status = resolveVersionStatus(state.record)
@@ -354,7 +307,7 @@ object ServerCardManager {
                 }
             }
             status != state.versionStatus -> {
-                //状态无变化时不发射，避免触发主页网格的无效重组
+
                 _cards.update { states ->
                     states.map {
                         if (it.record.cardId == cardId) it.copy(versionStatus = status) else it
@@ -364,7 +317,6 @@ object ServerCardManager {
         }
     }
 
-    /** 依据记录的绑定信息定位并加载版本，推导绑定版本的可用性状态；未指定绑定时为 null */
     private fun resolveVersionStatus(record: ServerCardRecord): VersionCardStatus? {
         if (record.versionMode != ServerCardVersionMode.SPECIFIC) return null
         val dir = record.dir ?: return null
@@ -380,7 +332,6 @@ object ServerCardManager {
         return VersionCardStatus.Available(version)
     }
 
-    /** 更新指定卡片的状态，未找到卡片时返回 null */
     private fun updateState(cardId: String, transform: (ServerCardState) -> ServerCardState): ServerCardState? {
         var updated: ServerCardState? = null
         _cards.update { states ->

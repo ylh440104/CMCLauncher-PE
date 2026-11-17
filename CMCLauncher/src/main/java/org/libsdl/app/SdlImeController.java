@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package org.libsdl.app;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
@@ -33,9 +15,6 @@ import android.widget.FrameLayout;
 import com.cmc.launcher.game.sdl.SdlBridge;
 import com.cmc.launcher.ui.control.input.TouchCharInput;
 
-/**
- * SDL 侧软键盘的显式控制器
- */
 final class SdlImeController {
     enum Source { GAME, LAUNCHER, BACK }
 
@@ -45,8 +24,7 @@ final class SdlImeController {
     private static SDLDummyEdit mEdit;
     private static boolean mTextInputActive;
     private static boolean mKeyboardShown;
-    // 游戏侧通道关闭时由启动器显式唤起输入法代开的 native 文本输入通道
-    // 参考 Fold Craft Launcher（https://github.com/FCL-Team/FoldCraftLauncher/blob/cacd666292d9646ceb622c39b82123d8671e5b41/FCL/src/main/java/org/libsdl/app/SdlImeController.java）
+
     private static boolean mForcedByLauncher;
 
     private SdlImeController() {
@@ -56,7 +34,6 @@ final class SdlImeController {
         return mTextInputActive;
     }
 
-    /** 文本输入通道是否可接收输入（含启动器代开的通道） */
     static boolean isInputAccepted() {
         return mTextInputActive || mForcedByLauncher;
     }
@@ -106,14 +83,10 @@ final class SdlImeController {
         post(() -> doHide(source));
     }
 
-    /**
-     * 系统 insets 汇报的 IME 可见性
-     * @param visible IME 可见性
-     */
     static void notifyVisibilityChanged(boolean visible) {
         if (!SdlBridge.getSdlEnabled()) return;
         if (visible && isUnwantedImeVisible()) {
-            // IME 在通道关闭后自行弹出时强制按回
+
             Log.w(TAG, "IME: unwanted visibility while text input channel is closed, forcing hide");
             SDLActivity.commandHandler.post(SdlImeController::forceHideIme);
             return;
@@ -147,8 +120,7 @@ final class SdlImeController {
         if (source == Source.GAME) {
             TouchCharInput.disableActiveInput();
         } else if (!mTextInputActive && !mForcedByLauncher) {
-            // 游戏侧文本输入通道关闭（如模组自绘输入界面会主动关闭通道）时，
-            // 启动器显式唤起输入法需代为激活 native 通道，否则输入文本无法送达游戏
+
             if (!SdlBridge.setNativeTextInputActive(true)) {
                 Log.w(TAG, "IME: show by " + source + " rejected, native text input unavailable");
                 return;
@@ -157,7 +129,6 @@ final class SdlImeController {
             Log.i(TAG, "IME: native text input force-activated by " + source);
         }
 
-        // 自动弹出被关闭时延迟落编辑视图，但焦点落在隐藏编辑器上会让后续实体键盘输入触发软键盘
         boolean autoShow = source != Source.GAME || SdlBridge.getSdlImeAutoShowEnabled();
         if (!autoShow && mEdit == null) {
             Log.i(TAG, "IME: auto show suppressed by launcher setting, editor deferred");
@@ -168,7 +139,7 @@ final class SdlImeController {
             mEdit = new SDLDummyEdit(SDLActivity.getContext());
             SDLActivity.mLayout.addView(mEdit, makeParams(x, y, w, h));
         } else if (x >= 0 && w > 0) {
-            // 仅显式提供区域时更新位置，避免启动器请求覆盖游戏设置的输入框
+
             mEdit.setLayoutParams(makeParams(x, y, w, h));
         }
         mEdit.setInputType(inputType);
@@ -217,7 +188,7 @@ final class SdlImeController {
 
     private static void doHide(Source source) {
         if (mForcedByLauncher && source != Source.GAME) {
-            // 还原启动器代开的 native 通道（游戏自行关闭时已无需重复操作）
+
             SdlBridge.setNativeTextInputActive(false);
         }
         mForcedByLauncher = false;
@@ -235,7 +206,7 @@ final class SdlImeController {
         }
 
         if (!isInputAccepted()) {
-            // 部分 IME 会在隐藏后延迟回弹，通道关闭时追加一次压制
+
             SDLActivity.commandHandler.postDelayed(SdlImeController::recheckHidden, 300);
         }
     }
@@ -255,7 +226,7 @@ final class SdlImeController {
         }
         ViewGroup layout = SDLActivity.mLayout;
         if (layout != null && layout.getWindowToken() != null) {
-            //窗口级兜底：顽固 IME 无视移除强行回弹时按回
+
             InputMethodManager imm = (InputMethodManager) SDLActivity.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(layout.getWindowToken(), 0);
         }

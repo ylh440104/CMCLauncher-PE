@@ -30,10 +30,6 @@ object SdlTextSender {
         SDLActivity.onNativeKeyUp(keyCode)
     }
 
-    /**
-     * 等待游戏侧激活 SDL 文本输入通道（聊天栏打开后游戏异步激活），
-     * 通道未激活时经文本通道提交的内容会被 SDL 丢弃
-     */
     suspend fun awaitTextInputActive(): Boolean {
         var waited = 0L
         while (!SdlBridge.isNativeTextInputActive()) {

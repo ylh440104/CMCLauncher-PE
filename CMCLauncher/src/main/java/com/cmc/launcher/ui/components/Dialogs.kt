@@ -55,11 +55,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-/**
- * 返回对话框内容可用的最大高度，以窗口容器高度为上界
- *
- * 输入法动画期间窗口高度可能被系统短暂压缩，这里记录最大值，避免对话框高度随之抖动
- */
 @Composable
 fun rememberDialogMaxHeight(): Dp {
     val windowInfo = LocalWindowInfo.current
@@ -69,15 +64,6 @@ fun rememberDialogMaxHeight(): Dp {
     return with(density) { maxHeight.toDp() }
 }
 
-/**
- * 展示警告对话框
- *
- * @param title 对话框标题
- * @param text 对话框内容
- * @param dismissByDialog 是否允许Dialog自己请求关闭
- * @param onConfirm 点击确认按钮的回调
- * @param onDismiss 点击取消或对话框外部的回调
- */
 @Composable
 fun SimpleAlertDialog(
     title: String,
@@ -121,14 +107,6 @@ fun SimpleAlertDialog(
     )
 }
 
-/**
- * 展示警告对话框
- *
- * @param title 对话框标题
- * @param text 对话框内容
- * @param dismissByDialog 是否允许Dialog自己请求关闭
- * @param onDismiss 点击确认或对话框外部的回调
- */
 @Composable
 fun SimpleAlertDialog(
     title: String,
@@ -206,13 +184,6 @@ fun SimpleAlertDialog(
     )
 }
 
-/**
- * 展示仅带确认按钮的警告对话框
- *
- * @param title 对话框标题
- * @param text 对话框内容
- * @param onDismiss 点击确认或对话框外部的回调
- */
 @Composable
 fun SimpleAlertDialog(
     title: String,
@@ -511,13 +482,6 @@ fun SimpleCheckEditDialog(
     )
 }
 
-/**
- * 一个很简单的列表Dialog
- * @param items 需要列出的items
- * @param onItemSelected item被点击的回调
- * @param onDismissRequest dialog被关闭的回调
- * @param showConfirm 是否通过确认按钮来触发item的点击回调
- */
 @Composable
 fun <T> SimpleListDialog(
     title: String,

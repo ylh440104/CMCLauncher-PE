@@ -8,9 +8,6 @@ import java.io.File
 
 private const val TAG = "MCBBSPackMetaParser"
 
-/**
- * MCBBS 整合包解析器，尝试解析 mcbbs.packmeta 来解析这个整合包
- */
 object MCBBSPackMetaParser : SimplePackParser<MCBBSManifest>(
     indexFilePath = "mcbbs.packmeta",
     manifestClass = MCBBSManifest::class.java,
@@ -27,7 +24,7 @@ object MCBBSPackMetaParser : SimplePackParser<MCBBSManifest>(
         }.onFailure { th ->
             Logger.debug(TAG, "${getIdentifier()}: Failed to parse the modpack using \"mcbbs.packmeta\", trying \"manifest.json\" instead.", th)
         }.getOrNull() ?: run {
-            //如果无法使用 mcbbs.packmeta 解析，则尝试使用 manifest.json
+
             MCBBSPackManifestParser.parse(packFolder)
         }
         return result
@@ -35,9 +32,6 @@ object MCBBSPackMetaParser : SimplePackParser<MCBBSManifest>(
 
     override fun getIdentifier(): String = PackPlatform.MCBBS.identifier
 
-    /**
-     * MCBBS 整合包解析器，尝试解析 manifest.json 来解析这个整合包
-     */
     private object MCBBSPackManifestParser : SimplePackParser<MCBBSManifest>(
         indexFilePath = "manifest.json",
         manifestClass = MCBBSManifest::class.java,
@@ -52,11 +46,7 @@ object MCBBSPackMetaParser : SimplePackParser<MCBBSManifest>(
     }
 }
 
-/**
- * 检查 MCBBS 整合包是否可用
- * @return 是否可用
- */
 private fun MCBBSManifest.checkMCBBSManifest(): Boolean {
-    //确保附加内容这一块一定包含 MC 游戏版本
+
     return addons.any { it.id == "game" }
 }

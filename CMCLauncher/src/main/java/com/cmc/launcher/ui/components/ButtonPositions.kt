@@ -28,16 +28,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cmc.launcher.ui.screens.content.elements.DisabledAlpha
 
-/**
- * 根据按钮在UI组中的位置，选择不同的圆角形状
- */
 enum class ButtonPosition {
     Top, Middle, Bottom, Single
 }
 
-/**
- * 根据 UI 组件在组中的位置决定的按钮的形状
- */
 @Composable
 fun rememberButtonPosShape(
     position: ButtonPosition,

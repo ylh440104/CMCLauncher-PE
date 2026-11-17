@@ -133,22 +133,12 @@ private class ResourcePackManageViewModel(
     var packState by mutableStateOf<LoadingState>(LoadingState.None)
         private set
 
-    /**
-     * 已选择的文件
-     */
     val selectedPacks = mutableStateListOf<ResourcePackInfo>()
 
-    /**
-     * 删除所有已选择文件的操作流程
-     */
     var deleteAllOperation by mutableStateOf<DeleteAllOperation>(DeleteAllOperation.None)
 
-    /** 临时记录的资源包数量 */
     private var packCount = FolderFileCounter(resourcePackDir)
 
-    /**
-     * 全选所有文件
-     */
     fun selectAllFiles() {
         filteredPacks?.forEach { pack ->
             if (!selectedPacks.contains(pack)) selectedPacks.add(pack)
@@ -162,9 +152,7 @@ private class ResourcePackManageViewModel(
     }
 
     private var job: Job? = null
-    /**
-     * @param checkCount 刷新目录内文件数量记录
-     */
+
     fun refresh(
         checkCount: Boolean = true
     ) {
@@ -616,8 +604,7 @@ private fun ResourcePackList(
                 }
             }
         } else {
-            //如果列表是空的，则是由搜索导致的
-            //展示“无匹配项”文本
+
             Box(modifier = Modifier.fillMaxSize()) {
                 ScalingLabel(
                     modifier = Modifier.align(Alignment.Center),
@@ -626,7 +613,7 @@ private fun ResourcePackList(
             }
         }
     } ?: run {
-        //如果为null，则代表本身就没有资源包可以展示
+
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
@@ -709,7 +696,7 @@ private fun ResourcePackItemLayout(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (resourcePackInfo.isValid) {
-                    //详细信息展示
+
                     TooltipIconButton(
                         modifier = Modifier.size(38.dp),
                         tooltip = {
@@ -735,7 +722,6 @@ private fun ResourcePackItemLayout(
                     )
                 }
 
-                //更多操作
                 ResourcePackOperationMenu(
                     resourcePackInfo = resourcePackInfo,
                     buttonSize = 38.dp,
@@ -836,7 +822,7 @@ private fun ResourcePackOperation(
                 initValue = packInfo.displayName,
                 existsCheck = { value ->
                     val fileName = if (packInfo.file.isDirectory) {
-                        value //文件夹类型，不做扩展名处理
+                        value
                     } else {
                         "$value.${packInfo.file.extension}"
                     }
@@ -879,7 +865,7 @@ private fun ResourcePackInfoTooltip(
     resourcePackInfo: ResourcePackInfo
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        //资源包类型
+
         Text(
             text = stringResource(
                 R.string.resource_pack_manage_type,
@@ -890,13 +876,13 @@ private fun ResourcePackInfoTooltip(
                 }
             )
         )
-        //文件名称
+
         Text(text = stringResource(R.string.generic_file_name, resourcePackInfo.file.name))
-        //文件大小
+
         resourcePackInfo.fileSize?.let { fileSize ->
             Text(text = stringResource(R.string.generic_file_size, formatFileSize(fileSize)))
         }
-        //格式版本
+
         resourcePackInfo.packFormat?.let { packFormat ->
             Text(text = stringResource(R.string.resource_pack_manage_formats, packFormat.toString()))
         }

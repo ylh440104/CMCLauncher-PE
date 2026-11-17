@@ -120,11 +120,11 @@ fun VersionSettingsScreen(
                     version = key.version,
                     onModify = { payload ->
                         if (modifyViewModel.installOperation !is ModifyOperation.None) {
-                            //不是待修改状态，拒绝此次修改
+
                             return@NavigationUI
                         }
                         if (!NotificationManager.checkNotificationEnabled(context)) {
-                            //警告通知权限
+
                             modifyViewModel.installOperation = ModifyOperation.WarningForNotification(payload)
                         } else {
                             modifyViewModel.installOperation = ModifyOperation.Confirm(payload)

@@ -10,29 +10,17 @@ import java.nio.file.Files
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 
-/** CurseForge 指纹计算时需要剔除的空白字节：\t、\n、\r、空格 */
 val CURSEFORGE_FINGERPRINT_SKIP_BYTES = listOf(0x9, 0xa, 0xd, 0x20)
 
-/** 空白字节的剔除查找表，逐字节判断时避免装箱与线性查找 */
 private val CURSEFORGE_FINGERPRINT_SKIP_TABLE = BooleanArray(256).also { table ->
     CURSEFORGE_FINGERPRINT_SKIP_BYTES.forEach { table[it] = true }
 }
 
-/**
- * 本地模组文件的指纹
- * @param sha1 文件的 SHA-1 值（Modrinth）
- * @param murmur2 文件按 CurseForge 规则剔除空白字节后的 MurmurHash2 值（CurseForge）
- */
 class ModFingerprints(
     val sha1: String,
     val murmur2: Long
 )
 
-/**
- * 指纹的进程级内存缓存，以文件绝对路径为键
- *
- * 附带文件大小与最后修改时间校验，文件变化时视为失效，避免重复读盘计算
- */
 private object ModFingerprintMemoryCache {
     private class Entry(
         val fingerprints: ModFingerprints,
@@ -53,12 +41,6 @@ private object ModFingerprintMemoryCache {
     }
 }
 
-/**
- * 一次性计算模组文件的平台指纹，相同文件直接复用内存缓存
- *
- * CurseForge 指纹算法要求预先得知剔除空白字节后的总长度，
- * 因此第一遍扫描同时计算 SHA-1 与过滤长度，第二遍仅计算 MurmurHash2
- */
 suspend fun computeModFingerprints(file: File): ModFingerprints = withContext(Dispatchers.IO) {
     ModFingerprintMemoryCache.get(file)?.let { return@withContext it }
 

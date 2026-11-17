@@ -55,15 +55,10 @@ import com.cmc.launcher.ui.screens.rememberSwapTween
 import com.cmc.launcher.ui.theme.cardColor
 import com.cmc.launcher.ui.theme.onCardColor
 
-/** 收藏柜的样式类型过滤 */
 private enum class CabinetFilter {
     ALL, CONTROLS, JOYSTICK
 }
 
-/**
- * 样式收藏柜对话框
- * **不使用真正的Dialog**
- */
 @Composable
 fun StyleCabinetDialog(
     visible: Boolean,
@@ -83,7 +78,7 @@ fun StyleCabinetDialog(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            //作为背景层，被点击时关闭对话框
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -115,7 +110,7 @@ fun StyleCabinetDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            
+
                     ) {
                         Column(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
@@ -127,7 +122,6 @@ fun StyleCabinetDialog(
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            //类型过滤
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -201,7 +195,6 @@ fun StyleCabinetDialog(
                 }
             }
 
-            //删除确认
             pendingDelete?.let { item ->
                 SimpleAlertDialog(
                     title = stringResource(R.string.generic_delete),
@@ -265,7 +258,7 @@ private fun CabinetStyleGridItem(
                 text = item.name.orUnspecified(),
                 textAlign = TextAlign.Center
             )
-            //类型小标签
+
             Text(
                 text = stringResource(
                     when (item) {

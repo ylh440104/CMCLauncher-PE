@@ -9,7 +9,7 @@ enum class AppLanguage(
     val tag: String,
     @param:StringRes val textRes: Int
 ) {
-    //按语言代码字母顺序排序
+
     FOLLOW_SYSTEM("", R.string.generic_follow_system),
     ARABIC("ar", R.string.language_arabic),
     ENGLISH("en", R.string.language_english),

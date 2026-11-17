@@ -174,46 +174,31 @@ private class ModsManageViewModel(
     var filteredMods by mutableStateOf<List<RemoteMod>?>(null)
         private set
 
-    /** 已启用的模组数量 */
     var enabledCount by mutableIntStateOf(-1)
         private set
-    /** 已禁用的模组数量 */
+
     var disabledCount by mutableIntStateOf(-1)
         private set
 
-    /**
-     * 已选择的模组
-     */
     val selectedMods = mutableStateListOf<RemoteMod>()
 
-    /**
-     * 是否可以更新选中的模组
-     */
     var canUpdate by mutableStateOf(false)
         private set
 
-    /**
-     * 删除所有已选择模组的操作流程
-     */
     var deleteAllOperation by mutableStateOf<DeleteAllOperation>(DeleteAllOperation.None)
 
-    /** 作为标记，记录哪些模组已被加载 */
     private val modsToLoad = mutableListOf<RemoteMod>()
     private val loadQueue = LinkedList<Pair<RemoteMod, Boolean>>()
-    private val semaphore = Semaphore(8) //一次最多允许同时加载8个模组
+    private val semaphore = Semaphore(8)
     private var initialQueueSize = 0
     private val queueMutex = Mutex()
 
     var modsState by mutableStateOf<LoadingState>(LoadingState.None)
 
-
-    /** 临时记录的模组数量 */
     private var modsCount = FolderFileCounter(modsDir)
 
     private var job: Job? = null
-    /**
-     * @param checkCount 刷新目录内文件数量记录
-     */
+
     fun refresh(
         context: Context? = null,
         checkCount: Boolean = true
@@ -225,7 +210,7 @@ private class ModsManageViewModel(
                 disabledCount = -1
             }
             modsState = LoadingState.Loading
-            selectedMods.clear() //清空所有已选择的模组
+            selectedMods.clear()
             canUpdate = false
 
             if (checkCount) modsCount.checkDir()
@@ -233,7 +218,7 @@ private class ModsManageViewModel(
                 allMods = modReader.readAllForRemote()
                 filterMods(context)
             } catch (_: CancellationException) {
-                //已取消
+
             }
             modsState = LoadingState.None
             job = null
@@ -249,9 +234,6 @@ private class ModsManageViewModel(
         }
     }
 
-    /**
-     * 刷新模组计数
-     */
     fun refreshCounter() {
         allMods.also { list ->
             val counts = list.fold(Pair(0, 0)) { (enabled, disabled), mod ->
@@ -305,7 +287,7 @@ private class ModsManageViewModel(
                 .takeIf { it.isNotEmpty() }
                 ?.filterMods(nameFilter, stateFilter, context)
                 ?.let { mods ->
-                    //排序前先快照排序键，排序过程中键值不再变化，保证比较结果前后一致
+
                     val entries = mods.map { mod ->
                         val file = mod.localMod.file
                         mod to ModsSortKey(
@@ -340,11 +322,10 @@ private class ModsManageViewModel(
     }
 
     fun checkCanUpdate() {
-        // 寻找列表中是否存在能够检查远端的模组
+
         canUpdate = selectedMods.any { it.localMod.checkRemote }
     }
 
-    /** 在ViewModel的生命周期协程内调用 */
     fun doInScope(block: suspend () -> Unit) {
         viewModelScope.launch {
             block()
@@ -357,7 +338,7 @@ private class ModsManageViewModel(
                 try {
                     ensureActive()
                 } catch (_: Exception) {
-                    break //取消
+                    break
                 }
 
                 val task = queueMutex.withLock {
@@ -381,17 +362,16 @@ private class ModsManageViewModel(
         }
     }
 
-    /** 加载模组远端信息 */
     fun loadMod(mod: RemoteMod, loadFromCache: Boolean = true) {
-        //强制刷新：直接加入队列头部并清除旧任务
+
         if (!loadFromCache) {
             doInScope {
                 queueMutex.withLock {
                     loadQueue.removeAll { it.first == mod }
-                    loadQueue.addFirst(mod to false) //加入队头优先执行
+                    loadQueue.addFirst(mod to false)
                 }
             }
-            if (modsToLoad.contains(mod)) return //已在加载列表
+            if (modsToLoad.contains(mod)) return
             modsToLoad.add(mod)
             return
         }
@@ -405,7 +385,7 @@ private class ModsManageViewModel(
                 if (canJoin || loadQueue.none { it.first == mod }) {
                     loadQueue.add(mod to true)
                     modsToLoad.add(mod)
-                    //若当前是新一轮任务，更新初始队列总数
+
                     if (initialQueueSize == 0 || canJoin) {
                         initialQueueSize = loadQueue.size
                     }
@@ -419,32 +399,24 @@ private class ModsManageViewModel(
     }
 }
 
-/** 模组列表的排序键，排序前一次性读取，保证排序过程中的比较结果稳定 */
 private data class ModsSortKey(
-    /** 原始文件名，用于细分大小写不同的同名文件 */
+
     val name: String,
-    /** 转为小写后的文件名，用于忽略大小写的主排序 */
+
     val lowercaseName: String,
     val lastModified: Long
 )
 
-/**
- * 构建模组列表的比较器：文件名忽略大小写排序；修改时间在升序时最新优先，保持原有展示行为
- */
 private fun modsComparator(sortByEnum: SortByEnum, isAscending: Boolean): Comparator<ModsSortKey> {
     val comparator: Comparator<ModsSortKey> = when (sortByEnum) {
         SortByEnum.FileName -> compareBy({ it.lowercaseName }, { it.name })
         SortByEnum.FileModifiedTime -> compareByDescending { it.lastModified }
         else -> error("This sorting method is not supported: $sortByEnum")
     }
-    //通过 reversed() 翻转顺序，而非对比较结果取反（取反无法翻转 Int.MIN_VALUE 的符号）
+
     return if (isAscending) comparator else comparator.reversed()
 }
 
-
-// ------------
-// 模组更新
-// ------------
 private class ModsUpdaterViewModel(
     private val modsDir: File,
     private val version: Version
@@ -453,7 +425,6 @@ private class ModsUpdaterViewModel(
     var modsConfirmOperation by mutableStateOf<ModsConfirmOperation>(ModsConfirmOperation.None)
         private set
 
-    //等待用户确认模组更新
     private var waitingUserContinuation: (Continuation<List<SelectableModManifest>>)? = null
     suspend fun waitingForUserConfirm(list: List<ModManifest>): List<SelectableModManifest> {
         return suspendCancellableCoroutine { cont ->
@@ -462,18 +433,12 @@ private class ModsUpdaterViewModel(
         }
     }
 
-    /**
-     * 用户确认更新模组
-     */
     fun modsUserConfirm(manifests: List<SelectableModManifest>) {
         waitingUserContinuation?.resume(manifests)
         waitingUserContinuation = null
         modsConfirmOperation = ModsConfirmOperation.None
     }
 
-    /**
-     * 模组更新器
-     */
     var modsUpdater by mutableStateOf<ModUpdater?>(null)
 
     fun update(
@@ -484,7 +449,7 @@ private class ModsUpdaterViewModel(
         onStop: () -> Unit = {}
     ) {
         val minecraftVer = version.getVersionInfo()!!.minecraftVersion
-        //模组更新按主加载器过滤
+
         val modLoader = version.getVersionInfo()!!.primaryLoader?.loader ?: ModLoader.UNKNOWN
 
         modsUpdater = ModUpdater(
@@ -579,7 +544,6 @@ fun ModsManagerScreen(
         return
     }
 
-    //是否拥有模组加载器
     val hasModLoader = remember(version) {
         version.getVersionInfo()?.loaderInfos?.any { it.loader.isLoader } == true
     }
@@ -596,8 +560,6 @@ fun ModsManagerScreen(
         val viewModel = rememberModsManageViewModel(version, modsDir)
         val updaterViewModel = rememberModsUpdaterViewModel(version, modsDir)
 
-        //页面创建时，检查一次模组数量，如果不同，则说明有增删
-        //可自动刷新一次模组列表
         LaunchedEffect(Unit) {
             viewModel.checkCountAndRefresh(context)
         }
@@ -617,7 +579,7 @@ fun ModsManagerScreen(
                 updaterViewModel.update(
                     mods = mods,
                     refreshMods = {
-                        //刷新模组
+
                         viewModel.refresh(context)
                     },
                     showToast = { text, duration ->
@@ -665,7 +627,7 @@ fun ModsManagerScreen(
                 when (viewModel.modsState) {
                     LoadingState.None -> {
                         var modsOperation by remember { mutableStateOf<ModsOperation>(ModsOperation.None) }
-                        /** 运行任务并刷新模组列表 */
+
                         fun runProgress(task: () -> Unit) {
                             viewModel.doInScope {
                                 withContext(Dispatchers.IO) {
@@ -760,7 +722,7 @@ fun ModsManagerScreen(
                                     viewModel.loadMod(mod, loadFromCache = false)
                                 },
                                 onEnable = { mod ->
-                                    //启用和禁用模组应该避免刷新所有模组，否则将会极度影响体验
+
                                     viewModel.doInScope {
                                         withContext(Dispatchers.IO) {
                                             mod.localMod.enable()
@@ -1090,7 +1052,7 @@ private fun ModsList(
                         onForceRefresh(mod)
                     },
                     onClick = {
-                        //仅加载了项目信息的模组允许被选择
+
                         if (selectedMods.contains(mod)) {
                             removeFromSelected(mod)
                         } else {
@@ -1112,15 +1074,13 @@ private fun ModsList(
             }
         }
 
-        //一些重要的标签
         if (modsList == null) {
-            //如果为null，则代表本身就没有模组可以展示
+
             ScalingLabel(
                 text = stringResource(R.string.mods_manage_no_mods)
             )
         } else if (modsList.isEmpty()) {
-            //如果列表是空的，则是由搜索导致的
-            //展示“无匹配项”文本
+
             ScalingLabel(
                 text = stringResource(R.string.generic_no_matching_items)
             )
@@ -1159,7 +1119,7 @@ private fun ModItemLayout(
     val projectInfo = mod.projectInfo
 
     LaunchedEffect(mod) {
-        //尝试加载该模组文件在平台上所属的项目
+
         onLoad()
     }
 
@@ -1180,7 +1140,7 @@ private fun ModItemLayout(
             modifier = Modifier.padding(all = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            //模组的封面图标
+
             ModIcon(
                 modifier = Modifier.clip(shape = RoundedCornerShape(10.dp)),
                 mod = mod,
@@ -1201,10 +1161,8 @@ private fun ModItemLayout(
             }
             val titleAlpha = if (isDisabled) 0.8f else 1f
 
-            //模组简要信息
             run {
-                val isUnknown = //在本地是否为未知文件
-                targetState = mod.localMod.notMod && projectInfo == null
+                val isUnknown = mod.localMod.notMod && projectInfo == null
                 Box(modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .weight(1f)) {
@@ -1214,7 +1172,7 @@ private fun ModItemLayout(
                     val localMod = mod.localMod
                     when {
                     isUnknown -> {
-                    //非模组，只展示文件名称
+
                     Text(
                     modifier = Modifier
                     .alpha(titleAlpha)
@@ -1320,7 +1278,6 @@ private fun ModItemLayout(
                     }
                 }
 
-                //启用/禁用
                 Checkbox(
                     checked = mod.localMod.file.isEnabled(),
                     onCheckedChange = { checked ->
@@ -1329,7 +1286,6 @@ private fun ModItemLayout(
                     }
                 )
 
-                //详细信息展示
                 if (projectInfo == null) {
                     if (!mod.localMod.notMod) {
                         LocalModInfoTooltip(mod.localMod)
@@ -1403,9 +1359,6 @@ private fun ModIcon(
     }
 }
 
-/**
- * 在模组列表中穿插的警告文本项
- */
 @Composable
 private fun WarningItem(
     modifier: Modifier = Modifier,
@@ -1469,13 +1422,13 @@ private fun LocalModInfoTooltip(
                 shadowElevation = 3.dp
             ) {
                 Column {
-                    //文件大小
+
                     Text(text = stringResource(R.string.generic_file_size, formatFileSize(mod.fileSize)))
-                    //模组版本
+
                     mod.version?.let { version ->
                         Text(text = stringResource(R.string.mods_manage_version, version))
                     }
-                    //作者
+
                     Row {
                         Text(text = stringResource(R.string.mods_manage_authors))
                         FlowRow(
@@ -1487,7 +1440,7 @@ private fun LocalModInfoTooltip(
                             }
                         }
                     }
-                    //模组描述
+
                     mod.description?.takeIf { it.isNotEmptyOrBlank() }?.let { description ->
                         Row {
                             Text(text = stringResource(R.string.mods_manage_description))
@@ -1507,4 +1460,3 @@ private fun LocalModInfoTooltip(
         )
     }
 }
-

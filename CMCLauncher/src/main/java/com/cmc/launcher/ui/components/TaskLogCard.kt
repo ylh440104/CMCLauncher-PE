@@ -26,9 +26,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cmc.launcher.coroutine.TaskLogOutput
 import com.cmc.launcher.ui.AndroidStringText
 
-/**
- * 任务流对话框的实时日志卡片
- */
 @Composable
 fun TaskLogCard(
     logOutput: TaskLogOutput,
@@ -38,7 +35,6 @@ fun TaskLogCard(
     val listState = rememberLazyListState()
     var followScroll by remember { mutableStateOf(true) }
 
-    // 用户向上翻阅时暂停自动滚动，重新滚到底部后恢复跟随
     LaunchedEffect(listState) {
         var previousIndex = 0
         snapshotFlow { listState.firstVisibleItemIndex }.collect { index ->

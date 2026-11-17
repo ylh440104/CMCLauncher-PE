@@ -47,9 +47,6 @@ import com.cmc.launcher.utils.logging.Logger
 
 private const val TAG = "AddonCommonElements"
 
-/**
- * 本地已安装标识
- */
 @Composable
 fun InstalledModBadge(
     modifier: Modifier = Modifier,
@@ -73,9 +70,6 @@ fun InstalledModBadge(
     }
 }
 
-/**
- * 平台标识元素，展示平台Logo + 平台名称
- */
 @Composable
 fun PlatformIdentifier(
     modifier: Modifier = Modifier,
@@ -98,33 +92,21 @@ fun PlatformIdentifier(
     )
 }
 
-/**
- * 获取平台的LOGO
- */
 fun Platform.getDrawable() = when (this) {
     Platform.CURSEFORGE -> R.drawable.img_platform_curseforge
     Platform.MODRINTH -> R.drawable.img_platform_modrinth
 }
 
-/**
- * 平台品牌卡片背景色，取自平台官方LOGO主色
- */
 fun Platform.getBrandColor(): Color = when (this) {
     Platform.CURSEFORGE -> Color(0xFFF16436)
     Platform.MODRINTH -> Color(0xFF1BD96A)
 }
 
-/**
- * 平台品牌卡片内容色
- */
 fun Platform.getBrandContentColor(): Color = when (this) {
     Platform.CURSEFORGE -> Color.White
     Platform.MODRINTH -> Color(0xFF072314)
 }
 
-/**
- * 资源类型标识元素
- */
 @Composable
 fun ClassesIdentifier(
     classes: PlatformClasses,
@@ -198,10 +180,6 @@ private fun BasicIdentifier(
     }
 }
 
-/**
- * 资源封面网络图标
- * @param iconUrl 图标链接
- */
 @Composable
 fun AddonIcon(
     modifier: Modifier = Modifier,
@@ -217,7 +195,7 @@ fun AddonIcon(
         iconUrl?.takeIf { it.isNotBlank() }?.let {
             ImageRequest.Builder(context)
                 .data(it)
-                .size(pxSize) //固定大小
+                .size(pxSize)
                 .listener(
                     onError = { _, result -> Logger.warning(TAG, "Coil: error = ${result.throwable}") }
                 )
@@ -226,7 +204,6 @@ fun AddonIcon(
         }
     }
 
-    //预加载
     LaunchedEffect(imageRequest) {
         imageRequest?.let { context.imageLoader.enqueue(it) }
     }
@@ -263,11 +240,6 @@ fun AddonIcon(
     }
 }
 
-/**
- * 整合包格式标识元素，展示格式图标 + 格式名称
- *
- * 以Image展示图标
- */
 @Composable
 fun PackIdentifier(
     modifier: Modifier = Modifier,

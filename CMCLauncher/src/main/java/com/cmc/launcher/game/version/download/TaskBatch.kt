@@ -13,17 +13,8 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "TaskBatch"
 
-/** 本地已存在文件校验的并发度 */
 private const val LOCAL_VERIFY_PARALLELISM = 4
 
-/**
- * 把一批 [DownloadTask] 交给下载引擎执行的统一入口：
- * 先挑出本地已可复用的文件（直接计入完成并执行挂后任务），
- * 剩余的交给引擎分块并发下载；仍有失败时抛出 [DownloadFailedException]，
- * message 内含失败文件路径。
- *
- * @param onSnapshot 每 100ms 收到一次引擎统计快照
- */
 suspend fun Task.runBatchDownloads(
     tasks: List<DownloadTask>,
     maxConnections: Int,
@@ -35,7 +26,6 @@ suspend fun Task.runBatchDownloads(
     val (reusable, pending) = verifyExistingFilesConcurrently(tasks)
     Logger.info(TAG, "Local file check done: reusable=${reusable.size} pending=${pending.size}, took=${System.currentTimeMillis() - verifyStarted}ms")
 
-    //清单里只要有未声明大小的文件，字节数就不能构成可靠的进度分母
     val sizesFullyKnown = tasks.all { it.size > 0 }
 
     val batch = BatchDownloader(
@@ -50,10 +40,9 @@ suspend fun Task.runBatchDownloads(
         it.runFileDownloadedTask()
     }
 
-    //已复用文件的字节并入"已下载"口径，进度条才能从已完成部分起步
     if (reusable.isNotEmpty()) {
         batch.stats.addBytes(reusable.sumOf { maxOf(it.size, 0L) })
-        //随后重置测速基线，避免一次性并入的字节被当作瞬时速率报出
+
         batch.stats.resetSpeedBaseline()
     }
 
@@ -83,9 +72,6 @@ suspend fun Task.runBatchDownloads(
     }
 }
 
-/**
- * 并行校验本地已存在的文件是否可复用
- */
 private suspend fun verifyExistingFilesConcurrently(
     tasks: List<DownloadTask>
 ): Pair<List<DownloadTask>, List<DownloadTask>> =
@@ -98,12 +84,6 @@ private suspend fun verifyExistingFilesConcurrently(
             .let { (reusable, pending) -> reusable.map { it.first } to pending.map { it.first } }
     }
 
-/**
- * 进度条的显示策略：
- * - 清单内所有文件都声明了大小时，按字节数计算最平滑的进度；
- * - 存在未知大小但文件总数确定时，退化为按完成文件数计算；
- * - 连文件总数都无法确定时，显示为不确定进度。
- */
 private fun progressFor(snapshot: BatchProgress, sizesFullyKnown: Boolean, hasFileCount: Boolean): Float = when {
     sizesFullyKnown && snapshot.totalBytes > 0 ->
         (snapshot.downloadedBytes.toFloat() / snapshot.totalBytes).coerceIn(0f, 1f)
@@ -113,4 +93,3 @@ private fun progressFor(snapshot: BatchProgress, sizesFullyKnown: Boolean, hasFi
 
     else -> -1f
 }
-

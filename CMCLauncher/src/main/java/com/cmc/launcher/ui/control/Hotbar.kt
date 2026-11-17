@@ -64,25 +64,14 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 enum class HotbarRule(val nameRes: Int) {
-    /**
-     * 自动计算(一些情况下并不精准)
-     */
+
     Auto(R.string.game_menu_option_hotbar_rule_auto),
 
-    /**
-     * 完全自定义大小
-     */
     Custom(R.string.game_menu_option_hotbar_rule_custom)
 }
 
-/**
- * 自定义大小：0~1000比例下，计算百分比值
- */
 fun Int.hotbarPercentage() = this / 1000f
 
-/**
- * 快捷栏按键绑定键
- */
 private val hotbarList = listOf(
     HOTBAR_1 to HOTBAR_1_VALUE,
     HOTBAR_2 to HOTBAR_2_VALUE,
@@ -107,14 +96,6 @@ private val keyList = listOf(
     LwjglGlfwKeycode.GLFW_KEY_9
 )
 
-/**
- * Minecraft 快捷栏判定箱
- * 根据屏幕分辨率定位 MC 的快捷栏位置
- * 点击、滑动快捷栏，会计算指针处于哪个槽位中，并触发 [sendKeycode] 回调
- *
- * @param isGrabbing 处于鼠标抓获模式下，才会开启判定箱
- * @param displayOffset 游戏画面的黑边偏移，用于对齐自定义分辨率下的快捷栏位置
- */
 @Composable
 fun BoxScope.MinecraftHotbar(
     screenSize: IntSize,
@@ -178,7 +159,7 @@ fun BoxScope.MinecraftHotbar(
             .size(hotbarSize)
             .align(Alignment.BottomCenter)
             .offset {
-                //跟随游戏画面的显示区域，对齐黑边偏移
+
                 IntOffset(x = 0, y = -displayOffset.y)
             }
             .then(
@@ -201,7 +182,7 @@ fun BoxScope.MinecraftHotbar(
                         },
                         enableDoubleClick = AllSettings.hotbarDoubleClick.state,
                         onDoubleClick = {
-                            //发送切换副手按键键值
+
                             val swapKeycode = getKeycode(
                                 optionKey = SWAP_OFFHAND,
                                 optionValue = SWAP_OFFHAND_VALUE,
@@ -211,7 +192,7 @@ fun BoxScope.MinecraftHotbar(
                         },
                         enableLongClick = AllSettings.hotbarLongClick.state,
                         onLongClick = {
-                            //发送丢弃按键键值
+
                             val dropKeycode = getKeycode(
                                 optionKey = DROP,
                                 optionValue = DROP_VALUE,
@@ -275,7 +256,7 @@ private fun Modifier.mainTouchLogic(
                     val currentTime = change.uptimeMillis
 
                     when {
-                        //手指刚按下
+
                         change.pressed && !change.previousPressed -> {
                             if (pointerId !in occupiedPointers) {
                                 onOccupiedPointer(pointerId)
@@ -284,7 +265,7 @@ private fun Modifier.mainTouchLogic(
 
                             val x = change.position.x
                             val slotIndex = calculateSlotIndex(x, hotbarSize, slotCount, density)
-                            //碰到就视为点击，避免后续逻辑临时切物品栏导致游戏状态不同步
+
                             onClick(slotIndex)
 
                             val state = PointerState(
@@ -294,13 +275,12 @@ private fun Modifier.mainTouchLogic(
                                 isPressed = true
                             )
 
-                            //仅启用长按时启动检测
                             if (enableLongClick) {
                                 state.longPressJob = launch {
                                     delay(longClickDelay.milliseconds)
                                     if (state.isPressed && !state.isMovedBeyondSlop && !state.isLongPressedTriggered) {
                                         state.isLongPressedTriggered = true
-                                        //触发长按，使用当前所在的栏位进行回调
+
                                         onLongClick()
                                         if (enableDoubleClick) {
                                             lastSlot = null
@@ -313,10 +293,9 @@ private fun Modifier.mainTouchLogic(
                             change.consume()
                         }
 
-                        //按下、滑动
                         change.pressed && change.previousPressed -> {
                             val state = states[pointerId] ?: return@forEach
-                            //滑动时实时计算并更新当前槽位
+
                             state.currentSlotIndex = calculateSlotIndex(change.position.x, hotbarSize, slotCount, density)
 
                             if (enableLongClick) {
@@ -331,7 +310,6 @@ private fun Modifier.mainTouchLogic(
                             change.consume()
                         }
 
-                        //松开手指
                         !change.pressed && change.previousPressed -> {
                             val state = states.remove(pointerId) ?: return@forEach
                             state.isPressed = false
@@ -343,7 +321,6 @@ private fun Modifier.mainTouchLogic(
                                 onReleasePointer(pointerId)
                             }
 
-                            //长按已触发，不再处理点击
                             if (state.isLongPressedTriggered) {
                                 change.consume()
                                 return@forEach
@@ -352,12 +329,12 @@ private fun Modifier.mainTouchLogic(
                             val finalSlotIndex = state.currentSlotIndex
                             if (enableDoubleClick) {
                                 val isDoubleTap = lastSlot?.let { last ->
-                                    //检查是当前点击的栏位
+
                                     val isSlot = last.slot == finalSlotIndex
-                                    //检查双击时间间隔
+
                                     val inTime = currentTime - last.downTime < doubleTapTimeout
                                     (isSlot && inTime).also { result ->
-                                        //都不满足条件时，清除上一次点击，避免误判
+
                                         if (!result) lastSlot = null
                                     }
                                 } ?: false
@@ -366,7 +343,7 @@ private fun Modifier.mainTouchLogic(
                                     onDoubleClick()
                                     lastSlot = null
                                 } else {
-                                    //完成单击后，记录上一次点击的槽位
+
                                     lastSlot = DownSlot(
                                         slot = finalSlotIndex,
                                         downTime = currentTime,

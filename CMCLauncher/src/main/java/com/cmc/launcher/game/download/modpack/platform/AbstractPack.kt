@@ -7,28 +7,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.File
 
-/**
- * 整合包任务流构建器
- * @param platform 整合包格式（平台）
- */
 abstract class AbstractPack(
     val platform: PackPlatform
 ) {
-    /**
-     * 获取最终安装的客户端版本名称（由用户编辑的）
-     * 在安装结束后会尝试直接设定为这个版本
-     */
+
     abstract fun getFinalClientName(): String
 
-    /**
-     * 构建安装任务阶段，在这里下载依赖文件、解压整合包内部的文件等
-     * @param scope 在有生命周期管理的scope中执行安装任务
-     * @param versionFolder 临时游戏版本文件夹，用于安装游戏文件
-     * @param waitForVersionName 等待用户输入版本名称
-     * @param addPhases 添加下一安装阶段
-     * @param onClearTemp 已完成安装，开始清理缓存
-     * @param logOutputHolder 安装 JVM 日志输出的容器
-     */
     abstract fun buildTaskPhases(
         context: Context,
         scope: CoroutineScope,

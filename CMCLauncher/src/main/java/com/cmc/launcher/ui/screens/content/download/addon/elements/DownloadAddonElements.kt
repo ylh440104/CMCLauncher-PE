@@ -83,15 +83,12 @@ sealed interface DownloadAddonState<T> {
 
 sealed interface DownloadAddonVersionLoading {
     data object None: DownloadAddonVersionLoading
-    /** 开始加载分页数据 */
+
     data object StartLoadPage: DownloadAddonVersionLoading
-    /** 加载分页数据 */
+
     data class LoadingPage(val chunk: Int, val page: Int): DownloadAddonVersionLoading
 }
 
-/**
- * 版本、模组加载器 版本信息分组
- */
 class VersionInfoMap(
     val gameVersion: String,
     val loader: PlatformDisplayLabel?,
@@ -109,14 +106,11 @@ suspend fun <E: PlatformVersion> List<E>.initAllGeneric(
             also(it)
         }
     }.sortedByDescending {
-        //排序：最新的版本在前
+
         it.platformDatePublished()
     }
 }
 
-/**
- * 初始化全部版本数据，并筛选出成功初始化的所有版本
- */
 suspend fun List<PlatformVersion>.initAll(
     currentProjectId: String,
     also: suspend (PlatformVersion) -> Unit = {}
@@ -144,7 +138,7 @@ fun List<PlatformVersion>.mapWithVersions(classes: PlatformClasses): List<Versio
             loader = key.second,
             versions = versions,
             isAdapt = when (classes) {
-                PlatformClasses.MOD_PACK -> false //整合包将作为单独的版本下载，不再需要与现有版本进行匹配
+                PlatformClasses.MOD_PACK -> false
                 else -> isVersionAdapt(currentVersion, key.first, key.second)
             }
         )
@@ -153,7 +147,7 @@ fun List<PlatformVersion>.mapWithVersions(classes: PlatformClasses): List<Versio
 
 private fun List<VersionInfoMap>.sortedByVersionAndLoader(): List<VersionInfoMap> {
     return sortedWith { a, b ->
-        // 比较版本号
+
         val versionCompare = -GameVersionNumber.compare(a.gameVersion, b.gameVersion)
         if (versionCompare != 0) {
             versionCompare
@@ -168,36 +162,28 @@ private fun List<VersionInfoMap>.sortedByVersionAndLoader(): List<VersionInfoMap
     }
 }
 
-/**
- * 当前资源版本是否与当前选择的游戏版本匹配
- */
 private fun isVersionAdapt(
     currentVersion: Version?,
     gameVersion: String,
     loader: PlatformDisplayLabel?
 ): Boolean {
     return if (currentVersion == null) {
-        false //没安装版本，无法判断
+        false
     } else {
         if (currentVersion.getVersionInfo()?.minecraftVersion != gameVersion) {
-            false //游戏版本不匹配
+            false
         } else {
-            //判断模组加载器匹配情况，多加载器组合时任一加载器匹配即可
+
             val loaderInfos = currentVersion.getVersionInfo()?.loaderInfos.orEmpty()
             when {
-                loader == null -> true //资源没有模组加载器信息，直接判定适配
-                loaderInfos.isEmpty() -> false //资源有模组加载器，但当前版本没有模组加载器信息，不适配
+                loader == null -> true
+                loaderInfos.isEmpty() -> false
                 else -> loaderInfos.any { it.loader.displayName.equals(loader.getDisplayName(), true) }
             }
         }
     }
 }
 
-/**
- * 资源版本分组可折叠列表
- * @param defaultExpanded 是否默认展开，默认为是否适配当前版本
- * @param installedChecker 查询版本本地是否已安装，null 则不进行已安装标注
- */
 @Composable
 fun AddonVersionItemLayout(
     modifier: Modifier = Modifier,
@@ -355,7 +341,7 @@ private fun AddonVersionListItem(
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        //直观的版本状态
+
         val releaseType = remember { version.platformReleaseType() }
         val displayName = remember { version.platformDisplayName() }
         val downloadCount = remember { version.platformDownloadCount() }
@@ -376,7 +362,6 @@ private fun AddonVersionListItem(
             )
         }
 
-        //版本简要信息
         Column(
             modifier = Modifier.padding(all = 8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -392,7 +377,7 @@ private fun AddonVersionListItem(
                 modifier = Modifier.alpha(0.7f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                //下载量
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -407,7 +392,7 @@ private fun AddonVersionListItem(
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
-                //更新时间
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -425,7 +410,7 @@ private fun AddonVersionListItem(
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
-                //版本状态
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -445,9 +430,6 @@ private fun AddonVersionListItem(
     }
 }
 
-/**
- * 项目相关链接UI
- */
 @Composable
 fun ProjectUrlsContent(
     platform: Platform,
@@ -500,14 +482,11 @@ fun ProjectUrlsContent(
             onClick = { openLink(url) },
             iconSize = 18.dp,
             painter = painterResource(R.drawable.ic_link),
-            text = "MC 百科" //品牌名不需要翻译，硬编码
+            text = "MC 百科"
         )
     }
 }
 
-/**
- * 屏幕截图与描述UI
- */
 @Composable
 fun ScreenshotItemLayout(
     screenshot: PlatformProject.Screenshot,
@@ -540,7 +519,7 @@ fun ScreenshotItemLayout(
     ) {
         when (state) {
             AsyncImagePainter.State.Empty -> {
-                //NONE
+
             }
             is AsyncImagePainter.State.Error, is AsyncImagePainter.State.Loading -> {
                 ShimmerBox(
@@ -564,10 +543,8 @@ fun ScreenshotItemLayout(
             }
         }
 
-        //标题与简介部分
         if (screenshot.title != null && screenshot.title == screenshot.description) {
-            //标题与简介内容相同，则不需要两个都显示
-            //会有作者喜欢把标题与简介设置成一样的内容
+
             Text(
                 text = screenshot.title,
                 style = MaterialTheme.typography.labelLarge,

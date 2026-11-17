@@ -52,11 +52,6 @@ import com.cmc.launcher.ui.screens.main.control_editor.style_cabinet.OpenCabinet
 import com.cmc.launcher.viewmodel.EditorViewModel
 import java.io.File
 
-/**
- * 控制布局编辑器主要UI，用于编辑控制布局
- * @param exit 保存后执行的退出
- * @param menuExit 通过菜单直接调用的“直接退出”
- */
 @Composable
 fun BoxWithConstraintsScope.ControlEditor(
     viewModel: EditorViewModel,
@@ -77,11 +72,10 @@ fun BoxWithConstraintsScope.ControlEditor(
         val styles by viewModel.observableLayout.styles.collectAsStateWithLifecycle()
         val joystickStyles by viewModel.observableLayout.joystickStyles.collectAsStateWithLifecycle()
 
-        /** 默认新建的控件层的名称 */
         val defaultLayerName = stringResource(R.string.control_editor_edit_layer_default)
-        /** 默认新建的按键的名称 */
+
         val defaultButtonName = stringResource(R.string.control_editor_edit_button_default)
-        /** 默认新建的文本框的名称 */
+
         val defaultTextName = stringResource(R.string.control_editor_edit_text_default)
 
         val density = LocalDensity.current
@@ -100,17 +94,17 @@ fun BoxWithConstraintsScope.ControlEditor(
                 selectedWidget = viewModel.selectedWidget?.data,
                 onButtonTap = viewModel::onWidgetTapped,
                 onBackgroundClick = {
-                    //点击背景层时清除选中的控件
+
                     viewModel.selectedWidget = null
                 },
                 floatingButtons = {
-                    //设置属性
+
                     ActionButton(
                         painter = painterResource(R.drawable.ic_settings_filled),
                         text = stringResource(R.string.generic_setting),
                         onClick = viewModel::openWidgetEditor
                     )
-                    //复制控件
+
                     ActionButton(
                         painter = painterResource(R.drawable.ic_file_copy_filled),
                         text = stringResource(R.string.control_editor_edit_dialog_clone_widget),
@@ -121,7 +115,7 @@ fun BoxWithConstraintsScope.ControlEditor(
                             }
                         }
                     )
-                    //删除
+
                     ActionButton(
                         painter = painterResource(R.drawable.ic_delete_filled),
                         text = stringResource(R.string.generic_delete),
@@ -192,7 +186,7 @@ fun BoxWithConstraintsScope.ControlEditor(
                                 buttonSize = createAdaptiveButtonSize(
                                     referenceLength = screenSize.height,
                                     density = density.density,
-                                    type = ButtonSize.Type.WrapContent //文本框默认使用包裹内容
+                                    type = ButtonSize.Type.WrapContent
                                 ),
                                 visibilityType = VisibilityType.ALWAYS
                             )
@@ -282,7 +276,6 @@ fun BoxWithConstraintsScope.ControlEditor(
             }
         )
 
-        //全部对话框
         EditorDialogHost(viewModel)
     }
 }

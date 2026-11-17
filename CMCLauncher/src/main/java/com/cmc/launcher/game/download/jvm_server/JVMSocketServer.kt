@@ -17,9 +17,6 @@ import java.net.UnknownHostException
 
 private const val TAG = "JVMSocketServer"
 
-/**
- * [Reference FCL](https://github.com/FCL-Team/FoldCraftLauncher/blob/main/FCLCore/src/main/java/com/tungsten/fclcore/util/SocketServer.java)
- */
 object JVMSocketServer {
     private lateinit var ip: String
     private var port: Int = PROCESS_SERVICE_PORT
@@ -28,9 +25,6 @@ object JVMSocketServer {
     private var packet: DatagramPacket? = null
     private var socket: DatagramSocket? = null
 
-    /**
-     * 上一次接收的消息
-     */
     var receiveMsg: String? = null
         private set
 
@@ -41,7 +35,7 @@ object JVMSocketServer {
     ) {
         this.ip = ip
         this.port = port
-        //清空上一轮的接收结果，防止陈旧退出码被当作本轮结果消费
+
         receiveMsg = null
 
         scope?.let {

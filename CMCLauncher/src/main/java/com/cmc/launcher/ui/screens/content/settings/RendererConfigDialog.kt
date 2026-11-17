@@ -80,9 +80,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/**
- * 统一的渲染器配置对话框
- */
 @Composable
 fun RendererConfigDialog(
     renderer: ConfigurableRenderer,

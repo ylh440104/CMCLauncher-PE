@@ -24,22 +24,20 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
-/** 回收站控制器 */
 class TrashController(
     private val logic: FileManagerLogic,
     private val store: FmStateStore,
     private val browse: BrowseController,
     private val coroutineScope: CoroutineScope
 ) {
-    /** 回收站多选集合 */
+
     private var trashSelection: Set<String> = emptySet()
-    /** 回收站多选选区锚点 */
+
     private var trashRangeAnchorKey: String? = null
 
-    /** 加载回收站列表 */
     fun loadTrashList() {
         if ((store.stateValue().trashView as? TrashViewState.Opened)?.trashListView?.loading == false) {
-            // 已加载过，不再重复加载
+
             return
         }
         store.updateState {
@@ -90,7 +88,6 @@ class TrashController(
         }
     }
 
-    /** 设置回收站专用排序 */
     fun setTrashSortConfig(config: TrashSortConfig) {
         config.persist()
         store.updateState { it.copy(trashSortConfig = config) }
@@ -105,7 +102,6 @@ class TrashController(
         }
     }
 
-    /** 执行回收站恢复 */
     private suspend fun doTrashRestore(items: List<TrashItem>, resolutions: Map<String, ConflictResolution>) {
         when (val r = logic.trashRestore(items, resolutions)) {
             is FmResult.Ok -> {
@@ -123,7 +119,6 @@ class TrashController(
         }
     }
 
-    /** 发起恢复流程 */
     fun beginTrashRestore(items: List<TrashItem>) {
         coroutineScope.launch(Dispatchers.IO) {
             val conflicts = runCatching {
@@ -147,7 +142,6 @@ class TrashController(
         }
     }
 
-    /** 回收站恢复冲突决策 */
     fun resolveTrashRestoreConflict(resolution: ConflictResolution) {
         val cur = store.stateValue().dialogIntent as? DialogIntent.TrashRestoreConflict ?: return
 
@@ -170,7 +164,7 @@ class TrashController(
                 )
             }
         } else {
-            // 全部决策完成
+
             store.dismissDialog()
             coroutineScope.launch(Dispatchers.IO) {
                 doTrashRestore(cur.trashItems, updated)
@@ -250,10 +244,9 @@ class TrashController(
         syncTrashSelection()
     }
 
-    /** 回收站滑动连选 */
     fun trashRangeSelect(swipeItem: TrashItem) {
         val view = (store.stateValue().trashView as? TrashViewState.Opened) ?: return
-        // 基于排序后的可见列表计算区间，与界面所见顺序一致
+
         val list = view.trashListView.items
         val swipeIndex = list.indexOfFirst { it.uuid == swipeItem.uuid }
         if (swipeIndex < 0) return
@@ -273,7 +266,7 @@ class TrashController(
                 val from = minOf(anchorIndex, swipeIndex)
                 val to = maxOf(anchorIndex, swipeIndex)
                 trashSelection = trashSelection + list.subList(from, to + 1).map { it.uuid }
-                // 本次框选完成，清除锚点
+
                 trashRangeAnchorKey = null
             }
         }
@@ -301,8 +294,7 @@ class TrashController(
 
     private fun updateTrashListView(raw: List<TrashItem>) {
         val views = applyTrashSort(raw, store.stateValue().trashSortConfig)
-        // 数据刷新后剔除已消失项的选中
-        // 选中因此清空时退出多选并重置锚点
+
         val present = views.mapTo(mutableSetOf()) { it.uuid }
         if (trashSelection.any { it !in present }) {
             trashSelection = trashSelection.intersect(present)

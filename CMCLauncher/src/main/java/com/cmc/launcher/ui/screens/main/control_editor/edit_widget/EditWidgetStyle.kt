@@ -32,9 +32,6 @@ import com.cmc.launcher.ui.screens.main.control_editor.InfoLayoutItem
 import com.cmc.launcher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.cmc.launcher.ui.screens.main.control_editor.orUnspecified
 
-/**
- * 为控件选择外观
- */
 @Composable
 fun EditWidgetStyle(
     screenKey: TitledNavKey,

@@ -19,7 +19,6 @@ import java.util.UUID
 
 private const val TAG = "VersionCardManager"
 
-/** 版本卡片记录的持久化数据 */
 private data class VersionCardRecordDto(
     @SerializedName("cardId")
     val cardId: String = "",
@@ -52,9 +51,6 @@ private data class VersionCardRecordDto(
     }
 }
 
-/**
- * 版本卡片管理器
- */
 object VersionCardManager {
     const val DIR_TYPE_DEFAULT = "default"
     const val DIR_TYPE_CUSTOM = "custom"
@@ -67,7 +63,6 @@ object VersionCardManager {
 
     private val _cards = MutableStateFlow<List<VersionCardState>>(emptyList())
 
-    /** 全部版本卡片及其当前可用性状态 */
     val cards: StateFlow<List<VersionCardState>> = _cards.asStateFlow()
 
     init {
@@ -75,22 +70,17 @@ object VersionCardManager {
             VersionCardState(record, VersionCardStatus.Loading)
         }
         recheck()
-        //版本列表刷新后同步卡片可用性
+
         VersionsManager.registerListener {
             recheck()
         }
     }
 
-    /** 指定版本是否已存在对应卡片 */
     fun hasCard(versionName: String, gameHome: String): Boolean {
         val dir = VersionCardDir.fromGameHome(gameHome)
         return _cards.value.any { it.record.versionName == versionName && it.record.dir == dir }
     }
 
-    /**
-     * 为指定版本创建卡片，版本已存在对应卡片时不做任何事
-     * @return 是否成功创建
-     */
     fun addCard(version: Version): Boolean {
         val dir = VersionCardDir.fromGameHome(version.getGameHome())
         synchronized(this) {
@@ -108,7 +98,6 @@ object VersionCardManager {
         return true
     }
 
-    /** 移除指定卡片 */
     fun removeCard(cardId: String) {
         synchronized(this) {
             val removed = _cards.value.any { it.record.cardId == cardId }
@@ -118,9 +107,6 @@ object VersionCardManager {
         }
     }
 
-    /**
-     * 版本重命名后同步卡片记录，使卡片继续指向重命名后的版本
-     */
     fun onVersionRenamed(gameHome: String, oldName: String, newName: String) {
         val dir = VersionCardDir.fromGameHome(gameHome)
         synchronized(this) {
@@ -140,9 +126,6 @@ object VersionCardManager {
         recheck()
     }
 
-    /**
-     * 重新检查全部卡片的可用性
-     */
     private fun recheck() {
         scope.launch {
             val current = _cards.value
@@ -150,12 +133,11 @@ object VersionCardManager {
             val updated = current.map { state ->
                 state.copy(status = resolveStatus(state.record))
             }
-            //状态无变化时不发射，避免触发主页网格的无效重组
+
             if (updated != current) _cards.value = updated
         }
     }
 
-    /** 依据记录定位并加载版本，推导卡片可用性状态 */
     private fun resolveStatus(record: VersionCardRecord): VersionCardStatus {
         val gameHome = record.dir.resolveGameHome()
         if (record.dir is VersionCardDir.Custom && !hasStoragePermission) {

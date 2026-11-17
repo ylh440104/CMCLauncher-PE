@@ -1,11 +1,8 @@
 package com.cmc.launcher.ui.screens.game.elements.log_parser
 
-/**
- * 日志解析的共用逻辑
- */
 object LogParseCore {
     private val timePatterns = listOf(
-        Regex("""\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z"""), // ISO-8601
+        Regex("""\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z"""),
         Regex("""\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}"""),
         Regex("""\d{1,2}:\d{2}:\d{2}(?:\.\d{1,3})?""")
     )
@@ -60,7 +57,7 @@ object LogParseCore {
         var i = start + 1
         while (i < text.length) {
             when {
-                // 防跨行
+
                 text[i] == '\n' -> return -1
                 text[i] == quote && text[i - 1] != '\\' -> return i
             }

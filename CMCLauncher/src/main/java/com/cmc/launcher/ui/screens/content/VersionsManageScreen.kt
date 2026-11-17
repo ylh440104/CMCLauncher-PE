@@ -114,21 +114,19 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.math.roundToInt
 
 private class VersionsScreenViewModel : ViewModel() {
-    /** 版本类别分类 */
+
     var versionCategory by mutableStateOf(VersionCategory.ALL)
         private set
-    /** 重排序刷新key */
+
     var resortKey by mutableIntStateOf(0)
         private set
 
-    /** 游戏路径相关操作 */
     var gamePathOperation by mutableStateOf<GamePathOperation>(GamePathOperation.None)
 
-    /** 全部版本的数量 */
     var allVersionsCount by mutableIntStateOf(0)
-    /** 原版版本数量 */
+
     var vanillaVersionsCount by mutableIntStateOf(0)
-    /** 模组加载器版本数量 */
+
     var modloaderVersionsCount by mutableIntStateOf(0)
 
     fun startRefreshVersions() {
@@ -140,9 +138,6 @@ private class VersionsScreenViewModel : ViewModel() {
     private var currentJob: Job? = null
     private var mutex: Mutex = Mutex()
 
-    /**
-     * 变更当前版本列表的过滤类型
-     */
     fun changeCategory(category: VersionCategory) {
         currentJob?.cancel()
         currentJob = viewModelScope.launch {
@@ -152,17 +147,12 @@ private class VersionsScreenViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 重新排序当前版本列表
-     */
     fun resortVersions() {
         resortKey++
     }
 
-    /** 清理游戏文件操作 */
     var cleanupOperation by mutableStateOf<CleanupOperation>(CleanupOperation.None)
 
-    /** 游戏无用资源清理者 */
     var cleaner by mutableStateOf<GameAssetCleaner?>(null)
 
     fun cleanUnusedFiles(
@@ -418,7 +408,7 @@ private fun LeftMenu(
                     selected = currentPath == pathItem.path,
                     enabled = canHandlePermission,
                     onClick = {
-                        if (!isRefreshing) { //避免频繁刷新，防止currentGameInfo意外重置
+                        if (!isRefreshing) {
                             if (pathItem.id == GamePathManager.DEFAULT_ID) {
                                 GamePathManager.saveDefaultPath()
                             } else {
@@ -506,7 +496,7 @@ private fun VersionsLayout(
         enabled = !isRefreshing,
         onRefresh = onRefresh
     ) {
-        if (isRefreshing) { //版本正在刷新中
+        if (isRefreshing) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -521,14 +511,12 @@ private fun VersionsLayout(
                 submitError = submitError
             )
 
-            // 操作栏滚动吸附
             val density = LocalDensity.current
             val topAppBarState = rememberTopAppBarState()
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState)
             val headerTopPaddingPx = with(density) { 12.dp.toPx() }
             var headerHeightPx by remember { mutableIntStateOf(0) }
 
-            // 操作栏阴影跟随滚动线性过渡
             val listState = rememberLazyListState()
             val listScrolledFraction = remember(listState, headerTopPaddingPx) {
                 derivedStateOf {
@@ -542,10 +530,9 @@ private fun VersionsLayout(
             val barShownFraction = remember(topAppBarState) {
                 derivedStateOf { 1f - topAppBarState.collapsedFraction }
             }
-            //背景可见时不使用阴影，因为卡片会半透明化
+
             val withShadow = !backgroundVisible()
 
-            //悬浮操作栏的阴影在图层块内读取滚动比例，滚动时只更新图层不重组
             val barShape = MaterialTheme.shapes.large
             val barShadowModifier = Modifier.graphicsLayer {
                 if (withShadow) {
@@ -593,7 +580,7 @@ private fun VersionsLayout(
                                 onSelected = {
                                     if (version == currentVersion) return@VersionItemLayout
                                     if (!VersionsManager.saveVersion(version)) {
-                                        //不允许选择无效版本
+
                                         versionsOperation = VersionsOperation.InvalidDelete(version)
                                     }
                                 },
@@ -667,7 +654,6 @@ private fun VersionsLayout(
                             }
                         }
 
-                        // 版本分类
                         Surface(
                             modifier = Modifier
                                 .weight(1f, fill = false)
@@ -718,9 +704,6 @@ private fun VersionsLayout(
     }
 }
 
-/**
- * 在组件顶部绘制指定像素高度的线性渐隐；高度在绘制阶段读取，随滚动只触发重绘
- */
 private fun Modifier.topFade(heightPx: () -> Float): Modifier = this
     .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
     .drawWithContent {
@@ -740,5 +723,4 @@ private fun Modifier.topFade(heightPx: () -> Float): Modifier = this
         }
     }
 
-/** 顶部渐隐使用的固定渐变 */
 private val TopFadeBrush = Brush.verticalGradient(0f to Color.Black, 1f to Color.Transparent)

@@ -16,17 +16,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/** 搜索控制器 */
 class SearchController(
     private val logic: FileManagerLogic,
     private val taskManager: TaskManager,
     private val store: FmStateStore,
     private val coroutineScope: CoroutineScope
 ) {
-    /**
-     * 打开搜索入口
-     * 本次会话已有结果时直接显示结果列表，否则显示搜索设置
-     */
+
     fun showSearchDialog() {
         store.dismissDialog()
         val hasResult = store.searchUiValue().lastKeyword.isNotBlank()
@@ -35,10 +31,6 @@ class SearchController(
         }
     }
 
-    /**
-     * 提交搜索
-     * 非空校验后进入搜索任务，完成后展示结果列表
-     */
     fun submitSearch(keyword: String, caseSensitive: Boolean) {
         if (keyword.isBlank()) return
         val startDir = store.history.currentPath
@@ -65,7 +57,7 @@ class SearchController(
                 is RunResult.Ok -> {
                     when (val search = result.value) {
                         is SearchResult.Ok -> {
-                            // 隐藏过滤由数据控制层完成
+
                             val showHidden = FmConfig.showHidden()
                             val hits = search.hits
                                 .filterNot { !showHidden && it.hidden }
@@ -99,7 +91,6 @@ class SearchController(
         }
     }
 
-    /** 清除搜索结果，返回搜索设置对话框 */
     fun clearSearch() {
         store.setSearchUi(SearchUiState())
         store.updateState {
@@ -107,7 +98,6 @@ class SearchController(
         }
     }
 
-    /** 从搜索结果列表返回搜索设置对话框（发起新搜索） */
     fun backToSearchSetup() {
         store.updateState {
             it.copy(dialogIntent = DialogIntent.Search)

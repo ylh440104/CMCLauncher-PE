@@ -4,22 +4,19 @@ import com.cmc.launcher.game.addons.modloader.ModLoader
 import com.cmc.launcher.game.addons.modloader.forgelike.ForgeBuildVersion
 import com.cmc.launcher.game.addons.modloader.forgelike.ForgeLikeVersion
 
-/**
- * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/44aea3e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L565-L599)
- */
 class ForgeVersion(
     versionName: String,
     branch: String?,
     inherit: String,
-    /** 发布时间，格式为“yyyy/MM/dd HH:mm” */
+
     val releaseTime: String,
-    /** 文件的 MD5 或 SHA1 */
+
     val hash: String?,
-    /** 是否为推荐版本 */
+
     val isRecommended: Boolean,
-    /** 安装类型: installer、client、universal */
+
     val category: String,
-    /** 用于下载的文件版本名。可能在 Version 的基础上添加了分支。 */
+
     val fileVersion: String
 ) : ForgeLikeVersion(
     loaderName = ModLoader.FORGE.displayName,
@@ -29,9 +26,6 @@ class ForgeVersion(
     fileExtension = if (category == "installer") "jar" else "zip"
 )
 
-/**
- * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/44aea3e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L588-L598)
- */
 private fun parseVersion(version: String, branch: String?, inherit: String): ForgeBuildVersion {
     val specialVersions = listOf("11.15.1.2318", "11.15.1.1902", "11.15.1.1890")
     val modifiedBranch = when {

@@ -74,25 +74,23 @@ import java.util.concurrent.TimeoutException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
-/** 整合包安装状态操作 */
 private sealed interface ModPackInstallOperation {
     data object None : ModPackInstallOperation
-    /** 警告整合包的兼容性，同意后将进行安装 */
+
     data class Warning(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
-    /** 开始安装 */
+
     data object Install : ModPackInstallOperation
-    /** 警告通知权限，可以无视，并直接开始安装 */
+
     data class WarningForNotification(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
-    /** 整合包安装出现异常 */
+
     data class Error(val th: Throwable) : ModPackInstallOperation
-    /** 整合包已成功安装 */
+
     data object Success : ModPackInstallOperation
 }
 
-/** 整合包版本名称自定义状态操作 */
 private sealed interface VersionNameOperation {
     data object None : VersionNameOperation
-    /** 等待用户输入版本名称 */
+
     data class Waiting(val info: ModPackInfo) : VersionNameOperation
 }
 
@@ -101,7 +99,6 @@ private class ModPackViewModel: ViewModel() {
     var versionNameOperation by mutableStateOf<VersionNameOperation>(VersionNameOperation.None)
     var confirmMobileDataOperation by mutableStateOf<ConfirmMobileDataOperation>(ConfirmMobileDataOperation.None)
 
-    //等待用户输入版本名称相关
     private var versionNameContinuation: (Continuation<String>)? = null
     suspend fun waitForVersionName(modPackInfo: ModPackInfo): String {
         return suspendCancellableCoroutine { cont ->
@@ -110,18 +107,13 @@ private class ModPackViewModel: ViewModel() {
         }
     }
 
-    /**
-     * 用户确认输入版本名称
-     */
     fun confirmVersionName(name: String) {
-        //恢复continuation
+
         versionNameContinuation?.resume(name)
         versionNameContinuation = null
         versionNameOperation = VersionNameOperation.None
     }
 
-
-    //警告使用移动网络相关
     private var confirmMobileData : (Continuation<Boolean>)? = null
     suspend fun waitForConfirmMobileData(): Boolean {
         return suspendCancellableCoroutine { cont ->
@@ -130,19 +122,13 @@ private class ModPackViewModel: ViewModel() {
         }
     }
 
-    /**
-     * 用户是否确认使用移动网络
-     */
     fun confirmUseMobileData(use: Boolean) {
-        //恢复continuation
+
         confirmMobileData?.resume(use)
         confirmMobileData = null
         confirmMobileDataOperation = ConfirmMobileDataOperation.None
     }
 
-    /**
-     * 整合包安装器
-     */
     var installer by mutableStateOf<ModPackInstaller?>(null)
 
     fun install(
@@ -249,7 +235,6 @@ fun DownloadModPackScreen(
         }
     )
 
-    //用户确认版本名称 操作流程
     VersionNameOperation(
         operation = viewModel.versionNameOperation,
         onConfirmVersionName = { name ->
@@ -260,7 +245,6 @@ fun DownloadModPackScreen(
         }
     )
 
-    //用户确认使用移动网络 操作流程
     ModpackConfirmUseMobileDataOperation(
         operation = viewModel.confirmMobileDataOperation,
         onConfirmUse = { use ->
@@ -306,11 +290,11 @@ fun DownloadModPackScreen(
                         eventViewModel = eventViewModel,
                         onItemClicked = { _, version, iconUrl, _ ->
                             if (viewModel.installOperation !is ModPackInstallOperation.None) {
-                                //不是待安装状态，拒绝此次安装
+
                                 return@DownloadAddonScreen
                             }
                             viewModel.installOperation = if (!NotificationManager.checkNotificationEnabled(context)) {
-                                //警告通知权限
+
                                 ModPackInstallOperation.WarningForNotification(version, iconUrl)
                             } else {
                                 ModPackInstallOperation.Warning(version, iconUrl)
@@ -339,11 +323,11 @@ private fun ModPackInstallOperation(
             NotificationCheck(
                 text = stringResource(R.string.notification_data_jvm_service_message),
                 onGranted = {
-                    //权限被授予，开始安装
+
                     updateOperation(ModPackInstallOperation.Warning(operation.version, operation.iconUrl))
                 },
                 onIgnore = {
-                    //用户不想授权，但是支持继续进行安装
+
                     updateOperation(ModPackInstallOperation.Warning(operation.version, operation.iconUrl))
                 },
                 onDismiss = {
@@ -352,7 +336,7 @@ private fun ModPackInstallOperation(
             )
         }
         is ModPackInstallOperation.Warning -> {
-            //警告整合包的兼容性（免责声明）
+
             SimpleAlertDialog(
                 title = stringResource(R.string.generic_warning),
                 text = {
@@ -379,7 +363,7 @@ private fun ModPackInstallOperation(
                 val tasks = installer.tasksFlow.collectAsStateWithLifecycle()
                 val installLog = installer.logOutput.collectAsStateWithLifecycle()
                 if (tasks.value.isNotEmpty()) {
-                    //安装整合包流程对话框
+
                     TitleTaskFlowDialog(
                         title = stringResource(R.string.download_modpack_install_title),
                         tasks = tasks.value,
@@ -464,12 +448,6 @@ private fun VersionNameOperation(
     }
 }
 
-/**
- * 将要安装的整合包版本名称
- * @param name 预填写的整合包版本名称
- * @param onConfirmVersionName 用户输入并确认了版本名称
- * @param onCancel 用户取消了导入
- */
 @Composable
 fun ModpackVersionNameDialog(
     name: String,

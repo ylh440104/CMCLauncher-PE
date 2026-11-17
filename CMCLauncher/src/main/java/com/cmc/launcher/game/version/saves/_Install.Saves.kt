@@ -16,9 +16,6 @@ import java.util.zip.ZipFile as JDKZipFile
 
 private const val TAG = "InstallSaves"
 
-/**
- * 解压存档压缩包
- */
 suspend fun unpackSaveZip(zipFile: File, targetPath: File) = withContext(Dispatchers.IO) {
     val path = extractLevelPath(zipFile) ?: throw IOException("Unable to locate the level where the level.dat file is stored.")
     Logger.info(TAG, "Found the level of the level.data file: $path")
@@ -39,7 +36,7 @@ suspend fun unpackSaveZip(zipFile: File, targetPath: File) = withContext(Dispatc
 }
 
 private suspend fun tryApacheZip(zipFile: File, path: String, target: File) {
-    FileUtils.deleteQuietly(target) //清除一次目标文件夹（如果之前解压出错）
+    FileUtils.deleteQuietly(target)
     val zipFile1 = ZipFile.Builder()
         .setFile(zipFile)
         .get()
@@ -50,10 +47,6 @@ private suspend fun tryApacheZip(zipFile: File, path: String, target: File) {
     }
 }
 
-/**
- * 读取zip文件，并找到level.data文件所在的路径
- * @param file 压缩包文件
- */
 private fun extractLevelPath(file: File): String? {
     if (!file.exists() || !file.isFile) {
         return null
@@ -102,23 +95,21 @@ private fun <T : ZipEntryBase> findLevelEntryName(
 
     while (true) {
         val inLayer = allEntries.filter {
-            //过滤当前层级内的所有内容
+
             it.name.startsWith(currentPrefix) && it.name != currentPrefix
         }
         if (inLayer.isEmpty()) {
-            //当前层无任何有效内容，这是一个无效的存档格式
+
             return null
         }
 
-        //检查当前层级是否存在 level.dat
         val hasLevelDat = inLayer.any {
             val relative = it.name.removePrefix(currentPrefix)
             !it.isDirectory && relative.equals("level.dat", ignoreCase = true)
         }
 
         if (hasLevelDat) {
-            //存在 level.dat 文件时，必须至少有一个文件夹
-            //否则认为这是一个无效的存档格式
+
             val hasFolder = inLayer.any {
                 val relative = it.name.removePrefix(currentPrefix)
                 it.isDirectory || relative.contains("/")
@@ -126,7 +117,6 @@ private fun <T : ZipEntryBase> findLevelEntryName(
             return if (hasFolder) currentPrefix.removeSuffix("/") else null
         }
 
-        //不存在 level.dat 时，只有在当前层级只有一个目录且没有文件的情况下才深入
         val relativeNames = inLayer.map {
             it.name.removePrefix(currentPrefix)
         }

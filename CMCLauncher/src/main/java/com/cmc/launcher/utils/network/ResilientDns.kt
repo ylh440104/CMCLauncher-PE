@@ -11,26 +11,13 @@ import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-/**
- * 容灾 DNS 解析器
- *
- * 优先使用系统 DNS 解析；当系统 DNS 失败（DNS 污染、运营商 DNS 故障、
- * 私人 DNS 不可达等）时，回退到公共 DNS-over-HTTPS 服务解析，
- * 避免单纯的解析失败导致整个网络请求不可用。
- *
- * 所有 DoH 服务均通过 IP 字面量访问，其 TLS 证书包含对应 IP SAN，因此
- * 回退解析本身不依赖系统 DNS。
- */
 object ResilientDns : Dns {
     private const val TAG = "ResilientDns"
 
-    /** DoH 解析结果的缓存时长 */
     private const val CACHE_TTL_MILLIS = 10 * 60 * 1000L
 
-    /** 缓存已成功通过 DoH 解析的结果（系统 DNS 结果由系统自行缓存，不在此处缓存） */
     private val cache = ConcurrentHashMap<String, Pair<List<InetAddress>, Long>>()
 
-    /** 用于 DoH 查询的引导客户端，全部使用 IP 字面量地址，无需预先解析域名 */
     private val dohClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
@@ -39,14 +26,10 @@ object ResilientDns : Dns {
             .build()
     }
 
-    /**
-     * 公共 DoH 服务的查询地址模板（均为 dns-json 响应格式）
-     * 按优先级排序，靠前的优先尝试
-     */
     private val dohProviders = listOf(
-        "https://1.1.1.1/dns-query?name=%s&type=A", //Cloudflare
-        "https://8.8.8.8/resolve?name=%s&type=A", //Google
-        "https://223.5.5.5/resolve?name=%s&type=A" //AliDNS
+        "https://1.1.1.1/dns-query?name=%s&type=A",
+        "https://8.8.8.8/resolve?name=%s&type=A",
+        "https://223.5.5.5/resolve?name=%s&type=A"
     )
 
     override fun lookup(hostname: String): List<InetAddress> {
@@ -56,7 +39,6 @@ object ResilientDns : Dns {
             Logger.warning(TAG, "System DNS resolution failed for $hostname, falling back to DoH: ${e.message}")
         }
 
-        //命中缓存，避免对同一域名频繁发起 DoH 查询
         cache[hostname]?.let { (addresses, timestamp) ->
             if (System.currentTimeMillis() - timestamp < CACHE_TTL_MILLIS) {
                 return addresses
@@ -87,10 +69,6 @@ object ResilientDns : Dns {
         }
     }
 
-    /**
-     * 通过 dns-json 格式的 DoH 服务解析域名
-     * @return 解析出的地址列表，无有效记录时返回空列表
-     */
     private fun dohLookup(url: String): List<InetAddress> {
         val request = Request.Builder()
             .url(url)
@@ -107,10 +85,10 @@ object ResilientDns : Dns {
             val answers = json.optJSONArray("Answer") ?: return emptyList()
             return (0 until answers.length())
                 .mapNotNull { answers.optJSONObject(it) }
-                .filter { it.optInt("type") == 1 || it.optInt("type") == 28 } //A 与 AAAA 记录
+                .filter { it.optInt("type") == 1 || it.optInt("type") == 28 }
                 .mapNotNull { record ->
                     record.optString("data").takeIf { it.isNotBlank() }?.let { ip ->
-                        //IP 字面量不会触发额外的 DNS 查询
+
                         runCatching { InetAddress.getByName(ip) }.getOrNull()
                     }
                 }

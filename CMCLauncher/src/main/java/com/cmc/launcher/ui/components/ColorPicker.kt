@@ -46,12 +46,6 @@ import com.cmc.launcher.utils.logging.Logger
 
 private const val TAG = "ColorPicker"
 
-/**
- * 一个简易的颜色选择器
- * @param onChangeFinished 颜色完成变更
- * @param showAlpha 是否使用透明度调节器
- * @param showHue 是否使用色相调节器
- */
 @Composable
 fun ColorPickerDialog(
     colorController: ColorPickerController,
@@ -66,9 +60,6 @@ fun ColorPickerDialog(
         selectedColor.toHex()
     }
 
-    /**
-     * 是否开启编辑Hex对话框
-     */
     var editHex by remember {
         mutableStateOf(false)
     }
@@ -159,13 +150,11 @@ fun ColorPickerDialog(
                                     }
                                 }
 
-                                //颜色预览
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     val originalColor = remember {
                                         colorController.getOriginalColor()
                                     }
 
-                                    //初始颜色
                                     Text(
                                         text = originalColor.toHex(),
                                         style = MaterialTheme.typography.labelMedium
@@ -179,7 +168,7 @@ fun ColorPickerDialog(
                                 }
 
                                 Column(modifier = Modifier.fillMaxWidth()) {
-                                    //当前颜色
+
                                     Text(
                                         text = selectedHex,
                                         style = MaterialTheme.typography.labelMedium
@@ -195,7 +184,7 @@ fun ColorPickerDialog(
                                                 .height(30.dp)
                                                 .background(color = selectedColor)
                                         )
-                                        //手动编辑Hex
+
                                         IconButton(
                                             modifier = Modifier.size(36.dp),
                                             onClick = { editHex = true }
@@ -243,7 +232,7 @@ fun ColorPickerDialog(
             mutableStateOf(selectedHex)
         }
         val newColor = remember(value) {
-            //尝试转换为颜色对象
+
             value.toColorOrNull()
         }
 
@@ -272,9 +261,6 @@ fun ColorPickerDialog(
     }
 }
 
-/**
- * 将颜色转换为Hex字符串
- */
 fun Color.toHex(): String {
     val alpha = (alpha * 255).toInt().toString(16).padStart(2, '0')
     val red = (red * 255).toInt().toString(16).padStart(2, '0')
@@ -283,12 +269,6 @@ fun Color.toHex(): String {
     return "$alpha$red$green$blue".uppercase()
 }
 
-/**
- * 将Hex字符串转换为颜色对象
- * 若无法转换，则返回null
- *
- * 支持格式 AARRGGBB 或 RRGGBB
- */
 fun String.toColorOrNull(): Color? {
     val hex = this.removePrefix("#")
     return try {

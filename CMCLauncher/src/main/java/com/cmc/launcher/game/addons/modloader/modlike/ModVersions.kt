@@ -10,18 +10,11 @@ import kotlinx.coroutines.CancellationException
 
 private const val TAG = "ModVersions"
 
-/**
- * 模组版本管理类
- * @param modrinthID Modrinth 平台模组对应的 ID
- */
 abstract class ModVersions(
     private val modrinthID: String
 ) {
     private var cacheVersions: List<ModrinthVersion>? = null
 
-    /**
-     * 获取特定版本的模组列表
-     */
     suspend fun fetchVersionList(
         mcVersion: String,
         force: Boolean = false
@@ -43,9 +36,9 @@ abstract class ModVersions(
             }
 
             return versions.mapNotNull { version ->
-                //仅保留版本号匹配的模组版本
+
                 if (!version.gameVersions.contains(mcVersion)) return@mapNotNull null
-                //仅保留主文件
+
                 val file = version.files.getPrimary() ?: run {
                     Logger.warning(TAG, "No file list available, skipping -> ${version.name}")
                     return@mapNotNull null

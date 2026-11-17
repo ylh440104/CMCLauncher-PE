@@ -7,7 +7,7 @@ import com.cmc.launcher.ui.components.SimpleAlertDialog
 
 sealed interface ForceCloseOperation {
     data object None : ForceCloseOperation
-    /** 显示强制关闭对话框 */
+
     data object Show : ForceCloseOperation
 }
 

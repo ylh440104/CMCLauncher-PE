@@ -16,9 +16,6 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.util.zip.ZipFile as JDKZipFile
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/4650287/HMCLCore/src/main/java/org/jackhuang/hmcl/mod/modinfo/PackMcMeta.java)
- */
 object PackMcMetadataReader : ModMetadataReader {
     override suspend fun fromLocal(modFile: File): LocalMod = withContext(Dispatchers.IO) {
         try {
@@ -87,9 +84,6 @@ object PackMcMetadataReader : ModMetadataReader {
         }
     }
 
-    /**
-     * 获取原始文件名，移除 .disabled 后缀
-     */
     private fun getRawFileName(file: File): String {
         val fileName = file.name
         return if (file.isDisabled()) fileName.removeSuffix(".disabled")

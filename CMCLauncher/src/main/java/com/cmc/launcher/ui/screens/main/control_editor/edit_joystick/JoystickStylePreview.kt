@@ -27,9 +27,6 @@ private fun Color.applyAlpha(multiplier: Float): Color {
     return this.copy(alpha = a)
 }
 
-/**
- * 决定使用哪个主题配置
- */
 fun resolveThemeConfig(
     style: ObservableJoystickStyle,
     isDark: Boolean
@@ -92,9 +89,6 @@ private fun outlineToPath(outline: Outline): Path {
     }
 }
 
-/**
- * 简单的摇杆样式预览渲染，不包含任何交互逻辑
- */
 @Composable
 fun JoystickStylePreview(
     config: ObservableJoystickStyleConfig,
@@ -118,7 +112,6 @@ fun JoystickStylePreview(
         val canvasSize = this.size
         val minSide = minOf(canvasSize.width, canvasSize.height)
 
-        // 背景层
         drawBackgroundLayer(
             layoutDirection = layoutDirection,
             size = canvasSize,
@@ -128,7 +121,6 @@ fun JoystickStylePreview(
             borderWidthPx = (minSide * borderRatio).coerceAtLeast(0f)
         )
 
-        // 摇杆头
         val joystickSizePx = minSide * jsSizeRatio
         val center = Offset(canvasSize.width / 2, canvasSize.height / 2)
         drawJoystick(

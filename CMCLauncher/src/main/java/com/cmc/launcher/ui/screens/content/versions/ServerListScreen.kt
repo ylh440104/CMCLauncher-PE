@@ -139,19 +139,19 @@ import java.io.File
 private const val TAG = "ServerList"
 
 private sealed interface ServerListOperation {
-    /** 服务器列表刷新中 */
+
     data object Loading : ServerListOperation
-    /** 已加载服务器数据 */
+
     data object LoadedData : ServerListOperation
 }
 
 private sealed interface ServerDataOperation {
     data object None: ServerDataOperation
-    /** 添加一个服务器 */
+
     data object AddServer : ServerDataOperation
-    /** 删除一个服务器 */
+
     data class DeleteServer(val data: ServerData) : ServerDataOperation
-    /** 编辑一个服务器 */
+
     data class EditServer(val data: ServerData) : ServerDataOperation
 }
 
@@ -166,14 +166,8 @@ private class ServerListViewModel(
 
     private val allServers = AllServers()
 
-    /**
-     * 搜索服务器的名称
-     */
     var searchName by mutableStateOf("")
 
-    /**
-     * 所有正在加载中的服务器
-     */
     private val allLoadingServer = mutableMapOf<ServerData, Job>()
 
     private var refreshJob: Job? = null
@@ -182,9 +176,6 @@ private class ServerListViewModel(
 
     private var searchJob: Job? = null
 
-    /**
-     * 开始加载服务器列表数据
-     */
     fun loadServer() {
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch(Dispatchers.IO) {
@@ -200,7 +191,6 @@ private class ServerListViewModel(
             _servers.update { emptyList() }
         }
 
-        //取消所有的加载任务
         allLoadingServer.forEach { (_, job) ->
             job.cancel()
         }
@@ -214,9 +204,6 @@ private class ServerListViewModel(
         }
     }
 
-    /**
-     * 仅重载当前的服务器列表
-     */
     private suspend fun reloadServerList() {
         withContext(Dispatchers.Main) {
             _servers.update {
@@ -229,21 +216,11 @@ private class ServerListViewModel(
         }
     }
 
-    /**
-     * 是否正在保存服务器列表
-     */
     var saving by mutableStateOf(false)
         private set
-    /**
-     * 对服务器的各种操作流程
-     */
+
     var dataOperation by mutableStateOf<ServerDataOperation>(ServerDataOperation.None)
 
-    /**
-     * 添加一个新的服务器
-     * @param serverName 服务器名称
-     * @param serverAddress 服务器地址
-     */
     fun addServer(
         serverName: String,
         serverAddress: String
@@ -257,9 +234,6 @@ private class ServerListViewModel(
         )
     }
 
-    /**
-     * 删除一个服务器
-     */
     fun deleteServer(
         data: ServerData
     ) {
@@ -273,9 +247,6 @@ private class ServerListViewModel(
         )
     }
 
-    /**
-     * 编辑过一个服务器
-     */
     fun editedServer(
         data: ServerData
     ) {
@@ -286,18 +257,12 @@ private class ServerListViewModel(
                 allLoadingServer.remove(data)
             },
             afterSave = {
-                //未对服务器列表做增删，所以需要手动刷新这个服务器
+
                 loadServer(data, true)
             }
         )
     }
 
-    /**
-     * 保存服务器列表
-     * @param reason 保存服务器列表的理由，方便日志定位
-     * @param beforeSave 在保存前可以进行的操作
-     * @param beforeSave 在保存后可以进行的操作
-     */
     private fun saveServers(
         reason: String? = null,
         reload: Boolean = true,
@@ -325,9 +290,6 @@ private class ServerListViewModel(
         }
     }
 
-    /**
-     * 根据现有的搜索名称，刷新显示服务器列表
-     */
     fun filterServers() {
         searchJob?.cancel()
         searchJob = viewModelScope.launch(Dispatchers.Default) {
@@ -337,10 +299,6 @@ private class ServerListViewModel(
         }
     }
 
-    /**
-     * 尝试 Ping 服务器
-     * @param isRefresh 是否强制刷新该服务器
-     */
     fun loadServer(
         server: ServerData,
         isRefresh: Boolean = false
@@ -362,9 +320,6 @@ private class ServerListViewModel(
         }
     }
 
-    /**
-     * 复制服务器ip
-     */
     fun copy(
         context: Context,
         ip: String
@@ -642,7 +597,6 @@ private fun ServerListHeader(
                 ) {
                     Spacer(modifier = Modifier.width(6.dp))
 
-                    //添加服务器
                     IconTextButton(
                         onClick = onAddServer,
                         painter = painterResource(R.drawable.ic_add),
@@ -704,8 +658,7 @@ private fun ServerListBody(
                 }
             }
         } else {
-            //如果列表是空的，则是由搜索导致的
-            //展示“无匹配项”文本
+
             Box(modifier = Modifier.fillMaxSize()) {
                 ScalingLabel(
                     modifier = Modifier.align(Alignment.Center),
@@ -714,7 +667,7 @@ private fun ServerListBody(
             }
         }
     } ?: run {
-        //如果为null，则代表本身就没有存档可以展示
+
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
@@ -768,7 +721,7 @@ private fun ServerItem(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            //服务器的图标
+
             ServerIcon(
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(10.dp)),
@@ -779,14 +732,14 @@ private fun ServerItem(
             Column(
                 modifier = Modifier.weight(1f),
             ) {
-                //服务器名称、状态、描述
+
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        //服务器名称
+
                         MinecraftColorTextNormal(
                             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                             inputText = item.name,
@@ -794,11 +747,9 @@ private fun ServerItem(
                             maxLines = 1
                         )
 
-                        //显示服务器的延迟、在线人数
                         if (ot is ServerData.Operation.Loaded) {
                             val undefined = stringResource(R.string.servers_list_undefined)
 
-                            //服务器延迟显示部分
                             val signalStrength = remember(ot) {
                                 val pingMs = ot.result.pingMs
                                 if (pingMs < 150L) 5
@@ -822,7 +773,6 @@ private fun ServerItem(
                                 )
                             }
 
-                            //在线人数显示部分
                             val playerFull = stringResource(R.string.servers_list_players_full)
 
                             val onlineStatus = remember(ot) {
@@ -832,7 +782,6 @@ private fun ServerItem(
                                     val max = players.max
                                     val online = players.online
 
-                                    //在线玩家数小于0，则认为服务器未定义
                                     if (online < 0) {
                                         append(undefined)
                                     } else {
@@ -845,15 +794,14 @@ private fun ServerItem(
                                             append('/')
                                             append(players.max)
                                         } else {
-                                            //服务器未定义最大玩家数
-                                            //仅显示当前在线玩家数
+
                                             append(online)
                                         }
                                     }
                                 }
                                 "${players.online}/${players.max}"
                             }
-                            //在线人数信息
+
                             Row(
                                 modifier = alphaModifier,
                                 horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -897,7 +845,6 @@ private fun ServerItem(
                     }
                 }
 
-                //服务器ip地址
                 Text(
                     modifier = alphaModifier,
                     text = item.originIp,
@@ -907,7 +854,6 @@ private fun ServerItem(
 
             Row {
 
-                //快速启动
                 IconButton(
                     onClick = onPlay,
                 ) {
@@ -928,7 +874,6 @@ private fun ServerItem(
                         )
                     }
 
-                    //当前服务器是否正在加载中
                     val isLoading = ot is ServerData.Operation.Loading
 
                     DropdownMenu(
@@ -937,7 +882,7 @@ private fun ServerItem(
                         shadowElevation = 3.dp,
                         onDismissRequest = { expanded = false },
                     ) {
-                        //刷新服务器
+
                         DropdownMenuItem(
                             enabled = !isLoading,
                             text = { Text(text = stringResource(R.string.generic_refresh)) },
@@ -954,7 +899,6 @@ private fun ServerItem(
                             }
                         )
 
-                        //复制服务器ip
                         DropdownMenuItem(
                             text = { Text(text = stringResource(R.string.servers_list_copy_server_address)) },
                             leadingIcon = {
@@ -970,7 +914,6 @@ private fun ServerItem(
                             }
                         )
 
-                        //添加到主页卡片
                         val homeCards by ServerCardManager.cards.collectAsStateWithLifecycle()
                         val addedToHome = remember(homeCards, item.originIp) {
                             homeCards.any { it.record.cardId == item.originIp }
@@ -993,7 +936,6 @@ private fun ServerItem(
                             }
                         )
 
-                        //编辑服务器
                         DropdownMenuItem(
                             enabled = !isSavingServer,
                             text = { Text(text = stringResource(R.string.servers_list_edit_server)) },
@@ -1010,7 +952,6 @@ private fun ServerItem(
                             }
                         )
 
-                        //删除服务器
                         DropdownMenuItem(
                             enabled = !isSavingServer,
                             text = { Text(text = stringResource(R.string.servers_list_delete_server)) },
@@ -1033,9 +974,6 @@ private fun ServerItem(
     }
 }
 
-/**
- * 服务器信号动态绘制图标
- */
 @Composable
 fun ServerSignalIcon(
     modifier: Modifier = Modifier,
@@ -1092,7 +1030,7 @@ private fun ServerIcon(
     val imageRequest = remember(server, server.refreshUI, pxSize) {
         ImageRequest.Builder(context)
             .data(server.icon)
-            .size(pxSize) //固定大小
+            .size(pxSize)
             .crossfade(true)
             .build()
     }
@@ -1127,9 +1065,6 @@ private fun ServerIcon(
     }
 }
 
-/**
- * 服务器描述文本渲染，尝试模仿 Minecraft 原版对于 Component 文本组件的渲染
- */
 @Composable
 fun DescriptionTextRender(
     description: ServerDescription,
@@ -1170,9 +1105,6 @@ fun DescriptionTextRender(
     }
 }
 
-/**
- * 编辑服务器信息对话框
- */
 @Composable
 private fun ServerEditDialog(
     title: String,
@@ -1181,12 +1113,11 @@ private fun ServerEditDialog(
     name: String? = null,
     address: String = "",
 ) {
-    //默认的服务器名称，不填时使用它
+
     val defaultName = stringResource(R.string.servers_list_add_server_default_name)
     var name by remember { mutableStateOf(name?.takeIf { it.isNotEmpty() } ?: defaultName) }
     var ip by remember { mutableStateOf(address) }
 
-    //仅检查服务器地址栏是否为空
     val isIpEmpty = remember(ip) {
         ip.isEmptyOrBlank()
     }

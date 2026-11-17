@@ -4,29 +4,14 @@ import android.content.Context
 import android.content.Intent
 import com.cmc.launcher.filemanager.ui.FileManagerActivity
 
-/**
- * 文件管理器启动接口
- */
 object FileManagerLauncher {
-    /**
-     * “可访问范围目录”绝对路径
-     */
+
     const val EXTRA_ROOT_PATH = "fm.extra.ROOT_PATH"
-    /**
-     * “当前访问目录”，需位于“可访问范围目录”之下
-     */
+
     const val EXTRA_CURRENT_PATH = "fm.extra.CURRENT_PATH"
-    /**
-     * 日志根目录
-     */
+
     const val EXTRA_LOGS_DIR = "fm.extra.LOGS_DIR"
 
-    /**
-     * 启动文件管理器
-     * @param rootPath “可访问范围目录”绝对路径
-     * @param currentPath “当前访问目录”，非法时回退根目录
-     * @param logsDir 日志根目录
-     */
     fun launch(
         context: Context,
         rootPath: String,

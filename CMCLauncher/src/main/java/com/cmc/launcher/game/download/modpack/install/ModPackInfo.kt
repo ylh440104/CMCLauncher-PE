@@ -7,15 +7,6 @@ import com.cmc.launcher.game.addons.modloader.forgelike.forge.ForgeVersions
 import com.cmc.launcher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
 import com.cmc.launcher.game.download.game.GameDownloadInfo
 
-/**
- * 整合包信息
- * @param name 整合包名称
- * @param summary 整合包的简介（可用到版本描述上）
- * @param ram 整合包推荐分配的内存
- * @param files 整合包所有需要下载的模组
- * @param loaders 整合包需要安装的模组加载器
- * @param gameVersion 整合包需要的游戏版本
- */
 data class ModPackInfo(
     val name: String,
     val summary: String? = null,
@@ -25,10 +16,6 @@ data class ModPackInfo(
     val gameVersion: String
 )
 
-/**
- * 模组加载器解析匹配任务
- * @return 构建好的游戏下载安装信息
- */
 suspend fun ModPackInfo.retrieveLoaderTask(
     targetVersionName: String
 ): GameDownloadInfo {
@@ -37,7 +24,6 @@ suspend fun ModPackInfo.retrieveLoaderTask(
         customVersionName = targetVersionName
     )
 
-    //匹配目标加载器版本，获取详细版本信息
     loaders.forEach { pair ->
         pair.retrieveLoader(
             gameVersion = gameVersion,
@@ -51,11 +37,6 @@ suspend fun ModPackInfo.retrieveLoaderTask(
     return gameInfo
 }
 
-/**
- * 模组加载器解析匹配，并粘贴游戏下载信息
- * @param gameVersion 当前游戏版本
- * @param pasteGameInfo 将识别到的模组加载器版本贴回信息类
- */
 suspend fun Pair<ModLoader, String>.retrieveLoader(
     gameVersion: String,
     gameInfo: GameDownloadInfo,
@@ -92,7 +73,7 @@ suspend fun Pair<ModLoader, String>.retrieveLoader(
             }
         }
         else -> {
-            //不支持
+
         }
     }
 }

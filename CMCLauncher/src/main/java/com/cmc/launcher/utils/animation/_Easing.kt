@@ -4,16 +4,10 @@ import androidx.compose.animation.core.Easing
 import kotlin.math.cos
 import kotlin.math.pow
 
-/**
- * 平滑结束缓动
- */
 class EaseOutFluent(private val power: Int) : Easing {
     override fun transform(fraction: Float): Float = 1f - (1f - fraction).coerceIn(0f, 1f).pow(power)
 }
 
-/**
- * 回弹结束缓动
- */
 class EaseOutBack(power: Int) : Easing {
     private val exponent = 3f - power * 0.5f
 
@@ -23,13 +17,10 @@ class EaseOutBack(power: Int) : Easing {
     }
 }
 
-/**
- * 进场位移合成曲线
- */
 val EnterTranslateEasing = Easing { fraction ->
-    //进场位移第一段曲线
+
     val first = 5f * EaseOutFluent(3).transform((fraction * 350f / 250f).coerceAtMost(1f))
-    //进场位移第二段曲线
+
     val second = 11f * EaseOutBack(3).transform(fraction)
     (first + second) / 16f
 }

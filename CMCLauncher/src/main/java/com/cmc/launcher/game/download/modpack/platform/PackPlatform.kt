@@ -6,10 +6,6 @@ import androidx.compose.ui.res.painterResource
 import com.cmc.launcher.R
 import com.cmc.launcher.game.download.addon.platform.Platform
 
-/**
- * 启动器支持的整合包格式
- * @param identifier 内部使用的标识名称
- */
 enum class PackPlatform(val identifier: String) {
     CurseForge(Platform.CURSEFORGE.displayName) {
         @Composable
@@ -36,15 +32,9 @@ enum class PackPlatform(val identifier: String) {
         }
     };
 
-    /**
-     * 获取 UI 层使用的格式名称
-     */
     @Composable
     open fun getText(): String = this.identifier
 
-    /**
-     * 获取 UI 层使用的格式图标
-     */
     @Composable
     abstract fun getIcon(): Painter
 }

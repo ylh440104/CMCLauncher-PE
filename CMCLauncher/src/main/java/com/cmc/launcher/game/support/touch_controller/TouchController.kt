@@ -76,7 +76,7 @@ private data class TouchControllerInputModifier(
     }
 
     override fun InspectorInfo.inspectableProperties() {
-        // Show nothing in the inspector.
+
     }
 }
 
@@ -672,9 +672,6 @@ private class TouchControllerInputModifierNode(
     }
 }
 
-/**
- * 提供文本输入处理，为TouchController模组的控制代理提供信息
- */
 @Composable
 fun Modifier.touchControllerInputModifier(
     screenSize: IntSize,
@@ -682,9 +679,6 @@ fun Modifier.touchControllerInputModifier(
     onInputAreaRectUpdated: (IntRect?) -> Unit = {},
 ) = this then TouchControllerInputModifier(screenSize, onCursorRectUpdated, onInputAreaRectUpdated)
 
-/**
- * 单独捕获触摸事件，为TouchController模组的控制代理提供信息
- */
 @Composable
 fun Modifier.touchControllerTouchModifier(
     screenSize: IntSize,
@@ -699,7 +693,6 @@ fun Modifier.touchControllerTouchModifier(
             return Pair(normalizedX, normalizedY)
         }
 
-        //手势被取消或监听被销毁时不会有抬起事件，必须主动通知模组清除指针，否则模组侧指针会残留
         fun releaseAllPointers() {
             if (activePointers.isEmpty()) return
             proxyClient.value?.clearPointer()
@@ -712,7 +705,7 @@ fun Modifier.touchControllerTouchModifier(
                 val proxyClient = proxyClient.value
                 event.changes.fastForEach { change ->
                     if (change.changedToUpIgnoreConsumed()) {
-                        //抬起事件即使已被其他处理器消费，也必须发送释放，否则模组侧指针会残留
+
                         activePointers.remove(change.id)?.let { pointerId ->
                             proxyClient?.removePointer(pointerId)
                         }

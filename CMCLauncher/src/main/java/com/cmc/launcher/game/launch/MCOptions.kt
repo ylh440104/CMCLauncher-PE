@@ -22,12 +22,9 @@ object MCOptions {
     private lateinit var version: Version
 
     private val _refreshKey = MutableStateFlow(false)
-    /** options.txt 文件刷新 */
+
     val refreshKey = _refreshKey.asStateFlow()
 
-    /**
-     * 初始化 Minecraft 选项配置
-     */
     fun setup(context: Context, version: Version) {
         this.version = version
         synchronized(lock) {

@@ -14,15 +14,11 @@ import kotlinx.coroutines.flow.update
 
 class LaunchGameViewModel : ViewModel() {
     private val _launchFlow = MutableStateFlow<GameLaunchFlow?>(null)
-    /**
-     * 游戏启动流程
-     */
+
     val launchFlow = _launchFlow.asStateFlow()
 
     private val _launchGameOperation = MutableStateFlow<LaunchGameOperation>(LaunchGameOperation.None)
-    /**
-     * 启动游戏操作状态
-     */
+
     val launchGameOperation = _launchGameOperation.asStateFlow()
 
     fun start(
@@ -73,9 +69,6 @@ class LaunchGameViewModel : ViewModel() {
         _launchFlow.update { null }
     }
 
-    /**
-     * 尝试启动游戏
-     */
     fun tryLaunch(
         version: Version? = null
     ) {
@@ -88,10 +81,6 @@ class LaunchGameViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 快速启动（通过存档管理快速游玩存档）
-     * @param saveName 存档文件名称
-     */
     fun quickPlaySave(
         version: Version,
         saveName: String
@@ -106,19 +95,11 @@ class LaunchGameViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 尝试启动游戏快速游玩服务器
-     * @param address 服务器地址
-     */
     fun tryPlayServer(address: String) {
         val version = VersionsManager.currentVersion.value ?: return
         quickPlayServer(version, address)
     }
 
-    /**
-     * 通过服务器列表快速游玩服务器
-     * @param address 服务器地址
-     */
     fun quickPlayServer(
         version: Version,
         address: String

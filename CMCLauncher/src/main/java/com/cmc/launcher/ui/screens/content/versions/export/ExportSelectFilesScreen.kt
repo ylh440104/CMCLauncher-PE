@@ -49,10 +49,6 @@ import com.cmc.launcher.ui.screens.NestedNavKey
 import com.cmc.launcher.ui.screens.NormalNavKey
 import com.cmc.launcher.ui.screens.TitledNavKey
 
-/**
- * 选择要导出的文件
- * @param onFinish 完成文件选择
- */
 @Composable
 fun ExportSelectFilesScreen(
     allFiles: List<FileSelectionData>,
@@ -85,7 +81,7 @@ fun ExportSelectFilesScreen(
                 .animated(ctx),
             contentAlignment = Alignment.BottomEnd
         ) {
-            //文件选择区域
+
             FileSelectorList(
                 modifier = Modifier.fillMaxSize(),
                 list = allFiles,
@@ -131,7 +127,7 @@ private fun FileSelectorList(
     modifier: Modifier = Modifier
 ) {
     var refreshExpand by remember { mutableStateOf(false) }
-    //实际文件选择区域
+
     val visibleNodes = rememberVisibleNodes(list, refreshExpand)
 
     CompositionLocalProvider(
@@ -231,7 +227,7 @@ private fun FileNodeItem(
                             )
                         }
                     } else {
-                        //仅用于视觉上的对齐
+
                         Spacer(Modifier.size(48.dp))
                     }
 
@@ -254,7 +250,7 @@ private fun FileNodeItem(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //文件别名
+
                         data.alias?.let { alias ->
                             Text(
                                 modifier = Modifier.alpha(0.7f),
@@ -262,7 +258,7 @@ private fun FileNodeItem(
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
-                        //文件名
+
                         Text(
                             text = data.file.name,
                             style = MaterialTheme.typography.labelMedium

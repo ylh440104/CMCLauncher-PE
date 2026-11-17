@@ -38,9 +38,7 @@ class JVMHandler(
     launcher = jvmLauncher,
     onExit = onExit
 ) {
-    /**
-     * 日志展示状态
-     */
+
     private var logState by mutableStateOf(LogState.CLOSE)
 
     override suspend fun execute(

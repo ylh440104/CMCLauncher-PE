@@ -37,15 +37,9 @@ class MultiMCManifest(
         val version: String
     )
 
-    /**
-     * 尝试获取 Minecraft 版本
-     */
     fun getMinecraftVersion(): String? =
         components.find { it.uid == UID_MINECRAFT && it.isImportant }?.version
 
-    /**
-     * 匹配模组加载器与版本
-     */
     fun Component.retrieveLoader(): Pair<ModLoader, String>? {
         return when (uid) {
             UID_FORGE -> ModLoader.FORGE to version

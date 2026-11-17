@@ -91,23 +91,15 @@ import java.nio.channels.UnresolvedAddressException
 
 private const val TAG = "SelectGameVersion"
 
-/** 版本列表加载状态 */
 private sealed interface VersionState {
-    /** 加载中 */
+
     data object Loading : VersionState
-    /** 加载完成 */
+
     data class None(val versions: List<MinecraftVersion>) : VersionState
-    /** 加载出现异常 */
+
     data class Failure(val message: AndroidStringText) : VersionState
 }
 
-/**
- * 版本过滤条件
- * @param release 是否保留正式版本
- * @param snapshot 是否保留快照版本
- * @param old 是否保留旧版本
- * @param id 搜索并过滤版本ID
- */
 private data class VersionFilter(
     val release: Boolean = true,
     val snapshot: Boolean = false,
@@ -120,7 +112,6 @@ private class VersionsViewModel: ViewModel() {
     var versionState by mutableStateOf<VersionState>(VersionState.Loading)
         private set
 
-    //简易版本类型过滤器
     var versionFilter by mutableStateOf(VersionFilter())
         private set
 
@@ -159,7 +150,7 @@ private class VersionsViewModel: ViewModel() {
     }
 
     init {
-        //初始化后，刷新版本列表
+
         refresh()
     }
 
@@ -168,18 +159,14 @@ private class VersionsViewModel: ViewModel() {
     }
 }
 
-/**
- * 选择 Minecraft 版本屏幕的宿主信息，提供可见性判定所需的导航层级
- */
 sealed interface SelectGameVersionHost {
-    /** 下载游戏流程 */
+
     data class Download(
         val mainScreenKey: TitledNavKey?,
         val downloadScreenKey: TitledNavKey?,
         val downloadGameScreenKey: TitledNavKey?
     ) : SelectGameVersionHost
 
-    /** 版本设置流程（修改版本） */
     data class VersionSettings(
         val mainScreenKey: TitledNavKey?,
         val versionSettingsScreenKey: TitledNavKey?
@@ -312,9 +299,6 @@ private fun SelectGameVersionContent(
     }
 }
 
-/**
- * 简易过滤器，过滤特定类型的版本
- */
 private fun List<MinecraftVersion>.filterVersions(
     versionFilter: VersionFilter
 ) = this.filter { version ->
@@ -325,7 +309,7 @@ private fun List<MinecraftVersion>.filterVersions(
         old = versionFilter.old
     )
 }.filter { version ->
-    //Fix：单独过滤版本名称
+
     val versionId = versionFilter.id
     versionId.isEmptyOrBlank() || version.version.id.contains(versionId)
 }

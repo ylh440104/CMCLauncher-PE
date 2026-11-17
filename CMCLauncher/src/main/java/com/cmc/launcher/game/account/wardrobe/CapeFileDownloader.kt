@@ -3,9 +3,7 @@ package com.cmc.launcher.game.account.wardrobe
 import java.io.File
 
 class CapeFileDownloader: WardrobeDownloader() {
-    /**
-     * 尝试下载yggdrasil皮肤
-     */
+
     @Throws(Exception::class)
     suspend fun download(
         url: String,

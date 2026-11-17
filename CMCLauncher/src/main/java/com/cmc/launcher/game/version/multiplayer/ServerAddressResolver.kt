@@ -27,10 +27,6 @@ private fun InetSocketAddress.toData(): ResolvedServerAddress {
     )
 }
 
-/**
- * 尝试解析服务器地址
- * @return 解析后的服务器地址，如果为 null 则表示解析失败
- */
 suspend fun ServerAddress.resolve(): ResolvedServerAddress {
     return withContext(Dispatchers.IO) {
         fun ServerAddress.resolveInternal(): ResolvedServerAddress? {

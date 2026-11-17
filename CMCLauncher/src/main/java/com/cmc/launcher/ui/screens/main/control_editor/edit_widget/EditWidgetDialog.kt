@@ -61,15 +61,15 @@ import com.cmc.launcher.ui.theme.cardColor
 import com.cmc.launcher.ui.theme.onCardColor
 
 private enum class EditWidgetDialogState(val alpha: Float, val buttonText: Int) {
-    /** 完全不透明 */
+
     OPAQUE(1.0f, R.string.control_editor_edit_dialog_open_preview) {
         override fun nextByUser(): EditWidgetDialogState = SEMI_TRANSPARENT_USER
     },
-    /** 半透明 */
+
     SEMI_TRANSPARENT(0.3f, R.string.control_editor_edit_dialog_close_preview) {
         override fun nextByUser(): EditWidgetDialogState = OPAQUE
     },
-    /** 半透明（用户主动选择） */
+
     SEMI_TRANSPARENT_USER(0.3f, R.string.control_editor_edit_dialog_close_preview){
         override fun nextByUser(): EditWidgetDialogState = OPAQUE
     };
@@ -77,10 +77,6 @@ private enum class EditWidgetDialogState(val alpha: Float, val buttonText: Int) 
     abstract fun nextByUser(): EditWidgetDialogState
 }
 
-/**
- * 控件编辑对话框
- * **不再真正使用Dialog，真的会有性能问题！**
- */
 @Composable
 fun EditWidgetDialog(
     visible: Boolean,
@@ -113,7 +109,7 @@ fun EditWidgetDialog(
                 .alpha(alpha),
             contentAlignment = Alignment.Center
         ) {
-            //防止底下的控件被点击
+
             if (visible) {
                 Box(
                     modifier = Modifier
@@ -189,7 +185,7 @@ fun EditWidgetDialog(
                                 onEditJoystickEvents = onEditJoystickEvents,
                             )
                         }
-                        //底部操作栏
+
                         Row(
                             modifier = Modifier
                                 .padding(all = 8.dp)
@@ -206,7 +202,7 @@ fun EditWidgetDialog(
                                 }
                                 Spacer(Modifier.width(16.dp))
                             } else {
-                                //占位用，防止右侧按钮向左靠齐
+
                                 Spacer(Modifier)
                             }
 
@@ -311,7 +307,7 @@ private fun EditWidgetNavigation(
         NavDisplay(
             modifier = modifier,
             backStack = backStack,
-            onBack = { /* 忽略 */ },
+            onBack = {  },
             transitionSpec = rememberTransitionSpec(),
             popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {

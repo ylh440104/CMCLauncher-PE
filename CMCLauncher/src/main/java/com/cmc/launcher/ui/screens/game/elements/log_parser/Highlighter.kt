@@ -18,7 +18,7 @@ class LogHighlighter(
         return runCatching {
             highlightInternal(logText)
         }.getOrElse {
-            //一旦出现错误，需要使用默认颜色
+
             AnnotatedString(
                 text = logText,
                 spanStyles = listOf(
@@ -38,7 +38,7 @@ class LogHighlighter(
         var inStackTrace = false
 
         while (i < n) {
-            //Java 异常堆栈
+
             if (LogParseCore.isLineStart(logText, i) && LogParseCore.isStackTraceStart(logText, i)) {
                 inStackTrace = true
             }
@@ -49,7 +49,6 @@ class LogHighlighter(
                     append(logText.substring(i, lineEnd))
                 }
 
-                //判断是否退出堆栈
                 if (lineEnd < n && !LogParseCore.isStackTraceLine(logText, lineEnd)) {
                     inStackTrace = false
                 }
@@ -58,7 +57,6 @@ class LogHighlighter(
                 continue
             }
 
-            //字符串
             if (logText[i] == '"' || logText[i] == '\'') {
                 fun styleString(): Boolean {
                     val quote = logText[i]
@@ -75,7 +73,7 @@ class LogHighlighter(
                 }
 
                 if (logText[i] == '\'') {
-                    //单引号字符串开始前要求必须为空格
+
                     logText.getOrNull(i - 1)?.let { before ->
                         if (before == ' ' && styleString()) {
                             continue
@@ -86,7 +84,6 @@ class LogHighlighter(
                 }
             }
 
-            //网站链接
             val linkMatch = LogParseCore.matchWebLink(logText, i)
             if (linkMatch != null) {
                 withStyle(SpanStyle(color = linkColor)) {
@@ -96,7 +93,6 @@ class LogHighlighter(
                 continue
             }
 
-            //时间
             val timeMatch = LogParseCore.matchTime(logText, i)
             if (timeMatch != null) {
                 withStyle(SpanStyle(color = timeColor)) {
@@ -106,7 +102,6 @@ class LogHighlighter(
                 continue
             }
 
-            //日志等级
             if (LogParseCore.isLogLevel(logText, i)) {
                 val level = LogParseCore.matchLogLevel(logText, i)
                 if (level != null) {
@@ -124,7 +119,6 @@ class LogHighlighter(
                 }
             }
 
-            //数字
             if (logText[i].isDigit()) {
                 val segment = LogParseCore.scanNumericSegment(logText, i)
                 if (segment != null) {
@@ -140,7 +134,6 @@ class LogHighlighter(
                 }
             }
 
-            //包名
             val packageName = LogParseCore.scanPackageName(logText, i)
             if (packageName != null) {
                 withStyle(SpanStyle(color = packageColor)) {

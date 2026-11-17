@@ -16,19 +16,14 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAG = "ProcessLogTailer"
 
-/**
- * 增量轮询读取安装 JVM 进程的运行日志文件，将新增的完整日志行推送到 [TaskLogOutput]
- */
 class ProcessLogTailer(
     private val logFile: File,
     private val output: TaskLogOutput,
     private val pollInterval: Duration = DEFAULT_POLL_INTERVAL
 ) {
-    /**
-     * 在给定作用域内启动轮询，返回的 Job 由调用方负责取消
-     */
+
     fun launch(scope: CoroutineScope): Job = scope.launch(Dispatchers.IO) {
-        //从文件当前末尾开始增量读取，避免把上一次 JVM 运行残留的旧日志读入本次会话
+
         var offset = logFile.takeIf { it.exists() }?.length() ?: 0L
         var remainder = ByteArray(0)
 
@@ -37,7 +32,7 @@ class ProcessLogTailer(
             try {
                 if (!logFile.exists()) continue
                 val length = logFile.length()
-                //文件被截断（日志文件在 JRE 重试时会被重新创建覆盖），从头重读
+
                 if (length < offset) {
                     offset = 0
                     remainder = ByteArray(0)
@@ -62,10 +57,6 @@ class ProcessLogTailer(
         }
     }
 
-    /**
-     * 按字节层面最后一个换行符切分出完整日志行，不足一行的尾部字节留待下一轮拼接，
-     * 避免多字节 UTF-8 字符被截断产生乱码
-     */
     private fun splitCompleteLines(bytes: ByteArray): Pair<List<String>, ByteArray> {
         val lastNewline = bytes.lastIndexOf('\n'.code.toByte())
         if (lastNewline < 0) return emptyList<String>() to bytes
@@ -80,9 +71,9 @@ class ProcessLogTailer(
     }
 
     companion object {
-        /** 默认轮询间隔 */
+
         val DEFAULT_POLL_INTERVAL = 250.milliseconds
-        /** 未遇到换行符时允许缓存的字节数上限，超过后丢弃，防止无限增长 */
+
         private const val MAX_PENDING_BYTES = 1024 * 1024
     }
 }

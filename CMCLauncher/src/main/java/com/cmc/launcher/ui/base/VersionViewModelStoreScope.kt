@@ -14,11 +14,6 @@ import com.cmc.launcher.game.version.installed.Version
 import com.cmc.launcher.game.version.installed.VersionViewModelStores
 import com.cmc.launcher.game.version.installed.VersionsManager
 
-/**
- * 以版本作用域的 [ViewModelStore] 覆盖 [LocalViewModelStoreOwner]
- * 作用域内创建的 ViewModel 生命周期跟随 [version] 对象
- * 退出承载屏幕后保留，版本列表刷新、版本对象失效后销毁
- */
 @Composable
 fun VersionViewModelStoreScope(
     version: Version,

@@ -117,11 +117,10 @@ private fun GameBallContent(
             Spacer(Modifier.width(4.dp))
         }
 
-        //实际内容
         Column(
             modifier = Modifier
                 .wrapContentSize()
-                
+
                 .width(IntrinsicSize.Max)
         ) {
             CustomAnimatedVisibility(
@@ -129,12 +128,12 @@ private fun GameBallContent(
             ) {
                 Spacer(Modifier.height(4.dp))
             }
-            //帧率显示
+
             CustomAnimatedVisibility(
                 visible = showFps
             ) {
                 if (fpsDisplayMode == FpsDisplayMode.CHART) {
-                    //帧率图表
+
                     FpsChart(
                         modifier = Modifier.padding(end = 4.dp),
                         history = history,
@@ -154,7 +153,7 @@ private fun GameBallContent(
             ) {
                 Spacer(Modifier.height(4.dp))
             }
-            //内存显示
+
             CustomAnimatedVisibility(
                 visible = showMemory
             ) {

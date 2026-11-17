@@ -25,16 +25,10 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-/**
- * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/44aea3e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L626-L697)
- */
 object ForgeVersions {
     private const val TAG = "ForgeVersions"
     private const val FORGE_FILE_URL = "https://files.minecraftforge.net/maven/net/minecraftforge/forge"
 
-    /**
-     * 获取 Forge 版本列表
-     */
     suspend fun fetchForgeList(mcVersion: String): List<ForgeVersion>? = withContext(Dispatchers.Default) {
         if (isChinaMainland()) {
             runMirrorable(
@@ -47,9 +41,6 @@ object ForgeVersions {
         }
     }
 
-    /**
-     * 从官方源获取版本列表
-     */
     private fun officialSource(mcVersion: String): MirrorSource<List<ForgeVersion>?> = MirrorSource(
         type = SourceType.OFFICIAL
     ) {
@@ -99,12 +90,8 @@ object ForgeVersions {
         }
     }
 
-    /**
-     * 从镜像源获取版本列表
-     * [Reference PCL2](https://github.com/Meloong-Git/PCL/blob/28ef67e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L702-L751)
-     */
     private suspend fun fetchListWithBMCLAPI(mcVersion: String): List<ForgeVersion>? {
-        val url = "https://bmclapi2.bangbang93.com/forge/minecraft/${mcVersion.replace("-", "_")}" //兼容 Forge 1.7.10-pre4
+        val url = "https://bmclapi2.bangbang93.com/forge/minecraft/${mcVersion.replace("-", "_")}"
 
         return try {
             val tokens: List<ForgeVersionToken> = withContext(Dispatchers.IO) {
@@ -146,7 +133,6 @@ object ForgeVersions {
         }
     }
 
-    //选择首选文件
     private fun determinePreferredFile(files: List<ForgeVersionToken.ForgeFile>): Pair<String?, String> {
         var hash: String? = null
         var category = "unknown"
@@ -168,25 +154,22 @@ object ForgeVersions {
         return hash to category
     }
 
-    /**
-     * 获取 Forge 对应版本的下载链接
-     */
     fun getDownloadUrl(version: ForgeVersion) =
         "$FORGE_FILE_URL/${version.inherit}-${version.fileVersion}/forge-${version.inherit}-${version.fileVersion}-${version.category}.${version.fileExtension}"
 
     private fun parseVersionFromHtml(html: String, mcVersion: String): ForgeVersion? {
         return try {
             val name = Regex("""(?<=\D)\d+(\.\d+)+""").find(html)?.value ?: return null
-            //                      <i class="promo-latest  fa" aria-hidden="true"></i>     <i class="promo-recommended  fa" aria-hidden="true"></i>
-            val isRecommended = html.contains("promo-latest  fa" /* 最新推荐标签 */) || html.contains("promo-recommended  fa" /* 推荐标签 */)
+
+            val isRecommended = html.contains("promo-latest  fa" ) || html.contains("promo-recommended  fa" )
             val branch = Regex("""(?<=-$name-)[^-"]+(?=-[a-z]+\.[a-z]{3})""").find(html)?.value
             val timeStr = Regex("""(?<="download-time" title=")[^"]+""").find(html)?.value ?: return null
-            
+
             val dateTime = LocalDateTime.parse(timeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                 .atZone(ZoneId.of("UTC"))
                 .withZoneSameInstant(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"))
-            
+
             val (category, hash) = when {
                 html.contains("classifier-installer") -> parseInstaller(html)
                 html.contains("classifier-universal") -> parseUniversal(html)
@@ -209,21 +192,18 @@ object ForgeVersions {
         }
     }
 
-    //类型为 installer.jar，支持范围 ~753 (~ 1.6.1 部分), 738~684 (1.5.2 全部)
     private fun parseInstaller(html: String): Pair<String, String>? {
         val section = html.substringAfter("installer.jar")
         val hash = Regex("""(?<=MD5:</strong> )[^<]+""").find(section)?.value?.trim()
         return hash?.let { "installer" to it }
     }
 
-    //类型为 universal.zip，支持范围 751~449 (1.6.1 部分), 682~183 (1.5.1 ~ 1.3.2 部分)
     private fun parseUniversal(html: String): Pair<String, String>? {
         val section = html.substringAfter("universal.zip")
         val hash = Regex("""(?<=MD5:</strong> )[^<]+""").find(section)?.value?.trim()
         return hash?.let { "universal" to it }
     }
 
-    //类型为 client.zip，支持范围 182~ (1.3.2 部分 ~)
     private fun parseClient(html: String): Pair<String, String>? {
         val section = html.substringAfter("client.zip")
         val hash = Regex("""(?<=MD5:</strong> )[^<]+""").find(section)?.value?.trim()

@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.cmc.launcher.terracotta;
 
 import static com.cmc.launcher.notification._NotificationIDKt.NOTIFICATION_ID_VPN_REQUEST_CODE;
@@ -40,9 +22,6 @@ import net.burningtnt.terracotta.TerracottaAndroidAPI;
 
 import java.io.IOException;
 
-/**
- * [Modified from FCL](https://github.com/FCL-Team/FoldCraftLauncher/blob/5926006/FCL/src/main/java/com/tungsten/fcl/terracotta/TerracottaVPNService.java)
- */
 @SuppressLint("VpnServicePolicy")
 public class TerracottaVPNService extends VpnService {
 
@@ -94,8 +73,7 @@ public class TerracottaVPNService extends VpnService {
         }
 
         if (!isStopping) {
-            //经 startForegroundService 启动后必须及时进入前台，否则系统将抛出
-            //ForegroundServiceDidNotStartInTimeException 导致进程崩溃
+
             try {
                 startForeground0(buildVpnNotification());
             } catch (Exception e) {
@@ -110,7 +88,7 @@ public class TerracottaVPNService extends VpnService {
         }
 
         if (intent == null) {
-            //系统重建服务时不会重新下发联机请求，没有可建立的隧道
+
             stopSelf();
             return Service.START_NOT_STICKY;
         }
@@ -132,7 +110,7 @@ public class TerracottaVPNService extends VpnService {
         try {
             request = TerracottaAndroidAPI.getPendingVpnServiceRequest();
         } catch (IllegalStateException e) {
-            //原生侧已无挂起的联机请求（如等待授权超时），无需建立隧道
+
             stopSelf();
             return Service.START_NOT_STICKY;
         }
@@ -181,7 +159,7 @@ public class TerracottaVPNService extends VpnService {
         String contentText;
         Terracotta.Mode mode = Terracotta.INSTANCE.getMode();
         if (mode == null) {
-            //联机模式尚未确定，此时通知不展示身份信息
+
             contentText = getString(R.string.terracotta_notification_state_preparing);
         } else {
             String modeText = mode == Terracotta.Mode.Host ? getString(R.string.terracotta_player_kind_host) : getString(R.string.terracotta_player_kind_guest);

@@ -19,7 +19,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAG = "Fetcher"
 
-/** 响应的状态码、最终地址与响应头集合（键不区分大小写） */
 class ResponseInfo(
     val code: Int,
     val url: URL,
@@ -33,9 +32,7 @@ class ResponseInfo(
     fun headerAsLong(name: String): Long = header(name)?.trim()?.toLongOrNull() ?: -1L
 
     companion object {
-        /**
-         * 按索引枚举响应头
-         */
+
         fun of(code: Int, url: URL, connection: HttpURLConnection): ResponseInfo {
             val headers = LinkedHashMap<String, MutableList<String>>()
             var index = 0
@@ -52,7 +49,6 @@ class ResponseInfo(
     }
 }
 
-/** 响应体传输编码；不支持 broker 压缩（如 br），遇到即视为该次尝试失败 */
 enum class ContentEncoding {
     IDENTITY, GZIP;
 
@@ -71,17 +67,13 @@ enum class ContentEncoding {
     }
 }
 
-/**
- * Range 续传的资格上下文：只有 200 OK + accept-ranges: bytes + identity 编码 + 已知长度，
- * 且携带强 ETag 或 Last-Modified 的响应才具备续传资格。
- */
 class ResumeContext private constructor(
     private val url: URL,
     private val contentLength: Long,
     private val strongETag: String?,
     private val lastModified: String?
 ) {
-    /** 未压缩口径的已收字节，与 Content-Range 的起点语义对齐 */
+
     var countUncompressed = 0L
         private set
 
@@ -91,7 +83,6 @@ class ResumeContext private constructor(
 
     fun ifRange(): String = strongETag ?: lastModified!!
 
-    /** 206 响应是否与既有分段匹配：校验长度、验证器与 Content-Range 的逐字段一致性 */
     fun canResume(code: Int, response: ResponseInfo): Boolean {
         if (code != HttpURLConnection.HTTP_PARTIAL) return false
         if (ContentEncoding.fromHeaders(response) != ContentEncoding.IDENTITY) return false
@@ -142,27 +133,17 @@ class ResumeContext private constructor(
     }
 }
 
-/** 单个候选源重试耗尽后的失败包装 */
 class DownloadException(
     val url: String,
     cause: Throwable
 ) : IOException("Unable to download $url, ${cause.message}", cause)
 
-/** 下载内容的校验和与声明不符 */
 class ChecksumMismatchException(
     val algorithm: String,
     val expected: String,
     val actual: String
 ) : IOException("Checksum mismatch ($algorithm): expected=$expected, actual=$actual")
 
-/**
- * [Modified from HMCL FetchTask](https://github.com/HMCL-dev/HMCL/blob/59bcc7fe/HMCLCore/src/main/java/org/jackhuang/hmcl/task/FetchTask.java)
- *
- * 候选源顺序下载的核心实现：单源内至多重试 [DEFAULT_RETRY] 次（间隔 200ms），
- * 手动跟随重定向（上限 20 跳），Range 断点续传（强校验），连接与读取超时 10s；
- * 4xx 视为该源无货（不重试、立即换下一候选），写盘损坏从头重试且不消耗重试次数。
- * 失败重试中被丢弃的字节会从统计中回滚，[Fetcher.downloadFile] 的 onBytes 回调因此可能收到负增量。
- */
 object Fetcher {
     const val DEFAULT_RETRY = 5
 
@@ -171,13 +152,6 @@ object Fetcher {
     private const val RETRY_BACKOFF_MILLIS = 200L
     private const val BUFFER_SIZE = 32 * 1024
 
-    /**
-     * 按候选源顺序下载文件；全部候选耗尽后抛 [AllSourcesFailedException]，
-     * message 内含每个源，因果链保留最后一次失败。
-     *
-     * @param onBytes 落盘字节的带符号增量回调（未压缩口径）：失败重试丢弃的字节以负增量回滚，
-     * 全部增量的代数和等于最终落盘大小
-     */
     suspend fun downloadFile(
         urls: List<String>,
         targetFile: File,
@@ -213,23 +187,19 @@ object Fetcher {
         throw AllSourcesFailedException("All ${urls.size} candidate source(s) failed:\n$detail", last)
     }
 
-    /** 单个候选源的跨尝试状态：落盘上下文与续传资格在重试间延续 */
     private class CandidateState(
         private val onBytes: (Long) -> Unit
     ) {
         var sink: FileSink? = null
         var resume: ResumeContext? = null
 
-        /** 当前 sink 存续期间已上报统计的字节数 */
         private var countedBytes = 0L
 
-        /** 落盘字节增量上报，正负均可（负数为回滚） */
         fun reportBytes(delta: Long) {
             countedBytes += delta
             onBytes(delta)
         }
 
-        /** 丢弃落盘上下文：关闭并删除临时文件，并回滚该 sink 已计入统计的字节 */
         fun discardSink() {
             val current = sink
             if (current != null) {
@@ -242,7 +212,6 @@ object Fetcher {
             }
         }
 
-        /** 下载成功提交：已计入的字节随目标文件落地，此后不再回滚 */
         fun commitSink() {
             sink = null
             resume = null
@@ -275,7 +244,7 @@ object Fetcher {
                         attempt(url, targetFile, sha1, state)
                     }
                     if (result == AttemptResult.DONE) return
-                    //续传失效或 416：从头重来且不消耗重试次数
+
                     retryLimit++
                 } catch (e: CancellationException) {
                     throw e
@@ -299,7 +268,6 @@ object Fetcher {
         throw DownloadException(url.toString(), last)
     }
 
-    /** 一次完整尝试：手动跟随重定向、处理续传握手、流式落盘并提交。阻塞执行，取消依赖线程中断 */
     private fun attempt(
         url: URL,
         targetFile: File,
@@ -351,8 +319,8 @@ object Fetcher {
 
         val code = response.code
 
-        if (resumeRequested && code == 416 /* HTTP_RANGE_NOT_SATISFIABLE */) {
-            //已有分段不再可用：丢弃续传上下文，从头下载
+        if (resumeRequested && code == 416 ) {
+
             state.resume = null
             state.discardSink()
             return AttemptResult.RESTART_FREE
@@ -370,7 +338,7 @@ object Fetcher {
             if (state.resume!!.canResume(code, response)) {
                 Logger.info(TAG, "Resuming $url from ${state.resume!!.countUncompressed}")
             } else {
-                //服务器没能按段续传：丢弃已有内容，从头开始
+
                 state.resume = null
                 state.discardSink()
                 return AttemptResult.RESTART_FREE
@@ -390,7 +358,7 @@ object Fetcher {
             bodyConsumed = true
         } catch (e: Throwable) {
             if (state.sink?.broken == true) {
-                //写盘失败（磁盘错误等）：整个上下文作废，重试从零开始
+
                 state.resume = null
                 state.discardSink()
             }
@@ -433,7 +401,6 @@ object Fetcher {
             }
             if (Thread.currentThread().isInterrupted) throw InterruptedIOException("Cancelled")
 
-            //gzip 响应的 content-length 是压缩口径，与落盘字节数不可比，截断由 GZIPInputStream 的尾部校验兜底
             if (contentEncoding == ContentEncoding.IDENTITY && contentLength >= 0 && written != contentLength) {
                 throw IOException("Unexpected file size: $written, expected: $contentLength")
             }

@@ -19,17 +19,8 @@ private const val TAG = "GamepadRemapper"
 private const val AXIS_TO_KEY_ACTIVATION_THRESHOLD = 0.6f
 private const val AXIS_TO_KEY_RESET_THRESHOLD = 0.4f
 
-/**
- * 当前重映射版本号
- */
 private const val REMAPPER_VERSION = 2
 
-/**
- * 手柄事件重映射信息保存类
- * @param motionMapping [MotionEvent]类事件映射
- * @param keyMapping [KeyEvent]类事件映射
- * @param version 当前映射信息版本号，会根据本地版本号进行比较
- */
 @Parcelize
 data class GamepadRemapper(
     val motionMapping: Map<Int, Int>,
@@ -50,21 +41,10 @@ data class GamepadRemapper(
     @IgnoredOnParcel private val currentKeyValues = SparseArray<Float>()
     @IgnoredOnParcel private val currentMotionValues = SparseArray<Float>()
 
-    /**
-     * 比较重映射版本号
-     * @return 是否过旧
-     */
     fun isOldVersion(): Boolean {
         return version < REMAPPER_VERSION
     }
 
-    /**
-     * 如果事件是有效的手柄事件，则调用 [GamepadViewModel] 发送事件
-     * 注意：如果值没有变化，处理器不会被调用
-     *
-     * @param event 当前的 MotionEvent
-     * @return 输入是否被处理
-     */
     fun handleMotionEventInput(event: MotionEvent, gamepadViewModel: GamepadViewModel): Boolean {
         if (!event.isJoystickMoving()) return false
 
@@ -78,12 +58,6 @@ data class GamepadRemapper(
         return true
     }
 
-    /**
-     * 如果事件是有效的手柄按键事件，则调用 [GamepadViewModel] 发送事件
-     *
-     * @param event 当前的 KeyEvent
-     * @return 输入是否被处理
-     */
     fun handleKeyEventInput(
         event: KeyEvent,
         gamepadViewModel: GamepadViewModel
@@ -121,7 +95,7 @@ data class GamepadRemapper(
             x = 0f
             y = 0f
         } else {
-            //对死区进行补偿
+
             x = ((x / magnitude) * ((magnitude - deadzone) / (1 - deadzone))).toFloat()
             y = ((y / magnitude) * ((magnitude - deadzone) / (1 - deadzone))).toFloat()
         }
@@ -142,9 +116,6 @@ data class GamepadRemapper(
         }
     }
 
-    /**
-     * 获取两个坐标点 (0,0) 与 (|x|,|y|) 之间的距离（即向量的模）
-     */
     private fun getMagnitude(x: Float, y: Float): Double {
         val dx = abs(x)
         val dy = abs(y)
@@ -173,9 +144,7 @@ data class GamepadRemapper(
         return if (supportedAxis.any { it == mappedSource }) {
             motionEvent.getAxisValue(mappedSource)
         } else {
-            // 否则，将其转换为按键事件
-            // 假设只有一个按钮被映射到最终值
-            // 因为事件被转换回“KeyEvent”，所以取值为 0 或 1
+
             val isEnabled = (currentMotionValues[originalSource] ?: 0.0f) == 1.0f
             val absoluteValue = abs(motionEvent.getAxisValue(mappedSource))
 
@@ -187,10 +156,6 @@ data class GamepadRemapper(
         }
     }
 
-    /**
-     * 将按键码（keycode）转换为对应的轴（axis）
-     * 这是因为某些轴和方向键（DPAD）的按键码在功能上是相同的
-     */
     private fun transformKeyEventInput(keycode: Int): Int {
         return when (keycode) {
             KeyEvent.KEYCODE_BUTTON_L2 -> MotionEvent.AXIS_LTRIGGER
@@ -207,7 +172,7 @@ data class GamepadRemapper(
     }
 
     private fun getRemappedValue(mappedSource: Int, keyEvent: KeyEvent): Float? {
-        //DPAD 和触发器特殊处理，永远映射为null
+
         val isDpad = (mappedSource == MotionEvent.AXIS_HAT_Y && keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_UP) ||
                 (mappedSource == MotionEvent.AXIS_HAT_X && keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
         val isTrigger = (mappedSource == MotionEvent.AXIS_LTRIGGER || keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_L2) ||

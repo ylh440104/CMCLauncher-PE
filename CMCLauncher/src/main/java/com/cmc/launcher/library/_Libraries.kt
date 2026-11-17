@@ -2,16 +2,8 @@ package com.cmc.launcher.library
 
 import com.cmc.launcher.R
 
-/**
- * Android Open Source Project
- * @see <a href="https://developer.android.com/topic/libraries/support-library">Android Open Source Project</a>
- */
 private const val COPYRIGHT_AOSP = "Copyright © The Android Open Source Project"
 
-/**
- * Ktor
- * @see <a href="https://ktor.io">Ktor</a>
- */
 private const val COPYRIGHT_KTOR = "Copyright © 2000-2023 JetBrains s.r.o."
 
 private const val LICENSE_MIT = "MIT License"

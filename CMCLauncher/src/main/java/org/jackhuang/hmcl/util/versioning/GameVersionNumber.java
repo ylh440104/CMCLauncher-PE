@@ -1,20 +1,3 @@
-/*
- * Hello Minecraft! Launcher
- * Copyright (C) 2024 huangyuhui <huanghongxun2008@126.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package org.jackhuang.hmcl.util.versioning;
 
 import com.cmc.launcher.utils.logging.Logger;
@@ -37,9 +20,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author Glavo
- */
 public abstract sealed class GameVersionNumber implements Comparable<GameVersionNumber> {
 
     public static String[] getDefaultGameVersions() {
@@ -123,14 +103,12 @@ public abstract sealed class GameVersionNumber implements Comparable<GameVersion
         return false;
     }
 
-    //Zalith Launcher 2 added
     public boolean isRelease() {
         if (this instanceof Release release) {
             return release.getEaType() == Release.ReleaseType.GA;
         }
         return false;
     }
-    //Zalith Launcher 2 ended
 
     enum Type {
         PRE_CLASSIC, CLASSIC, INDEV, INFDEV, ALPHA, BETA, NEW
@@ -152,24 +130,10 @@ public abstract sealed class GameVersionNumber implements Comparable<GameVersion
         return compareToImpl(other);
     }
 
-    /// @see #isAtLeast(String, String, boolean)
     public boolean isAtLeast(@NotNull String releaseVersion, @NotNull String snapshotVersion) {
         return isAtLeast(releaseVersion, snapshotVersion, false);
     }
 
-    /// When comparing between Release Version and Snapshot Version, it is necessary to load `/assets/game/versions.txt` and perform a lookup, which is less efficient.
-    /// Therefore, when checking whether a version contains a certain feature, you should use this method and provide both the first release version and the exact snapshot version that introduced the feature,
-    /// so that the comparison can be performed quickly without a lookup.
-    ///
-    /// For example, the datapack feature was introduced in Minecraft 1.13, and more specifically in snapshot `17w43a`.
-    /// So you can test whether a game version supports datapacks like this:
-    ///
-    /// ```java
-    /// GameVersionNumber.asVersion("...").isAtLeast("1.13", "17w43a");
-    ///```
-    ///
-    /// @param strictReleaseVersion When `strictReleaseVersion` is `false`, `releaseVersion` is considered less than
-    ///                             its corresponding pre/rc versions.
     public boolean isAtLeast(@NotNull String releaseVersion, @NotNull String snapshotVersion, boolean strictReleaseVersion) {
         if (this instanceof Release self) {
             Release other;
@@ -410,7 +374,7 @@ public abstract sealed class GameVersionNumber implements Comparable<GameVersion
                 releaseType = ReleaseType.PRE_RELEASE;
                 eaVersion = VersionNumber.asVersion(suffix.substring(" Pre-Release ".length()));
             } else if (suffix.startsWith(" Pre-release ")) {
-                // https://github.com/HMCL-dev/HMCL/issues/5476
+
                 needNormalize = true;
                 releaseType = ReleaseType.PRE_RELEASE;
                 eaVersion = VersionNumber.asVersion(suffix.substring(" Pre-release ".length()));
@@ -451,10 +415,6 @@ public abstract sealed class GameVersionNumber implements Comparable<GameVersion
             return new Release(value, normalized, major, minor, patch, releaseType, eaVersion, additional);
         }
 
-        /// Quickly parses a simple format (`[1-9][0-9]+\.[0-9]+(\.[0-9]+)?`) release version.
-        /// The returned [#eaType] will be set to [ReleaseType#UNKNOWN], meaning it will be less than all pre/rc and official versions of this version.
-        ///
-        /// @see GameVersionNumber#isAtLeast(String, String)
         static Release parseSimple(String value) {
             int majorLength = getNumberLength(value, 0);
             if (majorLength == 0 || value.length() < majorLength + 2 || value.charAt(majorLength) != '.')
@@ -633,7 +593,6 @@ public abstract sealed class GameVersionNumber implements Comparable<GameVersion
         }
     }
 
-    /// Legacy snapshot version numbers like `25w46a`.
     public static final class LegacySnapshot extends GameVersionNumber {
         static LegacySnapshot parse(String value) {
             if (value.length() < 6 || value.charAt(2) != 'w')
@@ -854,7 +813,6 @@ public abstract sealed class GameVersionNumber implements Comparable<GameVersion
             List<LegacySnapshot> snapshots = new ArrayList<>(1024);
             List<Release> snapshotPrev = new ArrayList<>(1024);
 
-            //noinspection DataFlowIssue
             try (var reader = new BufferedReader(new InputStreamReader(GameVersionNumber.class.getResourceAsStream("/assets/game/versions.txt"), StandardCharsets.US_ASCII))) {
                 Release currentRelease = null;
                 GameVersionNumber prev = null;
@@ -890,7 +848,6 @@ public abstract sealed class GameVersionNumber implements Comparable<GameVersion
                 throw new AssertionError(e);
             }
 
-            //noinspection DataFlowIssue
             try (var reader = new BufferedReader(new InputStreamReader(GameVersionNumber.class.getResourceAsStream("/assets/game/version-alias.csv"), StandardCharsets.US_ASCII))) {
                 for (String line; (line = reader.readLine()) != null; ) {
                     if (line.isEmpty())

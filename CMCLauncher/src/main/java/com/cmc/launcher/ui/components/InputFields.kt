@@ -331,10 +331,6 @@ fun OwnOutlinedTextField(
     )
 }
 
-/**
- * 有范围约束的整数输入框，仅允许输入数字
- * 输入为空或非法时不提交
- */
 @Composable
 fun IntInputField(
     value: Int,

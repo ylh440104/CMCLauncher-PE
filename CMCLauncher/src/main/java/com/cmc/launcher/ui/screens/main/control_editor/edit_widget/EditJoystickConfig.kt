@@ -44,7 +44,6 @@ fun EditJoystickConfig(
         ) {
             Spacer(Modifier)
 
-            // 死区比例
             InfoLayoutSliderItem(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.control_editor_edit_joystick_dead_zone),
@@ -55,7 +54,6 @@ fun EditJoystickConfig(
                 fineTuningStep = 0.1f,
             )
 
-            // 操控方式
             InfoLayoutListItem(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.control_editor_edit_joystick_trigger_mode),
@@ -67,7 +65,6 @@ fun EditJoystickConfig(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // 前进锁
             InfoLayoutSwitchItem(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.control_editor_edit_joystick_can_lock),
@@ -75,7 +72,6 @@ fun EditJoystickConfig(
                 onValueChange = { data.canLock = it }
             )
 
-            // 锁定阈值
             if (data.canLock) {
                 InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),

@@ -19,9 +19,6 @@ import java.io.File
 
 const val OPTIFINE_DOWNLOAD_ID = "Download.OptiFine"
 
-/**
- * OptiFine installer 的临时下载路径
- */
 fun targetTempOptiFineInstaller(tempGameDir: File): File {
     return File(tempGameDir, ".temp/OptiFine.jar")
 }
@@ -75,7 +72,6 @@ fun getOptiFineModsDownloadTask(
             ))
             val optifineUrl = getOFUrlMirrorable(optifine)
 
-            //开始下载为 Mod
             task.updateProgress(-1f)
             task.updateMessage(androidText(
                 R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, optifine.realVersion
@@ -113,9 +109,6 @@ private suspend fun getOFUrlMirrorable(
     }
 }
 
-/**
- * 从官方源获取 OptiFine 主文件下载链接
- */
 private fun fetchOfficialOptiFineUrlSource(optifine: OptiFineVersion): MirrorSource<String> =
     MirrorSource(SourceType.OFFICIAL) { fetchOptiFineDownloadUrl(optifine) }
 

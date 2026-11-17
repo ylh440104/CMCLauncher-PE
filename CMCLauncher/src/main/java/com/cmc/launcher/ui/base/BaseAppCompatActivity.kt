@@ -29,9 +29,6 @@ open class BaseAppCompatActivity : FullScreenAppCompatActivity() {
         refreshTaskDescription()
     }
 
-    /**
-     * @return 该 Activity 在最近任务中显示的标题
-     */
     protected open fun getTaskDescriptionTitle(): String? = null
 
     @Suppress("DEPRECATION")
@@ -47,7 +44,7 @@ open class BaseAppCompatActivity : FullScreenAppCompatActivity() {
     }
 
     private fun checkStoragePermissions() {
-        //检查所有文件管理权限
+
         checkStoragePermissionsForInit(this)
     }
 

@@ -39,30 +39,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.StateFlow
 
-/** 账号凭据已被服务端拒绝 */
 private class LaunchReloginRequired(
     val account: Account
 ) : RuntimeException()
 
-/** 账号校验或刷新失败时抛出 */
 private class LaunchCheckFailed(
     val account: Account,
     cause: Throwable
 ) : RuntimeException(cause)
 
-
-/**
- * 游戏启动器
- */
 class GameLaunchFlow(scope: CoroutineScope) {
     private val taskExecutor = TaskFlowExecutor(scope)
     val tasksFlow: StateFlow<List<TitledTask>> = taskExecutor.tasksFlow
 
-    /**
-     * 启动游戏
-     * @param version 指定版本
-     * @param skipAccountRefresh 跳过启动前的账号校验，直接使用现有凭据
-     */
     fun launch(
         context: Context,
         version: Version,
@@ -75,7 +64,7 @@ class GameLaunchFlow(scope: CoroutineScope) {
         onError: (ErrorViewModel.ThrowableMessage) -> Unit,
     ) {
         if (taskExecutor.isRunning()) {
-            //正在启动中，阻止这次启动请求
+
             isRunning()
             return
         }
@@ -120,9 +109,6 @@ class GameLaunchFlow(scope: CoroutineScope) {
         )
     }
 
-    /**
-     * 取消当前的启动流程
-     */
     fun cancel() {
         taskExecutor.cancel()
     }
@@ -135,8 +121,7 @@ class GameLaunchFlow(scope: CoroutineScope) {
         exitActivity: () -> Unit,
         onError: (ErrorViewModel.ThrowableMessage) -> Unit
     ): TaskFlowExecutor.TaskPhase {
-        //检查是否联网，根据这个条件决定是否校验账号
-        //以及，没有联网时，让微软账号、外置账号作为离线账号登录
+
         val hasNetwork = isNetworkAvailable(context)
         if (!hasNetwork && !account.isLocalAccount()) {
             version.offlineAccountLogin = true
@@ -146,7 +131,7 @@ class GameLaunchFlow(scope: CoroutineScope) {
             var launchManifest: GameManifest? = null
 
             if (hasNetwork && !skipAccountRefresh && AccountsManager.isLaunchCheckNeeded(account)) {
-                //账号管理页正在刷新该账号时，直接使用现有凭据启动
+
                 addTask(
                     icon = R.drawable.ic_login,
                     title = androidText(R.string.account_logging_in, account.username),
@@ -169,7 +154,6 @@ class GameLaunchFlow(scope: CoroutineScope) {
                 }
             }
 
-            //扫描模组列表，开启对应功能
             addTask(
                 icon = R.drawable.ic_extension_outlined,
                 title = androidText(R.string.launch_check_mods),
@@ -184,7 +168,6 @@ class GameLaunchFlow(scope: CoroutineScope) {
                 launchManifest = manifest
                 version.launchManifest = manifestString
 
-                // 如果打了补丁，此处需要重新检索一下依赖库并下载
                 patchedManifest?.let {
                     val libDownloader = GameLibDownloader(
                         downloader = BaseMinecraftDownloader(version.getGameHome()),
@@ -196,7 +179,7 @@ class GameLaunchFlow(scope: CoroutineScope) {
             }
 
             if (!version.skipGameIntegrityCheck()) {
-                //校验并修复游戏文件
+
                 addTask(
                     icon = R.drawable.ic_assignment_filled,
                     title = androidText(R.string.minecraft_download_stat_verify_task),
@@ -208,7 +191,6 @@ class GameLaunchFlow(scope: CoroutineScope) {
                 )
             }
 
-            //启动游戏
             addTask(
                 icon = R.drawable.ic_rocket_launch_filled,
                 title = androidText(R.string.main_launch_game)
@@ -227,9 +209,6 @@ class GameLaunchFlow(scope: CoroutineScope) {
         }
     }
 
-    /**
-     * 微软账号：向服务端校验缓存的凭据，被拒绝或已临近过期时静默刷新
-     */
     private suspend fun checkMicrosoftAccount(task: Task, account: Account) {
         val expired = System.currentTimeMillis() > account.expiresAt - 5 * 60 * 1000
         if (expired || !validateAccessToken(account)) {
@@ -237,9 +216,6 @@ class GameLaunchFlow(scope: CoroutineScope) {
         }
     }
 
-    /**
-     * 外置账号：依次尝试 validate 与 refresh，均被服务端拒绝时再用账号密码重新登录
-     */
     private suspend fun checkOtherAccount(task: Task, context: Context, account: Account) {
         task.updateMessage(androidText(R.string.account_logging_in, account.username))
         val helper = AuthServerHelper(
@@ -275,10 +251,6 @@ class GameLaunchFlow(scope: CoroutineScope) {
         ).getDownloadTask()
     }
 
-    /**
-     * 扫描模组列表并开启对应功能
-     * @return 经过补丁的游戏清单，为 null 则表示没什么补丁
-     */
     private suspend fun checkMods(version: Version): GameManifest? {
         val modsDir = VersionFolders.MOD.getDir(version.getGameDir())
         val mods = AllModReader(modsDir).readAllLocals()

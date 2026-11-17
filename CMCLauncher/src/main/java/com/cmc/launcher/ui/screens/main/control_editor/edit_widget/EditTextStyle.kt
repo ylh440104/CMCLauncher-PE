@@ -108,7 +108,7 @@ private fun LazyListScope.commonStyles(
     textUnderline: Boolean,
     onTextUnderlineChanged: (Boolean) -> Unit
 ) {
-    //编辑文本
+
     item(key = "edit_text") {
         InfoLayoutTextItem(
             title = stringResource(R.string.control_editor_edit_text),
@@ -118,7 +118,6 @@ private fun LazyListScope.commonStyles(
         )
     }
 
-    //文本对齐
     item(key = "text_alignment") {
         InfoLayoutSelectItem(
             title = stringResource(R.string.control_editor_edit_text_alignment),
@@ -143,7 +142,6 @@ private fun LazyListScope.commonStyles(
         )
     }
 
-    //启用粗体
     item(key = "bold") {
         InfoLayoutSwitchItem(
             title = stringResource(R.string.control_editor_edit_text_bold),
@@ -152,7 +150,6 @@ private fun LazyListScope.commonStyles(
         )
     }
 
-    //启用斜体
     item(key = "italic") {
         InfoLayoutSwitchItem(
             title = stringResource(R.string.control_editor_edit_text_italic),
@@ -161,7 +158,6 @@ private fun LazyListScope.commonStyles(
         )
     }
 
-    //启用下划线
     item (key = "underline") {
         InfoLayoutSwitchItem(
             title = stringResource(R.string.control_editor_edit_text_underline),

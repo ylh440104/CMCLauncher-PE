@@ -77,27 +77,27 @@ import java.util.concurrent.TimeoutException
 
 sealed interface ModsOperation {
     data object None : ModsOperation
-    /** 执行任务中 */
+
     data object Progress : ModsOperation
-    /** 删除模组对话框 */
+
     data class Delete(val mod: LocalMod) : ModsOperation
 }
 
 sealed interface ModsUpdateOperation {
     data object None : ModsUpdateOperation
-    /** 警告用户更新模组的注意事项 */
+
     data class Warning(val mods: List<RemoteMod>) : ModsUpdateOperation
-    /** 开始更新模组 */
+
     data object Update : ModsUpdateOperation
-    /** 更新模组时出现异常 */
+
     data class Error(val th: Throwable) : ModsUpdateOperation
-    /** 更新模组成功 */
+
     data object Success : ModsUpdateOperation
 }
 
 sealed interface ModsConfirmOperation {
     data object None : ModsConfirmOperation
-    /** 等待用户确认模组更新的信息 */
+
     data class WaitingConfirm(val list: List<SelectableModManifest>) : ModsConfirmOperation
 }
 
@@ -140,7 +140,7 @@ fun ModsUpdateOperation(
     when (operation) {
         is ModsUpdateOperation.None -> {}
         is ModsUpdateOperation.Warning -> {
-            //警告更新模组可能带来问题
+
             SimpleAlertDialog(
                 title = stringResource(R.string.generic_warning),
                 text = {
@@ -161,7 +161,7 @@ fun ModsUpdateOperation(
             if (modsUpdater != null) {
                 val tasks = modsUpdater.tasksFlow.collectAsStateWithLifecycle()
                 if (tasks.value.isNotEmpty()) {
-                    //更新模组流程对话框
+
                     TitleTaskFlowDialog(
                         title = stringResource(R.string.mods_update),
                         tasks = tasks.value,
@@ -249,9 +249,6 @@ fun ModsConfirmOperation(
     }
 }
 
-/**
- * 模组更新：展示需要更新的模组的详细信息
- */
 @Composable
 private fun ModsUpdateListDialog(
     manifests: List<SelectableModManifest>,
@@ -334,10 +331,6 @@ private fun ModsUpdateListDialog(
     }
 }
 
-/**
- * 模组更新：单个模组更新详情展示
- * 展示旧版本与新版本对比
- */
 @Composable
 private fun ModsUpdateEntryItem(
     entry: SelectableModManifest,
@@ -387,15 +380,15 @@ private fun ModsUpdateEntryItem(
                         text = displayTitle,
                         style = MaterialTheme.typography.titleSmall,
                     )
-                    //旧版本
+
                     MarqueeText(
                         modifier = Modifier.fillMaxWidth(),
-                        text = data.currentVersion ?: "???", //未知
+                        text = data.currentVersion ?: "???",
                         style = MaterialTheme.typography.labelSmall.copy(
                             textDecoration = TextDecoration.LineThrough
                         )
                     )
-                    //新版本
+
                     MarqueeText(
                         modifier = Modifier.fillMaxWidth(),
                         text = newVersion.platformVersion(),
@@ -420,9 +413,6 @@ enum class ModStateFilter(val textRes: Int) {
     Disabled(R.string.generic_disabled)
 }
 
-/**
- * 根据名称，筛选模组
- */
 fun List<RemoteMod>.filterMods(
     nameFilter: String,
     stateFilter: ModStateFilter = All,

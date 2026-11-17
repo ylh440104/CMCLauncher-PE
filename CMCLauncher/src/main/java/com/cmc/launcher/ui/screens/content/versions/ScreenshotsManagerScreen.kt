@@ -117,9 +117,6 @@ import javax.inject.Inject
 
 private const val TAG = "ScreenshotsManager"
 
-/**
- * 游戏内截图信息
- */
 data class ScreenshotInfo(
     val file: File,
     val name: String = file.nameWithoutExtension,
@@ -160,9 +157,6 @@ class ScreenshotsManageViewModel @Inject constructor(
     var deleteAllOperation by mutableStateOf<DeleteAllOperation>(DeleteAllOperation.None)
     var exportOperation by mutableStateOf<ExportOperation>(ExportOperation.None)
 
-    /**
-     * 初始化截图文件夹
-     */
     fun initDirectory(dir: File) {
         if (screenshotDir != dir) {
             screenshotDir = dir
@@ -170,27 +164,18 @@ class ScreenshotsManageViewModel @Inject constructor(
         }
     }
 
-    /**
-     * 全选当前已过滤的结果
-     */
     fun selectAllFiles() {
         filteredScreenshots?.forEach { shot ->
             if (!selectedShots.contains(shot)) selectedShots.add(shot)
         }
     }
 
-    /**
-     * 取消选择当前已过滤的结果
-     */
     fun clearSelected() {
         filteredScreenshots?.let {
             selectedShots.removeAll(it)
         }
     }
 
-    /**
-     * 发起删除选择的截图的请求，先警告用户
-     */
     fun requestDeleteSelected() {
         if (deleteAllOperation == DeleteAllOperation.None && selectedShots.isNotEmpty()) {
             deleteAllOperation = DeleteAllOperation.Warning(selectedShots.map { it.file })
@@ -254,9 +239,6 @@ class ScreenshotsManageViewModel @Inject constructor(
         }
     }
 
-    /**
-     * 将单个截图导出到公共目录，如果已存在，则覆盖目标截图
-     */
     private fun exportSingleImage(
         resolver: ContentResolver,
         file: File
@@ -264,7 +246,6 @@ class ScreenshotsManageViewModel @Inject constructor(
         val fileName = file.name
         val relativePath = Environment.DIRECTORY_PICTURES + "/" + BuildKeys.LAUNCHER_IDENTIFIER + "/"
 
-        //如果是已存在的文件，则Uri不为null
         val existingUri = queryExistingUri(resolver, fileName, relativePath)
         val isNewFile = (existingUri == null)
 
@@ -296,7 +277,7 @@ class ScreenshotsManageViewModel @Inject constructor(
                 }
             } ?: throw IOException("Failed to open output stream for $fileName")
         } catch (e: Exception) {
-            //写入失败时清理 pending 状态
+
             if (isNewFile && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 resolver.delete(uri, null, null)
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -424,7 +405,7 @@ fun ScreenshotsManagerScreen(
         )
 
         LaunchedEffect(screenshotDir) {
-            //初始化截图文件夹
+
             viewModel.initDirectory(screenshotDir)
         }
 
@@ -504,7 +485,6 @@ fun ScreenshotsManagerScreen(
                                 )
                             }
 
-                            //导出图片悬浮按钮
                             if (viewModel.allScreenshots.isNotEmpty()) {
                                 FloatingActionButton(
                                     onClick = {
@@ -722,7 +702,7 @@ private fun ScreenshotGrid(
                         },
                         onOpen = {
                             try {
-                                // 唤起系统看图软件打开该图片
+
                                 val uri = FileProvider.getUriForFile(
                                     context,
                                     "${context.packageName}.provider",

@@ -39,21 +39,15 @@ private const val TAG = "Install.OptiFine"
 
 const val OPTIFINE_INSTALL_ID = "Install.OptiFine"
 
-/** LaunchWrapper 主类，OptiFine 以 Tweaker 方式通过它加载 */
 const val LAUNCH_WRAPPER_MAIN = "net.minecraft.launchwrapper.Launch"
 
 const val OPTIFINE_TWEAKER = "optifine.OptiFineTweaker"
 const val OPTIFINE_FORGE_TWEAKER = "optifine.OptiFineForgeTweaker"
 
-/** HMCL TransformerDiscoveryService，供 Forge 1.13 ~ 1.16 的 ModLauncher 发现并加载 OptiFine */
 const val TRANSFORMER_DISCOVERY_SERVICE_LIB = "org.jackhuang.hmcl:transformer-discovery-service:1.0"
 
-/** 与 Forge 1.17 原生兼容的最低 OptiFine 构建号（H1 Pre2） */
 private const val FORGE_17_MIN_BUILD = "20210924-190833"
 
-/**
- * 判断 Minecraft 版本是否为 1.17 及以上（BootstrapLauncher时代）
- */
 fun isMinecraft17Plus(version: String): Boolean {
     val minor = version.split(".").getOrNull(1)?.toIntOrNull() ?: return false
     return minor >= 17
@@ -84,11 +78,9 @@ fun getOptiFineInstallTask(
             val mavenVersion = optifineVersion.mavenVersion()
             val optifineLibFolder = File(tempLibrariesFolder, "optifine/OptiFine/$mavenVersion")
 
-            //installer 归位至 libraries（Maven 布局），并移除 mods.toml，防止被 Forge 当作 Mod 扫描
             val installerLibFile = File(optifineLibFolder, "OptiFine-$mavenVersion-installer.jar")
             copyZipSkippingEntries(tempInstallerJar, installerLibFile, "META-INF/mods.toml")
 
-            //生成 OptiFine 本体库：新版通过 Patcher 对原版 Jar 打补丁，旧版直接以 installer 充当
             val patchedLibFile = File(optifineLibFolder, "OptiFine-$mavenVersion.jar")
             val launchWrapperLibs: List<String> = ZipFile(tempInstallerJar).use { zip ->
                 if (zip.getEntry("optifine/Patcher.class") != null) {
@@ -113,7 +105,7 @@ fun getOptiFineInstallTask(
                             logOutput = output
                         )
                     }
-                    //Patcher 产物中同样移除 mods.toml，防止 Forge 扫描冲突
+
                     stripZipEntries(patchedLibFile, "META-INF/mods.toml")
                 } else {
                     copyZipSkippingEntries(tempInstallerJar, patchedLibFile, "META-INF/mods.toml")
@@ -122,14 +114,12 @@ fun getOptiFineInstallTask(
                 installLaunchWrapper(zip, tempLibrariesFolder)
             }
 
-            //释放 TransformerDiscoveryService 到 libraries，供 Forge 1.13 ~ 1.16 组合时加载 OptiFine
             val discoveryServiceFile = File(
                 tempLibrariesFolder,
                 "org/jackhuang/hmcl/transformer-discovery-service/1.0/transformer-discovery-service-1.0.jar"
             ).apply { ensureParentDirectory() }
             LibPath.TRANSFORMER_DISCOVERY_SERVICE.copyTo(discoveryServiceFile, overwrite = true)
 
-            //建立 OptiFine 版本 Json，交由 GameJsonMerger 与其余组件合并
             val tempOfFolder = File(tempVersionFolder, optifineVersion.version)
             val tempOfJson = File(tempOfFolder, "${optifineVersion.version}.json")
             val tempMcJson = File(tempVersionFolder, "${optifineVersion.inherit}/${optifineVersion.inherit}.json")
@@ -141,7 +131,6 @@ fun getOptiFineInstallTask(
             )
             tempOfJson.writeText(optiFineJson)
 
-            //补全 OptiFine 组件依赖的类库（如旧版本依赖的 launchwrapper）
             val libDownloader = GameLibDownloader(
                 downloader = downloader,
                 gameJson = optiFineJson
@@ -152,10 +141,6 @@ fun getOptiFineInstallTask(
     )
 }
 
-/**
- * 校验 Forge 1.17+ 与 OptiFine 的兼容性：
- * 只有 H1 Pre2 之后的 OptiFine 才与 Forge 1.17 原生兼容，不兼容时提前终止安装
- */
 private fun checkBootstrapForgeCompatibility(installer: File, hasBootstrapForge: Boolean) {
     if (!hasBootstrapForge) return
     ZipFile(installer).use { zip ->
@@ -166,21 +151,15 @@ private fun checkBootstrapForgeCompatibility(installer: File, hasBootstrapForge:
     }
 }
 
-/**
- * 从 installer 中提取 OptiFine 自带的 launchwrapper
- * @return 需要写入版本 Json 的 launchwrapper 库坐标，都没有时回退到官方 launchwrapper
- */
 private fun installLaunchWrapper(zip: ZipFile, libFolder: File): List<String> {
     val libs = mutableListOf<String>()
 
-    //launchwrapper-2.0.jar -> optifine:launchwrapper:2.0
     if (zip.getEntry("launchwrapper-2.0.jar") != null) {
         val target = File(libFolder, "optifine/launchwrapper/2.0/launchwrapper-2.0.jar")
         zip.extractEntryToFile("launchwrapper-2.0.jar", target)
         libs.add("optifine:launchwrapper:2.0")
     }
 
-    //launchwrapper-of-<版本>.jar -> optifine:launchwrapper-of:<版本>
     val lwVersion = zip.getEntry("launchwrapper-of.txt")?.readText(zip)?.trim()
     if (lwVersion != null && zip.getEntry("launchwrapper-of-$lwVersion.jar") != null) {
         val target = File(libFolder, "optifine/launchwrapper-of/$lwVersion/launchwrapper-of-$lwVersion.jar")
@@ -192,9 +171,6 @@ private fun installLaunchWrapper(zip: ZipFile, libFolder: File): List<String> {
     return libs
 }
 
-/**
- * 复制 ZIP 内全部条目，跳过指定条目
- */
 private fun copyZipSkippingEntries(source: File, target: File, vararg skipEntries: String) {
     target.ensureParentDirectory()
     ZipFile(source).use { zip ->
@@ -209,9 +185,6 @@ private fun copyZipSkippingEntries(source: File, target: File, vararg skipEntrie
     }
 }
 
-/**
- * 移除 ZIP 内的指定条目（原地重写）
- */
 private fun stripZipEntries(source: File, vararg stripEntries: String) {
     if (!source.exists()) return
     val stripped = File(source.parentFile, "${source.name}.strip")
@@ -223,10 +196,6 @@ private inline fun writeZip(target: File, block: (ZipOutputStream) -> Unit) {
     ZipOutputStream(BufferedOutputStream(FileOutputStream(target))).use(block)
 }
 
-/**
- * 建立独立安装用的 OptiFine 版本 Json
- * 纯净环境（无 Forge/NeoForge）下以 LaunchWrapper + OptiFineTweaker 方式启动
- */
 private fun createOptiFineJson(
     vanillaJson: File,
     optifineVersion: OptiFineVersion,

@@ -16,10 +16,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import com.cmc.launcher.R
 
-/**
- * A composable that displays a checkable chip, visually similar to a [FilterChip].
- * It allows for a selection state to be toggled.
- */
 @Composable
 fun CheckChip(
     selected: Boolean,

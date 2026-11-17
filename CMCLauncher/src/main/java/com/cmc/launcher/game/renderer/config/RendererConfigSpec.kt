@@ -41,13 +41,10 @@ sealed interface ConfigScalar {
 sealed interface ConfigTarget {
     data class Environment(val key: String) : ConfigTarget
     data class JsonField(val key: String) : ConfigTarget
-    /** SFPEW 兼容层（仅存于启动器配置） */
+
     data object SfpewLayer : ConfigTarget
 }
 
-/**
- * 渲染器配置项的基础定义，描述默认值、展示文案和启动时的生效目标
- */
 sealed interface ConfigEntry {
     val id: String
     val title: ConfigText?
@@ -169,9 +166,6 @@ data class TextEntry(
     override fun coerce(value: ConfigScalar): ConfigScalar = ConfigScalar.StringValue(value.asString())
 }
 
-/**
- * 一个渲染器的完整配置规范，包含可编辑配置项和始终注入的固定环境变量
- */
 data class RendererConfigSpec(
     val entries: List<ConfigEntry>,
     val fixedEnv: Map<String, String> = emptyMap()

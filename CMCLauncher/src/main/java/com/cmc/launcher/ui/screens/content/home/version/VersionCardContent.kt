@@ -56,21 +56,16 @@ import com.cmc.launcher.ui.components.LittleTextLabel
 import com.cmc.launcher.ui.screens.content.elements.VersionIconImage
 import com.cmc.launcher.ui.screens.content.home.CardIconShape
 
-/** 版本卡片启动回调 */
 val LocalHomeCardLauncher = staticCompositionLocalOf<(Version) -> Unit> { {} }
-/** 版本卡片打开版本设置屏的回调 */
+
 val LocalHomeCardVersionSettings = staticCompositionLocalOf<(Version) -> Unit> { {} }
 
-/** 版本描述移入头行下方空白区的高度跨度 */
 private const val DESCRIPTION_START_SPAN = 9
-/** 头行与图标下方描述文本之间的间距 */
+
 private val DetailTopGap = 4.dp
-/** 详情文本行之间的间距 */
+
 private val DetailItemGap = 2.dp
 
-/**
- * 版本卡片内容
- */
 @Composable
 fun CardState.VersionCardContent(cardId: String) {
     val states by VersionCardManager.cards.collectAsStateWithLifecycle()
@@ -80,11 +75,9 @@ fun CardState.VersionCardContent(cardId: String) {
     val version = (card?.status as? VersionCardStatus.Available)?.version
     val onOpenSettings = LocalHomeCardVersionSettings.current
 
-    //点按手势不持有指针事件，交互状态与版本实例在回调触发时读取即时值
     val currentVersion by rememberUpdatedState(version)
     val currentInteraction by rememberUpdatedState(interaction)
 
-    //版本详细信息的显示门槛
     val showDetails = sizeClass.height >= CardSizeClass.MEDIUM
     val iconSize = iconSizeFor(sizeClass)
 
@@ -181,9 +174,6 @@ private fun Modifier.homeCardTap(onTap: () -> Unit): Modifier = pointerInput(Uni
     }
 }
 
-/**
- * 纵向布局
- */
 @Composable
 private fun TallContent(
     card: VersionCardState?,
@@ -202,11 +192,11 @@ private fun TallContent(
                 .weight(1f)
                 .clipToBounds()
         ) {
-            //头行高度即图标高度（名称、信息行与状态标签不会超过图标），扣除后即图标下方的空白
+
             val blank = maxHeight - iconSize - DetailTopGap
             val summaryLine = lineHeightDp(MaterialTheme.typography.labelMedium)
             val summaryValid = version?.isSummaryValid() == true
-            //空白区文本：版本描述优先，缺失时由版本详细信息充当；达到高度门槛且放得下一行时显示
+
             val blankText = version
                 ?.takeIf {
                     spanHeight >= DESCRIPTION_START_SPAN &&
@@ -214,7 +204,7 @@ private fun TallContent(
                             (summaryValid || it.getVersionInfo() != null)
                 }
                 ?.getVersionSummary()
-            //描述行的行数与空白高度一致，未容纳的文本以省略号收尾
+
             val blankMaxLines = (blank.value / summaryLine.value).toInt()
 
             Column(modifier = Modifier.fillMaxSize()) {
@@ -232,7 +222,7 @@ private fun TallContent(
                         verticalArrangement = Arrangement.spacedBy(DetailItemGap)
                     ) {
                         CardNameText(card = card, version = version)
-                        //信息位于名称下方；版本缺失描述时，信息自门槛起下移充当描述行，不再显示于此
+
                         if (showDetails && version != null && (summaryValid || blankText == null)) {
                             InfoRow(version = version)
                         }
@@ -248,7 +238,7 @@ private fun TallContent(
                     }
                 }
                 if (blankText != null) {
-                    //描述行以高度权重填满头行下方的剩余空白，超出部分以省略号收尾
+
                     Text(
                         modifier = Modifier
                             .weight(1f)
@@ -261,7 +251,7 @@ private fun TallContent(
                 }
             }
         }
-        //按钮区占用固有高度，上方文本区加权，任何高度下都不会被挤压
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -271,7 +261,6 @@ private fun TallContent(
     }
 }
 
-/** 版本信息 */
 @Composable
 private fun InfoRow(version: Version) {
     val versionInfo = version.getVersionInfo()
@@ -298,7 +287,6 @@ private fun InfoRow(version: Version) {
     }
 }
 
-/** 版本名称 */
 @Composable
 private fun CardNameText(
     modifier: Modifier = Modifier,
@@ -317,9 +305,6 @@ private fun CardNameText(
     }
 }
 
-/**
- * 横排布局
- */
 @Composable
 private fun RowContent(
     card: VersionCardState?,
@@ -356,7 +341,6 @@ private fun RowContent(
     }
 }
 
-/** 卡片文本区 */
 @Composable
 private fun CardTexts(
     modifier: Modifier = Modifier,
@@ -372,7 +356,7 @@ private fun CardTexts(
 
         when (val status = card?.status) {
             is VersionCardStatus.Available -> if (showDetails) {
-                //版本详细信息
+
                 val versionInfo = status.version.getVersionInfo()
                 FlowRow(
                     modifier = Modifier.alpha(0.7f),
@@ -395,7 +379,7 @@ private fun CardTexts(
                     }
                 }
             }
-            //占位状态标签不受尺寸门槛限制，任何形态都需要提示原因
+
             is VersionCardStatus.Deleted -> StatusPlaceholder(
                 text = stringResource(R.string.home_version_card_deleted)
             )
@@ -407,7 +391,6 @@ private fun CardTexts(
     }
 }
 
-/** 带文字的启动按钮 */
 @Composable
 private fun TextLaunchButton(version: Version, modifier: Modifier = Modifier) {
     val onLaunch = LocalHomeCardLauncher.current
@@ -436,7 +419,6 @@ private fun TextLaunchButton(version: Version, modifier: Modifier = Modifier) {
     }
 }
 
-/** 通栏紧凑启动按钮 */
 @Composable
 private fun CompactLaunchButton(version: Version, modifier: Modifier = Modifier) {
     val onLaunch = LocalHomeCardLauncher.current
@@ -465,7 +447,6 @@ private fun CompactLaunchButton(version: Version, modifier: Modifier = Modifier)
     }
 }
 
-/** 仅图标的圆形启动按钮 */
 @Composable
 private fun IconLaunchButton(version: Version, modifier: Modifier = Modifier) {
     val onLaunch = LocalHomeCardLauncher.current

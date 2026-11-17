@@ -13,15 +13,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class CurseForgeSearchResult(
-    /**
-     * 响应数据
-     */
+
     @SerialName("data")
     private val data: Array<CurseForgeData>,
 
-    /**
-     * 响应分页信息
-     */
     @SerialName("pagination")
     private val pagination: CurseForgePagination
 ): PlatformSearchResult {

@@ -2,9 +2,6 @@ package com.cmc.launcher.setting.unit
 
 import com.cmc.launcher.setting.launcherMMKV
 
-/**
- * 枚举设置单元，将枚举保存到设置配置文件中
- */
 class EnumSettingUnit<E : Enum<E>>(
     key: String,
     defaultValue: E,

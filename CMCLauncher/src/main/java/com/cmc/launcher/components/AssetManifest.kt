@@ -5,9 +5,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
 
-/** assets 内用于校验的清单文件 */
 const val ASSET_MANIFEST_FILE = "manifest.json"
-/** 旧版 version 校验遗留文件 */
+
 const val LEGACY_VERSION_FILE = "version"
 
 private const val ASSET_MANIFEST_FORMAT = 1
@@ -15,13 +14,6 @@ private const val SHA1_ALGORITHM = "SHA-1"
 private val SHA1_PATTERN = Regex("[0-9a-f]{40}")
 private val manifestJson = Json { ignoreUnknownKeys = false }
 
-/**
- * 组件 assets 的 SHA-1 清单
- * @property formatVersion 清单格式版本
- * @property component 组件在 assets 中的相对路径
- * @property algorithm 文件哈希算法，目前固定为 SHA-1
- * @property files 清单记录的文件
- */
 @Serializable
 data class AssetManifest(
     val formatVersion: Int,
@@ -30,11 +22,6 @@ data class AssetManifest(
     val files: List<AssetManifestFile>
 )
 
-/**
- * @property path 相对于组件 assets 根目录的路径
- * @property size 文件大小(bytes)
- * @property sha1 文件内容的 SHA-1，小写十六进制
- */
 @Serializable
 data class AssetManifestFile(
     val path: String,
@@ -42,13 +29,6 @@ data class AssetManifestFile(
     val sha1: String
 )
 
-/**
- * 一个待安装文件及其源路径、目标路径和校验信息
- * @property assetPath 源文件相对于组件 assets 根目录的路径
- * @property outputPath 安装后相对于组件目录的路径
- * @property size 预期文件大小(bytes)
- * @property sha1 预期文件内容的 SHA-1，小写十六进制
- */
 data class ComponentFile(
     val assetPath: String,
     val outputPath: String,
@@ -56,10 +36,6 @@ data class ComponentFile(
     val sha1: String
 )
 
-/**
- * @param outputPath 安装后的相对路径，默认与 assets 路径一致
- * @return 对应的安装文件
- */
 fun AssetManifestFile.toComponentFile(outputPath: String = path): ComponentFile {
     validateComponentPath(outputPath)
     return ComponentFile(
@@ -70,11 +46,6 @@ fun AssetManifestFile.toComponentFile(outputPath: String = path): ComponentFile 
     )
 }
 
-/**
- * 解析并校验组件清单
- * @param json 清单 JSON 文本
- * @param expectedComponent 预期的组件 assets 路径
- */
 fun parseAssetManifest(json: String, expectedComponent: String): AssetManifest {
     val manifest = manifestJson.decodeFromString(AssetManifest.serializer(), json)
     require(manifest.formatVersion == ASSET_MANIFEST_FORMAT) {
@@ -110,9 +81,6 @@ fun validateComponentFiles(files: List<ComponentFile>) {
     }
 }
 
-/**
- * 校验路径是否为安全的相对路径
- */
 fun validateComponentPath(path: String) {
     require(path.isNotEmpty() && !path.startsWith('/') && !path.contains('\\')) {
         "Invalid component path: $path"
@@ -122,13 +90,6 @@ fun validateComponentPath(path: String) {
     }
 }
 
-/**
- * 校验目录中的文件大小、SHA-1 及文件集合是否符合预期
- * @param directory 待校验的组件目录
- * @param files 预期的安装文件
- * @param ignoredFiles 扫描额外文件时忽略的相对路径
- * @return 所有文件均匹配且没有未忽略的额外文件时返回 true
- */
 suspend fun verifyComponentDirectory(
     directory: File,
     files: List<ComponentFile>,

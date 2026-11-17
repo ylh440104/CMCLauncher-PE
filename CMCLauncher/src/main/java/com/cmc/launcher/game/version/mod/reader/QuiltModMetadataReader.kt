@@ -16,9 +16,6 @@ import java.io.File
 import java.io.IOException
 import java.util.zip.ZipFile as JDKZipFile
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/4650287/HMCLCore/src/main/java/org/jackhuang/hmcl/mod/modinfo/QuiltModMetadata.java)
- */
 object QuiltModMetadataReader : ModMetadataReader {
     override suspend fun fromLocal(modFile: File): LocalMod = withContext(Dispatchers.IO) {
         try {

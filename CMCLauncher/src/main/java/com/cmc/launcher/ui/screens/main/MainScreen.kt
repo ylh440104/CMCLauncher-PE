@@ -110,7 +110,7 @@ fun MainScreen(
     modifyVersionViewModel: ModifyVersionViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    //监控当前是否有任务正在进行
+
     var taskRunning by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
         TaskSystem.tasksFlow.collect { tasks ->
@@ -126,7 +126,6 @@ fun MainScreen(
         AllSettings.launcherTaskMenuExpanded.save(!isTaskMenuExpanded)
     }
 
-    /** 回到主页面通用函数 */
     val toMainScreen: () -> Unit = {
         screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
     }
@@ -273,7 +272,7 @@ private fun <E: TitledNavKey> TopBar(
                             modifier = Modifier.fillMaxHeight(),
                             onClick = {
                                 if (!inLauncherScreen) {
-                                    //不在主屏幕时才允许返回
+
                                     backDispatcher?.onBackPressed() ?: run {
                                         onScreenBack()
                                     }
@@ -291,7 +290,7 @@ private fun <E: TitledNavKey> TopBar(
                             modifier = Modifier.fillMaxHeight(),
                             onClick = {
                                 if (!inLauncherScreen) {
-                                    //不在主屏幕时才允许回到主页面
+
                                     toMainScreen()
                                 }
                             }
@@ -457,14 +456,14 @@ private fun NavigationUI(
     }
 
     if (backStack.isNotEmpty()) {
-        /** 导航至版本详细信息屏幕 */
+
         val navigateToVersions: (Version) -> Unit = { version ->
             screenBackStackModel.mainScreen.navigateTo(
                 screenKey = NestedNavKey.VersionSettings(version),
                 useClassEquality = true
             )
         }
-        /** 导航至整合包导出屏幕 */
+
         val navigateToExport: (Version) -> Unit = { version ->
             screenBackStackModel.mainScreen.removeAndNavigateTo(
                 remove = NestedNavKey.VersionSettings::class,
@@ -678,7 +677,7 @@ private fun TaskMenu(
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp)
                         ) {
-                            //取消任务
+
                             TaskSystem.cancelTask(task.id)
                         }
                     }
@@ -734,7 +733,7 @@ private fun TaskItem(
                     )
                 }
 
-                if (taskProgress < 0) { //负数则代表不确定
+                if (taskProgress < 0) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth()
                     )

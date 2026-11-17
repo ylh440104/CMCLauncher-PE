@@ -28,9 +28,6 @@ import java.io.InputStream
 
 private const val TAG = "ControlManager"
 
-/**
- * 控制布局管理者
- */
 object ControlManager {
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -40,22 +37,15 @@ object ControlManager {
     private var currentJob: Job? = null
 
     private val _selectedLayout = MutableStateFlow<ControlData?>(null)
-    /** 当前选择的控制布局 */
+
     val selectedLayout = _selectedLayout.asStateFlow()
 
     private val _isRefreshing = MutableStateFlow(false)
-    /** 是否正在刷新控制布局 */
+
     val isRefreshing = _isRefreshing.asStateFlow()
 
-    /**
-     * 获取一个新的布局文件文件，名称随机
-     */
     private fun getNewRandomFile() = File(PathManager.DIR_CONTROL_LAYOUTS, "${newRandomFileName()}.json")
 
-    /**
-     * 检查当前是否不存在控制布局，不存在则解压一份默认控制布局
-     * @param context 访问assets的上下文
-     */
     fun checkDefaultAndRefresh(context: Context) {
         scope.launch(Dispatchers.IO) {
             val files = (PathManager.DIR_CONTROL_LAYOUTS.listFiles() ?: emptyArray())
@@ -112,9 +102,6 @@ object ControlManager {
         }
     }
 
-    /**
-     * 检查并更新设置
-     */
     private fun checkSettings() {
         val setting = AllSettings.controlLayout.getValue()
 
@@ -129,9 +116,6 @@ object ControlManager {
         _selectedLayout.update { layout }
     }
 
-    /**
-     * 解压默认控制布局
-     */
     private suspend fun unpackDefaultControl(
         context: Context
     ) = withContext(Dispatchers.IO) {
@@ -143,18 +127,12 @@ object ControlManager {
         }
     }
 
-    /**
-     * 选择控制布局
-     */
     fun selectControl(data: ControlData) {
         if (!data.file.exists() || !data.isSupport) return
         AllSettings.controlLayout.save(data.file.name)
         _selectedLayout.update { data }
     }
 
-    /**
-     * 在协程内删除控制布局
-     */
     fun deleteControl(data: ControlData) {
         scope.launch(Dispatchers.IO) {
             if (!data.file.exists()) return@launch
@@ -163,9 +141,6 @@ object ControlManager {
         }
     }
 
-    /**
-     * 在协程内保存控制布局的数据
-     */
     fun saveControl(
         data: ControlData,
         submitError: (Exception) -> Unit
@@ -180,15 +155,12 @@ object ControlManager {
                 layout.saveToFile(data.file)
             } catch (e: Exception) {
                 submitError(e)
-//                FileUtils.deleteQuietly(data.file)
+
             }
             refresh()
         }
     }
 
-    /**
-     * 尝试导入控制布局
-     */
     suspend fun importControl(
         inputStream: InputStream,
         onSerializationError: (Exception) -> Unit,

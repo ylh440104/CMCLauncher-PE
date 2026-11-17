@@ -9,9 +9,6 @@ import com.cmc.launcher.game.renderer.config.removeStaleEntries
 import com.cmc.launcher.game.renderer.config.resolveRendererConfig
 import com.cmc.launcher.game.version.installed.Version
 
-/**
- * 提供独立配置规范的渲染器
- */
 interface ConfigurableRenderer : RendererInterface {
     val configSpec: RendererConfigSpec
 
@@ -25,13 +22,10 @@ interface ConfigurableRenderer : RendererInterface {
     }
 }
 
-/**
- * 一次启动的渲染器配置
- */
 data class RendererLaunchConfig(
-    /** 的环境变量 */
+
     val environment: Map<String, String>,
-    /** SFPEW 兼容层开关，渲染器配置未声明时为 null */
+
     val sfpewLayerEnabled: Boolean?
 )
 

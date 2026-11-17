@@ -124,22 +124,12 @@ private class ShadersManageViewModel(
     var shadersState by mutableStateOf<LoadingState>(LoadingState.None)
         private set
 
-    /**
-     * 已选择的文件
-     */
     val selectedPacks = mutableStateListOf<ShaderPackInfo>()
 
-    /**
-     * 删除所有已选择文件的操作流程
-     */
     var deleteAllOperation by mutableStateOf<DeleteAllOperation>(DeleteAllOperation.None)
 
-    /** 临时记录的光影包数量 */
     private var packCount = FolderFileCounter(shadersDir)
 
-    /**
-     * 全选所有文件
-     */
     fun selectAllFiles() {
         filteredShaders?.forEach { pack ->
             if (!selectedPacks.contains(pack)) selectedPacks.add(pack)
@@ -153,9 +143,7 @@ private class ShadersManageViewModel(
     }
 
     private var job: Job? = null
-    /**
-     * @param checkCount 刷新目录内文件数量记录
-     */
+
     fun refresh(
         checkCount: Boolean = true
     ) {
@@ -167,7 +155,7 @@ private class ShadersManageViewModel(
             withContext(Dispatchers.IO) {
                 try {
                     val list = shadersDir.listFiles()?.filter {
-                        //光影包只能是后缀为.zip的压缩包
+
                         it.isFile && it.extension.equals("zip", true)
                     }?.map { file ->
                         ensureActive()
@@ -598,8 +586,7 @@ private fun ShadersList(
                 }
             }
         } else {
-            //如果列表是空的，则是由搜索导致的
-            //展示“无匹配项”文本
+
             Box(modifier = Modifier.fillMaxSize()) {
                 ScalingLabel(
                     modifier = Modifier.align(Alignment.Center),
@@ -608,7 +595,7 @@ private fun ShadersList(
             }
         }
     } ?: run {
-        //如果为null，则代表本身就没有光影包可以展示
+
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
@@ -662,14 +649,14 @@ private fun ShaderPackItem(
                     .align(Alignment.CenterVertically)
                     .weight(1f),
             ) {
-                //文件名称
+
                 Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                     text = shaderPackInfo.file.name,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1
                 )
-                //文件大小
+
                 Text(
                     modifier = Modifier.alpha(0.7f),
                     text = stringResource(

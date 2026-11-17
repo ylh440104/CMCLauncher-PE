@@ -20,59 +20,39 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "TaskFlowExecutor"
 
-/**
- * 动态任务流执行器，按照阶段顺序执行任务流
- */
 class TaskFlowExecutor(
     private val scope: CoroutineScope
 ) {
-    /**
-     * 任务流阶段，包含一个阶段的所有任务
-     */
+
     data class TaskPhase(
         val tasks: List<TitledTask>,
         val onComplete: (suspend () -> Unit)? = null
     )
 
-    /**
-     * 当前所有的任务流阶段
-     */
     private val phases: MutableList<TaskPhase> = mutableListOf()
 
     private val _tasksFlow: MutableStateFlow<List<TitledTask>> = MutableStateFlow(emptyList())
     val tasksFlow = _tasksFlow.asStateFlow()
 
     private var job: Job? = null
-    /** 当前正在执行的任务的Job */
+
     private var currentTaskJob: Job? = null
-    /** 当前任务流阶段索引 */
+
     private var currentPhaseIndex: Int = -1
 
-    /**
-     * 获取下一个阶段
-     */
     private fun getNextPhase(): TaskPhase? {
         currentPhaseIndex++
         return phases.getOrNull(currentPhaseIndex)
     }
 
-    /**
-     * 添加阶段到末尾
-     */
     fun addPhase(phase: TaskPhase) {
         phases.add(phase)
     }
 
-    /**
-     * 添加阶段列表到末尾
-     */
     fun addPhases(phases: List<TaskPhase>) {
         this.phases.addAll(phases)
     }
 
-    /**
-     * 同步执行多阶段任务流
-     */
     suspend fun executePhases(
         onComplete: () -> Unit = {},
         onError: (Throwable) -> Unit = {},
@@ -84,27 +64,23 @@ class TaskFlowExecutor(
             try {
                 ensureActive()
                 val phase = getNextPhase() ?: break
-                //更新当前任务列表
+
                 _tasksFlow.update { phase.tasks }
 
-                //执行阶段内的所有任务
                 for (task in phase.tasks) {
                     ensureActive()
                     task.task.updateStage(TaskStage.RUNNING)
 
-                    //为每个任务创建独立的Job，以便可以立即取消
-                    //使用SupervisorJob确保任务内部的子协程异常不会影响其他任务
                     val parentJob = coroutineContext[Job]
                     val taskJob = SupervisorJob(parentJob)
                     currentTaskJob = taskJob
-                    
+
                     try {
                         withContext(task.task.dispatcher + taskJob) {
-                            //使用coroutineScope确保任务内部的所有子协程都在这个作用域中
-                            //当taskJob被取消时，coroutineScope内的所有子协程都会被取消
+
                             coroutineScope {
                                 try {
-                                    //将当前coroutineScope传递给任务，确保任务内部的launch都在这个作用域中
+
                                     task.task.task(this@coroutineScope, task.task)
                                 } catch (e: CancellationException) {
                                     task.task.onCancel()
@@ -119,13 +95,12 @@ class TaskFlowExecutor(
                         }
                         task.task.updateStage(TaskStage.COMPLETED)
                     } finally {
-                        //确保taskJob被取消和清理，无论任务成功还是失败
+
                         taskJob.cancel()
                         currentTaskJob = null
                     }
                 }
 
-                //执行阶段完成回调
                 phase.onComplete?.invoke()
             } catch (th: Throwable) {
                 if (th is CancellationException || th.isInterruptedIOException()) {
@@ -142,9 +117,6 @@ class TaskFlowExecutor(
         onComplete()
     }
 
-    /**
-     * 异步执行多阶段任务流
-     */
     fun executePhasesAsync(
         onStart: suspend () -> Unit = {},
         onComplete: () -> Unit = {},
@@ -152,7 +124,7 @@ class TaskFlowExecutor(
         onCancel: () -> Unit = {}
     ) {
         job = scope.launch(Dispatchers.IO) {
-            //持有保活，避免启动器切至后台后任务流被系统中断
+
             TaskKeepAlive.acquire()
             try {
                 onStart()
@@ -166,10 +138,10 @@ class TaskFlowExecutor(
     fun isRunning(): Boolean = job != null
 
     fun cancel() {
-        //先取消当前正在执行的任务及其所有子协程
+
         currentTaskJob?.cancel()
         currentTaskJob = null
-        
+
         job?.cancel()
         job = null
 
@@ -178,9 +150,6 @@ class TaskFlowExecutor(
     }
 }
 
-/**
- * 构建任务流阶段
- */
 fun buildPhase(
     onComplete: (suspend () -> Unit)? = null,
     builderAction: MutableList<TitledTask>.() -> Unit

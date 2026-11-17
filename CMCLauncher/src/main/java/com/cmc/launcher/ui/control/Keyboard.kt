@@ -70,7 +70,7 @@ private data class KeySpec(
 )
 
 private val MAIN_LAYOUT: List<List<KeySpec>> = listOf(
-    //1
+
     listOf(
         KeySpec(label = "Esc", code = ControlEventKeycode.GLFW_KEY_ESCAPE),
         KeySpec(label = "", code = "", weight = 0.6f, isSpacer = true),
@@ -89,7 +89,7 @@ private val MAIN_LAYOUT: List<List<KeySpec>> = listOf(
         KeySpec(label = "F11", code = ControlEventKeycode.GLFW_KEY_F11),
         KeySpec(label = "F12", code = ControlEventKeycode.GLFW_KEY_F12)
     ),
-    //2
+
     listOf(
         KeySpec(label = "`", code = ControlEventKeycode.GLFW_KEY_GRAVE_ACCENT),
         KeySpec(label = "1", code = ControlEventKeycode.GLFW_KEY_1),
@@ -106,7 +106,7 @@ private val MAIN_LAYOUT: List<List<KeySpec>> = listOf(
         KeySpec(label = "+", code = ControlEventKeycode.GLFW_KEY_EQUAL),
         KeySpec(label = "Backspace", code = ControlEventKeycode.GLFW_KEY_BACKSPACE, weight = 1.5f, aspect = 1.5f)
     ),
-    //3
+
     listOf(
         KeySpec(label = "Tab", code = ControlEventKeycode.GLFW_KEY_TAB, weight = 1.3f, aspect = 1.3f),
         KeySpec(label = "Q", code = ControlEventKeycode.GLFW_KEY_Q),
@@ -123,7 +123,7 @@ private val MAIN_LAYOUT: List<List<KeySpec>> = listOf(
         KeySpec(label = "]", code = ControlEventKeycode.GLFW_KEY_RIGHT_BRACKET),
         KeySpec(label = "\\", code = ControlEventKeycode.GLFW_KEY_BACKSLASH, weight = 1.2f, aspect = 1.2f)
     ),
-    //4
+
     listOf(
         KeySpec(label = "Capslock", code = ControlEventKeycode.GLFW_KEY_CAPS_LOCK, weight = 1.4f, aspect = 1.4f),
         KeySpec(label = "A", code = ControlEventKeycode.GLFW_KEY_A),
@@ -139,7 +139,7 @@ private val MAIN_LAYOUT: List<List<KeySpec>> = listOf(
         KeySpec(label = "'", code = ControlEventKeycode.GLFW_KEY_APOSTROPHE),
         KeySpec(label = "Enter", code = ControlEventKeycode.GLFW_KEY_ENTER, weight = 2.1f, aspect = 2.1f)
     ),
-    //5
+
     listOf(
         KeySpec(label = "Shift", code = ControlEventKeycode.GLFW_KEY_LEFT_SHIFT, weight = 2f, aspect = 2f),
         KeySpec(label = "Z", code = ControlEventKeycode.GLFW_KEY_Z),
@@ -154,7 +154,7 @@ private val MAIN_LAYOUT: List<List<KeySpec>> = listOf(
         KeySpec(label = "/", code = ControlEventKeycode.GLFW_KEY_SLASH),
         KeySpec(label = "Shift", code = ControlEventKeycode.GLFW_KEY_RIGHT_SHIFT, weight = 2.2f, aspect = 2.2f)
     ),
-    //6
+
     listOf(
         KeySpec(label = "Ctrl", code = ControlEventKeycode.GLFW_KEY_LEFT_CONTROL),
         KeySpec(label = "", code = "", isSpacer = true),
@@ -220,11 +220,6 @@ private val EDIT_LAYOUT: List<List<KeySpec>> = listOf(
     )
 )
 
-/**
- * 虚拟键盘对话框，展示一个包含主要按键的键盘
- * @param onSwitch [isTapMode] 为 `false` 时，触摸按键的回调函数
- * @param onTap [isTapMode] 为 `true` 时，点击按键的回调函数
- */
 @Composable
 fun Keyboard(
     onDismissRequest: () -> Unit,
@@ -264,12 +259,6 @@ fun Keyboard(
     }
 }
 
-/**
- * 虚拟键盘对话框，展示一个包含主要按键的键盘，主要用于手柄键值绑定
- * @param selectedKeys 当前键绑定的所有键值
- * @param onKeyAdd 绑定新的键值
- * @param onKeyRemove 解绑键值
- */
 @Composable
 fun GamepadBindingKeyboard(
     selectedKeys: List<String>,
@@ -364,7 +353,7 @@ fun GamepadSpecialArea(
         contentPadding = PaddingValues(all = 12.dp),
         state = scrollState
     ) {
-        //鼠标左键
+
         item {
             val selected = remember(refreshed) { isSelected(ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT) }
             InfoLayoutTextItem(
@@ -377,7 +366,7 @@ fun GamepadSpecialArea(
                 selected = selected
             )
         }
-        //鼠标中键
+
         item {
             val selected = remember(refreshed) { isSelected(ControlEventKeycode.GLFW_MOUSE_BUTTON_MIDDLE) }
             InfoLayoutTextItem(
@@ -390,7 +379,7 @@ fun GamepadSpecialArea(
                 selected = selected
             )
         }
-        //鼠标右键
+
         item {
             val selected = remember(refreshed) { isSelected(ControlEventKeycode.GLFW_MOUSE_BUTTON_RIGHT) }
             InfoLayoutTextItem(
@@ -403,7 +392,7 @@ fun GamepadSpecialArea(
                 selected = selected
             )
         }
-        //单次鼠标滚轮上
+
         item {
             val selected = remember(refreshed) { isSelected(SPECIAL_KEY_MOUSE_SCROLL_UP) }
             InfoLayoutTextItem(
@@ -416,7 +405,7 @@ fun GamepadSpecialArea(
                 selected = selected
             )
         }
-        //单次鼠标滚轮下
+
         item {
             val selected = remember(refreshed) { isSelected(SPECIAL_KEY_MOUSE_SCROLL_DOWN) }
             InfoLayoutTextItem(
@@ -464,7 +453,7 @@ private fun KeyboardNavDialog(
             contentColor = onCardColor(),
         ) {
             Column {
-                //顶贴标签栏
+
                 SecondaryTabRow(
                     selectedTabIndex = selectedTabIndex,
                     containerColor = cardTitleColor()
@@ -484,7 +473,7 @@ private fun KeyboardNavDialog(
 
                 HorizontalPager(
                     state = pagerState,
-//                    userScrollEnabled = false,
+
                     modifier = Modifier.fillMaxWidth()
                 ) { page ->
                     pageContent(page)
@@ -599,9 +588,7 @@ private fun KeyButton(
     maxFontSize: TextUnit = style.fontSize,
     aspectRatio: Float = 1f
 ) {
-    /**
-     * 当前按钮是否为按下的状态
-     */
+
     val isSelected = remember(refreshed) { isSelected(identifier) }
     var pressed by remember { mutableStateOf(false) }
     val currentOnTap by rememberUpdatedState(onTap)

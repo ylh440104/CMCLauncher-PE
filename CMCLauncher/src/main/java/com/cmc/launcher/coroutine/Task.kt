@@ -18,58 +18,39 @@ class Task private constructor(
     val onCancel: () -> Unit = {}
 ) {
     private val _stage = MutableStateFlow(TaskStage.PREPARING)
-    /**
-     * 任务阶段（TaskSystem可能用不到，主要服务于GameInstaller）
-     */
+
     val stage = _stage.asStateFlow()
 
     private val _progress = MutableStateFlow(-1f)
-    /** 任务进度状态 */
+
     val progress = _progress.asStateFlow()
 
     private val _message = MutableStateFlow<AndroidStringText?>(null)
-    /** 任务消息状态 */
+
     val message = _message.asStateFlow()
 
     private val _rateBytesPerSec = MutableStateFlow<Long?>(null)
-    /** 当前速率 Bytes */
+
     val rateBytesPerSec = _rateBytesPerSec.asStateFlow()
 
-    /**
-     * 更新任务阶段
-     */
     fun updateStage(state: TaskStage) {
         this._stage.update { state }
     }
 
-    /**
-     * 更新进度，自动处理 NaN、isInfinite 的这种错误情况
-     * @param percentage 进度百分比，-1f代表进度不确定
-     */
     fun updateProgress(percentage: Float) {
         this._progress.update {
             (percentage.takeIf { it.isFinite() } ?: 0f).coerceIn(-1f, 1f)
         }
     }
 
-    /**
-     * 更新任务描述消息
-     * @param text 任务描述消息
-     */
     fun updateMessage(text: AndroidStringText?) {
         this._message.update { text }
     }
 
-    /**
-     * 更新任务比特速率
-     */
     fun updateSpeed(bytes: Long) {
         this._rateBytesPerSec.update { bytes.takeIf { it >= 0L } }
     }
 
-    /**
-     * 清除任务比特速率
-     */
     fun clearSpeed() {
         this._rateBytesPerSec.update { null }
     }

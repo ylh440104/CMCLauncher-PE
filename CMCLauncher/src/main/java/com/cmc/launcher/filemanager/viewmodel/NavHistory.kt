@@ -2,7 +2,6 @@ package com.cmc.launcher.filemanager.viewmodel
 
 import java.nio.file.Path
 
-/** 当前目录的后退/前进历史 */
 class NavHistory(initialCurrent: Path) {
 
     private val backStack = ArrayDeque<Path>()
@@ -13,7 +12,6 @@ class NavHistory(initialCurrent: Path) {
     val canForward: Boolean get() = forwardStack.isNotEmpty()
     val currentPath: Path get() = current
 
-    /** 进入一个新目录，清空前进栈 */
     fun navigate(to: Path) {
         if (to == current) return
         backStack.addLast(current)
@@ -21,10 +19,6 @@ class NavHistory(initialCurrent: Path) {
         current = to
     }
 
-    /**
-     * 后退
-     * @return 上一个目录，或 null 表示无历史
-     */
     fun back(): Path? {
         if (backStack.isEmpty()) return null
         val prev = backStack.removeLast()
@@ -33,10 +27,6 @@ class NavHistory(initialCurrent: Path) {
         return prev
     }
 
-    /**
-     * 前进
-     * @return 撤销上一次后退，或 null 表示无可前进
-     */
     fun forward(): Path? {
         if (forwardStack.isEmpty()) return null
         val next = forwardStack.removeLast()
@@ -45,9 +35,6 @@ class NavHistory(initialCurrent: Path) {
         return next
     }
 
-    /**
-     * 目录被删除后清理历史
-     */
     fun pruneDeleted(deleted: Path) {
         fun inside(p: Path): Boolean {
             return p == deleted || p.startsWith(deleted)

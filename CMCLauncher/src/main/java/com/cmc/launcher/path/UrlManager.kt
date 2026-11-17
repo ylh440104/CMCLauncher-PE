@@ -49,12 +49,6 @@ private fun isCurseForgeHost(host: String): Boolean =
             host == CURSEFORGE_CDN_SUFFIX ||
             host.endsWith(".$CURSEFORGE_CDN_SUFFIX")
 
-/**
- * An [Interceptor] for CurseForge API requests.
- *
- * It automatically injects the `x-api-key` header when the request targets a
- * CurseForge host, provided the API key is not blank.
- */
 private val CURSEFORGE_INTERCEPTOR = Interceptor { chain ->
     val request = chain.request()
     if (isCurseForgeHost(request.url.host)) {
@@ -69,12 +63,6 @@ private val CURSEFORGE_INTERCEPTOR = Interceptor { chain ->
     chain.proceed(request)
 }
 
-/**
- * An [Interceptor] that ensures the [URL_USER_AGENT] header is present on every request.
- *
- * If a request already carries a User-Agent header (set by [createRequestBuilder] or
- * similar), this interceptor is a no-op — avoiding duplicate headers.
- */
 private val USER_AGENT_INTERCEPTOR = Interceptor { chain ->
     val request = chain.request()
     if (request.header("User-Agent") != null) {
@@ -93,9 +81,6 @@ val GLOBAL_JSON = Json {
     coerceInputValues = true
 }
 
-/**
- * Coil 图片加载使用的 Ktor 客户端
- */
 val IMAGE_LOADER_CLIENT: HttpClient by lazy {
     HttpClient(OkHttp) {
         engine {
@@ -117,7 +102,7 @@ val GLOBAL_CLIENT = HttpClient(OkHttp) {
         header(HttpHeaders.UserAgent, URL_USER_AGENT)
     }
     engine {
-        // 使用内置的 OkHttp 客户端
+
         preconfigured = createOkHttpClientBuilder().build()
     }
 }.apply {
@@ -141,12 +126,9 @@ fun createRequestBuilder(url: String, body: RequestBody?): Request.Builder {
     return request
 }
 
-/**
- * 创建一个OkHttpClient，可自定义一些内容
- */
 fun createOkHttpClientBuilder(action: (OkHttpClient.Builder) -> Unit = { }): OkHttpClient.Builder {
     return OkHttpClient.Builder()
-        .dns(ResilientDns) //系统 DNS 解析失败时，自动回退到 DoH 解析
+        .dns(ResilientDns)
         .sslSocketFactory(TLSSecurity.sslSocketFactory, TLSSecurity.trustManager)
         .protocols(listOf(Protocol.HTTP_1_1))
         .callTimeout(TIME_OUT, TimeUnit.MILLISECONDS)
@@ -155,15 +137,6 @@ fun createOkHttpClientBuilder(action: (OkHttpClient.Builder) -> Unit = { }): OkH
         .apply(action)
 }
 
-/**
- * 创建用于网络请求的 OkHttpClient。
- * 与普通 API 调用不同，该客户端不设 callTimeout
- * （因为请求目标的大小差异很大，不能用一个固定值限制整体时间）。
- *
- * 使用 OkHttp 替代 HttpURLConnection 的主要原因是：
- * OkHttp 使用自实现的 AsyncTimeout 机制，比依赖操作系统 socket 超时的
- * HttpURLConnection 在 Android 上更加可靠，能有效避免"卡 0b/s"问题。
- */
 val DOWNLOAD_OKHTTP_CLIENT: OkHttpClient by lazy {
     buildDownloadClient(listOf(Protocol.HTTP_1_1))
 }
@@ -173,9 +146,9 @@ private fun buildDownloadClient(
     readTimeoutMillis: Long = 15_000L
 ): OkHttpClient {
     return OkHttpClient.Builder()
-        .dns(ResilientDns) //系统 DNS 解析失败时，自动回退到 DoH 解析
+        .dns(ResilientDns)
         .sslSocketFactory(TLSSecurity.sslSocketFactory, TLSSecurity.trustManager)
-        .apply { allowedProtocols?.let { protocols(it) } } //不指定时默认协商 h2：单条多路复用连接承载海量小请求
+        .apply { allowedProtocols?.let { protocols(it) } }
         .connectionPool(ConnectionPool(64, 5, TimeUnit.MINUTES))
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(readTimeoutMillis, TimeUnit.MILLISECONDS)
@@ -184,6 +157,5 @@ private fun buildDownloadClient(
         .addInterceptor(CURSEFORGE_INTERCEPTOR)
         .addInterceptor(USER_AGENT_INTERCEPTOR)
         .build()
-        // 注意：不设置 callTimeout，因为文件大小差异极大
-        // 协程层的 withTimeout 提供整体兜底保护
+
 }

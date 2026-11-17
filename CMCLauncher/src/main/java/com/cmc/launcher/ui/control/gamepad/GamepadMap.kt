@@ -7,14 +7,8 @@ import com.movtery.inputmap.keycodes.ControlEventKeyName
 import com.movtery.inputmap.keycodes.ControlEventKeycode
 import com.cmc.launcher.R
 
-/**
- * 特殊键值：鼠标滚轮上移一次
- */
 const val SPECIAL_KEY_MOUSE_SCROLL_UP = "SPECIAL_KEY_MOUSE_SCROLL_LEFT"
 
-/**
- * 特殊键值：鼠标滚轮下移一次
- */
 const val SPECIAL_KEY_MOUSE_SCROLL_DOWN = "SPECIAL_KEY_MOUSE_SCROLL_RIGHT"
 
 enum class GamepadMap(
@@ -73,10 +67,6 @@ enum class GamepadMap(
         override fun getIconRes() = R.drawable.img_switch_rs_click
     };
 
-    /**
-     * https://opengameart.org/content/free-controller-prompts-xbox-playstation-switch-pc
-     * This project contains assets by JStatz, licensed under CC0 1.0 Universal.
-     */
     abstract fun getIconRes(): Int
 }
 

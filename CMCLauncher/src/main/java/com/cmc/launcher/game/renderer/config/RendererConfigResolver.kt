@@ -6,14 +6,11 @@ data class ResolvedConfigEntry(
     val enabled: Boolean?,
 )
 
-/**
- * 一次启动所需的完整配置解析结果
- */
 data class ResolvedRendererConfig(
     val fixedEnv: Map<String, String>,
     val entries: List<ResolvedConfigEntry>
 ) {
-    /** 统一生成环境变量 */
+
     val environment: Map<String, String> = buildMap {
         putAll(fixedEnv)
         this@ResolvedRendererConfig.entries.forEach { resolved ->
@@ -41,12 +38,10 @@ data class ResolvedRendererConfig(
         }
     }
 
-    /** SFPEW 兼容层开关，渲染器规范未声明该项时为 null */
     val sfpewLayerEnabled: Boolean? = entries
         .firstOrNull { it.entry.target is ConfigTarget.SfpewLayer }
         ?.let { (it.value as? ConfigScalar.BooleanValue)?.value }
 
-    /** 显式 JSON 字段 */
     val jsonFields: Map<String, ConfigScalar> = buildMap {
         this@ResolvedRendererConfig.entries.forEach { resolved ->
             val target = resolved.entry.target as? ConfigTarget.JsonField ?: return@forEach
@@ -72,18 +67,11 @@ data class ResolvedRendererConfig(
     }
 }
 
-/**
- * 单个配置项的值解析结果
- */
 data class ResolvedEntryState(
     val value: ConfigScalar,
     val enabled: Boolean?,
 )
 
-/**
- * 按本地覆盖、全局配置、规范默认值 的优先级解析单个配置项；
- * 全局存储与本地存储相同时不再重复读取
- */
 fun resolveEntry(
     rendererId: String,
     entry: ConfigEntry,
@@ -107,9 +95,6 @@ fun resolveEntry(
     )
 }
 
-/**
- * 按版本显式覆盖、全局显式配置、规范默认值 的优先级解析启动配置
- */
 fun resolveRendererConfig(
     rendererId: String,
     spec: RendererConfigSpec,

@@ -7,9 +7,6 @@ import java.io.File
 
 private const val TAG = "VulkanCapabilities"
 
-/**
- * 设备的原始 Vulkan 支持情况
- */
 @Keep
 data class VulkanCapabilities(
     val apiVersionMajor: Int,
@@ -18,11 +15,10 @@ data class VulkanCapabilities(
     val extensions: List<String>,
     val features: Map<String, Boolean>
 ) {
-    /** Vulkan 版本字符串 */
+
     val versionString: String
         get() = "$apiVersionMajor.$apiVersionMinor.$apiVersionPatch"
 
-    /** 检查 Vulkan 版本是否至少为 1.2 */
     val isVersionSupported: Boolean
         get() = apiVersionMajor > 1 || (apiVersionMajor == 1 && apiVersionMinor >= 2)
 }
@@ -50,10 +46,6 @@ object VulkanChecker {
         }
     }
 
-    /**
-     * 查询系统 Vulkan 支持情况
-     * @return 如果不支持 Vulkan 或初始化失败，返回 null
-     */
     fun checkCapabilities(
         driverPath: String?,
         nativeDir: String?,

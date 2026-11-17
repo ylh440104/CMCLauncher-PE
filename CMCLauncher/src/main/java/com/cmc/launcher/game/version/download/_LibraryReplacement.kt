@@ -7,7 +7,7 @@ data class LibraryReplacement(
     val newPath: String,
     val newSha1: String,
     val newUrl: String,
-    /** 替换后制品的真实大小；清单里的旧值通常与新版本不一致 */
+
     val newSize: Long = -1L
 )
 
@@ -17,7 +17,7 @@ fun getLibraryReplacement(libraryName: String, versionParts: List<String>): Libr
 
     return when {
         libraryName.startsWith("net.java.dev.jna:jna:") -> {
-            //如果版本已经达到5.13.0及以上，则不做处理
+
             if (major >= 5 && minor >= 13) null
             else LibraryReplacement(
                 newName = "net.java.dev.jna:jna:5.13.0",
@@ -28,7 +28,7 @@ fun getLibraryReplacement(libraryName: String, versionParts: List<String>): Libr
             )
         }
         libraryName.startsWith("com.github.oshi:oshi-core:") -> {
-            //仅对版本 6.2.0 进行修改
+
             if (major != 6 || minor != 2) null
             else LibraryReplacement(
                 newName = "com.github.oshi:oshi-core:6.3.0",
@@ -39,7 +39,7 @@ fun getLibraryReplacement(libraryName: String, versionParts: List<String>): Libr
             )
         }
         libraryName.startsWith("org.ow2.asm:asm-all:") -> {
-            //如果主版本号不低于5，则不做处理
+
             if (major >= 5) null
             else LibraryReplacement(
                 newName = "org.ow2.asm:asm-all:5.0.4",
@@ -53,9 +53,6 @@ fun getLibraryReplacement(libraryName: String, versionParts: List<String>): Libr
     }
 }
 
-/**
- * @return 是否需要被过滤
- */
 fun GameManifest.Library.filterLibrary(): Boolean {
     return when {
         name?.contains("org.lwjgl") == true -> true

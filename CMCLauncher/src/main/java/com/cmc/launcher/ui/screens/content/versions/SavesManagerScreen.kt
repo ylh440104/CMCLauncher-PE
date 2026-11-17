@@ -155,9 +155,6 @@ private class SavesManageViewModel(
         compressOperation = operation
     }
 
-    /**
-     * 将指定的存档压缩为 zip 压缩包并存放到缓存目录中，压缩完成后分享压缩包文件
-     */
     fun compressAndShare(saveData: SaveData, context: Context) {
         compressJob?.cancel()
         compressJob = viewModelScope.launch {
@@ -199,7 +196,7 @@ private class SavesManageViewModel(
                     try {
                         dirs.forEach { dir ->
                             ensureActive()
-                            //解析存档 level.dat，读取必要数据
+
                             val data = parseLevelDatFile(
                                 saveFile = dir,
                                 levelDatFile = File(dir, "level.dat"),
@@ -554,9 +551,6 @@ private fun SavesActionsHeader(
     }
 }
 
-/**
- * @param minecraftVersion 当前版本的 Minecraft 版本
- */
 @Composable
 private fun SavesList(
     modifier: Modifier = Modifier,
@@ -590,8 +584,7 @@ private fun SavesList(
                 }
             }
         } else {
-            //如果列表是空的，则是由搜索导致的
-            //展示“无匹配项”文本
+
             Box(modifier = Modifier.fillMaxSize()) {
                 ScalingLabel(
                     modifier = Modifier.align(Alignment.Center),
@@ -600,7 +593,7 @@ private fun SavesList(
             }
         }
     } ?: run {
-        //如果为null，则代表本身就没有存档可以展示
+
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
@@ -610,10 +603,6 @@ private fun SavesList(
     }
 }
 
-/**
- * @param saveData 存档信息
- * @param minecraftVersion 当前版本的 Minecraft 版本
- */
 @Composable
 private fun SaveItemLayout(
     modifier: Modifier = Modifier,
@@ -627,7 +616,7 @@ private fun SaveItemLayout(
     itemColor: Color = itemColor(),
     itemContentColor: Color = onItemColor(),
 ) {
-    //存档是否与当前 MC 版本兼容
+
     val isCompatible = saveData.isCompatible(minecraftVersion)
 
     val context = LocalContext.current
@@ -648,7 +637,7 @@ private fun SaveItemLayout(
             modifier = Modifier.padding(all = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            //存档的封面图标
+
             SaveIcon(
                 modifier = Modifier
                     .size(42.dp)
@@ -688,8 +677,6 @@ private fun SaveItemLayout(
                             }
                         }
 
-                        //虽然极限模式与 gameMode 是分离开的
-                        //不过它可以算作是一种游戏模式，毕竟创建世界时，极限模式就是在游戏模式里面选择的
                         if (saveData.hardcoreMode == true) {
                             LittleTextLabel(text = stringResource(R.string.saves_manage_hardcore))
                         } else {
@@ -723,7 +710,7 @@ private fun SaveItemLayout(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (saveData.isValid) {
-                    //详细信息展示
+
                     TooltipIconButton(
                         modifier = Modifier.size(38.dp),
                         tooltip = {
@@ -751,7 +738,6 @@ private fun SaveItemLayout(
                     )
                 }
 
-                //更多存档操作
                 SaveOperationMenu(
                     saveValid = saveData.isValid,
                     buttonSize = 38.dp,
@@ -778,10 +764,6 @@ private fun SaveItemLayout(
     }
 }
 
-/**
- * 存档的封面图标
- * @param triggerRefresh 强制刷新
- */
 @Composable
 private fun SaveIcon(
     modifier: Modifier = Modifier,
@@ -811,17 +793,15 @@ private fun SaveInfoTooltip(
     copySeed: (String) -> Unit = {}
 ) {
     Column {
-        //文件名
+
         Text(text = stringResource(R.string.generic_file_name, saveData.saveFile.name))
-//        //存档大小
-//        Text(text = stringResource(R.string.generic_file_size, formatFileSize(saveData.saveSize)))
-        //游戏模式，不存在则展示为未知
+
         Text(
             text = stringResource(
                 R.string.saves_manage_gamemode,
                 stringResource(
                     if (saveData.hardcoreMode == true) {
-                        //极限模式
+
                         R.string.saves_manage_hardcore
                     } else {
                         saveData.gameMode?.nameRes ?: R.string.generic_unknown
@@ -829,9 +809,9 @@ private fun SaveInfoTooltip(
                 )
             )
         )
-        //游戏难度
+
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            //游戏难度，不存在则展示为未知
+
             Text(
                 text = stringResource(
                     R.string.saves_manage_difficulty,
@@ -842,11 +822,11 @@ private fun SaveInfoTooltip(
                 Text(text = stringResource(R.string.saves_manage_difficulty_locked))
             }
         }
-        //是否使用指令
+
         if (saveData.allowCommands == true) {
             Text(text = stringResource(R.string.saves_manage_allow_commands))
         }
-        //游戏时长
+
         if (saveData.playTime != null) {
             val duration = (saveData.playTime / 20).toDuration(DurationUnit.SECONDS)
             val playtime = duration.toComponents { days, hours, minutes, _, _ ->
@@ -854,7 +834,7 @@ private fun SaveInfoTooltip(
             }
             Text(text = stringResource(R.string.saves_manage_playtime, playtime))
         }
-        //世界种子
+
         val worldSeed = saveData.worldSeed?.toString()
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -866,7 +846,7 @@ private fun SaveInfoTooltip(
                     worldSeed ?: stringResource(R.string.generic_unknown)
                 )
             )
-            //不为未知时，允许复制种子码
+
             worldSeed?.let { seed ->
                 IconButton(
                     modifier = Modifier.size(24.dp),

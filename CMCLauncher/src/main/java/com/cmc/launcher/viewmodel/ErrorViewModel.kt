@@ -24,15 +24,12 @@ class ErrorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 通用的错误信息展示对话框
-     */
     suspend fun showErrorDialog(
         context: Context,
         tm: ThrowableMessage
     ) {
         withContext(Dispatchers.Main) {
-            //展示一个一次性的错误信息对话框
+
             MaterialAlertDialogBuilder(context)
                 .setTitle(tm.title.toAndroidString(context))
                 .setMessage(tm.message.toAndroidString(context))

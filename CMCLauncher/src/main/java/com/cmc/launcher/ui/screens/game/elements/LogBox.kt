@@ -52,12 +52,8 @@ import java.util.Collections
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.milliseconds
 
-/** 游戏日志的最大保留行数 */
 private const val MAX_LOG_LINES = 2048
 
-/**
- * 单条游戏日志
- */
 private data class LogLine(val id: Long, val text: AnnotatedString)
 
 @Composable
@@ -70,7 +66,7 @@ fun LogBox(
 
     val logList = remember { mutableStateListOf<LogLine>() }
     val buffer = remember { Collections.synchronizedList(mutableListOf<String>()) }
-    //元素表示该次滚动是否使用动画，自动跟随日志的滚动不带动画
+
     val scrollChannel = remember { mutableStateOf<Channel<Boolean>?>(null) }
     val lineId = remember { AtomicLong(0) }
 
@@ -79,7 +75,7 @@ fun LogBox(
 
     val config = remember {
         object {
-            /** 缓冲区刷新间隔，单位：ms */
+
             val BUFFER_FLUSH_INTERVAL: Long = AllSettings.logBufferFlushInterval.getValue().toLong()
         }
     }
@@ -119,7 +115,7 @@ fun LogBox(
                                 val overflow = logList.size - MAX_LOG_LINES
                                 if (overflow > 0) logList.subList(0, overflow).clear()
                                 if (autoScrollDown) {
-                                    //尝试进行滚动
+
                                     scrollChannel.value?.trySend(false)
                                 }
                             }
@@ -130,7 +126,6 @@ fun LogBox(
                 }
             }
 
-            //自动滚动部分
             launch(Dispatchers.Main) {
                 scrollChannel.value?.consumeAsFlow()?.collect { animated ->
                     runCatching {
@@ -185,7 +180,6 @@ fun LogBox(
                 }
             }
 
-            //右侧控制区域
             VerticalDivider(
                 modifier = Modifier.fillMaxHeight(),
                 color = Color.White.copy(0.4f)
@@ -201,7 +195,7 @@ fun LogBox(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    //关闭
+
                     LogBoxIconButton(
                         onClick = onClose,
                         toggle = false
@@ -212,7 +206,7 @@ fun LogBox(
                             contentDescription = null
                         )
                     }
-                    //清理
+
                     LogBoxIconButton(
                         onClick = {
                             synchronized(buffer) {
@@ -228,7 +222,7 @@ fun LogBox(
                             contentDescription = null
                         )
                     }
-                    //自动滚动
+
                     LogBoxIconButton(
                         onClick = {
                             val value = !autoScrollDown
@@ -245,7 +239,7 @@ fun LogBox(
                             contentDescription = null
                         )
                     }
-                    //滚动到底部
+
                     LogBoxIconButton(
                         onClick = {
                             scrollChannel.value?.trySend(true)

@@ -42,9 +42,6 @@ val GSON = GsonBuilder().setPrettyPrinting().create()
 
 const val DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss"
 
-/**
- * 格式化时间戳
- */
 fun formatDate(
     date: Date,
     pattern: String = DEFAULT_DATE_PATTERN,
@@ -61,9 +58,6 @@ fun formatDate(
     return formatter.format(date)
 }
 
-/**
- * 格式化时间戳
- */
 fun formatDate(
     timestamp: Long,
     pattern: String = DEFAULT_DATE_PATTERN,
@@ -78,9 +72,6 @@ fun formatDate(
     )
 }
 
-/**
- * 格式化时间戳
- */
 fun formatDate(
     input: String,
     pattern: String = DEFAULT_DATE_PATTERN,
@@ -101,9 +92,6 @@ fun formatDate(
     )
 }
 
-/**
- * 获取 xx 时间前 格式的字符串
- */
 fun getTimeAgo(
     context: Context,
     dateString: String,
@@ -125,9 +113,6 @@ fun getTimeAgo(
     return getTimeAgo(context, pastInstant)
 }
 
-/**
- * 获取 xx 时间前 格式的字符串
- */
 fun getTimeAgo(
     context: Context,
     pastInstant: Instant
@@ -157,45 +142,26 @@ fun getTimeAgo(
     return context.getString(R.string.just_now)
 }
 
-/**
- * 检查是否为给定的日期
- */
 fun LocalDate.checkDate(month: Int, day: Int): Boolean {
     return monthValue == month && dayOfMonth == day
 }
 
-/**
- * 检查是否为给定的日期范围
- */
 fun LocalDate.checkDateRange(month: Int, dayRange: IntRange): Boolean {
     return monthValue == month && dayOfMonth in dayRange
 }
 
-/**
- * 检查是否为给定的日期（农历）
- */
 fun LunarCalendar.checkDate(month: Int, day: Int): Boolean {
     return lunar.month == month && lunar.day == day
 }
 
-/**
- * 检查是否为给定的日期范围（农历）
- */
 fun LunarCalendar.checkDateRange(month: Int, dayRange: IntRange): Boolean {
     return lunar.month == month && lunar.day in dayRange
 }
 
-/**
- * 获取简单的语言标签
- */
 fun Locale.toLangTag(): String {
     return language + "_" + country.lowercase()
 }
 
-/**
- * 检查语言标签是否与当前系统匹配
- * 支持此类格式："zh_cn", "en_us", "zh", "en"
- */
 fun Locale.compareLangTag(
     targetTag: String
 ): Boolean {
@@ -206,11 +172,6 @@ fun Locale.compareLangTag(
     }
 }
 
-/**
- * 复制文本到系统剪贴板
- * @param showToast 是否同时弹出 Toast
- * @suppress 未在主线程调用时会导致 Android 8.x 崩溃
- */
 fun copyText(label: String?, text: String?, context: Context, showToast: Boolean = true) {
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     clipboardManager.setPrimaryClip(ClipData.newPlainText(label, text))
@@ -297,7 +258,6 @@ fun isAdrenoGPU(): Boolean {
             vendor.equals("Qualcomm", ignoreCase = true) &&
             renderer.contains("adreno", ignoreCase = true)
 
-    // Cleanup
     EGL14.eglMakeCurrent(
         eglDisplay,
         EGL14.EGL_NO_SURFACE,
@@ -385,7 +345,7 @@ fun isChinaMainland(): Boolean {
     if (
         timeZone.id in listOf(
             "Asia/Shanghai",
-            "Asia/Chongqing",//历史遗留
+            "Asia/Chongqing",
             "Asia/Urumqi"
         )
     ) return true
@@ -395,40 +355,32 @@ fun isChinaMainland(): Boolean {
 
     if (!isUtcPlus8) return false
 
-    //应用内支持修改语言，不能再以语言来进行判断
-    return /*Locale.getDefault().country.equals("CN", ignoreCase = true)*/false
+    return false
 }
 
-/**
- * 检查当前环境是否为中文环境
- */
 fun isChinese(context: Context? = null): Boolean {
-    //检查默认区域设置
+
     val defaultLocale = Locale.getDefault()
     if (isChineseLocale(defaultLocale)) {
         return true
     }
 
-    //检查实际区域设置
     val resources = context?.resources
     return resources != null && isChineseLocale(resources.configuration.locales[0])
 }
 
-/**
- * 判断单个Locale是否为中文环境
- */
 fun isChineseLocale(locale: Locale): Boolean {
     val language = locale.language.lowercase(Locale.ROOT)
     if (language != "zh") return false
 
     val country = locale.country.uppercase(Locale.ROOT)
     return country in setOf(
-        "CN", //中国大陆
-        "TW", //台湾
-        "HK", //香港
-        "MO", //澳门
-        "SG", //新加坡
-        "MY"  //马来西亚
+        "CN",
+        "TW",
+        "HK",
+        "MO",
+        "SG",
+        "MY"
     )
 }
 
@@ -436,13 +388,10 @@ fun isInGreaterChina(): Boolean {
     return isChinaTimeZone() && Locale.getDefault().language == "zh"
 }
 
-/**
- * 判断当前时区是否属于中国
- */
 private fun isChinaTimeZone(): Boolean {
     return when (TimeZone.getDefault().id) {
         "Asia/Shanghai",
-        "Asia/Chongqing",//历史遗留
+        "Asia/Chongqing",
         "Asia/Hong_Kong",
         "Asia/Macao",
         "Asia/Taipei",
@@ -460,9 +409,6 @@ fun printLauncherInfo(
     println("▷ Launcher Version: ${BuildConfig.VERSION_NAME}, build: ${BuildKeys.BUILD_ARCH}")
 }
 
-/**
- * 将崩溃报告写入指定文件
- */
 fun writeCrashFile(
     file: File,
     throwable: Throwable,
@@ -486,7 +432,7 @@ fun formatKeyCode(code: Int): String {
         return input.split("_")
             .joinToString(" ") { word ->
                 when (word) {
-                    //保留常见缩写的大写
+
                     "UI", "TV", "API", "NFC", "GPS" -> word
                     else -> word.lowercase()
                         .replaceFirstChar {
@@ -552,7 +498,6 @@ fun formatKeyCode(code: Int): String {
             } ?: formatAsReadableText(s1)
         }
 
-        //未知按键
         rawString.startsWith("0x") -> "Key ${rawString.uppercase()}"
 
         else -> {

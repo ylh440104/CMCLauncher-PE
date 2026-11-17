@@ -25,11 +25,6 @@ import java.io.File
 
 private const val TAG = "PackExporter"
 
-/**
- * 整合包导出器
- * @param exportInfo 要导出的整合包的必要信息
- * @param scope 在有生命周期管理的scope中执行安装任务
- */
 class PackExporter(
     val context: Context,
     val exportInfo: ExportInfo,
@@ -44,9 +39,6 @@ class PackExporter(
         PackType.CurseForge -> CurseForgePackExporter()
     }
 
-    /**
-     * 开始导出整合包
-     */
     fun startExport(
         outputUri: Uri,
         version: Version,
@@ -56,7 +48,7 @@ class PackExporter(
     ) {
         if (taskExecutor.isRunning()) {
             isRunning()
-            return //正在运行中，拒绝导出
+            return
         }
 
         taskExecutor.executePhasesAsync(
@@ -83,7 +75,7 @@ class PackExporter(
 
         listOf(
             buildPhase {
-                //清除上一次导出的缓存
+
                 addTask(
                     id = "ExportModpack.Cleanup",
                     title = androidText(R.string.download_install_clear_temp),
@@ -131,9 +123,6 @@ class PackExporter(
         )
     }
 
-    /**
-     * 清理临时整合包导出目录
-     */
     private suspend fun clearTempModPackDir() = withContext(Dispatchers.IO) {
         PathManager.DIR_CACHE_MODPACK_EXPORTER.takeIf { it.exists() }?.let { folder ->
             FileUtils.deleteQuietly(folder)
@@ -141,9 +130,6 @@ class PackExporter(
         }
     }
 
-    /**
-     * 取消整合包导入
-     */
     fun cancel() {
         taskExecutor.cancel()
     }

@@ -27,10 +27,6 @@ object MinecraftVersions {
     private val _allVersions = MutableStateFlow<List<MinecraftVersion>>(emptyList())
     val allVersions = _allVersions.asStateFlow()
 
-    /**
-     * 刷新Minecraft版本的版本号列表
-     * @param force 强制下载更新版本列表
-     */
     @Throws(IllegalStateException::class)
     suspend fun refreshVersions(force: Boolean = false) {
         if (!force && _allVersions.value.isNotEmpty()) return
@@ -44,10 +40,6 @@ object MinecraftVersions {
         _allVersions.update { versions }
     }
 
-    /**
-     * 获取Minecraft版本信息列表
-     * @param force 强制下载更新版本列表
-     */
     @Throws(IllegalStateException::class)
     suspend fun getVersionManifest(force: Boolean = false): VersionManifest {
         manifest?.takeIf { !force }?.let { return it }
@@ -55,7 +47,7 @@ object MinecraftVersions {
         return withContext(Dispatchers.IO) {
             val localManifestFile = PathManager.FILE_MINECRAFT_VERSIONS
             val isOutdated = !localManifestFile.exists() || !localManifestFile.isFile ||
-                    //一天更新一次版本信息列表
+
                     localManifestFile.lastModified() + TimeUnit.DAYS.toMillis(1) < System.currentTimeMillis()
 
             val newManifest = if (force || isOutdated) {
@@ -65,7 +57,7 @@ object MinecraftVersions {
                     GSON.fromJson(localManifestFile.readText(), VersionManifest::class.java)
                 } catch (e: Exception) {
                     Logger.warning(TAG, "Failed to parse version manifest, will redownload", e)
-                    //读取失败则删除当前的版本信息文件
+
                     FileUtils.deleteQuietly(localManifestFile)
                     downloadVersionManifest()
                 }
@@ -78,9 +70,6 @@ object MinecraftVersions {
         }
     }
 
-    /**
-     * 从官方版本仓库获取版本信息
-     */
     private suspend fun downloadVersionManifest(): VersionManifest {
         return withContext(Dispatchers.IO) {
             withRetry("MinecraftVersions", maxRetries = 2) {
@@ -92,9 +81,6 @@ object MinecraftVersions {
         }
     }
 
-    /**
-     * 尝试从本地合并官方隐藏的版本
-     */
     private suspend fun mergeUnlistVersions(
         currentManifest: VersionManifest
     ): VersionManifest? {

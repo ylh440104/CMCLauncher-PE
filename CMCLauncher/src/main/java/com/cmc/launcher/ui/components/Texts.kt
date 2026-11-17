@@ -82,7 +82,6 @@ fun AutoSizeText(
     )
 }
 
-
 @Composable
 fun SingleLineTextCheck(
     text: String,
@@ -100,9 +99,6 @@ fun SingleLineTextCheck(
     }
 }
 
-/**
- * 过渡/变更文本组
- */
 @Composable
 fun TextTransition(
     from: String,

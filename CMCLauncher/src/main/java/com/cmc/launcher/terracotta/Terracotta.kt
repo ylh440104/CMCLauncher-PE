@@ -19,16 +19,13 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAG = "Terracotta"
 
-/**
- * [Reference FCL](https://github.com/FCL-Team/FoldCraftLauncher/blob/52f0542/FCL/src/main/java/com/tungsten/fcl/terracotta/Terracotta.java)
- */
 object Terracotta {
     const val TERRACOTTA_USER_NOTICE_VERSION = 1
 
     enum class Mode {
-        /** 房主模式 */
+
         Host,
-        /** 房客模式 */
+
         Guest
     }
 

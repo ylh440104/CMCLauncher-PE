@@ -587,7 +587,7 @@ private fun customDark(
 @Composable
 fun CMCLauncherTheme(
     darkTheme: Boolean = isLauncherInDarkTheme(),
-    // Dynamic color is available on Android 12+
+
     dynamicColor: Boolean = true,
     backgroundViewModel: BackgroundViewModel? = null,
     festivals: List<Festival> = emptyList(),

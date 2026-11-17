@@ -28,9 +28,6 @@ object OptiFineVersions {
 
     private var cacheResult: List<OptiFineVersion>? = null
 
-    /**
-     * 获取 OptiFine 版本列表
-     */
     suspend fun fetchOptiFineList(
         force: Boolean = false,
         gameVersion: String
@@ -69,7 +66,6 @@ object OptiFineVersions {
             val forgePattern = Regex("<td class=['\"]colForge['\"]>([^<]+)</td>")
             val jarPattern = Regex("adfoc\\.us[^>]+f=([^&]+\\.jar)")
 
-            //提取所有匹配项
             val names = namePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
             val dates = datePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
             val forges = forgePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
@@ -98,10 +94,10 @@ object OptiFineVersions {
                 val fileName = (if (isPreview) "preview_" else "") + "$rawName.jar"
 
                 val versionName = if (rawName.contains("$inherit.0_")) {
-                    //OptiFine_1.9.0_HD_U_E7 -> 1.9-OptiFine_HD_U_E7
+
                     "${inherit}-${rawName.replace("$inherit.0_", "")}"
                 } else {
-                    //OptiFine_1.10.2_HD_U_C1 -> 1.10.2-OptiFine_HD_U_C1
+
                     "${inherit}-${rawName.replace("${inherit}_", "")}"
                 }
 
@@ -109,7 +105,6 @@ object OptiFineVersions {
                 val parts = rawDate.split('.')
                 val formattedDate = if (parts.size == 3) "${parts[2]}/${parts[1]}/${parts[0]}" else rawDate
 
-                //提取Forge版本
                 val forgeVersion = forges[i]
                     .takeIf { !it.contains("N/A") }
                     ?.removePrefix("Forge ")
@@ -182,9 +177,6 @@ object OptiFineVersions {
             }
     }
 
-    /**
-     * 获取 OF 对应文件下载链接
-     */
     suspend fun fetchOptiFineDownloadUrl(fileName: String): String? = withContext(Dispatchers.Default) {
         try {
             val response: HttpResponse = withContext(Dispatchers.IO) {

@@ -26,9 +26,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "RuntimesManager"
 
-/**
- * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/v3_openjdk/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/multirt/MultiRTUtils.java)
- */
 object RuntimesManager {
     private val cache = ConcurrentHashMap<String, Runtime>()
 
@@ -165,7 +162,6 @@ object RuntimesManager {
         if (targetXawtLib.exists()) targetXawtLib.delete()
         FileUtils.copyFile(localXawtLib, targetXawtLib)
 
-        // 补装 libjsound.so
         val localJsoundLib = File(PathManager.DIR_NATIVE_LIB, "libjsound.so")
         if (localJsoundLib.exists()) {
             val targetJsoundLib = dest.child(libFolder, "libjsound.so")
@@ -229,11 +225,6 @@ object RuntimesManager {
         return dest
     }
 
-    /**
-     * Unpacks all .pack files into .jar Serves only for java 8, as java 9 brought project jigsaw
-     * @param nativeLibraryDir The native lib path, required to execute the unpack200 binary
-     * @param runtimePath The path to the runtime to walk into
-     */
     private suspend fun unpack200(
         nativeLibraryDir: String,
         runtimePath: String

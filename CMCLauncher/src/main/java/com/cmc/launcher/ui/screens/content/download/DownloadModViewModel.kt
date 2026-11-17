@@ -21,57 +21,38 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "DownloadModViewModel"
 
-/** 下载模组屏幕的本地模组安装信息状态 */
 class DownloadModViewModel : ViewModel() {
-    /** 当前匹配的目标平台 */
+
     var currentPlatform: Platform = AllSettings.searchModPlatform.getValue()
         private set
 
-    /** 是否正在进行本地扫描或平台匹配 */
     var matching by mutableStateOf(false)
         private set
 
-    /** 当前平台下本地已安装的模组项目映射，键为平台项目ID */
     var installedByProject by mutableStateOf<Map<String, InstalledMod>>(emptyMap())
         private set
 
-    /** 当前平台下本地已安装的模组版本映射，键为平台版本ID */
     private var installedByVersion by mutableStateOf<Map<String, InstalledMod>>(emptyMap())
 
     private var scanJob: Job? = null
 
-    /** 最近一次扫描对应的版本名称，用于判断扫描目标是否变化 */
     private var scannedVersionName: String? = null
 
-    /** 最近一次扫描得到的所有本地模组文件指纹 */
     private var scannedFingerprints: List<ModFingerprints> = emptyList()
 
-    /** 本次生命周期内已完成的平台匹配结果，避免切换平台时重复计算 */
     private val matchedResults =
         mutableMapOf<Platform, Pair<Map<String, InstalledMod>, Map<String, InstalledMod>>>()
 
-    /**
-     * 查询平台项目在本地是否已安装
-     */
     fun checkProject(platform: Platform, projectId: String): InstalledMod? {
         return installedByProject[projectId]
             ?.takeIf { it.platform == platform && !it.notFound }
     }
 
-    /**
-     * 查询平台版本在本地是否已安装
-     */
     fun checkVersion(version: PlatformVersion): InstalledMod? {
         return installedByVersion[version.platformId()]
             ?.takeIf { it.platform == version.platform() && !it.notFound }
     }
 
-    /**
-     * 扫描指定游戏版本的模组目录，并按当前平台匹配本地已安装的模组
-     *
-     * 扫描目标版本变化时立即清除旧的匹配结果；
-     * 同版本重复扫描时保留旧结果直至新结果就绪，避免标注闪烁
-     */
     fun scan(version: Version?) {
         val versionName = version?.getVersionName()
         if (scanJob?.isActive == true && versionName == scannedVersionName) return
@@ -82,7 +63,7 @@ class DownloadModViewModel : ViewModel() {
             installedByProject = emptyMap()
             installedByVersion = emptyMap()
         }
-        //重扫后指纹集合可能变化，已完成的平台匹配结果全部失效
+
         matchedResults.clear()
 
         scanJob = viewModelScope.launch {
@@ -107,14 +88,10 @@ class DownloadModViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 搜索平台变更时，使用已扫描的指纹按新平台重新匹配
-     */
     fun onPlatformChanged(platform: Platform) {
         if (currentPlatform == platform) return
         currentPlatform = platform
 
-        // 扫描尚未结束时，扫描尾部会自动按最新平台进行匹配
         if (scanJob?.isActive == true) return
 
         scanJob = viewModelScope.launch {
@@ -147,14 +124,12 @@ class DownloadModViewModel : ViewModel() {
             byVersion[installed.versionId] = installed
         }
 
-        //边匹配边同步到UI，匹配到多少显示多少
         val matched = matchInstalledMods(fingerprints, platform) { incremental ->
             incremental.byProject.values.forEach(::collect)
             installedByProject = byProject.toMap()
             installedByVersion = byVersion.toMap()
         }
 
-        // 存在失败分块时不做会话内缓存，下次切换平台时重试（成功块已有持久缓存兜底）
         if (matched.complete) matchedResults[platform] = matched.byProject to matched.byVersion
         installedByProject = matched.byProject
         installedByVersion = matched.byVersion

@@ -70,27 +70,16 @@ import com.cmc.launcher.utils.animation.getAnimateTween
 import com.cmc.launcher.utils.animation.getEnterTween
 import java.text.DecimalFormat
 
-/**
- * 菜单状态
- */
 enum class MenuState {
-    /**
-     * 初始化 (刚加载时)
-     */
+
     NONE {
         override fun next() = SHOW
     },
 
-    /**
-     * 展示中
-     */
     SHOW {
         override fun next() = HIDE
     },
 
-    /**
-     * 隐藏中
-     */
     HIDE {
         override fun next() = SHOW
     };
@@ -111,20 +100,19 @@ fun MenuSubscreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (visible)  {
-            //背景阴影层
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = backgroundColor)
                     .clickable(
-                        indication = null, //禁用水波纹点击效果
+                        indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                         onClick = closeScreen
                     )
             )
         }
 
-        //Menu
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
@@ -161,7 +149,7 @@ fun DualMenuSubscreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (visible)  {
-            //背景阴影层
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -174,7 +162,6 @@ fun DualMenuSubscreen(
             )
         }
 
-        //左侧菜单
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
@@ -201,7 +188,6 @@ fun DualMenuSubscreen(
             }
         }
 
-        //右侧菜单
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)

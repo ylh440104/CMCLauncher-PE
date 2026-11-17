@@ -20,12 +20,6 @@ import com.movtery.petlib.PetGazeRouter
 import com.movtery.petlib.PetPreview
 import com.movtery.petlib.PetTapReaction
 
-/**
- * 设置皮肤，若皮肤数据传 null，则在 assets 中加载默认皮肤
- * @param skin PNG 皮肤数据
- * @param arm 手臂模型类别，为 null 则自动检测类型
- * @param onError 失败时在渲染线程的回调
- */
 fun PetController.setSkinDefaultable(
     context: Context,
     skin: ByteArray?,
@@ -42,21 +36,6 @@ private fun Context.loadDefaultSkin(arm: ArmModel?): ByteArray = if (arm == ArmM
     assets.open("skin/steve.png")
 }.use { it.readBytes() }
 
-/**
- * 玩家模型预览的中介组件：内部组装控制器生命周期、皮肤与披风加载、
- * 全局鼠标视线跟随与手势交互，调用端只需提供渲染数据。
- *
- * @param skin 皮肤数据，null 时使用按臂型区分的默认皮肤
- * @param cape 披风数据，null 时无披风
- * @param arm 手臂模型类别，null 按皮肤自动检测
- * @param yaw 整体偏航角（弧度），参数变化时模型转向该角度
- * @param animation 循环动画，null 不播放
- * @param animationSpeed 动画播放速度倍率
- * @param tapReaction 点按模型命中时的反馈形式
- * @param dragYaw 是否响应拖拽旋转偏航
- * @param gazeEnabled 是否跟随 Activity 全局鼠标位置（窗口坐标）；
- * 独立窗口中的预览与事件泵不同坐标系，应传 false
- */
 @Composable
 fun PetModelView(
     modifier: Modifier = Modifier,

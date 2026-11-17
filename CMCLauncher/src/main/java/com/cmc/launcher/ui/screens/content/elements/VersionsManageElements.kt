@@ -117,22 +117,22 @@ sealed interface VersionsOperation {
 
 sealed interface CleanupOperation {
     data object None : CleanupOperation
-    /** 清理前的提醒 */
+
     data object Tip : CleanupOperation
-    /** 开始清理 */
+
     data object Clean : CleanupOperation
-    /** 清理失败 */
+
     data class Error(val error: Throwable) : CleanupOperation
-    /** 成功清除 */
+
     data class Success(val count: Int, val size: String) : CleanupOperation
 }
 
 enum class VersionCategory(val textRes: Int) {
-    /** 全部 */
+
     ALL(R.string.generic_all),
-    /** 原版 */
+
     VANILLA(R.string.versions_manage_category_vanilla),
-    /** 带有模组加载器 */
+
     MODLOADER(R.string.versions_manage_category_modloader)
 }
 
@@ -593,8 +593,7 @@ fun CleanupOperation(
                     Spacer(Modifier.height(4.dp))
                     Text(stringResource(R.string.versions_manage_cleanup_warning))
                     Text("../assets/..")
-                    //不再清理依赖库，文件并不会太大，也有可能导致其他问题：#617
-//                    Text("../libraries/..")
+
                 },
                 onConfirm = onClean,
                 onCancel = { changeOperation(CleanupOperation.None) }
@@ -604,7 +603,7 @@ fun CleanupOperation(
             if (cleaner != null) {
                 val tasks = cleaner.tasksFlow.collectAsStateWithLifecycle()
                 if (tasks.value.isNotEmpty()) {
-                    //清理无用游戏文件流程对话框
+
                     TitleTaskFlowDialog(
                         title = stringResource(R.string.versions_manage_cleanup),
                         tasks = tasks.value,
@@ -747,19 +746,18 @@ fun VersionItemLayout(
                 enabled = version.isValid()
             ) {
                 run {
-                    val it = version.pinnedState
-                    pinned ->
+                    val pinned = version.pinnedState
                     val icon = if (pinned) {
-                    painterResource(R.drawable.ic_pinned_filled)
+                        painterResource(R.drawable.ic_pinned_filled)
                     } else {
-                    painterResource(R.drawable.ic_pinned_outlined)
+                        painterResource(R.drawable.ic_pinned_outlined)
                     }
                     Icon(
-                    modifier = Modifier.rotate(45.0f),
-                    painter = icon,
-                    contentDescription = stringResource(R.string.versions_manage_pin)
+                        modifier = Modifier.rotate(45.0f),
+                        painter = icon,
+                        contentDescription = stringResource(R.string.versions_manage_pin)
                     )
-                    }
+                }
             }
 
             IconButton(
@@ -832,7 +830,7 @@ fun VersionItemLayout(
                             menuExpanded = false
                         }
                     )
-                    //添加卡片到主界面
+
                     val cardExists by remember(version) {
                         VersionCardManager.cards.map { states ->
                             states.any {
@@ -1011,9 +1009,6 @@ fun VersionIconImage(
     }
 }
 
-/**
- * 模组加载器图标展示组件，包装 [Image]
- */
 @Composable
 fun ModLoaderIcon(
     modloader: ModLoader,

@@ -2,9 +2,6 @@ package com.cmc.launcher.utils.device
 
 import android.os.Build
 
-/**
- * [from Architecture.java](https://github.com/PojavLauncherTeam/PojavLauncher/blob/v3_openjdk/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Architecture.java)
- */
 object Architecture {
     const val UNSUPPORTED_ARCH = -1
     const val ARCH_ARM64 = 0x1
@@ -56,7 +53,6 @@ object Architecture {
         else -> "UNSUPPORTED_ARCH"
     }
 
-    /** Android ABI 目录名 */
     fun archAsStringAndroid(arch: Int): String = when (arch) {
         ARCH_ARM64 -> "arm64-v8a"
         ARCH_ARM -> "armeabi-v7a"

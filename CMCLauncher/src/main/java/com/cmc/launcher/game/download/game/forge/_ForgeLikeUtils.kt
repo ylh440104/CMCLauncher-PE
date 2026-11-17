@@ -5,9 +5,6 @@ import com.cmc.launcher.game.download.game.models.toPath
 import com.cmc.launcher.utils.string.isSurrounded
 import java.io.File
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/6e05b5ee58e67cd40e58c6f6002f3599897ca358/HMCLCore/src/main/java/org/jackhuang/hmcl/download/forge/ForgeNewInstallTask.java#L249-L258)
- */
 fun parseLiteral(
     baseDir: File,
     literal: String,
@@ -26,9 +23,6 @@ fun parseLiteral(
     }
 }
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/6e05b5ee58e67cd40e58c6f6002f3599897ca358/HMCLCore/src/main/java/org/jackhuang/hmcl/download/forge/ForgeNewInstallTask.java#L308-L330)
- */
 fun parseOptions(baseDir: File, args: List<String>, vars: Map<String, String>): Map<String, String> {
     val options = LinkedHashMap<String, String>()
     var optionName: String? = null
@@ -50,9 +44,6 @@ fun parseOptions(baseDir: File, args: List<String>, vars: Map<String, String>): 
     return options
 }
 
-/**
- * [Modified from HMCL](https://github.com/HMCL-dev/HMCL/blob/6e05b5ee58e67cd40e58c6f6002f3599897ca358/HMCLCore/src/main/java/org/jackhuang/hmcl/download/forge/ForgeNewInstallTask.java#L205-L247)
- */
 private fun replaceTokens(tokens: Map<String, String>, value: String): String {
     val buf = StringBuilder()
     var x = 0

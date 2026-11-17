@@ -58,17 +58,12 @@ import com.cmc.launcher.ui.theme.cardColor
 import com.cmc.launcher.ui.theme.onCardColor
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-/** 主页网格的卡片操作 */
 private sealed interface HomeCardOperation {
     data object None : HomeCardOperation
-    /** 打开服务器卡片的设置对话框 */
+
     data class ServerCardSettings(val cardId: String) : HomeCardOperation
 }
 
-/**
- * 主页网格：系统卡片列 + 卡片网格库容器，
- * 负责布局的播种、持久化、卡片记录同步与服务器卡片的可见性上报。
- */
 @Composable
 fun HomeGrid(
     state: CardGridState,
@@ -76,10 +71,9 @@ fun HomeGrid(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    //长按调整工具栏触发的卡片操作
+
     var operation by remember { mutableStateOf<HomeCardOperation>(HomeCardOperation.None) }
 
-    // 播种持久化的用户卡片布局
     LaunchedEffect(Unit) {
         val snapshot = HomeGridStore.load()
         state.seed(
@@ -101,7 +95,6 @@ fun HomeGrid(
         )
     }
 
-    // 布局结算后持久化
     LaunchedEffect(Unit) {
         state.onLayoutCommitted = {
             HomeGridStore.save(
@@ -111,7 +104,6 @@ fun HomeGrid(
         }
     }
 
-    // 卡片移除回调：同步各卡片管理器的记录
     LaunchedEffect(Unit) {
         state.onCardRemoved = { cardId ->
             VersionCardManager.removeCard(cardId)
@@ -119,7 +111,6 @@ fun HomeGrid(
         }
     }
 
-    // 与版本卡片记录保持同步：记录存在而网格缺卡时补齐
     LaunchedEffect(Unit) {
         VersionCardManager.cards.collect { states ->
             states.forEach { cardState ->
@@ -130,7 +121,6 @@ fun HomeGrid(
         }
     }
 
-    // 与服务器卡片记录保持同步：记录存在而网格缺卡时补齐
     LaunchedEffect(Unit) {
         ServerCardManager.cards.collect { states ->
             states.forEach { cardState ->
@@ -141,8 +131,6 @@ fun HomeGrid(
         }
     }
 
-    // 服务器卡片可见性：可见 = 屏幕可见 ∧ App 前台 ∧ 卡片矩形与滚动视口相交，
-    // 新进入可见集合的卡片会触发一次静默刷新（15s 冷却由管理器约束）
     val isVisibleState = rememberUpdatedState(isVisible)
     val lifecycleOwner = LocalLifecycleOwner.current
     var resumed by remember { mutableStateOf(false) }
@@ -224,7 +212,6 @@ fun HomeGrid(
             scrollState = scrollState
         )
 
-        //调整态底部操作栏
         if (state.isAdjusting)  {
             AdjustingBar(
                 state = state,
@@ -257,9 +244,6 @@ private fun HomeCardOperation(
     }
 }
 
-/**
- * 调整态底部操作栏
- */
 @Composable
 private fun AdjustingBar(
     state: CardGridState,
@@ -323,9 +307,6 @@ private fun AdjustingBar(
     }
 }
 
-/**
- * 消费落在自身范围内的全部指针事件
- */
 private fun Modifier.barGuard(): Modifier = pointerInput(Unit) {
     awaitEachGesture {
         awaitFirstDown(requireUnconsumed = false).consume()

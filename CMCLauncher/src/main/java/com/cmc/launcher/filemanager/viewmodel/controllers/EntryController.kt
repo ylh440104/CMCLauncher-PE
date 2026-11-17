@@ -21,7 +21,6 @@ import java.nio.file.LinkOption
 
 private const val TAG = "FmDelete"
 
-/** 删除 / 重命名 / 新建 / 分享控制器 */
 class EntryController(
     private val context: Context,
     private val logic: FileManagerLogic,
@@ -31,7 +30,7 @@ class EntryController(
 ) {
     fun showShare(entry: FmEntry) {
         store.dismissDialog()
-        // 共享对单个文件生效；目录不提供共享入口，这里兜底
+
         if (!entry.isFile) return
         coroutineScope.launch(Dispatchers.IO) {
             val file = entry.path.toFile()
@@ -50,21 +49,18 @@ class EntryController(
         }
     }
 
-    /** 提交新建文件/文件夹：校验文件名合法性与同目录重名后执行 */
     fun submitCreate(name: String, isFolder: Boolean, onDone: (Boolean) -> Unit) {
         if (name.isBlank()) {
             onDone(false)
             return
         }
 
-        // 校验文件名合法性
         val err = FilenameValidator.verify(name)
         if (err != null) {
             store.emitError(store.filenameErrorText(err))
             return
         }
 
-        // 校验是否与当前目录已有条目重名
         val conflict = store.stateValue().visibleEntries.any {
             it.name.equals(name, ignoreCase = false)
         }
@@ -80,7 +76,6 @@ class EntryController(
         store.dismissDialog()
     }
 
-    /** 提交重命名 */
     fun submitRename(entry: FmEntry, newName: String, onSuccess: () -> Unit) {
         rename(entry, newName) {
             store.dismissDialog()
@@ -88,15 +83,11 @@ class EntryController(
         }
     }
 
-    /**
-     * 对重命名候选名做就地校验
-     * @return 错误描述或 null
-     */
     fun validateRename(entry: FmEntry, newName: String): String? {
         if (newName.isBlank()) return store.stringResolver(R.string.generic_cannot_empty)
         val err = FilenameValidator.verify(newName)
         if (err != null) return store.filenameErrorText(err)
-        // 是否与同目录下其他条目重名（排除自身）
+
         val sibling = store.history.currentPath.resolve(newName).normalize().toAbsolutePath()
         if (sibling != entry.path && Files.exists(sibling, LinkOption.NOFOLLOW_LINKS)) {
             return store.stringResolver(R.string.fm_name_conflict)
@@ -174,7 +165,7 @@ class EntryController(
         val entries = store.selectedEntries()
         val targets = entries.map { it.path }
         if (targets.isEmpty()) return
-        // 单条目删除确认已进入执行，清除暂存标记
+
         store.stagedSingleDeleteKey = null
         val dirTargets = entries.filter { it.isDirectory }.map { it.path }.toSet()
         coroutineScope.launch(Dispatchers.IO) {
@@ -200,14 +191,12 @@ class EntryController(
         }
     }
 
-    /** 临时选中单个条目以发起删除确认 */
     fun stageSingleDelete(entry: FmEntry) {
         val key = entryPathKey(entry)
         store.stagedSingleDeleteKey = key
         store.selection += key
     }
 
-    /** 取消单条目删除确认 */
     fun cancelStagedDelete() {
         store.stagedSingleDeleteKey?.let { store.selection -= it }
         store.stagedSingleDeleteKey = null

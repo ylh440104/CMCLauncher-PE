@@ -1,20 +1,3 @@
-/*
- * Hello Minecraft! Launcher
- * Copyright (C) 2026 huangyuhui <huanghongxun2008@126.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package org.jackhuang.hmcl.addon;
 
 import com.cmc.launcher.utils.logging.Logger;
@@ -40,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
-/// @author Glavo
 @NotNullByDefault
 public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
     public static final AddonProjectInfoRegistry<ModProjectInfo> MOD = new AddonProjectInfoRegistry<>(
@@ -66,7 +48,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
         }
     };
 
-    /// Provides metadata for modpacks.
     public static final AddonProjectInfoRegistry<ModpackProjectInfo> MODPACK = new AddonProjectInfoRegistry<>(
             "/assets/addon/modpack.csv", 2048
     ) {
@@ -97,19 +78,14 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
 
     private volatile @Nullable SoftReference<@Unmodifiable List<I>> infosRef;
 
-    /// Softly caches projects indexed by mod ID.
     private volatile @Nullable SoftReference<@Unmodifiable Map<String, I>> modIdMapRef;
 
-    /// Softly caches projects indexed by cleaned secondary name.
     private volatile @Nullable SoftReference<@Unmodifiable Map<String, I>> subnameMapRef;
 
-    /// Softly caches projects indexed by CurseForge identifier.
     private volatile @Nullable SoftReference<@Unmodifiable Map<String, I>> curseForgeMapRef;
 
-    /// Softly caches searchable names in resource and field order.
     private volatile @Nullable SoftReference<@Unmodifiable List<Pair<String, I>>> keywordsRef;
 
-    /// Creates a registry reading records from the given classpath resource.
     AddonProjectInfoRegistry(String assetsPath, int initialCapacity) {
         this.assetsPath = assetsPath;
         this.initialCapacity = initialCapacity;
@@ -151,7 +127,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
                     int end = line.indexOf(',', offset);
                     if (end < 0)
                         end = line.length();
-
 
                     String field;
                     if (offset == end) {
@@ -231,7 +206,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
                                         cursor++;
                                     }
 
-
                                 } else {
                                     fieldBuilder.append(c);
                                     cursor++;
@@ -259,8 +233,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
         }
     }
 
-    /// Returns an unmodifiable index, rebuilding it after its soft reference is cleared.
-    /// Duplicate keys retain the first project in resource order.
     private @Unmodifiable Map<String, I> getModIdMap() {
         @Nullable SoftReference<@Unmodifiable Map<String, I>> reference = this.modIdMapRef;
         @Unmodifiable Map<String, I> cached = reference != null ? reference.get() : null;
@@ -289,8 +261,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
         }
     }
 
-    /// Returns an unmodifiable index, rebuilding it after its soft reference is cleared.
-    /// Duplicate keys retain the first project in resource order.
     private @Unmodifiable Map<String, I> getSubnameMap() {
         @Nullable SoftReference<@Unmodifiable Map<String, I>> reference = this.subnameMapRef;
         @Unmodifiable Map<String, I> cached = reference != null ? reference.get() : null;
@@ -316,8 +286,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
         }
     }
 
-    /// Returns an unmodifiable index, rebuilding it after its soft reference is cleared.
-    /// Duplicate keys retain the first project in resource order.
     private @Unmodifiable Map<String, I> getCurseForgeMap() {
         @Nullable SoftReference<@Unmodifiable Map<String, I>> reference = this.curseForgeMapRef;
         @Unmodifiable Map<String, I> cached = reference != null ? reference.get() : null;
@@ -343,16 +311,10 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
         }
     }
 
-    /// Returns the first project with the exact CurseForge identifier, or `null` if the
-    /// identifier is null, blank or unknown.
     public @Nullable I getInfoByCurseForgeId(@Nullable String id) {
         return StringUtils.isBlank(id) ? null : getCurseForgeMap().get(id);
     }
 
-    /// Finds a project by its cleaned secondary name, falling back to its exact mod ID.
-    /// A name match is accepted only when the ID is blank or belongs to that mod project.
-    /// Null and blank inputs are absent; returns `null` if neither lookup matches.
-    /// Duplicate keys resolve to the first project in resource order.
     public @Nullable I getInfo(@Nullable String id, @Nullable String subname) {
         String name = cleanSubname(subname);
         if (StringUtils.isNotBlank(name)) {
@@ -369,8 +331,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
                 || ".+\\".indexOf(ch) >= 0;
     }
 
-    /// Removes supported separators and pictographs from a secondary name.
-    /// Returns an empty string for null, blank or unsupported names; matching is case-sensitive.
     private static String cleanSubname(@Nullable String subname) {
         if (StringUtils.isBlank(subname))
             return "";
@@ -403,7 +363,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
         return builder.toString();
     }
 
-    /// Returns searchable names, rebuilding the index after its soft reference is cleared.
     private @Unmodifiable List<Pair<String, I>> getKeywords() {
         @Nullable SoftReference<@Unmodifiable List<Pair<String, I>>> reference = keywordsRef;
         @Unmodifiable List<Pair<String, I>> cached = reference != null ? reference.get() : null;
@@ -432,11 +391,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
         }
     }
 
-    /// Returns projects ranked by descending longest common subsequence length after removing
-    /// space characters from the query. Comparison is case-sensitive and uses UTF-16 units.
-    /// Matches require at least one unit and at least query length minus three units.
-    /// Each matching name contributes a result, so projects may occur more than once.
-    /// Ties preserve resource order, then primary name, secondary name and abbreviation order.
     public @Unmodifiable List<I> search(String query) {
         query = query.chars().filter(ch -> !Character.isSpaceChar(ch))
                 .collect(StringBuilder::new, (sb, ch) -> sb.append((char) ch), StringBuilder::append).toString();
@@ -453,8 +407,6 @@ public abstract class AddonProjectInfoRegistry<I extends AddonProjectInfo> {
                 .map(Pair::getValue).toList();
     }
 
-    /// Returns cached project metadata, loading it on demand. Missing resources and I/O failures
-    /// produce an empty list; malformed records are skipped. The cache is softly referenced.
     public @Unmodifiable List<I> getInfos() {
         @Nullable SoftReference<@Unmodifiable List<I>> infosRef = this.infosRef;
         @Unmodifiable List<I> infos = infosRef != null ? infosRef.get() : null;

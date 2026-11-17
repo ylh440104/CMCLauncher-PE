@@ -6,9 +6,6 @@ import androidx.compose.ui.graphics.toArgb
 import com.cmc.launcher.setting.AllSettings
 import com.cmc.launcher.viewmodel.influencedByBackground
 
-/**
- * 降低颜色的饱和度
- */
 fun Color.desaturate(factor: Float): Color {
     val hsv = FloatArray(3)
     android.graphics.Color.colorToHSV(this.toArgb(), hsv)
@@ -16,10 +13,6 @@ fun Color.desaturate(factor: Float): Color {
     return Color(android.graphics.Color.HSVToColor(hsv))
 }
 
-/**
- * 受背景内容影响的颜色，设置背景内容时，支持调整不透明度用于适配背景内容画面
- * @param influencedAlpha 受影响时，调整的 alpha 值
- */
 @Composable
 fun influencedByBackgroundColor(
     color: Color,

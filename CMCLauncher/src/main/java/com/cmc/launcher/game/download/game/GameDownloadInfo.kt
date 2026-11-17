@@ -9,9 +9,9 @@ import com.cmc.launcher.game.addons.modloader.modlike.ModVersion
 import com.cmc.launcher.game.addons.modloader.optifine.OptiFineVersion
 
 data class GameDownloadInfo(
-    /** Minecraft 版本 */
+
     val gameVersion: String,
-    /** 自定义版本名称 */
+
     val customVersionName: String,
     val optifine: OptiFineVersion? = null,
     val forge: ForgeVersion? = null,

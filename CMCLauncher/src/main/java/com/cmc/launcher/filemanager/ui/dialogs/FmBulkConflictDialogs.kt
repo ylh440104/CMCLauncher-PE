@@ -33,10 +33,6 @@ import com.cmc.launcher.ui.components.ButtonPosition
 import com.cmc.launcher.ui.components.PositionButton
 import com.cmc.launcher.ui.components.PositionFilledTonalButton
 
-/**
- * 多选模式批量操作对话框
- * @param selectedCount 已选中的条目数量
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FmBulkActionsDialog(
@@ -103,7 +99,7 @@ fun FmBulkActionsDialog(
                     onCompress()
                 }
             )
-            //留白
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,14 +133,6 @@ private fun FmBulkActionItem(
     }
 }
 
-/**
- * 冲突处理对话框，提供跳过、覆盖、保留两者三种处理方式
- * @param conflictName 冲突条目名称
- * @param totalConflicts 冲突总数
- * @param onSkip 跳过该冲突项
- * @param onOverwrite 覆盖目标
- * @param onKeepBoth 同时保留两者
- */
 @Composable
 fun FmConflictDialog(
     conflictName: String,

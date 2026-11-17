@@ -27,14 +27,10 @@ class MicMeter {
         AudioFormat.CHANNEL_IN_MONO,
         AudioFormat.ENCODING_PCM_16BIT
     )
-    
+
     private var audioRecord: AudioRecord? = null
     private var job: Job? = null
 
-    /**
-     * 开始录音，实时返回相对音量值
-     * @param onPermissionRequest 没有麦克风权限时，向用户申请权限
-     */
     fun start(
         context: Context,
         onLevelUpdate: (Double) -> Unit,
@@ -76,7 +72,6 @@ class MicMeter {
 
                             val safeRms = max(rms, 1.0)
 
-                            //计算相对分贝值，0 对应完全静音
                             val db = 20 * log10(safeRms)
                             val level = max(db, 0.0)
 
@@ -91,9 +86,6 @@ class MicMeter {
         }
     }
 
-    /**
-     * 停止麦克风检查
-     */
     fun stop() {
         job?.cancel()
         audioRecord?.stop()

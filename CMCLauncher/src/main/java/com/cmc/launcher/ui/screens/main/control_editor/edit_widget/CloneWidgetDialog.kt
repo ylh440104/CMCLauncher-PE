@@ -54,7 +54,7 @@ fun SelectLayers(
     onConfirm: (selected: List<ObservableControlLayer>) -> Unit,
     confirmText: String = stringResource(R.string.generic_confirm)
 ) {
-    //当前选择的控制层
+
     val selectedLayers = remember { mutableStateListOf(initLayer) }
 
     Dialog(

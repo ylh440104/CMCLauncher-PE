@@ -10,9 +10,6 @@ import com.cmc.launcher.game.renderer.config.SingleChoiceEntry
 import com.cmc.launcher.game.renderer.config.SwitchEntry
 import com.cmc.launcher.game.renderer.config.TextEntry
 
-/**
- * 将 V2 插件格式转换为中立配置规范
- */
 fun RendererConfig.toConfigSpec(genText: (String) -> String?): RendererConfigSpec {
     val fixedEnv = env.filterIsInstance<RendererConfig.Env.NormalEnv>()
         .associate { it.key to it.value }

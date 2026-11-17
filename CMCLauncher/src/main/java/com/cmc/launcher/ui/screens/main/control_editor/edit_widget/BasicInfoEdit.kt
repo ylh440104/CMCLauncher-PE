@@ -34,9 +34,6 @@ import com.cmc.launcher.ui.screens.main.control_editor.InfoLayoutListItem
 import com.cmc.launcher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.cmc.launcher.ui.screens.main.control_editor.getVisibilityText
 
-/**
- * 编辑控件基本信息
- */
 @Composable
 fun EditWidgetInfo(
     screenKey: TitledNavKey,
@@ -120,7 +117,7 @@ private fun LazyListScope.commonInfos(
     buttonSize: ButtonSize,
     onButtonSizeChanged: (ButtonSize) -> Unit,
 ) {
-    //可见场景
+
     item {
         InfoLayoutListItem(
             modifier = Modifier.fillMaxWidth(),
@@ -136,7 +133,6 @@ private fun LazyListScope.commonInfos(
         Spacer(modifier = Modifier.height(4.dp))
     }
 
-    //x
     item {
         InfoLayoutSliderItem(
             modifier = Modifier.fillMaxWidth(),
@@ -153,7 +149,6 @@ private fun LazyListScope.commonInfos(
         )
     }
 
-    //y
     item {
         InfoLayoutSliderItem(
             modifier = Modifier.fillMaxWidth(),
@@ -174,7 +169,6 @@ private fun LazyListScope.commonInfos(
         Spacer(modifier = Modifier.height(4.dp))
     }
 
-    //尺寸类型
     item {
         InfoLayoutListItem(
             modifier = Modifier.fillMaxWidth(),
@@ -195,7 +189,7 @@ private fun LazyListScope.commonInfos(
 
     when (buttonSize.type) {
         ButtonSize.Type.Dp -> {
-            //绝对宽度
+
             item {
                 InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -211,7 +205,6 @@ private fun LazyListScope.commonInfos(
                 )
             }
 
-            //绝对高度
             item {
                 InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -236,7 +229,6 @@ private fun LazyListScope.commonInfos(
                 return stringResource(textRes)
             }
 
-            //百分比宽度
             item {
                 InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -253,7 +245,6 @@ private fun LazyListScope.commonInfos(
                 )
             }
 
-            //控件宽度参考对象
             item {
                 InfoLayoutListItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -267,7 +258,6 @@ private fun LazyListScope.commonInfos(
                 )
             }
 
-            //百分比高度
             item {
                 InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -284,7 +274,6 @@ private fun LazyListScope.commonInfos(
                 )
             }
 
-            //控件高度参考对象
             item {
                 InfoLayoutListItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -309,7 +298,7 @@ private fun LazyListScope.joystickInfos(
     screenHeight: Float,
     data: ObservableJoystickData
 ) {
-    // 可见场景
+
     item {
         InfoLayoutListItem(
             modifier = Modifier.fillMaxWidth(),
@@ -325,7 +314,6 @@ private fun LazyListScope.joystickInfos(
         Spacer(modifier = Modifier.height(4.dp))
     }
 
-    // 位置 X
     item {
         InfoLayoutSliderItem(
             modifier = Modifier.fillMaxWidth(),
@@ -342,7 +330,6 @@ private fun LazyListScope.joystickInfos(
         )
     }
 
-    // 位置 Y
     item {
         InfoLayoutSliderItem(
             modifier = Modifier.fillMaxWidth(),
@@ -363,7 +350,6 @@ private fun LazyListScope.joystickInfos(
         Spacer(modifier = Modifier.height(4.dp))
     }
 
-    // 尺寸类型
     val sizeTypes = listOf(ButtonSize.Type.Dp, ButtonSize.Type.Percentage)
     item {
         InfoLayoutListItem(

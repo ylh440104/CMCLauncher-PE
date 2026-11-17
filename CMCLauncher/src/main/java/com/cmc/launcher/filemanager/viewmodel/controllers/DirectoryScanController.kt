@@ -14,14 +14,12 @@ import java.nio.file.Path
 
 private const val TAG = "FmDirectoryScan"
 
-/** 目录属性扫描控制器 */
 class DirectoryScanController(
     private val store: FmStateStore,
     private val coroutineScope: CoroutineScope
 ) {
     private var scanJob: Job? = null
 
-    /** 启动对 [path] 的异步目录扫描 */
     fun startDirectoryScan(path: Path) {
         scanJob?.cancel()
         store.setDirScan(DirScanUiState(running = true, stats = null))
@@ -33,7 +31,7 @@ class DirectoryScanController(
                     root = path,
                     onProgress = { s, _ ->
                         val now = System.currentTimeMillis()
-                        if (now - lastUpdateMs >= 500) { // 0.5s 更新一次
+                        if (now - lastUpdateMs >= 500) {
                             lastUpdateMs = now
                             store.setDirScan(DirScanUiState(running = true, stats = s))
                         }

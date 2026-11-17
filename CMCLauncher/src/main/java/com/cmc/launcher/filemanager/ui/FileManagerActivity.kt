@@ -28,29 +28,21 @@ import com.cmc.launcher.ui.theme.CMCLauncherTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.nio.file.Paths
 
-/**
- * 文件管理器初始化结果
- */
 sealed interface FileManagerInitResult {
     data object Pending : FileManagerInitResult
-    /** Intent 参数解析成功 */
+
     data object Ok : FileManagerInitResult
     data class Failed(val message: String) : FileManagerInitResult
 }
 
-/**
- * 文件管理器 Activity
- */
 @AndroidEntryPoint
 class FileManagerActivity : ComponentActivity() {
     private var initResult by mutableStateOf<FileManagerInitResult>(FileManagerInitResult.Pending)
 
-    /** Intent 中的可访问范围目录（仅字符串，作用域校验交给 ViewModel 初始化） */
     private var rootPathStr: String? = null
-    /** Intent 中的可选初始当前目录（仅字符串） */
+
     private var currentPathStr: String? = null
 
-    // Compose 可观察，重唤起重建 VM 后自动重组
     private var _vm by mutableStateOf<FileManagerViewModel?>(null)
 
     override val defaultViewModelCreationExtras: CreationExtras
@@ -81,10 +73,6 @@ class FileManagerActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * 重唤起（任务已存在，经 SINGLE_TOP 送达）：重新解析可访问范围与当前路径，
-     * 重建 ViewModel 并刷新。文件管理器未 finish 时，此方法替代 onCreate 生效。
-     */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -92,15 +80,13 @@ class FileManagerActivity : ComponentActivity() {
         initializeFromIntent()
     }
 
-    /** 从当前 Intent 解析参数并重建 ViewModel */
     private fun initializeFromIntent() {
-        // 日志初始化
+
         val logsDir = intent.getStringExtra(FileManagerLauncher.EXTRA_LOGS_DIR)?.let { Paths.get(it) }
         FmLog.init(lifecycleScope, logsDir)
 
         initResult = parseIntent()
 
-        // 重建 ViewModel
         viewModelStore.clear()
         _vm = if (initResult is FileManagerInitResult.Ok) {
             ViewModelProvider(this)[FileManagerViewModel::class.java]
@@ -109,7 +95,6 @@ class FileManagerActivity : ComponentActivity() {
         }
     }
 
-    /** 解析 Intent 参数 */
     private fun parseIntent(): FileManagerInitResult {
         val root = intent.getStringExtra(FileManagerLauncher.EXTRA_ROOT_PATH)
         if (root.isNullOrBlank()) {

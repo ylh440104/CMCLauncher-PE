@@ -28,39 +28,22 @@ private const val TAG = "RemoteMod"
 class RemoteMod(
     val localMod: LocalMod
 ) {
-    /**
-     * 是否正在加载项目信息
-     */
+
     var isLoading by mutableStateOf(false)
         private set
 
-    /**
-     * 平台对应的文件
-     */
     var remoteFile: ModFile? by mutableStateOf(null)
         private set
 
-    /**
-     * 项目信息
-     */
     var projectInfo: ModProject? by mutableStateOf(null)
         private set
 
-    /**
-     * 项目翻译信息
-     */
     var mcMod: AddonProjectInfo? by mutableStateOf(null)
         private set
 
-    /**
-     * 是否已经加载过
-     */
     var isLoaded: Boolean = false
         private set
 
-    /**
-     * @param loadFromCache 是否从缓存中加载
-     */
     suspend fun load(loadFromCache: Boolean) {
         if (loadFromCache && isLoaded) return
 
@@ -85,15 +68,13 @@ class RemoteMod(
                 val modFileCache = modFileCache()
 
                 runCatching {
-                    //获取文件 sha1，作为缓存的键
+
                     val sha1 = calculateFileSha1(file)
 
-                    //从缓存加载项目信息
                     val cachedProject = if (loadFromCache) {
                         modProjectCache.decodeParcelable(sha1, ModProject::class.java)
                     } else null
 
-                    //从缓存加载文件信息
                     val cachedFile = if (loadFromCache) {
                         modFileCache.decodeParcelable(sha1, ModFile::class.java)
                     } else null

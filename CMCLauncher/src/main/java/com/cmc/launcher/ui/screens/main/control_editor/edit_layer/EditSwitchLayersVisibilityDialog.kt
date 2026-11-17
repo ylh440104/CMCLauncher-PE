@@ -42,10 +42,6 @@ import com.cmc.launcher.ui.theme.itemColor
 import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.ui.theme.onItemColor
 
-/**
- * 编辑点击事件：切换控件层可见性
- * @param type 控制控件层的类型
- */
 @Composable
 fun EditSwitchLayersVisibilityDialog(
     data: ObservableClickEventsProvider,
@@ -57,15 +53,12 @@ fun EditSwitchLayersVisibilityDialog(
         if (!type.isAboutLayers()) error("This type {$type} is unrelated to the control layer.")
     }
 
-    /**
-     * 缓存哪些控件层被选中
-     */
     val layerSelected = remember { mutableStateListOf<ObservableControlLayer>() }
 
     LaunchedEffect(data.clickEvents) {
         val layerUuids = layers.map { it.uuid }.toSet()
         val unsafeEvents = data.clickEvents.filter { event ->
-            event.isAboutLayers() && event.key !in layerUuids //控件层已不存在
+            event.isAboutLayers() && event.key !in layerUuids
         }
 
         if (unsafeEvents.isNotEmpty()) {

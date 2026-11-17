@@ -26,7 +26,6 @@ private const val TAG = "AccountManager"
 object AccountsManager {
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    //账号相关
     private val _accounts = CopyOnWriteArrayList<Account>()
     private val _accountsFlow = MutableStateFlow<List<Account>>(emptyList())
     val accountsFlow = _accountsFlow.asStateFlow()
@@ -34,43 +33,32 @@ object AccountsManager {
     private val _currentAccountFlow = MutableStateFlow<Account?>(null)
     val currentAccountFlow = _currentAccountFlow.asStateFlow()
 
-    //认证服务器
     private val _authServers = CopyOnWriteArrayList<AuthServer>()
     private val _authServersFlow = MutableStateFlow<List<AuthServer>>(emptyList())
     val authServersFlow = _authServersFlow.asStateFlow()
 
     private val _refreshWardrobe = MutableStateFlow(false)
-    /** 控制刷新所有账号衣橱 */
+
     val refreshWardrobe = _refreshWardrobe.asStateFlow()
 
-    //本次启动器会话内已通过服务端校验的账号
     private val sessionValidatedAccounts: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     private lateinit var database: AppDatabase
     private lateinit var accountDao: AccountDao
     private lateinit var authServerDao: AuthServerDao
 
-    /**
-     * 初始化整个账号系统
-     */
     fun initialize(context: Context) {
         database = AppDatabase.getInstance(context)
         accountDao = database.accountDao()
         authServerDao = database.authServerDao()
     }
 
-    /**
-     * 刷新当前已登录的账号，已登录的账号保存在数据库中
-     */
     fun reloadAccounts() {
         scope.launch {
             suspendReloadAccounts()
         }
     }
 
-    /**
-     * 刷新所有账号的衣橱
-     */
     fun refreshWardrobe() {
         _refreshWardrobe.update { !it }
     }
@@ -95,9 +83,6 @@ object AccountsManager {
         Logger.info(TAG, "Loaded ${_accounts.size} accounts")
     }
 
-    /**
-     * 刷新当前已保存的认证服务器，认证服务器保存在数据库中
-     */
     fun reloadAuthServers() {
         scope.launch {
             val loadedServers = authServerDao.getAllServers()
@@ -111,9 +96,6 @@ object AccountsManager {
         }
     }
 
-    /**
-     * 执行登陆操作
-     */
     fun performLogin(
         context: Context,
         account: Account,
@@ -124,9 +106,6 @@ object AccountsManager {
         task?.let { TaskSystem.submitTask(it) }
     }
 
-    /**
-     * 获取登陆操作的任务对象
-     */
     fun performLoginTask(
         context: Context,
         account: Account,
@@ -145,9 +124,6 @@ object AccountsManager {
             else -> null
         }
 
-    /**
-     * 刷新账号
-     */
     fun refreshAccount(
         context: Context,
         account: Account,
@@ -168,9 +144,6 @@ object AccountsManager {
         }
     }
 
-    /**
-     * 该账号在本次会话中是否已通过服务端校验
-     */
     fun isSessionValidated(account: Account): Boolean =
         sessionValidatedAccounts.contains(account.uniqueUUID)
 
@@ -178,9 +151,6 @@ object AccountsManager {
         sessionValidatedAccounts.add(account.uniqueUUID)
     }
 
-    /**
-     * 是否需要执行启动前的账号校验
-     */
     fun isLaunchCheckNeeded(account: Account): Boolean = when {
         account.isNoLoginRequired() -> false
         account.isMicrosoftAccount() -> !isSessionValidated(account) ||
@@ -188,18 +158,12 @@ object AccountsManager {
         else -> !isSessionValidated(account)
     }
 
-    /**
-     * 获取当前已登录的账号
-     */
     private fun getCurrentAccount(): Account? {
         return _accounts.find {
             it.uniqueUUID == AllSettings.currentAccount.getValue()
         } ?: _accounts.firstOrNull()
     }
 
-    /**
-     * 设置并保存当前账号
-     */
     fun setCurrentAccount(account: Account) {
         setCurrentAccountInternal(account)
         refreshCurrentAccountState()
@@ -209,30 +173,21 @@ object AccountsManager {
         AllSettings.currentAccount.save(account.uniqueUUID)
     }
 
-    /**
-     * 刷新当前账号，同时刷新非中国大陆地区的正版状态
-     */
     private fun refreshCurrentAccountState() {
         _currentAccountFlow.update { getCurrentAccount() }
     }
 
-    /**
-     * 保存账号到数据库
-     */
     fun saveAccount(account: Account) {
         scope.launch {
             suspendSaveAccount(account)
         }
     }
 
-    /**
-     * 保存账号到数据库
-     */
     suspend fun suspendSaveAccount(account: Account) {
         runCatching {
             accountDao.saveAccount(account)
             Logger.info(TAG, "Saved account: ${account.username}")
-            //同时设置当前账号
+
             setCurrentAccountInternal(account)
         }.onFailure { e ->
             Logger.error(TAG, "Failed to save account: ${account.username}", e)
@@ -240,9 +195,6 @@ object AccountsManager {
         suspendReloadAccounts()
     }
 
-    /**
-     * 从数据库中删除账号，并刷新
-     */
     fun deleteAccount(account: Account) {
         scope.launch {
             accountDao.deleteAccount(account)
@@ -252,9 +204,6 @@ object AccountsManager {
         }
     }
 
-    /**
-     * 保存认证服务器到数据库
-     */
     suspend fun saveAuthServer(server: AuthServer) {
         runCatching {
             authServerDao.saveServer(server)
@@ -265,9 +214,6 @@ object AccountsManager {
         reloadAuthServers()
     }
 
-    /**
-     * 从数据库中删除认证服务器，并刷新
-     */
     fun deleteAuthServer(server: AuthServer) {
         scope.launch {
             authServerDao.deleteServer(server)
@@ -275,25 +221,16 @@ object AccountsManager {
         }
     }
 
-    /**
-     * 通过账号的profileId读取账号
-     */
     fun loadFromProfileID(
         profileId: String,
         accountType: String? = null
     ): Account? =
         _accounts.find { it.profileId == profileId && it.accountType == accountType }
 
-    /**
-     * 账号是否存在
-     */
     fun isAccountExists(uniqueUUID: String): Boolean {
         return uniqueUUID.isNotEmpty() && _accounts.any { it.uniqueUUID == uniqueUUID }
     }
 
-    /**
-     * 认证服务器是否存在
-     */
     fun isAuthServerExists(baseUrl: String): Boolean {
         return baseUrl.isNotEmpty() && _authServers.any { it.baseUrl == baseUrl }
     }

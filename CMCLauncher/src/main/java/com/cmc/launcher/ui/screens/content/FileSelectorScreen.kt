@@ -57,9 +57,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/**
- * 导航至FileSelectorScreen
- */
 fun NavBackStack<TitledNavKey>.navigateToFileSelector(
     startPath: String,
     selectFile: Boolean,
@@ -77,7 +74,7 @@ fun NavBackStack<TitledNavKey>.navigateToFileSelector(
 
 private sealed interface SelectorOperation {
     data object None : SelectorOperation
-    /** 创建文件夹时 */
+
     data object CreateDir : SelectorOperation
 }
 
@@ -107,8 +104,6 @@ fun FileSelectorScreen(
     backScreenViewModel: ScreenBackStackViewModel,
     back: () -> Unit
 ) {
-    //特殊情况：文件选择器仅作为临时使用的页面
-    //不需要长期存储数据，所以，此处不应该使用 ViewModel
 
     var currentPath by remember(key.startPath) {
         mutableStateOf(key.startPath)

@@ -15,7 +15,7 @@ data class LibraryComponents(
     val extension: String = "jar"
 ) {
     val descriptor: String by lazy {
-        // groupId:artifactId:version:classifier@extension
+
         "$groupId:$artifactId:$version".let {
             if (classifier.isNullOrEmpty()) it
             else "$it:$classifier"

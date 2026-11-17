@@ -20,12 +20,6 @@ import com.cmc.launcher.utils.animation.SwapTimeline
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * 单层级基础屏幕，根据 `currentKey` 判断当前屏幕是否可见
- * @param screenKey 当前屏幕的Key
- * @param currentKey 当前屏幕正在展示的Key
- * @param useClassEquality 是否使用类相等判断
- */
 @Composable
 fun BaseScreen(
     screenKey: TitledNavKey,
@@ -45,10 +39,6 @@ fun BaseScreen(
     )
 }
 
-/**
- * 多层级基础屏幕，根据层级列表中的每个层级Key判断当前屏幕是否可见
- * @param levels 层级列表，每个层级包含（Key、当前Key、是否启用引用相等）
- */
 @Composable
 fun BaseScreen(
     vararg levels: Triple<TitledNavKey, TitledNavKey?, Boolean>,
@@ -68,9 +58,6 @@ fun BaseScreen(
     )
 }
 
-/**
- * 多层级基础屏幕，根据层级列表中的每个层级Key判断当前屏幕是否可见
- */
 @Composable
 fun BaseScreen(
     levels1: List<Pair<Class<out TitledNavKey>, TitledNavKey?>>,
@@ -98,20 +85,19 @@ fun BaseScreen(
 @Composable
 private fun rememberVisibleState(targetVisible: Boolean): Boolean {
     val visibleState = remember { mutableStateOf(false) }
-    //最近一次真实退场的开始时刻，-1 表示当前不在退场流程中
+
     var exitStartAt by remember { mutableLongStateOf(-1L) }
 
-    //仅在 composition 完成后，才允许更新可见状态
     LaunchedEffect(targetVisible) {
         if (targetVisible) {
-            //退场动画仍在播放时被反向打断，立即倒推回归
+
             val reversingExit = exitStartAt >= 0 &&
                     System.nanoTime() / 1_000_000 - exitStartAt <
                     SwapTimeline.swapTime(SwapTimeline.EXIT_WINDOW)
             exitStartAt = -1L
             if (!reversingExit) awaitEnterStart()
         } else if (visibleState.value) {
-            //记录真实退场的开始时刻
+
             exitStartAt = System.nanoTime() / 1_000_000
         }
         visibleState.value = targetVisible
@@ -155,9 +141,6 @@ private fun isTagVisible(key: Class<out TitledNavKey>, current: TitledNavKey?): 
     return key.isInstance(current)
 }
 
-/**
- * @param useClassEquality 是否使用类相等判断
- */
 private fun isTagVisible(key: TitledNavKey, current: TitledNavKey?, useClassEquality: Boolean): Boolean {
     return when {
         current == null -> false

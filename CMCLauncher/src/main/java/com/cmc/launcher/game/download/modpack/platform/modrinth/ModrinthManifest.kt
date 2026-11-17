@@ -12,7 +12,7 @@ class ModrinthManifest(
     val versionId: String,
     @SerializedName("name")
     val name: String,
-    /** optional */
+
     @SerializedName("summary")
     val summary: String? = null,
     @SerializedName("files")
@@ -25,7 +25,7 @@ class ModrinthManifest(
         val path: String,
         @SerializedName("hashes")
         val hashes: Hashes,
-        /** optional */
+
         @SerializedName("env")
         val env: Env? = null,
         @SerializedName("downloads")

@@ -14,9 +14,6 @@ import kotlinx.coroutines.withContext
 import org.jackhuang.hmcl.addon.AddonProjectInfo
 import org.jackhuang.hmcl.addon.AddonProjectInfoRegistry
 
-/**
- * 根据平台类别获取对应的 Addon 项目信息注册表，不支持的类别返回 `null`
- */
 fun PlatformClasses.getTranslations(): AddonProjectInfoRegistry<*>? =
     when (this) {
         PlatformClasses.MOD -> AddonProjectInfoRegistry.MOD
@@ -24,9 +21,6 @@ fun PlatformClasses.getTranslations(): AddonProjectInfoRegistry<*>? =
         else -> null
     }
 
-/**
- * 根据平台获取模组翻译信息
- */
 fun PlatformProject.getMcMod(
     classes: PlatformClasses
 ): AddonProjectInfo? {
@@ -38,18 +32,10 @@ fun PlatformProject.getMcMod(
     }
 }
 
-/**
- * 获取 mcmod 模组翻译标题，若当前环境非中文环境，则返回原始模组名称
- */
 fun AddonProjectInfo?.getMcmodTitle(originTitle: String, context: Context? = null): String {
     return this?.displayName()?.takeIf { isChinese(context) } ?: originTitle
 }
 
-/**
- * 修改自源代码：[HMCL Github](https://github.com/HMCL-dev/HMCL/blob/d295e60/HMCL/src/main/java/org/jackhuang/hmcl/game/LocalizedRemoteModRepository.java#L45-L64)
- * 原项目版权归原作者所有，遵循GPL v3协议
- * @return `Boolean` 是否包含中文, `String` 英文混合关键词 (不包含中文时，原样返回)
- */
 suspend fun String.localizedModSearchKeywords(
     classes: PlatformClasses
 ): Pair<Boolean, Set<String>?> {
@@ -67,9 +53,6 @@ suspend fun String.localizedModSearchKeywords(
     return true to englishSearchFiltersSet
 }
 
-/**
- * 如果搜索内容包含中文，返回搜索到的 MCMod 项目
- */
 suspend fun String.searchMcMods(
     classes: PlatformClasses
 ): List<AddonProjectInfo>? {

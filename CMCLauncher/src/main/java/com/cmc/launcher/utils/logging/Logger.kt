@@ -24,17 +24,11 @@ import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
-/**
- * [Modified from HMCL](https://github.com/HMCL-dev/HMCL/blob/57018bef47417108b75e2298ab61f89a7586b1b9/HMCLCore/src/main/java/org/jackhuang/hmcl/util/logging/Logger.java)
- */
 object Logger : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default + Job()
 
     private lateinit var PACKAGE_PREFIX: String
 
-    /**
-     * 当前进程的标识
-     */
     private lateinit var PROCESS_TAG: String
     private val isInitialized = AtomicBoolean(false)
     private val channel = Channel<LogMessage>(Channel.UNLIMITED)
@@ -46,9 +40,6 @@ object Logger : CoroutineScope {
     private var logWriter: PrintWriter? = null
     private var inMemoryLogs: ByteArrayOutputStream? = null
 
-    /**
-     * 初始化日志
-     */
     fun initialize(context: Context) {
         PACKAGE_PREFIX = "${context.packageName}."
         PROCESS_TAG = getProcessTag(context)
@@ -58,8 +49,6 @@ object Logger : CoroutineScope {
         launch(Dispatchers.IO) {
             setupLogWriter()
 
-            //由于安卓不存在“退出”这种设置
-            //所以清理旧的日志的工作需要放到初始化阶段
             deleteOldLogs()
 
             printLauncherInfo()
@@ -68,9 +57,6 @@ object Logger : CoroutineScope {
         }
     }
 
-    /**
-     * 获取当前进程标识
-     */
     private fun getProcessTag(context: Context): String {
         val processName = context.applicationInfo.processName
         val separatorIndex = processName.lastIndexOf(':')
@@ -100,7 +86,7 @@ object Logger : CoroutineScope {
                 "Failed to create log file", e
             )
             channel.send(logMessage)
-            inMemoryLogs = ByteArrayOutputStream(1024 * 1024) // 1MB buffer
+            inMemoryLogs = ByteArrayOutputStream(1024 * 1024)
             logWriter = PrintWriter(inMemoryLogs!!)
         }
     }
@@ -128,7 +114,6 @@ object Logger : CoroutineScope {
     private fun handleLogMessage(message: LogMessage) {
         val formatted = formatMessage(message)
 
-        //输出到 Logcat
         printToLogcat(message.level, formatted)
 
         logWriter?.apply {
@@ -178,7 +163,7 @@ object Logger : CoroutineScope {
     private suspend fun deleteOldLogs() = withContext(Dispatchers.IO) {
         PathManager.DIR_LAUNCHER_LOGS.listFiles()?.let { files ->
             val cutoff = System.currentTimeMillis() - logRetentionDays * 86400000L
-            //清理遗留的 0kb 空日志
+
             val emptyLogCutoff = System.currentTimeMillis() - 60 * 1000L
             files.filter {
                 it.lastModified() < cutoff ||
@@ -201,9 +186,6 @@ object Logger : CoroutineScope {
     fun debug(tag: String, msg: String, t: Throwable? = null) =
         log(Level.DEBUG, tag, msg, t)
 
-    /**
-     * 输出日志
-     */
     fun log(level: Level, tag: String, message: String, throwable: Throwable? = null) {
         if (!isInitialized.get()) return
 
@@ -220,9 +202,6 @@ object Logger : CoroutineScope {
         }
     }
 
-    /**
-     * 打包所有日志文件
-     */
     suspend fun pack(target: File) {
         withContext(Dispatchers.IO) {
             zipDirectory(

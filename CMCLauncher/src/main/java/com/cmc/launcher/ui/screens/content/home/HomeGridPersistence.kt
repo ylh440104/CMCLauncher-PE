@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName
 import com.movtery.cardgrid.state.GridCard
 import com.tencent.mmkv.MMKV
 
-/** 单张卡片的持久化数据 */
 data class HomeCardSnapshot(
     @SerializedName("id")
     val id: String = "",
@@ -21,7 +20,6 @@ data class HomeCardSnapshot(
     val height: Int = 0
 )
 
-/** 网格布局的持久化数据，[columns] 为保存时的网格列数 */
 data class HomeGridSnapshot(
     @SerializedName("columns")
     val columns: Int = 0,
@@ -29,11 +27,6 @@ data class HomeGridSnapshot(
     val cards: List<HomeCardSnapshot> = emptyList()
 )
 
-/**
- * 主页网格布局的持久化：
- * 使用主页网格专用的 MMKV 实例存储 Gson 序列化的 JSON，与启动器设置存储分离，
- * 系统卡片不参与持久化。
- */
 object HomeGridStore {
     private const val KEY_LAYOUT = "homeCardLayout"
 
@@ -41,7 +34,6 @@ object HomeGridStore {
 
     private val gson = Gson()
 
-    /** 读取布局快照，无有效数据时返回 null */
     fun load(): HomeGridSnapshot? {
         val json = mmkv.decodeString(KEY_LAYOUT, "") ?: ""
         if (json.isBlank()) return null
@@ -50,7 +42,6 @@ object HomeGridStore {
         }.getOrNull()?.takeIf { it.cards.isNotEmpty() }
     }
 
-    /** 保存布局快照（仅用户卡片参与持久化） */
     fun save(cards: List<GridCard>, columns: Int) {
         val snapshot = HomeGridSnapshot(
             columns = columns,

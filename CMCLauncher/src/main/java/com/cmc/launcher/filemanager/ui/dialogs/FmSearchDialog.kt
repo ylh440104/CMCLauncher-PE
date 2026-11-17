@@ -46,11 +46,6 @@ import com.cmc.launcher.ui.components.SimpleAlertDialog
 import com.cmc.launcher.ui.components.fadeEdge
 import com.cmc.launcher.ui.components.lazyScrollWithBar
 
-/**
- * 搜索设置对话框。
- * @param initialKeyword 输入框的初始关键词
- * @param onSearch 发起搜索，回传关键词与大小写敏感设置
- */
 @Composable
 fun FmSearchSetupDialog(
     initialKeyword: String = "",
@@ -92,11 +87,6 @@ fun FmSearchSetupDialog(
     )
 }
 
-/**
- * 搜索进行中对话框。
- * @param searchUi 搜索任务的实时状态
- * @param onCancel 取消搜索并关闭对话框
- */
 @Composable
 fun FmSearchTaskDialog(
     searchUi: SearchUiState,
@@ -124,13 +114,6 @@ fun FmSearchTaskDialog(
     )
 }
 
-/**
- * 搜索结果列表对话框。
- * @param searchUi 搜索任务的实时状态（含命中结果）
- * @param onClear 清空结果并返回搜索设置
- * @param onResumeSearch 重新发起搜索
- * @param onSelect 选择某个命中结果
- */
 @Composable
 fun FmSearchResultDialog(
     searchUi: SearchUiState,

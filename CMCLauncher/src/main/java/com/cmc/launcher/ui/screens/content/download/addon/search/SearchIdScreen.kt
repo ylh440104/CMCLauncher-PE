@@ -81,35 +81,32 @@ private const val TAG = "SearchIdScreen"
 
 private sealed interface SearchIdOperation {
     data object None : SearchIdOperation
-    /** 加载项目中 */
+
     data object Loading : SearchIdOperation
-    /** 已获得搜索结果 */
+
     data class Result(
         val project: PlatformProject,
         val mcMod: AddonProjectInfo?,
     ) : SearchIdOperation
 
-    /** 未找到该项目 */
     data object NotFound : SearchIdOperation
-    /** 项目类别不受支持 */
+
     data object Unsupported : SearchIdOperation
 
-    /** 获取过程中出现异常 */
     data class Error(val message: AndroidStringText) : SearchIdOperation
 }
 
 private class SearchIdViewModel: ViewModel() {
-    //fixme: 默认视为模组，通常情况下，获取到的项目会带有类别
+
     val defaultClasses = PlatformClasses.MOD
 
     var projectId by mutableStateOf("")
     var platform by mutableStateOf(Platform.CURSEFORGE)
 
-    /** 搜索页面操作状态 */
     var operation by mutableStateOf<SearchIdOperation>(SearchIdOperation.None)
 
     private var searchJob: Job? = null
-    /** 开始按照ID搜索 */
+
     fun search() {
         val id = projectId
         val platform0 = platform
@@ -371,17 +368,13 @@ private fun ResultLayout(
                 downloads = downloads,
                 modloaders = modloaders,
                 categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
-//                isFavorite = FavoriteProjectsRepository.isFavorite(platform, project.platformId()),
-//                onFavoriteClick = {
-//                    FavoriteProjectsRepository.toggle(project, classes)
-//                },
+
                 onClick = {
                     onView(platform, classes, project.platformId(), iconUrl)
                 }
             )
         }
 
-        //项目相关链接、截图
         if (!urls.isAllNull()) {
             item {
                 val scale = remember { Animatable(initialValue = 0.95f) }

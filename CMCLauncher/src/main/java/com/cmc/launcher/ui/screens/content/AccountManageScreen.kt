@@ -104,17 +104,6 @@ import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * 封装账号界面 UI 交互的回调函数
- * 
- * @property onIntent 发送 MVI Intent 到 ViewModel
- * @property openLink 打开外部链接
- * @property backToMainScreen 返回主界面
- * @property navigateToWeb 导航到应用内浏览器界面
- * @property checkIfInWebScreen 检查当前是否在浏览器界面中（用于微软登录逻辑判断）
- * @property formatError 格式化异常为本地化字符串
- * @property submitError 提交错误到全局错误展示系统
- */
 private data class AccountActions(
     val onIntent: (AccountManageIntent) -> Unit,
     val openLink: (url: String) -> Unit,
@@ -125,26 +114,15 @@ private data class AccountActions(
     val submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
 )
 
-/**
- * 进入账号管理器时，可附加的打开登录菜单选项
- */
 enum class FirstLoginMenu {
-    /** 不打开菜单 */
+
     NONE,
-    /** 打开微软登录菜单 */
+
     MICROSOFT,
-    /** 打开总登录菜单 */
+
     NORMAL
 }
 
-/**
- * 账号管理主界面
- *
- * @param backStackViewModel 屏幕堆栈管理器
- * @param backToMainScreen 返回主屏幕的回调
- * @param openLink 外部链接跳转回调
- * @param submitError 全局错误提交回调
- */
 @Composable
 fun AccountManageScreen(
     key: NormalNavKey.AccountManager,
@@ -214,9 +192,6 @@ fun AccountManageScreen(
     }
 }
 
-/**
- * 账号管理界面的实际内容布局
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AccountManageContent(
@@ -341,9 +316,6 @@ private fun AccountManageContent(
     ServerTypeOperation(operationUiState.serverOp, actions)
 }
 
-/**
- * 左侧登录方式菜单组件
- */
 @Composable
 private fun ActionsLayout(
     isVisible: Boolean,
@@ -358,7 +330,7 @@ private fun ActionsLayout(
             .animated(ctx, from = AnimatedDirection.Left)
             .fillMaxHeight()
     ) {
-        //玩家模型预览
+
         val refreshWardrobe by AccountsManager.refreshWardrobe.collectAsStateWithLifecycle()
         val armModel = currentAccount?.skinModelType?.toArmModel()
         val skinStamp = currentAccount?.getSkinFile()?.lastModified()
@@ -387,7 +359,6 @@ private fun ActionsLayout(
             yaw = Math.toRadians(35.0).toFloat()
         )
 
-        //添加账号
         ScalingActionButton(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -450,9 +421,6 @@ private fun LoginMenuOperation(
     }
 }
 
-/**
- * 微软登录相关逻辑处理
- */
 @Composable
 private fun MicrosoftLoginOperation(
     operation: MicrosoftLoginOperation,
@@ -515,9 +483,6 @@ private fun MicrosoftLoginOperation(
     }
 }
 
-/**
- * 离线账号登录相关逻辑处理
- */
 @Composable
 private fun LocalLoginOperation(
     operation: LocalLoginOperation,
@@ -595,9 +560,6 @@ private fun LocalLoginOperation(
     }
 }
 
-/**
- * 第三方验证服务器登录逻辑处理
- */
 @Composable
 private fun OtherLoginOperation(
     operation: OtherLoginOperation,
@@ -669,9 +631,6 @@ private fun OtherLoginOperation(
     }
 }
 
-/**
- * 验证服务器管理操作逻辑处理
- */
 @Composable
 private fun ServerTypeOperation(
     operation: ServerOperation,
@@ -729,9 +688,6 @@ private fun ServerTypeOperation(
     }
 }
 
-/**
- * 账号列表组件
- */
 @Composable
 private fun AccountsLayout(
     isVisible: Boolean,
@@ -821,9 +777,6 @@ private fun AccountsLayout(
     }
 }
 
-/**
- * 账号皮肤操作逻辑处理
- */
 @Composable
 private fun AccountSkinOperation(
     accountSkinOperation: AccountSkinOperation,
@@ -881,9 +834,6 @@ private fun AccountSkinOperation(
     }
 }
 
-/**
- * 通用账号管理操作逻辑处理（如删除确认）
- */
 @Composable
 private fun AccountOperation(
     operation: AccountOperation,

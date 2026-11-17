@@ -13,7 +13,6 @@ fun shiftString(input: String, direction: ShiftDirection, shiftCount: Int): Stri
         return input
     }
 
-    //确保位移个数在字符串长度范围内
     val length = input.length
     val shiftCount1 = shiftCount % length
     if (shiftCount1 == 0) {
@@ -62,14 +61,8 @@ fun String.toUuidStr(charset: Charset = Charsets.UTF_8): String {
     return toUuid(charset).toString()
 }
 
-/**
- * @return 检查字符串是否为null，如果是那么则返回""，如果不是，则返回字符串本身
- */
 fun getStringNotNull(string: String?): String = string ?: ""
 
-/**
- * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/84aca2e/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L1032-L1039)
- */
 fun String.extractUntilCharacter(whatFor: String, terminator: Char): String? {
     var whatForStart = indexOf(whatFor)
     if (whatForStart == -1) return null
@@ -79,9 +72,6 @@ fun String.extractUntilCharacter(whatFor: String, terminator: Char): String? {
     return substring(whatForStart, terminatorIndex)
 }
 
-/**
- * 获取字符串指定行的内容
- */
 fun String.getLine(line: Int): String? {
     val lines = this.trimIndent().split("\n")
     return if (line in 1..lines.size) lines[line - 1] else null
@@ -104,24 +94,23 @@ fun String.splitPreservingQuotes(delimiter: Char = ' '): List<String> {
     for ((index, c) in withIndex()) {
         when {
             c == '"' && (index == 0 || this[index - 1] != '\\') -> {
-                // 切换引号状态（忽略转义引号）
+
                 inQuotes = !inQuotes
             }
             (if (delimiter == ' ') c.isWhitespace() else c == delimiter) && !inQuotes -> {
-                // 如果不在引号内且遇到分隔符（默认是任意空白字符），则结束当前部分并添加到结果中
+
                 if (currentPart.isNotEmpty()) {
                     result.add(currentPart.toString())
-                    currentPart.clear() // 清空当前部分
+                    currentPart.clear()
                 }
             }
             else -> {
-                // 将字符添加到当前部分
+
                 currentPart.append(c)
             }
         }
     }
 
-    // 添加最后一部分（如果有的话）
     if (currentPart.isNotEmpty()) {
         result.add(currentPart.toString())
     }
@@ -146,9 +135,6 @@ fun String.toUnicodeEscaped(): String {
     }.joinToString("")
 }
 
-/**
- * 过滤掉颜色占位符
- */
 fun String.stripColorCodes(): String {
     return replace(Regex("§[0-9a-fk-orA-FK-OR]"), "")
 }
@@ -157,10 +143,6 @@ fun String.isEmptyOrBlank(): Boolean = this.isEmpty() || this.isBlank()
 
 fun String.isNotEmptyOrBlank(): Boolean = !this.isEmptyOrBlank()
 
-/**
- * 检查一段字符串内是否含有中文字符（中文标点）
- * @return 是否带有中文
- */
 fun String?.containsChinese(): Boolean {
     if (this == null || this.isEmpty()) {
         return false
@@ -171,10 +153,6 @@ fun String?.containsChinese(): Boolean {
     return matcher.find()
 }
 
-/**
- * 修改自源代码：[HMCL Github](https://github.com/HMCL-dev/HMCL/blob/942f7b7/HMCLCore/src/main/java/org/jackhuang/hmcl/util/StringUtils.java#L291-L393)
- * 原项目版权归原作者所有，遵循GPL v3协议
- */
 fun tokenize(str: String, vars: Map<String, String>? = null): List<String> {
     if (str.isBlank()) return emptyList()
     val variables = vars ?: emptyMap()
@@ -245,7 +223,7 @@ private fun handleVariable(
     current: StringBuilder
 ): Int {
     val varEnd = findVarEnd(str, start)
-    if (varEnd < 0) { //无效变量格式
+    if (varEnd < 0) {
         current.append('$')
         return start
     }
@@ -266,10 +244,6 @@ private fun findVarEnd(str: String, start: Int): Int {
     return pos
 }
 
-/**
-     * 修改自源代码：[HMCL Github](https://github.com/HMCL-dev/HMCL/blob/942f7b7/HMCLCore/src/main/java/org/jackhuang/hmcl/util/StringUtils.java#L462-L516)
-     * 原项目版权归原作者所有，遵循GPL v3协议
-     */
     class LevCalculator {
         private var lev: Array<IntArray> = emptyArray()
 

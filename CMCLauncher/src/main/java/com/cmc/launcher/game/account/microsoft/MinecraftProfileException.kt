@@ -7,24 +7,13 @@ import com.cmc.launcher.game.account.microsoft.MinecraftProfileException.Excepti
 import com.cmc.launcher.ui.AndroidStringText
 import com.cmc.launcher.ui.androidText
 
-/**
- * Minecraft 配置获取异常
- */
 class MinecraftProfileException(val status: ExceptionStatus) : RuntimeException() {
     enum class ExceptionStatus {
-        /**
-         * 登陆过于频繁
-         */
+
         FREQUENT,
 
-        /**
-         * IP 地址被禁止
-         */
         BLOCKED_IP,
 
-        /**
-         * 未创建配置
-         */
         PROFILE_NOT_EXISTS
     }
 }

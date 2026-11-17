@@ -105,17 +105,12 @@ import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.utils.copyText
 import com.cmc.launcher.utils.string.stripColorCodes
 
-/** 服务器卡片快速启动回调；版本为 null 时由接收方解析为当前选中版本 */
 val LocalServerCardQuickPlay = staticCompositionLocalOf<(Version?, String) -> Unit> { { _, _ -> } }
 
-/** 名称与信息行之间的间距 */
 private val DetailItemGap = 2.dp
-/** 头行与描述区之间的间距 */
+
 private val DetailTopGap = 4.dp
 
-/**
- * 服务器卡片内容
- */
 @Composable
 fun CardState.ServerCardContent(cardId: String) {
     val states by ServerCardManager.cards.collectAsStateWithLifecycle()
@@ -153,9 +148,6 @@ fun CardState.ServerCardContent(cardId: String) {
     }
 }
 
-/**
- * 服务器卡片设置对话框宿主
- */
 @Composable
 fun ServerCardSettingsHost(
     cardId: String,
@@ -191,9 +183,6 @@ private fun enlargedIconSize(sizeClass: CardSizeClass): Dp = when (sizeClass) {
     else -> 64.dp
 }
 
-/**
- * 纵向布局
- */
 @Composable
 private fun TallContent(
     card: ServerCardState?,
@@ -210,12 +199,12 @@ private fun TallContent(
                 .weight(1f)
                 .clipToBounds()
         ) {
-            //头行高度即图标高度，扣除后即图标下方的空白
+
             val blank = maxHeight - iconSize - DetailTopGap
             val lineHeight = with(LocalDensity.current) {
                 (MaterialTheme.typography.bodySmall.fontSize.toPx() * 1.1f).toDp()
             }
-            //描述行的行数与空白高度一致
+
             val maxLines = (blank.value / lineHeight.value).toInt()
 
             Column(
@@ -284,9 +273,6 @@ private fun HeaderRow(card: ServerCardState?, iconSize: Dp) {
     }
 }
 
-/**
- * 横排布局
- */
 @Composable
 private fun RowContent(
     card: ServerCardState?,
@@ -370,7 +356,6 @@ private fun tooltipText(card: ServerCardState): String? {
     }
 }
 
-/** 将服务器描述组件拍平为纯文本 */
 private fun ServerDescription.flattenText(): String = when (this) {
     is StringDescription -> value
     is ComponentDescriptionRoot -> values.joinToString("") { it.flattenText() }
@@ -378,7 +363,6 @@ private fun ServerDescription.flattenText(): String = when (this) {
     else -> ""
 }
 
-/** 服务器描述文本区 */
 @Composable
 private fun MotdText(
     modifier: Modifier = Modifier,
@@ -398,7 +382,6 @@ private fun MotdText(
     )
 }
 
-/** 延迟、在线人数与占位状态行 */
 @Composable
 private fun StatusInfoRow(card: ServerCardState?) {
     when (val ping = card?.ping) {
@@ -439,7 +422,7 @@ private fun StatusInfoRow(card: ServerCardState?) {
                 }
             }
         }
-        //初始刷新中：以进度条替代延迟/人数行
+
         ServerCardPingStatus.Loading -> LinearProgressIndicator(
             modifier = Modifier.fillMaxWidth()
         )
@@ -450,7 +433,6 @@ private fun StatusInfoRow(card: ServerCardState?) {
     }
 }
 
-/** 快速启动按钮 */
 @Composable
 private fun QuickLaunchButton(
     card: ServerCardState?,
@@ -464,7 +446,7 @@ private fun QuickLaunchButton(
     val launch = {
         when (record.versionMode) {
             ServerCardVersionMode.SPECIFIC -> {
-                //启动前校验绑定版本是否仍然可用，失效则回退当前选中版本
+
                 val available = card.versionStatus as? VersionCardStatus.Available
                 onQuickPlay(available?.version?.takeIf { it.isValid() }, record.cardId)
             }
@@ -514,7 +496,6 @@ private fun QuickLaunchButton(
     }
 }
 
-/** 服务器图标 */
 @Composable
 private fun ServerCardIcon(
     card: ServerCardState?,
@@ -597,9 +578,6 @@ private fun playersText(players: Players, undefined: String, full: String): Stri
     }
 }
 
-/**
- * 服务器卡片设置对话框
- */
 @Composable
 private fun ServerCardSettingsDialog(
     record: ServerCardRecord,
@@ -634,7 +612,7 @@ private fun ServerCardSettingsDialog(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                //服务器名称
+
                 OwnOutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = cardName,
@@ -644,7 +622,6 @@ private fun ServerCardSettingsDialog(
                     shape = MaterialTheme.shapes.large
                 )
 
-                //服务器地址
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -674,13 +651,11 @@ private fun ServerCardSettingsDialog(
                     )
                 }
 
-                //手动刷新
                 RefreshDialogItem(
                     modifier = Modifier.fillMaxWidth(),
                     cardId = cardId
                 )
 
-                //快速启动
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -727,7 +702,6 @@ private fun ServerCardSettingsDialog(
                         }
                     }
 
-                    //选择版本
                     if (mode == ServerCardVersionMode.SPECIFIC)  {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -817,10 +791,6 @@ private fun ServerCardSettingsDialog(
     }
 }
 
-/**
- * 版本选择对话框：列出传入的已加载版本（图标+名称），点选即绑定；
- * 版本列表为空时由调用方以普通对话框提示
- */
 @Composable
 private fun VersionPickerDialog(
     versions: List<Version>,
@@ -883,7 +853,6 @@ private fun VersionPickerDialog(
     }
 }
 
-/** 手动刷新条目 */
 @Composable
 private fun RefreshDialogItem(
     cardId: String,

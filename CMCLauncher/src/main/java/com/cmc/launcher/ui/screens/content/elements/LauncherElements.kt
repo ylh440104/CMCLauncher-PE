@@ -98,52 +98,46 @@ import java.io.File
 
 @Parcelize
 sealed interface QuickPlay : Parcelable {
-    /** 快速启动游玩存档  仅支持 1.20+ 23w14a+ */
+
     @Parcelize
     data class Save(val saveName: String): QuickPlay
 
-    /** 快速启动游玩服务器 */
     @Parcelize
     data class Server(val serverAddress: String): QuickPlay
 }
 
 sealed interface LaunchGameOperation {
     data object None : LaunchGameOperation
-    /** 没有安装版本/没有选中有效版本 */
+
     data object NoVersion : LaunchGameOperation
-    /** 版本名称非法时 */
+
     data class InvalidVersionName(val th: InvalidFilenameException) : LaunchGameOperation
-    /** 没有可用账号 */
+
     data object NoAccount : LaunchGameOperation
 
-    /** 渲染器可配置，但需要用到文件管理权限 */
     data class RendererNoStoragePermission(
         val renderer: RendererInterface,
         val version: Version,
         val quickPlay: QuickPlay?
     ) : LaunchGameOperation
 
-    /** 当前渲染器不支持选中版本 */
     data class UnsupportedRenderer(
         val renderer: RendererInterface,
         val version: Version,
         val quickPlay: QuickPlay?
     ): LaunchGameOperation
 
-    /** 当前已加载的插件不支持选中的版本 */
     data class UnsupportedPlugins(
         val plugins: List<ApkPlugin>,
         val version: Version,
         val quickPlay: QuickPlay?
     ): LaunchGameOperation
 
-    /** 尝试启动：启动前检查一些东西 */
     data class TryLaunch(
         val version: Version?,
         val quickPlay: QuickPlay? = null
     ) : LaunchGameOperation
 
-    /** 账号凭据已被服务端拒绝，需要重新登录 */
     data class AccountRelogin(
         val account: Account,
         val version: Version,
@@ -152,7 +146,6 @@ sealed interface LaunchGameOperation {
         val error: Throwable? = null
     ) : LaunchGameOperation
 
-    /** 账号刷新失败，可选择跳过刷新继续启动 */
     data class AccountRefreshFailed(
         val account: Account,
         val error: Throwable,
@@ -160,7 +153,6 @@ sealed interface LaunchGameOperation {
         val quickPlay: QuickPlay?
     ) : LaunchGameOperation
 
-    /** 正式启动 */
     data class RealLaunch(
         val version: Version,
         val quickPlay: QuickPlay?,
@@ -222,7 +214,7 @@ fun LaunchGameOperation(
                         message = activity.getString(R.string.renderer_version_storage_permissions, renderer.getRendererName()),
                         messageSdk30 = activity.getString(R.string.renderer_version_storage_permissions_sdk30, renderer.getRendererName()),
                         onDialogCancel = {
-                            //用户拒绝授权，但仍然允许启动（不过这会导致配置无法读取）
+
                             launchGameViewModel.updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
                         }
                     )
@@ -288,7 +280,6 @@ fun LaunchGameOperation(
 
                 val mcVer = version.getVersionInfo()!!.minecraftVersion
 
-                // 设备完全支持 Vulkan 时跳过渲染器的版本支持检查
                 if (!version.hasVulkanBackend() || !ensureVulkanSupported(version)) {
                     val supportedMin = currentRenderer.getMinMCVersion()?.let { verStr ->
                         !isSfpewConfiguredFor(currentRenderer, version) && mcVer.isLowerVer(verStr)
@@ -313,8 +304,6 @@ fun LaunchGameOperation(
                     return@LaunchedEffect
                 }
 
-                //为可配置的渲染器检查文件管理权限
-                //前提：系统支持这个设置
                 if (
                     canHandlePermission &&  !hasStoragePermission &&
                     RendererPluginManager.isConfigurablePlugin(version.getRenderer())
@@ -323,7 +312,6 @@ fun LaunchGameOperation(
                     return@LaunchedEffect
                 }
 
-                //正式启动游戏
                 launchGameViewModel.updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
             }
         }
@@ -549,9 +537,6 @@ private fun AccountRefreshFailedDialog(
     }
 }
 
-/**
- * 启动器背景图片/视频层
- */
 @Composable
 fun Background(
     viewModel: BackgroundViewModel,
@@ -634,8 +619,6 @@ private fun BackgroundImage(
             .build()
     }
 
-    //GIF 的动画帧由绘制 → invalidateSelf → 再绘制的自续循环推进，
-    //任何一帧失效丢失都会让动画永久冻结，由帧时钟显式逐帧驱动重绘，保证循环自愈
     val isAnimatedState = remember(refreshTrigger) { mutableStateOf(false) }
     LaunchedEffect(refreshTrigger) {
         isAnimatedState.value = withContext(Dispatchers.IO) {

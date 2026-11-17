@@ -35,7 +35,7 @@ import java.nio.channels.UnresolvedAddressException
 private const val TAG = "ModLoaderLists"
 
 class AddonList {
-    //版本列表
+
     var optifineList by mutableStateOf<List<OptiFineVersion>?>(null)
     var forgeList by mutableStateOf<List<ForgeVersion>?>(null)
     var neoforgeList by mutableStateOf<List<NeoForgeVersion>?>(null)
@@ -48,7 +48,7 @@ class AddonList {
 }
 
 class CurrentAddon {
-    //当前选择版本
+
     var optifineVersion = mutableStateOf<OptiFineVersion?>(null)
     var forgeVersion = mutableStateOf<ForgeVersion?>(null)
     var neoforgeVersion = mutableStateOf<NeoForgeVersion?>(null)
@@ -59,7 +59,6 @@ class CurrentAddon {
     var quiltVersion = mutableStateOf<QuiltVersion?>(null)
     var quiltAPIVersion = mutableStateOf<ModVersion?>(null)
 
-    //加载状态
     var optifineState by mutableStateOf<AddonState>(AddonState.None)
     var forgeState by mutableStateOf<AddonState>(AddonState.None)
     var neoforgeState by mutableStateOf<AddonState>(AddonState.None)
@@ -70,7 +69,6 @@ class CurrentAddon {
     var quiltState by mutableStateOf<AddonState>(AddonState.None)
     var quiltAPIState by mutableStateOf<AddonState>(AddonState.None)
 
-    //不兼容列表 利用Set集合不可重复
     var incompatibleWithOptiFine = mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithForge = mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithNeoForge = mutableStateOf<Set<ModLoader>>(emptySet())
@@ -81,12 +79,6 @@ class CurrentAddon {
     var incompatibleWithQuilt = mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithQuiltAPI = mutableStateOf<Set<ModLoader>>(emptySet())
 
-
-
-
-    /**
-     * 将 API模组与其对应的模组加载器关联起来
-     */
     private val apiToPrimary = mapOf(
         ModLoader.FABRIC_API to ModLoader.FABRIC,
         ModLoader.QUILT_API to ModLoader.QUILT,
@@ -188,10 +180,6 @@ class CurrentAddon {
         }
     }
 
-    /**
-     * 检查候选加载器版本是否与当前已选择的其他加载器全部兼容
-     * 用于预选等不经过用户点击的填入场景，避免与用户已做出的选择冲突
-     */
     fun isCompatibleWithSelection(
         candidateVersion: AddonVersion?,
         loader: ModLoader,
@@ -204,9 +192,6 @@ class CurrentAddon {
         }
     }
 
-    /**
-     * 判断两个加载器之间是否不兼容
-     */
     private fun areMutuallyExclusive(
         version: AddonVersion?,
         thisLoader: ModLoader,
@@ -216,7 +201,6 @@ class CurrentAddon {
     ): Boolean {
         if (thisLoader == otherLoader) return false
 
-        //OptiFine 与 Forge 按双方已选版本成对校验，与列表条目的过滤规则保持一致
         if (thisLoader == ModLoader.OPTIFINE && otherLoader == ModLoader.FORGE) {
             val optifine = version as? OptiFineVersion ?: return false
             val forge = otherVersion as? ForgeVersion ?: return false
@@ -244,9 +228,6 @@ class CurrentAddon {
     }
 }
 
-/**
- * 加载器对于Minecraft版本的支持情况信息
- */
 data class LoaderVerSupports(
     val isNeoForgeSupports: Boolean,
     val isFabricSupports: Boolean,
@@ -265,9 +246,6 @@ fun rememberLoaderVerSupports(mcVer: String) = remember(mcVer) {
     )
 }
 
-/**
- * 在 ViewModel 中运行任务并更新附加内容的状态
- */
 suspend fun <T> ViewModel.runWithState(
     updateState: (AddonState) -> Unit,
     block: suspend () -> T?
@@ -280,7 +258,7 @@ suspend fun <T> ViewModel.runWithState(
     }.onFailure { e ->
         val state = when (e) {
             is ResponseTooShortException -> {
-                //忽略，判定为不可用
+
                 AddonState.None
             }
             is HttpRequestTimeoutException -> AddonState.Error(androidText(R.string.error_timeout))
@@ -363,7 +341,7 @@ fun ForgeList(
     val incompatibleSet by currentAddon.incompatibleWithForge
 
     val items = addonList.forgeList?.filter { version ->
-        //选择 OptiFine 之后，根据 OptiFine 需求的 Forge 版本进行过滤
+
         optifineVersion?.let { ofv ->
             isOptiFineCompatibleWithForge(ofv, version)
         } ?: true
@@ -666,25 +644,22 @@ fun QuiltAPIList(
     )
 }
 
-/**
- * 判断指定 OptiFine 是否与指定 Forge 兼容
- */
 fun isOptiFineCompatibleWithForge(
     optifine: OptiFineVersion,
     forge: ForgeVersion
 ): Boolean = optifine.forgeVersion?.let {
-    //空字符串表示兼容所有
+
     it.isEmpty() || forge.forgeBuildVersion.compareOptiFineRequired(it)
-} ?: false //没有声明需要的 Forge 版本，视为不兼容
+} ?: false
 
 @Composable
 private fun checkForgeCompatibilityError(
     forgeList: List<ForgeVersion>?
 ): String? {
     return when {
-        forgeList == null -> null //保持默认的“不可用”
+        forgeList == null -> null
         forgeList.any { forgeVersion -> forgeVersion.category == "universal" || forgeVersion.category == "client" } -> {
-            //跳过无法自动安装的版本
+
             stringResource(R.string.download_game_addon_not_installable)
         }
         else -> null

@@ -36,12 +36,12 @@ fun fmTopbarColors(): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
 )
 
 object FmAnimations {
-    /** 滑动触发回弹动画时长（ms） */
+
     const val SWIPE_BACK_MS = 220
-    /** 定位高亮闪烁停留时长（ms） */
+
     const val LOCATE_HIGHLIGHT_MS = 1400L
-    /** 内容切换淡出时长（ms） */
+
     const val FADE_OUT_MS = 120
-    /** 内容切换淡入时长（ms） */
+
     const val FADE_IN_MS = 180
 }

@@ -184,7 +184,7 @@ private fun TaskItem(
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 12.dp, top = 8.dp, bottom = 8.dp)
-                    
+
             ) {
                 Text(
                     text = item.name,

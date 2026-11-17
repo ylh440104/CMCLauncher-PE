@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.cmc.launcher.game.versioninfo.models;
 
 import static com.cmc.launcher.path.UrlManagerKt.URL_MINECRAFT_ASSETS_INDEX;
@@ -59,7 +41,7 @@ public class GameManifest {
     @SerializedName("logging")
     private Logging logging;
     @SerializedName("inheritsFrom")
-    private String inheritsFrom; //作为非合并版本的标记
+    private String inheritsFrom;
 
     public Arguments getArguments() {
         return arguments;
@@ -69,9 +51,6 @@ public class GameManifest {
         this.arguments = arguments;
     }
 
-    /**
-     * [Modified from FCL](https://github.com/FCL-Team/FoldCraftLauncher/blob/6d88587eb62d84ae7ef26a9003640535265ff4f2/FCLCore/src/main/java/com/tungsten/fclcore/game/Version.java#L229-L267)
-     */
     public AssetIndex getAssetIndex() {
         String assetsId = assets == null ? "legacy" : assets;
 
@@ -509,7 +488,7 @@ public class GameManifest {
         @SerializedName("majorVersion")
         private int majorVersion;
         @SerializedName("version")
-        private int version; // parameter used by LabyMod 4
+        private int version;
 
         public String getComponent() {
             return component;
@@ -707,18 +686,15 @@ public class GameManifest {
             this.value = value;
         }
 
-        /**
-         * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L815-L823)
-         */
         public static boolean checkRules(@Nullable List<Rule> rules) {
-            if (rules == null || rules.isEmpty()) return true; // always allow
+            if (rules == null || rules.isEmpty()) return true;
 
             for (Rule rule : rules) {
                 if (rule.action == Action.ALLOW && rule.os != null && "osx".equals(rule.os.name)) {
-                    return false; //disallow
+                    return false;
                 }
             }
-            return true; // allow if none match
+            return true;
         }
     }
 

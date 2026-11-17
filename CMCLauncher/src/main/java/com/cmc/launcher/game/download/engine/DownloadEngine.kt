@@ -9,15 +9,8 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * 引擎的单一文件便捷入口，适合独立的小批量场景；大规模批量请使用 [BatchDownloader]。
- */
 object DownloadEngine {
 
-    /**
-     * @param sizeCallback 落盘字节的带符号增量回调：失败重试丢弃的字节以负增量回滚，
-     * 全部增量的代数和等于最终落盘大小
-     */
     suspend fun download(
         request: DownloadRequest,
         stats: DownloadStats = DownloadStats(),

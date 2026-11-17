@@ -47,10 +47,6 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- * 背景毛玻璃效果：在元素内容下方对齐绘制启动器背景的预模糊结果
- * @param enabled 是否应用模糊效果
- */
 @Composable
 fun Modifier.backgroundGlass(
     blur: Int,
@@ -64,12 +60,6 @@ fun Modifier.backgroundGlass(
     return this then GlassElement(blur, color, background)
 }
 
-/**
- * 启动器背景捕获：由 Background 挂载，发布背景内容与屏幕区域供毛玻璃效果采样
- * @param recordContent 是否将内容录制到共享层（前景模糊模式）
- * @param blurRadiusPx 前景模式 GPU 预模糊半径（像素，仅 Android 12+ 生效）
- * @param whiteOverlayAlpha 白色提亮层透明度（0 表示不绘制）
- */
 internal fun Modifier.backgroundCapture(
     store: BackgroundViewModel,
     recordContent: Boolean,
@@ -95,9 +85,6 @@ private data class GlassElement(
     }
 }
 
-/**
- * 毛玻璃绘制节点：绘制期间读取的状态变化只触发重绘，不触发重组
- */
 private class GlassNode(
     blur: Int,
     color: Color,
@@ -117,11 +104,9 @@ private class GlassNode(
             invalidateDraw()
         }
 
-    //元素在屏幕坐标系中的位置，随布局逐帧更新，绘制时据此对齐采样
     private var screenOrigin = Offset.Zero
     private var hasOrigin = false
 
-    //绘制时复用的临时对象，避免每次绘制都重新分配
     private val currentMatrix = Matrix()
     private val invertedMatrix = Matrix()
     private val matrixValues = FloatArray(9)
@@ -180,7 +165,6 @@ private class GlassNode(
         )
     }
 
-
 }
 
 private data class BackgroundCaptureElement(
@@ -201,10 +185,6 @@ private data class BackgroundCaptureElement(
     }
 }
 
-/**
- * 背景捕获节点：持有共享模糊层并随节点生命周期发布/摘除，
- * 布局时上报背景屏幕区域，Android 12- 前景模式下驱动帧捕获循环
- */
 private class BackgroundCaptureNode(
     var store: BackgroundViewModel,
     var recordContent: Boolean,
@@ -250,9 +230,6 @@ private class BackgroundCaptureNode(
         }
     }
 
-    /**
-     * 依据当前参数调和共享层的发布与捕获循环的启停
-     */
     fun sync() {
         syncLayers()
         syncCaptureLoop()
@@ -289,7 +266,7 @@ private class BackgroundCaptureNode(
     }
 
     private fun createLayer(): GraphicsLayer? {
-        //release 必须归还给创建它的同一 context，故在创建时捕获
+
         val context = currentValueOf(LocalGraphicsContext)
         graphicsContext = context
         return context.createGraphicsLayer()

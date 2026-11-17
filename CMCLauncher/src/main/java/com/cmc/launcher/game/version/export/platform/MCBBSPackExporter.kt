@@ -17,9 +17,6 @@ import com.cmc.launcher.utils.string.tokenize
 import org.jackhuang.hmcl.util.DigestUtils
 import java.io.File
 
-/**
- * MCBBS 整合包导出工具
- */
 class MCBBSPackExporter: AbstractExporter(
     type = PackType.MCBBS
 ) {
@@ -106,7 +103,6 @@ class MCBBSPackExporter: AbstractExporter(
             val jsonString = GSON.toJson(manifest)
             manifestFile.writeText(jsonString)
 
-            // CurseForge manifest
             val cfLoader = info.loader?.let { loader ->
                 when (loader.loader) {
                     ModLoader.FORGE -> CurseForgeManifest.Minecraft.ModLoader(

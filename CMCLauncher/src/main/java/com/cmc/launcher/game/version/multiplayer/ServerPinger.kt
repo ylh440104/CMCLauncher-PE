@@ -38,7 +38,6 @@ suspend fun pingServer(
                     val input = socket.openReadChannel()
                     val output = socket.openWriteChannel(autoFlush = true)
 
-                    // ---------- Handshake ----------
                     val handshakeBytes = buildPacket {
                         writeVarInt(HANDSHAKE_PACKET_ID)
                         writeVarInt(protocolVersion)
@@ -49,25 +48,21 @@ suspend fun pingServer(
                     output.writeVarInt(handshakeBytes.size)
                     output.writeFully(handshakeBytes)
 
-                    // ---------- Status Request ----------
-                    output.writeVarInt(1) // Packet length
+                    output.writeVarInt(1)
                     output.writeVarInt(STATUS_REQUEST_PACKET_ID)
 
-                    // ---------- Status Response ----------
-                    input.readVarInt()          // packet length
+                    input.readVarInt()
                     val responsePacketId = input.readVarInt()
                     require(responsePacketId == STATUS_RESPONSE_PACKET_ID) { "Invalid status packet id: $responsePacketId" }
 
                     val json = input.readMCString()
 
-                    // ---------- Ping / Pong ----------
                     val pingTime = System.currentTimeMillis()
-                    output.writeVarInt(9) // Packet Length (1 byte for ID + 8 bytes for long)
+                    output.writeVarInt(9)
                     output.writeVarInt(PING_REQUEST_PACKET_ID)
                     output.writeLong(pingTime)
 
-                    // ---------- Pong Response ----------
-                    input.readVarInt() // packet length
+                    input.readVarInt()
                     val pongPacketId = input.readVarInt()
                     require(pongPacketId == PONG_RESPONSE_PACKET_ID) { "Invalid pong packet id: $pongPacketId" }
                     val pongTime = input.readLong()

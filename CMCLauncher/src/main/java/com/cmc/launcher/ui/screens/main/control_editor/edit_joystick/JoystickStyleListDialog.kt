@@ -52,9 +52,6 @@ import com.cmc.launcher.ui.screens.main.control_editor.orUnspecified
 import com.cmc.launcher.ui.theme.cardColor
 import com.cmc.launcher.ui.theme.onCardColor
 
-/**
- * 摇杆样式列表展示对话框
- */
 @Composable
 fun JoystickStyleListDialog(
     styles: List<ObservableJoystickStyle>,
@@ -142,7 +139,7 @@ fun JoystickStyleListDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //样式收藏柜入口
+
                         FilledTonalButton(
                             onClick = onOpenCabinet
                         ) {

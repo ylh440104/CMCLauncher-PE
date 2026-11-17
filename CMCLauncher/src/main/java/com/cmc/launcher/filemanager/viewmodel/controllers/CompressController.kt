@@ -30,7 +30,6 @@ import java.nio.file.StandardCopyOption
 
 private const val TAG = "FmCompress"
 
-/** 压缩控制器 */
 class CompressController(
     private val context: Context,
     private val logic: FileManagerLogic,
@@ -38,9 +37,9 @@ class CompressController(
     private val browse: BrowseController,
     private val coroutineScope: CoroutineScope
 ) {
-    /** 暂存待执行的压缩请求 */
+
     private var pendingCompress: PendingCompress? = null
-    /** 压缩冲突流程暂存目标 */
+
     private var pendingCompressOutputTarget: OutputTarget? = null
 
     fun bulkCompress() {
@@ -58,7 +57,6 @@ class CompressController(
         }
     }
 
-    /** 对单个目录 / 文件发起压缩 */
     fun compressEntry(entry: FmEntry) {
         store.dismissDialog()
         val defaultName = defaultCompressName(listOf(entry.path))
@@ -72,20 +70,19 @@ class CompressController(
         }
     }
 
-    /** 压缩设置确认 */
     fun onCompressSetupConfirmed(
         name: String,
         sources: List<Path>,
         options: CompressOptions
     ) {
         if (name.isBlank()) return
-        // 压缩包命名同样通过文件名校验，非法时给出原因
+
         val err = FilenameValidator.verify(name)
         if (err != null) {
             store.emitError(store.filenameErrorText(err))
             return
         }
-        // 若用户手动输入了与所选格式相同的后缀，避免重复拼接（foo.zip + .zip）
+
         val cleanName = stripCompressSuffix(name, options.format)
         pendingCompress = PendingCompress(cleanName, sources, options)
         store.updateState {
@@ -93,7 +90,6 @@ class CompressController(
         }
     }
 
-    /** 在当前目录生成压缩包 */
     fun onCompressOutputChoiceCurrent() {
         val pending = pendingCompress ?: run {
             store.dismissDialog()
@@ -111,20 +107,17 @@ class CompressController(
         }
     }
 
-    /** 通过 SAF 选择输出目录 */
     fun onCompressOutputChoiceSaf() {
         store.updateState {
             it.copy(dialogIntent = DialogIntent.CompressOutputPick)
         }
     }
 
-    /** SAF 输出目录选择取消，清空暂存，关闭流程。 */
     fun onCompressOutputPickedCancelled() {
         pendingCompress = null
         store.dismissDialog()
     }
 
-    /** SAF 选定输出目录，存在同名文件时弹冲突对话框，否则直接执行压缩。 */
     fun onCompressOutputPicked(treeUri: Uri) {
         val pending = pendingCompress ?: run {
             store.dismissDialog()
@@ -144,7 +137,6 @@ class CompressController(
         }
     }
 
-    /** 压缩冲突决策：按 SKIP/OVERWRITE/KEEP_BOTH 执行压缩。 */
     fun resolveCompressConflict(resolution: ConflictResolution) {
         val target = pendingCompressOutputTarget ?: run {
             store.dismissDialog()
@@ -188,7 +180,7 @@ class CompressController(
     ) {
         val pending = pendingCompress ?: return
         store.dismissDialog()
-        // 临时文件创建与半成品清理统一由逻辑层 TempWorkspace 负责
+
         val tempFile = logic.tempWorkspace.compressTempFile(pending.options.format.extension)
         try {
             when (val r = logic.compress(pending.sources, tempFile, pending.options)) {
@@ -203,7 +195,7 @@ class CompressController(
                             if (overwrite) runCatching { Files.deleteIfExists(dest) }
                             withContext(Dispatchers.IO) {
                                 Files.move(tempFile, dest, StandardCopyOption.REPLACE_EXISTING)
-                                // 跨文件系统移动可能丢失权限，落地后再确保 664
+
                                 FilePermissions.apply(dest)
                             }
                             browse.notifyFileChanged(FileManagerEvent(FileManagerEvent.Type.ARCHIVE, listOf(target.dir.toString())))
@@ -218,7 +210,7 @@ class CompressController(
                             )
                             FileManagerEventBus.dispatch(FileManagerEvent(FileManagerEvent.Type.ARCHIVE, listOf(target.treeUri.toString())))
                         }
-                        else -> { /* SafDir 不适用于压缩流程 */ }
+                        else -> {  }
                     }
                 }
                 is FmResult.Failed -> {
@@ -235,7 +227,7 @@ class CompressController(
             store.emitSnackbar(FmSnackbar(store.fileOpErrorText(e, R.string.fm_error_compress_failed)))
             browse.refreshCurrentDir()
         } finally {
-            // 半成品清理（含取消 / 失败场景）统一由逻辑层完成
+
             logic.tempWorkspace.delete(tempFile)
             pendingCompress = null
             pendingCompressOutputTarget = null

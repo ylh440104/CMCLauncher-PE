@@ -7,9 +7,6 @@ import com.cmc.launcher.game.download.addon.platform.PlatformClasses
 import com.cmc.launcher.game.download.addon.platform.PlatformFilterCode
 import kotlinx.parcelize.Parcelize
 
-/**
- * Modrinth 模组加载器类别
- */
 @Parcelize
 enum class ModrinthModLoaderCategory : ModrinthFacet, ModLoaderDisplayLabel {
     FABRIC {
@@ -36,11 +33,7 @@ enum class ModrinthModLoaderCategory : ModrinthFacet, ModLoaderDisplayLabel {
         override fun facetValue(): String = "bta-babric"
         override fun getDisplayName(): String = "BTA (Babric)"
     },
-//    注入型，非正常情况使用，排除
-//    JAVA_AGENT {
-//        override fun facetValue(): String = "java-agent"
-//        override fun getDisplayName(): String = "Java Agent"
-//    },
+
     LEGACY_FABRIC {
         override fun facetValue(): String = "legacy-fabric"
         override fun getDisplayName(): String = ModLoader.LEGACY_FABRIC.displayName
@@ -70,9 +63,6 @@ enum class ModrinthModLoaderCategory : ModrinthFacet, ModLoaderDisplayLabel {
     override fun index(): Int = this.ordinal
 }
 
-/**
- * 可视化筛选器支持的模组加载器
- */
 val modrinthModLoaderFilters: List<ModrinthModLoaderCategory> = listOf(
     ModrinthModLoaderCategory.FABRIC,
     ModrinthModLoaderCategory.FORGE,
@@ -80,9 +70,6 @@ val modrinthModLoaderFilters: List<ModrinthModLoaderCategory> = listOf(
     ModrinthModLoaderCategory.QUILT
 )
 
-/**
- * Modrinth 模组下载类别
- */
 enum class ModrinthModCategory : ModrinthFacet, PlatformFilterCode {
     WORLDGEN {
         override fun facetValue(): String = "worldgen"
@@ -149,9 +136,6 @@ enum class ModrinthModCategory : ModrinthFacet, PlatformFilterCode {
     override fun index(): Int = this.ordinal
 }
 
-/**
- * Modrinth 整合包下载类别
- */
 enum class ModrinthModpackCategory : ModrinthFacet, PlatformFilterCode {
     MULTIPLAYER {
         override fun facetValue(): String = "multiplayer"
@@ -198,9 +182,6 @@ enum class ModrinthModpackCategory : ModrinthFacet, PlatformFilterCode {
     override fun index(): Int = this.ordinal
 }
 
-/**
- * Modrinth 资源包下载类别
- */
 enum class ModrinthResourcePackCategory : ModrinthFacet, PlatformFilterCode {
     COMBAT {
         override fun facetValue(): String = "combat"
@@ -227,9 +208,6 @@ enum class ModrinthResourcePackCategory : ModrinthFacet, PlatformFilterCode {
     override fun index(): Int = this.ordinal
 }
 
-/**
- * Modrinth 光影包下载类别
- */
 enum class ModrinthShadersCategory : ModrinthFacet, PlatformFilterCode {
     CARTOON {
         override fun facetValue(): String = "cartoon"

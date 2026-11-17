@@ -116,7 +116,6 @@ fun EditControlLayerDialog(
                             onSingleLined = { layer.name = it }
                         )
 
-                        //控件层名称
                         OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = layer.name,
@@ -130,7 +129,6 @@ fun EditControlLayerDialog(
                             shape = MaterialTheme.shapes.large
                         )
 
-                        //可见场景
                         InfoLayoutListItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_edit_visibility),
@@ -140,7 +138,6 @@ fun EditControlLayerDialog(
                             getItemText = { it.getVisibilityText() }
                         )
 
-                        //默认隐藏控件层
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide),
@@ -151,7 +148,6 @@ fun EditControlLayerDialog(
                             }
                         )
 
-                        //在实体鼠标操作时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_mouse),
@@ -159,7 +155,6 @@ fun EditControlLayerDialog(
                             onValueChange = { layer.hideWhenMouse = it }
                         )
 
-                        //在手柄操作时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_gamepad),
@@ -167,7 +162,6 @@ fun EditControlLayerDialog(
                             onValueChange = { layer.hideWhenGamepad = it }
                         )
 
-                        //合并控件至下层
                         InfoLayoutTextItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_merge_downward),
@@ -186,7 +180,6 @@ fun EditControlLayerDialog(
                             }
                         )
 
-                        //复制
                         InfoLayoutTextItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.generic_copy),

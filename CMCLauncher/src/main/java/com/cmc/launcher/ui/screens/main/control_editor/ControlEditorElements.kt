@@ -65,9 +65,6 @@ import com.cmc.launcher.utils.string.isNotEmptyOrBlank
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
-/**
- * 预览控制布局的场景
- */
 enum class PreviewScenario(
     val textRes: Int,
     val cursorMode: Int,
@@ -96,9 +93,6 @@ fun JoystickTriggerMode.getTriggerModeText(): String {
     return stringResource(textRes)
 }
 
-/**
- * 文本为空或全空白时，回退显示为“未指定”
- */
 @Composable
 fun String.orUnspecified(): String {
     return takeIf { it.isNotEmptyOrBlank() } ?: stringResource(R.string.generic_unspecified)
@@ -208,7 +202,7 @@ fun EditorMenu(
                 text = stringResource(R.string.control_editor_layers_title),
                 style = MaterialTheme.typography.titleMedium
             )
-            //切换控件层聚焦
+
             IconButton(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 onClick = {
@@ -286,7 +280,7 @@ private fun EditorMenuContent(
         contentPadding = PaddingValues(all = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        //添加按钮
+
         item(key = "add_button") {
             MenuTextButton(
                 modifier = Modifier
@@ -303,7 +297,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //添加文本框
         item(key = "add_textbox") {
             MenuTextButton(
                 modifier = Modifier
@@ -320,7 +313,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //添加摇杆
         item(key = "add_joystick") {
             MenuTextButton(
                 modifier = Modifier
@@ -341,7 +333,6 @@ private fun EditorMenuContent(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        //控件外观列表
         item(key = "control_appearance_list") {
             MenuTextButton(
                 modifier = Modifier
@@ -361,7 +352,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //摇杆样式列表
         item(key = "joystick_style_list") {
             MenuTextButton(
                 modifier = Modifier
@@ -381,7 +371,6 @@ private fun EditorMenuContent(
             )
         }
 
-        // 样式收藏柜
         item(key = "style_cabinet") {
             MenuTextButton(
                 modifier = Modifier
@@ -405,7 +394,6 @@ private fun EditorMenuContent(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        //预览控制布局
         item(key = "preview_control_layout") {
             MenuSwitchButton(
                 modifier = Modifier
@@ -422,7 +410,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //预览场景
         item(key = "preview_scenario") {
             MenuListLayout(
                 modifier = Modifier
@@ -444,7 +431,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //正在使用实体鼠标
         item(key = "using_physical_mouse") {
             MenuSwitchButton(
                 modifier = Modifier
@@ -467,7 +453,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //正在使用手柄
         item(key = "using_gamepad") {
             MenuSwitchButton(
                 modifier = Modifier
@@ -494,7 +479,6 @@ private fun EditorMenuContent(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        //控件吸附
         item {
             MenuSwitchButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -506,7 +490,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //所有控制层范围吸附
         item {
             MenuSwitchButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -518,7 +501,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //控件吸附模式
         item {
             MenuListLayout(
                 modifier = Modifier.fillMaxWidth(),
@@ -542,7 +524,6 @@ private fun EditorMenuContent(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        //保存
         item(key = "save") {
             MenuTextButton(
                 modifier = Modifier
@@ -558,7 +539,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //保存并退出
         item(key = "save_and_exit") {
             MenuTextButton(
                 modifier = Modifier
@@ -574,7 +554,6 @@ private fun EditorMenuContent(
             )
         }
 
-        //直接退出
         item(key = "exit_directly") {
             MenuTextButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -617,7 +596,6 @@ private fun ColumnScope.ControlLayerMenu(
         }
     }
 
-    //检查列表新增情况，自动滚动到顶部
     var previousSize by remember { mutableIntStateOf(0) }
     val currentSize = layers.size
     LaunchedEffect(currentSize) {

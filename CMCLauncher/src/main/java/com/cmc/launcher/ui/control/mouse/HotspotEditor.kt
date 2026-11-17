@@ -49,11 +49,6 @@ import com.cmc.launcher.ui.theme.cardColor
 import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.utils.file.ifExists
 
-/**
- * 鼠标热点位置编辑对话框，编辑热点X、Y坐标百分比位置值
- * @param hotspot 热点坐标百分比值
- * @param cursorShape 指针形状，用于自动选择鼠标图片
- */
 @Composable
 fun MouseHotspotEditorDialog(
     hotspot: ParcelableSettingUnit<CursorHotspot>,
@@ -107,7 +102,7 @@ fun MouseHotspotEditorDialog(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        //X坐标
+
                         InfoLayoutSliderItem(
                             title = stringResource(R.string.settings_control_mouse_pointer_hotspot_x_percent),
                             value = hotspot.state.xPercent.toFloat(),
@@ -125,7 +120,6 @@ fun MouseHotspotEditorDialog(
                             fineTuningStep = 1f
                         )
 
-                        //Y坐标
                         InfoLayoutSliderItem(
                             title = stringResource(R.string.settings_control_mouse_pointer_hotspot_y_percent),
                             value = hotspot.state.yPercent.toFloat(),
@@ -149,15 +143,6 @@ fun MouseHotspotEditorDialog(
     }
 }
 
-/**
- * 鼠标热点预览，在底层渲染鼠标指针，在新的一层绘制热点位置
- * 将以小红点实时预览热点位置
- *
- * 布局方向强制锁定左向
- * @param xPercent X坐标百分比值
- * @param yPercent Y坐标百分比值
- * @param cursorShape 指针形状，用于自动选择鼠标图片
- */
 @Composable
 private fun MouseHotspotPreview(
     xPercent: Int,
@@ -168,7 +153,7 @@ private fun MouseHotspotPreview(
     dotSize: Dp = 8.dp
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        //闪烁动画
+
         val infiniteTransition = rememberInfiniteTransition()
         val alpha by infiniteTransition.animateFloat(
             initialValue = 1f,
@@ -182,14 +167,13 @@ private fun MouseHotspotPreview(
         Box(
             modifier = modifier.size(mouseSize)
         ) {
-            //鼠标预览
+
             MousePointer(
                 cursorShape = cursorShape,
                 mouseSize = mouseSize,
                 mouseFile = getMouseFile(cursorShape).ifExists()
             )
 
-            //坐标预览
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
@@ -206,7 +190,6 @@ private fun MouseHotspotPreview(
                     center = center
                 )
 
-                //白色边框
                 drawCircle(
                     color = Color.White,
                     radius = radius - 1.dp.toPx(),

@@ -29,17 +29,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * 为可滚动的组件增加边缘渐隐的效果，可以很直观的提醒用户这里可以被滑动，
- * 效果类似元安卓View体系下的 fading edge
- * - 本实现依赖 `graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)`，
- *   该设置会让内容在单独的离屏缓冲区中绘制，以便后续通过混合模式（如 DstOut）实现“擦除”效果
- * - 如果将此修饰符放在 `padding()`、`scroll()` 或其他修饰符之后，
- *   那么离屏层可能只包裹部分内容，导致渐隐区域无法覆盖整个可见范围，从而看起来“没有效果”
- * @param direction 控制渐隐的方向，默认是垂直方向
- * @param position 指定在哪个边缘显示渐隐效果（上、下或两边）
- * @param style 控制渐隐的样式
- */
 @Composable
 fun Modifier.fadeEdge(
     state: ScrollState,
@@ -51,7 +40,7 @@ fun Modifier.fadeEdge(
     val fadePx = with(LocalDensity.current) { length.toPx() }
 
     return this
-        //使用离屏合成，让混合模式只影响当前组件，不污染父级与同级元素
+
         .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
         .drawWithContent {
             val startFade = if (state.canScrollBackward) {
@@ -67,17 +56,6 @@ fun Modifier.fadeEdge(
         }
 }
 
-/**
- * 为可滚动的组件增加边缘渐隐的效果，可以很直观的提醒用户这里可以被滑动，
- * 效果类似元安卓View体系下的 fading edge
- * - 本实现依赖 `graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)`，
- *   该设置会让内容在单独的离屏缓冲区中绘制，以便后续通过混合模式（如 DstOut）实现“擦除”效果
- * - 如果将此修饰符放在 `padding()`、`scroll()` 或其他修饰符之后，
- *   那么离屏层可能只包裹部分内容，导致渐隐区域无法覆盖整个可见范围，从而看起来“没有效果”
- * @param direction 控制渐隐的方向，默认是垂直方向
- * @param position 指定在哪个边缘显示渐隐效果（上、下或两边）
- * @param style 控制渐隐的样式
- */
 @Composable
 fun Modifier.fadeEdge(
     state: LazyListState,
@@ -89,17 +67,17 @@ fun Modifier.fadeEdge(
     val fadePx = with(LocalDensity.current) { length.toPx() }
 
     return this
-        //使用离屏合成，让混合模式只影响当前组件，不污染父级与同级元素
+
         .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
         .drawWithContent {
-            //列表状态在绘制阶段读取：滚动时只触发重绘，不会连带调用方重组
+
             val layoutInfo = state.layoutInfo
 
             val firstItem = layoutInfo.visibleItemsInfo.firstOrNull()
             val topDistancePx = when {
                 firstItem == null -> 0f
                 state.firstVisibleItemIndex == 0 -> -firstItem.offset.toFloat()
-                else -> fadePx //说明已经不在顶部了，直接满强度
+                else -> fadePx
             }
             val startFade = if (state.canScrollBackward) {
                 (topDistancePx / fadePx).coerceIn(0f, 1f) * fadePx
@@ -113,7 +91,7 @@ fun Modifier.fadeEdge(
                 state.firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size == layoutInfo.totalItemsCount &&
                         lastItem.offset + lastItem.size > viewportHeight ->
                     (lastItem.offset + lastItem.size - viewportHeight).toFloat()
-                else -> fadePx //还没到底部，直接满强度
+                else -> fadePx
             }
             val endFade = if (state.canScrollForward) {
                 (bottomDistancePx / fadePx).coerceIn(0f, 1f) * fadePx
@@ -124,9 +102,6 @@ fun Modifier.fadeEdge(
         }
 }
 
-/**
- * 内部统一渲染渐隐的函数
- */
 private fun DrawScope.drawFadeEdges(
     startFade: Float,
     endFade: Float,
@@ -177,44 +152,31 @@ private fun DrawScope.drawFadeEdge(
     }
 }
 
-/**
- * 控制渐隐的方向
- */
 @Immutable
 enum class EdgeDirection {
     Vertical, Horizontal
 }
 
-/**
- * 指定在哪一侧显示渐隐效果
- */
 @Immutable
 enum class EdgeSide(val includeStart: Boolean, val includeEnd: Boolean) {
-    /** 上/左 */
+
     Start(true, false),
-    /** 下/右 */
+
     End(false, true),
-    /** 两边 */
+
     Both(true, true)
 }
 
-/**
- * 渐隐样式定义,通常情况下使用默认的 [BlendMode.DstOut] 即可
- */
 @Immutable
 data class FadeStyle(
     val brush: Brush,
     val blendMode: BlendMode
 )
 
-/**
- * 黑色 -> 透明 的线性渐变，结合 [BlendMode.DstOut] 实现淡化效果
- * @param direction 决定渐变的方向
- */
 fun createDefaultFadeStyle(
     direction: EdgeDirection
 ): FadeStyle {
-    //黑色 -> 透明
+
     val colorStops = arrayOf(
         0f to Color.Black,
         1f to Color.Transparent
@@ -228,7 +190,6 @@ fun createDefaultFadeStyle(
         blendMode = BlendMode.DstOut
     )
 }
-
 
 @Composable
 fun Modifier.verticalScrollWithBar(
@@ -273,15 +234,9 @@ fun Modifier.lazyScrollWithBar(
     orientation = orientation
 )
 
-/**
- * 鼠标滚轮兜底：列表因自身无法滚动而对滚轮事件置之不理时，
- * 让未消费的滚轮事件继续驱动顶部操作栏收起或展开，避免操作栏收起后无法通过滚轮恢复。
- * 应挂在挂载了 nestedScroll 的列表组件上
- */
 @Composable
 fun Modifier.topBarWheelFallback(state: TopAppBarState): Modifier {
-    //滚轮的原始增量以刻度为单位（每格 ±1），需按系统滚动系数换算为像素，
-    //与系统列表路径 foundation AndroidConfig.calculateMouseWheelScroll 的换算保持一致
+
     val scrollFactor = ViewConfiguration.get(LocalView.current.context).scaledVerticalScrollFactor
     return pointerInput(state, scrollFactor) {
         awaitPointerEventScope {
@@ -289,7 +244,7 @@ fun Modifier.topBarWheelFallback(state: TopAppBarState): Modifier {
                 val event = awaitPointerEvent(PointerEventPass.Main)
                 if (event.type != PointerEventType.Scroll) continue
                 if (event.changes.any { it.isConsumed }) continue
-                //滚轮向下为正方向：收起操作栏；向上为负：展开操作栏
+
                 val deltaY = event.changes.fold(0f) { acc, change -> acc + change.scrollDelta.y } * scrollFactor
                 val target = (state.heightOffset - deltaY).coerceIn(state.heightOffsetLimit, 0f)
                 if (target != state.heightOffset) {

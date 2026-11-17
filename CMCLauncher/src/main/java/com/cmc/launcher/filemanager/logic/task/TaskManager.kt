@@ -10,9 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 
-/**
- * 长任务进度
- */
 data class TaskProgress(
     val kind: TaskKind,
     val total: Int = 0,
@@ -26,17 +23,11 @@ data class TaskProgress(
     val ratio: Float get() = if (total <= 0) 0f else completed.toFloat() / total
 }
 
-/**
- * 任务状态
- */
 sealed interface TaskState {
     data object Idle : TaskState
     data class Busy(val kind: TaskKind) : TaskState
 }
 
-/**
- * 任务被拒绝的原因
- */
 sealed interface TaskReject {
     data object Busy : TaskReject
 }
@@ -52,12 +43,6 @@ class TaskManager {
     @Volatile
     private var currentJob: Job? = null
 
-    /**
-     * 尝试运行任务，已有任务进行中时返回 [TaskReject.Busy]
-     * @param kind 任务类型
-     * @param block 任务体，可在 [TaskProgressScope] 中上报进度
-     * @return 任务执行结果
-     */
     suspend fun <T> run(
         kind: TaskKind,
         block: suspend TaskProgressScope.() -> T
@@ -70,8 +55,7 @@ class TaskManager {
             _state.value = TaskState.Busy(kind)
             _progress.value = TaskProgress(kind = kind)
             val scope = TaskProgressScopeImpl(kind, _progress)
-            // 使用 coroutineScope + async 创建可独立取消的子任务
-            // 任务块强制派发到 Dispatchers.IO，避免阻塞调用线程
+
             return coroutineScope {
                 val deferred = async(Dispatchers.IO) { scope.block() }
                 currentJob = deferred
@@ -92,15 +76,11 @@ class TaskManager {
         }
     }
 
-    /**
-     * 取消当前正在执行的任务
-     */
     fun cancel() {
         runCatching { currentJob?.cancel() }
     }
 }
 
-/** [TaskManager.run] 的结果 */
 sealed interface RunResult<out T> {
     data class Ok<T>(val value: T) : RunResult<T>
     data class Failed(val error: Throwable) : RunResult<Nothing>
@@ -108,11 +88,9 @@ sealed interface RunResult<out T> {
     data class Rejected(val reason: TaskReject) : RunResult<Nothing>
 }
 
-/** 任务进度上报接口 */
 interface TaskProgressScope {
     val kind: TaskKind
 
-    /** 整体进度更新 */
     fun report(
         total: Int? = null,
         completed: Int? = null,

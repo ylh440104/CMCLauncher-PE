@@ -21,27 +21,20 @@ import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "GameJVMRunner"
 
-/** 等待互斥进程自行退出的时长，超过后按 pid 强杀 */
 private val WAIT_BEFORE_FORCE_KILL: Duration = 15.seconds
-/** 强杀后再宽限一轮的时长，仍无法清场则以可见错误结束 */
+
 private val KILL_GRACE: Duration = 5.seconds
-/** 等待日志的打印间隔 */
+
 private val WAIT_LOG_INTERVAL: Duration = 2.seconds
-/** 单次 JVM 运行等待退出码的总时限 */
+
 private val JVM_EXIT_TIMEOUT: Duration = 15.minutes
-/** 前台服务启动失败后的最大重试次数 */
+
 private const val SERVICE_START_RETRY_MAX = 4
-/** 前台服务启动失败重试的退避基准间隔 */
+
 private val SERVICE_START_RETRY_DELAY: Duration = 500.milliseconds
-/** 互斥进程消失后、重新拉起前的冷却时长 */
+
 private val POST_PROCESS_EXIT_COOLDOWN: Duration = 1.seconds
 
-/**
- * 运行一个简易的JVM环境，安装ModLoader，同时在jvm退出时，尝试使用其他的Java环境重试
- * @param logId 记录日志的 tag
- * @param start 刚开始启动会调用的回调
- * @param logOutput 安装 JVM 的实时日志输出
- */
 suspend fun runJvmRetryRuntimes(
     logId: String,
     jvmArgs: String,
@@ -93,9 +86,6 @@ suspend fun runJvmRetryRuntimes(
     }
 }
 
-/**
- * 等待互斥进程（:jvm、:game）退出后再开跑
- */
 private suspend fun waitForJvmExclusiveProcessesStopped(logId: String) {
     val startNanos = System.nanoTime()
     var lastLog = -WAIT_LOG_INTERVAL
@@ -106,10 +96,10 @@ private suspend fun waitForJvmExclusiveProcessesStopped(logId: String) {
         val blocking = listBlockingProcesses(GlobalContext)
         if (blocking.isEmpty()) {
             if (!sawBlocking) {
-                // 从未见过互斥进程则无需等待，直接放行
+
                 return
             }
-            // 刚等走过互斥进程，给 system_server 一点处理死亡事件的时间
+
             delay(POST_PROCESS_EXIT_COOLDOWN)
             if (listBlockingProcesses(GlobalContext).isEmpty()) return
             continue
@@ -156,8 +146,7 @@ suspend fun startJvmServiceAndWaitExit(
     }
 
     try {
-        // 先起接收端再拉起服务
-        // JVM 秒退时退出码不会因 socket 尚未绑定而丢失
+
         JVMSocketServer.start { receiveMsg ->
             Logger.info(TAG, "receive msg: $receiveMsg, stopping server...")
             if (!doneSignal.isCompleted) {
@@ -196,7 +185,7 @@ suspend fun startJvmServiceAndWaitExit(
         }
 
         if (withTimeoutOrNull(JVM_EXIT_TIMEOUT) { doneSignal.await() } == null) {
-            // 超时，停掉服务与接收端，让安装以可见错误结束而不是永久挂起
+
             Logger.error(TAG, "Timed out ($JVM_EXIT_TIMEOUT) waiting for JVM exit code, stopping service...")
             runCatching {
                 GlobalContext.stopService(Intent(GlobalContext, JvmService::class.java))
@@ -204,8 +193,7 @@ suspend fun startJvmServiceAndWaitExit(
             throw IOException("Timed out waiting for the JVM process to exit.")
         }
     } finally {
-        // 无论成败、取消还是超时都收掉接收端
-        // 单例状态跨轮残留会毒化下一次运行
+
         JVMSocketServer.stop()
         tailerJob?.cancel()
     }

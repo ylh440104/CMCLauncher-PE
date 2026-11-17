@@ -40,11 +40,6 @@ import com.cmc.launcher.ui.components.PositionFilledTonalButton
 import com.cmc.launcher.ui.components.fadeEdge
 import com.cmc.launcher.ui.components.verticalScrollWithBar
 
-/**
- * 压缩设置对话框
- * @param defaultName 输出名称默认值
- * @param onConfirm 确认压缩，回传输出名称与压缩选项
- */
 @Composable
 fun FmCompressDialog(
     defaultName: String,
@@ -123,7 +118,7 @@ fun FmCompressDialog(
             }
 
             if (advanced && format == CompressFormat.TAR) {
-                // TAR仅提供格式选择
+
                 ExposedDropdown(
                     selectedText = method.displayName,
                     label = stringResource(R.string.fm_compress_method),
@@ -182,11 +177,6 @@ private fun baseNameWithoutSuffix(name: String): String {
     return name
 }
 
-/**
- * 压缩输出位置选择对话框
- * @param onCurrentDir 在当前目录生成压缩包
- * @param onSaf 通过 SAF 选择输出目录
- */
 @Composable
 fun FmCompressOutputChoiceDialog(
     onDismiss: () -> Unit,
@@ -287,7 +277,7 @@ private fun AdvancedCompressSection(
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit
 ) {
-    // 压缩等级（1..9）
+
     Column(Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.fm_compress_level, level),
@@ -301,7 +291,6 @@ private fun AdvancedCompressSection(
         )
     }
 
-    // 压缩方法
     ExposedDropdown(
         selectedText = method.displayName,
         label = stringResource(R.string.fm_compress_method),
@@ -310,7 +299,6 @@ private fun AdvancedCompressSection(
         onSelect = onMethodChange
     )
 
-    // 密码
     PasswordField(
         value = password,
         onValueChange = onPasswordChange,

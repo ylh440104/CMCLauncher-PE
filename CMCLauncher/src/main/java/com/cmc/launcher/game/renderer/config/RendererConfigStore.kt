@@ -22,9 +22,6 @@ import java.util.concurrent.Executors
 private const val TAG = "RendererConfigStore"
 private val RENDERER_CONFIG_JSON = Json(GLOBAL_JSON) { encodeDefaults = true }
 
-/**
- * 稀疏配置存储接口，只读写用户显式设置的值，不提供规范默认值
- */
 interface RendererConfigStore {
     fun getValue(rendererId: String, entryId: String): ConfigScalar?
     fun putValue(rendererId: String, entryId: String, value: ConfigScalar)
@@ -33,16 +30,9 @@ interface RendererConfigStore {
     fun removeEntry(rendererId: String, entryId: String)
     fun removeRenderer(rendererId: String)
 
-    /**
-     * 获取该渲染器在存储中已有配置的全部配置项 ID
-     */
     fun keys(rendererId: String): Set<String>
 }
 
-/**
- * 清理存储中已不在规范内的配置项，插件更新后用于移除失效配置
- * @return 是否移除了配置
- */
 fun RendererConfigStore.removeStaleEntries(rendererId: String, spec: RendererConfigSpec): Boolean {
     val validIds = spec.entries.mapTo(mutableSetOf()) { it.id }
     val staleIds = keys(rendererId).filterNot { it in validIds }
@@ -50,9 +40,6 @@ fun RendererConfigStore.removeStaleEntries(rendererId: String, spec: RendererCon
     return staleIds.isNotEmpty()
 }
 
-/**
- * 全局 MMKV 配置存储，并在首次使用渲染器时迁移旧 V2 与内置配置
- */
 object GlobalRendererConfigStore : RendererConfigStore {
     private val mmkv get() = MMKV.mmkvWithID("RendererConfiguration", MMKV.MULTI_PROCESS_MODE)
     private val legacyMmkv get() = MMKV.mmkvWithID("RendererEnvConfig", MMKV.MULTI_PROCESS_MODE)
@@ -98,7 +85,7 @@ object GlobalRendererConfigStore : RendererConfigStore {
         val marker = "migration:$rendererId"
         if (mmkv.getBoolean(marker, false)) return
         runCatching {
-            // 迁移旧版 V2 插件的格式的数据
+
             val oldKeys = legacyMmkv.allKeys().orEmpty()
             legacyKeys.forEach { namespace ->
                 oldKeys.filter { it.startsWith("$namespace:") }.forEach { oldKey ->
@@ -162,12 +149,6 @@ private data class StoredRendererEntries(
     @SerialName("enabled") val enabled: MutableMap<String, Boolean> = mutableMapOf()
 )
 
-/**
- * 版本目录中的稀疏覆盖存储，负责版本化 JSON 持久化及旧格式迁移。
- * 文件写入在共享单线程中执行，创建新实例前会等待既有写入完成。
- *
- * @param legacyRendererIds 旧版渲染器配置 ID 到当前唯一标识的映射，用于迁移旧格式文件
- */
 class VersionRendererConfigStore @WorkerThread constructor(
     versionFolder: File,
     private val legacyRendererIds: Map<String, String>
@@ -178,7 +159,7 @@ class VersionRendererConfigStore @WorkerThread constructor(
 
     override fun getValue(rendererId: String, entryId: String): ConfigScalar? =
         config.renderers[rendererId]?.values?.get(entryId)?.let { element ->
-            // 值类型异常时视为未配置，回退上层默认值
+
             runCatching { configScalarFromJson(element.jsonPrimitive) }.getOrNull()
         }
 

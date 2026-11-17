@@ -23,7 +23,7 @@ import com.cmc.launcher.ui.theme.onCardColor
 
 sealed interface LogShareMenuOperation {
     data object None : LogShareMenuOperation
-    /** 打开日志操作菜单 */
+
     data object ShowMenu : LogShareMenuOperation
 }
 
@@ -59,7 +59,7 @@ fun LogShareMenu(
                             .padding(all = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        //查看日志
+
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
@@ -74,7 +74,7 @@ fun LogShareMenu(
                             Spacer(Modifier.width(8.dp))
                             Text(text = stringResource(R.string.generic_view))
                         }
-                        //分享日志
+
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
@@ -89,7 +89,7 @@ fun LogShareMenu(
                             Spacer(Modifier.width(8.dp))
                             Text(text = stringResource(R.string.crash_share_logs))
                         }
-                        //分享链接
+
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             enabled = canUpload,
@@ -105,7 +105,7 @@ fun LogShareMenu(
                             Spacer(Modifier.width(8.dp))
                             Text(text = stringResource(R.string.crash_link_share_button))
                         }
-                        //关闭
+
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {

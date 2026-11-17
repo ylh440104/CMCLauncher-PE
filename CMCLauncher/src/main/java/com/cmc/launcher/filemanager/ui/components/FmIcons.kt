@@ -18,10 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.cmc.launcher.R
 import com.cmc.launcher.filemanager.logic.entry.ArchiveType
 
-/**
- * 条目类型对应的图标与配色，配色取自固定预设色板
- * 亮色主题下圆底使用 tone90、图标使用 tone30，暗色主题下互换
- */
 private enum class FmFileIcon(
     @DrawableRes val iconRes: Int,
     val tone90: Color,
@@ -58,7 +54,7 @@ private enum class FmFileIcon(
 }
 
 object FmIcons {
-    /** 根据条目类型与扩展名显示对应图标 */
+
     @Composable
     fun IconFor(
         name: String,

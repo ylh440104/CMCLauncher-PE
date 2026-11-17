@@ -97,7 +97,7 @@ fun EditJoystickEvents(
             .fillMaxSize()
             .padding(horizontal = 4.dp)
     ) {
-        // 摇杆方向选择
+
         Box(
             modifier = Modifier
                 .weight(2f)
@@ -144,7 +144,6 @@ fun EditJoystickEvents(
             }
         }
 
-        // 事件编辑入口
         Box(
             modifier = Modifier
                 .weight(3f)
@@ -238,7 +237,7 @@ private fun FakeJoystick(
             verticalArrangement = Arrangement.spacedBy(gridSpacing),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // NW, N, NE
+
             Row(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(gridSpacing)
@@ -266,7 +265,6 @@ private fun FakeJoystick(
                 )
             }
 
-            // W E
             Row(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(gridSpacing)
@@ -290,7 +288,6 @@ private fun FakeJoystick(
                 )
             }
 
-            // SW, S, SE
             Row(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(gridSpacing)
@@ -368,10 +365,6 @@ private fun AreaButton(
     }
 }
 
-
-/**
- * 启动器事件编辑
- */
 @Composable
 private fun JoystickLauncherEventDialog(
     data: ObservableJoystickData,
@@ -472,21 +465,19 @@ private fun JoystickBasicEventPage(
             .padding(all = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // 切换控件层可见性
+
         InfoLayoutTextItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_switch_layers),
             onClick = { switchControlLayers(ClickEvent.Type.SwitchLayer) }
         )
 
-        // 强制显示控件层
         InfoLayoutTextItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_show_layers),
             onClick = { switchControlLayers(ClickEvent.Type.ShowLayer) }
         )
 
-        // 强制隐藏控件层
         InfoLayoutTextItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_hide_layers),
@@ -495,11 +486,6 @@ private fun JoystickBasicEventPage(
     }
 }
 
-
-
-/**
- * 按键事件编辑
- */
 @Composable
 private fun JoystickKeyEventDialog(
     data: ObservableJoystickData,

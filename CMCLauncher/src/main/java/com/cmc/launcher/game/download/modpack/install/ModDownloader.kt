@@ -24,10 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private const val TAG = "ModDownloader"
 
-/**
- * 整合包模组下载器
- * 先并发把延迟解析的模组链接解析出来，再交给批量下载引擎执行
- */
 class ModDownloader(
     val mods: List<ModFile>,
     private val maxDownloadThreads: Int = 64
@@ -45,8 +41,7 @@ class ModDownloader(
         } catch (e: CancellationException) {
             throw e
         } catch (e: DownloadFailedException) {
-            // 第一轮有文件下载失败
-            // 等整批结束后再对未完成的文件重试一轮
+
             Logger.error(TAG, "Some mods failed to download, retrying failed mods", e)
             runBatch(task, tasks, R.string.download_modpack_download_mods_retry, missingMods, skippedMods)
         }
@@ -59,7 +54,6 @@ class ModDownloader(
         task.updateMessage(null)
     }
 
-    /** 执行一轮批量下载，本地已校验可复用的文件由引擎自动跳过 */
     private suspend fun runBatch(
         task: Task,
         tasks: List<DownloadTask>,
@@ -85,7 +79,7 @@ class ModDownloader(
             acceptFailure = { downloadTask, error ->
                 val code = error.findHttpCode()
                 val skipped = error is FileNotFoundException || error is NotFoundException || code == 404
-                // 跨轮次按目标文件判重，避免同一 404 文件在重试轮被重复计数
+
                 if (skipped && skippedMods.add(downloadTask.targetFile.absolutePath)) {
                     missingMods.incrementAndGet()
                 }
@@ -94,7 +88,6 @@ class ModDownloader(
         )
     }
 
-    /** 并发解析全部模组的下载信息，解析失败的记入失败计数 */
     private suspend fun prepareAll(resolvedFailures: AtomicInteger, missingMods: AtomicInteger): List<DownloadTask> =
         coroutineScope {
             val semaphore = Semaphore(maxDownloadThreads)
@@ -106,11 +99,11 @@ class ModDownloader(
                         } catch (_: CancellationException) {
                             throw CancellationException("mod link resolving cancelled")
                         } catch (_: FileNotFoundException) {
-                            //已在源端下架（404）的模组会被跳过而不是终止安装
+
                             missingMods.incrementAndGet()
                             null
                         } catch (_: NotFoundException) {
-                            //已在源端下架（404）的模组会被跳过而不是终止安装
+
                             missingMods.incrementAndGet()
                             null
                         } catch (e: Exception) {
@@ -124,10 +117,6 @@ class ModDownloader(
             }.awaitAll().filterNotNull()
         }
 
-    /**
-     * 解析单个模组的下载信息（CurseForge 包常只有 projectID/fileID，必须现场请求）
-     * 只有已经拿到直链的 ModFile 的 getFile 才是 null。
-     */
     private suspend fun prepare(mod: ModFile): DownloadTask {
         val file = mod.getFile?.invoke() ?: mod
         val urls = file.downloadUrls ?: throw FileNotFoundException("No download url for ${file.outputFile}")

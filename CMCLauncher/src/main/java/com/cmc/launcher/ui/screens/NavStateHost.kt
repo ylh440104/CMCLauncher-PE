@@ -20,26 +20,12 @@ import androidx.navigation3.runtime.SaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
 
-/**
- * 按嵌套 key 实例分桶的 [SaveableStateHolder] 集合，由 [NavStateHost] 创建并维护
- */
 class NavKeyStateHolders internal constructor() {
     internal val holders = HashMap<Any, SaveableStateHolder>()
 }
 
-/**
- * 当前活跃的 [NavKeyStateHolders]；未处于 [NavStateHost] 内时为 null
- */
 val LocalNavKeyStateHolders = compositionLocalOf<NavKeyStateHolders?> { null }
 
-/**
- * 嵌套导航的状态宿主
- *
- * 为根 key 及其返回栈可达的所有 [BackStackNavKey] 实例各持有一个 [SaveableStateHolder]，
- * holder 的生命周期与实例在返回栈中的可达性严格一致：实例离开返回栈后，其 holder 随锚点离开组合而被回收。
- *
- * 配合 [NestedNavDisplay] 使用，嵌套页面在外层导航切换后仍能恢复状态
- */
 @Composable
 fun NavStateHost(
     rootKey: BackStackNavKey<*>,
@@ -68,8 +54,6 @@ private fun AnchorNavKeys(
     key(navKey) {
         val holder = rememberSaveableStateHolder()
 
-        // 组合期登记
-        // 锚点先于内容组合，保证同一次组合中 NestedNavDisplay 能读到
         holders.holders[navKey] = holder
         DisposableEffect(navKey) {
             onDispose {
@@ -78,7 +62,7 @@ private fun AnchorNavKeys(
         }
 
         if (pinChildren) {
-            // 钉住出现过的子 key，即使离开本实例的子栈，锚点也保留到本锚点销毁为止
+
             val pinned = remember { mutableStateListOf<BackStackNavKey<*>>() }
             navKey.backStack.forEach { subKey ->
                 if (subKey is BackStackNavKey<*> && !pinned.contains(subKey)) {
@@ -108,30 +92,15 @@ private fun AnchorNavKeys(
     }
 }
 
-/**
- * 获取 [ownerKey] 实例对应的 [SaveableStateHolder]
- *
- * 未处于 [NavStateHost] 内时回退为本地 holder，行为与 NavDisplay 默认装饰器一致
- */
 @Composable
 fun rememberNavKeyStateHolder(ownerKey: Any): SaveableStateHolder {
     val fallback = rememberSaveableStateHolder()
     val hoisted = LocalNavKeyStateHolders.current?.holders?.get(ownerKey)
-    // 首帧锚点已先于本组合登记，直接固化结果
-    // 锚点销毁后保持既有结果，避免退出中的内容回退到空 holder
+
     val frozen = remember { mutableStateOf(hoisted) }
     return frozen.value ?: fallback
 }
 
-/**
- * 嵌套屏幕专用的 NavDisplay
- *
- * 通过 [NavStateHost] 按实例持有的 [SaveableStateHolder] 保存各个 entry 的 UI 状态，
- * 使嵌套页面在外层导航切换并返回后仍能恢复状态
- *
- * @param ownerKey 该导航所属的嵌套 key 实例
- * @param extraDecorators 额外的装饰器，附加在状态保存装饰器之后
- */
 @Composable
 fun <E : TitledNavKey> NestedNavDisplay(
     ownerKey: Any,

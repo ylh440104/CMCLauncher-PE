@@ -24,7 +24,6 @@ import com.cmc.launcher.R
 import com.cmc.launcher.filemanager.ui.theme.fmCardColor
 import com.cmc.launcher.filemanager.ui.theme.fmOnCardColor
 
-/** 竖屏布局的底部导航栏 */
 @Composable
 fun FmBottomBar(
     multiSelect: Boolean,
@@ -100,7 +99,6 @@ fun FmBottomBar(
     }
 }
 
-/** 横屏布局的侧边导航栏 */
 @Composable
 fun FmNavRail(
     multiSelect: Boolean,

@@ -11,12 +11,6 @@ import androidx.compose.ui.res.stringResource
 import com.cmc.launcher.R
 import com.cmc.launcher.notification.NotificationManager
 
-/**
- * 通知权限检查
- * @param onGranted 用户授予了权限
- * @param onIgnore 用户忽略了权限申请（拒绝）
- * @param onDismiss 用户关闭了权限申请弹窗
- */
 @Composable
 fun NotificationCheck(
     title: String = stringResource(R.string.notification_title),
@@ -43,11 +37,11 @@ fun NotificationCheck(
         dismissText = stringResource(R.string.generic_ignore),
         onConfirm = {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                //13- 跳转至设置，让用户自行开启通知权限
+
                 NotificationManager.openNotificationSettings(context)
                 onDismiss()
             } else {
-                //安卓 13+ 可以直接弹出通知权限申请
+
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         },

@@ -108,15 +108,12 @@ private class DownloadScreenViewModel(
     private val projectId: String,
     initialClasses: PlatformClasses
 ): ViewModel() {
-    /**
-     * 资源类型，优先使用项目详情返回的准确类型
-     */
+
     var classes by mutableStateOf(initialClasses)
         private set
 
-    //版本
     private var _versionsList by mutableStateOf<List<VersionInfoMap>>(emptyList())
-    //未经映射的原始版本数据，类型修正后用于重新映射
+
     private var rawVersions: List<PlatformVersion> = emptyList()
     var versionsResult by mutableStateOf<DownloadAddonState<List<VersionInfoMap>>>(DownloadAddonState.Getting())
     var versionsLoading by mutableStateOf<DownloadAddonVersionLoading>(DownloadAddonVersionLoading.None)
@@ -145,9 +142,6 @@ private class DownloadScreenViewModel(
         }
     }
 
-    /**
-     * 类型修正后，使用原始版本数据重新映射版本列表
-     */
     private fun remapVersions() {
         if (rawVersions.isEmpty()) return
         _versionsList = rawVersions.mapWithVersions(classes)
@@ -157,7 +151,7 @@ private class DownloadScreenViewModel(
     fun getVersions() {
         viewModelScope.launch {
             versionsResult = DownloadAddonState.Getting()
-            //重新加载时重试此前获取失败的依赖项目
+
             failedDependencyProjects.clear()
             if (platform == Platform.CURSEFORGE) {
                 versionsLoading = DownloadAddonVersionLoading.StartLoadPage
@@ -173,7 +167,6 @@ private class DownloadScreenViewModel(
                     val versions: List<PlatformVersion> = result.initAll(projectId)
                     rawVersions = versions
 
-                    //版本列表先行展示，依赖项目信息改为后台缓存，不再阻塞列表加载
                     _versionsList = versions.mapWithVersions(classes)
                     versionsResult = DownloadAddonState.Success(_versionsList.filterInfos())
                     versionsLoading = DownloadAddonVersionLoading.None
@@ -206,7 +199,6 @@ private class DownloadScreenViewModel(
         }
     }
 
-    //项目信息
     var projectResult by mutableStateOf<DownloadAddonState<Pair<PlatformProject, AddonProjectInfo?>>>(DownloadAddonState.Getting())
 
     fun getProject() {
@@ -216,7 +208,7 @@ private class DownloadScreenViewModel(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
-                    //以项目详情返回的类型为准
+
                     val accurateClasses = result.platformClasses(classes)
                     if (accurateClasses != classes) {
                         classes = accurateClasses
@@ -232,18 +224,12 @@ private class DownloadScreenViewModel(
         }
     }
 
-    //缓存依赖项目
     val cachedDependencyProject = mutableStateMapOf<String, PlatformProject>()
-    //该依赖项目未找到，但是多个版本同时依赖这个不存在的项目
-    //就会进行很多次无效的访问，非常耗时
-    //需要记录不存在的依赖项目的id，避免下次继续获取
+
     val notFoundDependencyProjects = mutableStateListOf<String>()
-    //依赖项目信息获取失败，在对话框里展示占位项
+
     val failedDependencyProjects = mutableStateListOf<String>()
 
-    /**
-     * 缓存依赖项目
-     */
     private suspend fun cacheDependencyProject(
         platform: Platform,
         dependency: PlatformVersion.PlatformDependency
@@ -253,7 +239,7 @@ private class DownloadScreenViewModel(
 
         try {
             val projectId = dependency.projectId ?: run {
-                //依赖只标注了精确版本，先通过版本反查其所属项目
+
                 getVersionById(
                     versionId = dependency.versionId
                         ?: error("The dependency does not provide a project id or a version id."),
@@ -287,7 +273,7 @@ private class DownloadScreenViewModel(
     }
 
     init {
-        //初始化后，获取项目、版本信息
+
         getVersions()
         getProject()
     }
@@ -297,9 +283,6 @@ private class DownloadScreenViewModel(
     }
 }
 
-/**
- * 平台的接口是否返回了未找到
- */
 private fun Throwable.isNotFound(): Boolean =
     this is ClientRequestException && response.status.value == 404
 
@@ -318,12 +301,6 @@ private fun rememberDownloadAddonViewModel(
     }
 }
 
-/**
- * @param parentScreenKey 父屏幕Key
- * @param parentCurrentKey 父屏幕当前Key
- * @param currentKey 当前的Key
- * @param installedChecker 查询版本本地是否已安装，null 则不进行已安装标注
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DownloadAddonScreen(
@@ -384,7 +361,7 @@ fun DownloadAddonScreen(
                                 DependencyEntry(dep, null, notFound = true)
                             viewModel.failedDependencyProjects.contains(key) ->
                                 DependencyEntry(dep, null)
-                            //依赖项目信息仍在获取中
+
                             else -> null
                         }
                     }
@@ -417,9 +394,6 @@ fun DownloadAddonScreen(
     }
 }
 
-/**
- * 竖屏顶部的项目概览：图标、标题、简介、类型与收藏、相关链接入口
- */
 @Composable
 private fun ProjectHeader(
     modifier: Modifier = Modifier,
@@ -563,9 +537,6 @@ private fun ProjectHeader(
     }
 }
 
-/**
- * 所有版本列表
- */
 @Composable
 private fun Versions(
     modifier: Modifier = Modifier,
@@ -616,7 +587,7 @@ private fun Versions(
         }
         is DownloadAddonState.Success -> {
             Column(modifier = modifier) {
-                //简单过滤条件
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -664,7 +635,7 @@ private fun Versions(
                         val result = versions.result
                         val index = versions.result.indexOfFirst { it.isAdapt }
                         if (index >= 0 && index < result.size) {
-                            //自动滚动到适配的资源版本
+
                             scrollState.animateScrollToItem(index)
                         }
                     }
@@ -712,9 +683,6 @@ private fun Versions(
     }
 }
 
-/**
- * 项目信息板块
- */
 @Composable
 private fun ProjectInfo(
     modifier: Modifier = Modifier,
@@ -738,7 +706,7 @@ private fun ProjectInfo(
                         contentPadding = PaddingValues(all = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        //图标、标题、简介的骨架
+
                         item {
                             Column(
                                 modifier = Modifier
@@ -756,14 +724,14 @@ private fun ProjectInfo(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    //标题
+
                                     ShimmerBox(
                                         modifier = Modifier
                                             .fillMaxWidth(0.6f)
                                             .height(20.dp)
                                             .clip(RoundedCornerShape(4.dp))
                                     )
-                                    //简介
+
                                     ShimmerBox(
                                         modifier = Modifier
                                             .fillMaxWidth(0.9f)
@@ -777,7 +745,7 @@ private fun ProjectInfo(
                 }
                 is DownloadAddonState.Success -> {
                     val (project, mcmod) = projectResult.result
-                    //项目基本信息
+
                     val platform = remember { project.platform() }
                     val iconUrl = remember { project.platformIconUrl() }
                     val title = remember { project.platformTitle() }
@@ -790,7 +758,7 @@ private fun ProjectInfo(
                         contentPadding = PaddingValues(all = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        //图标、标题、简介
+
                         item {
                             Column(
                                 modifier = Modifier
@@ -803,7 +771,7 @@ private fun ProjectInfo(
                                     size = 72.dp,
                                     iconUrl = iconUrl
                                 )
-                                //标题、简介
+
                                 Column(
                                     modifier = Modifier.padding(top = 8.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -823,7 +791,6 @@ private fun ProjectInfo(
                             }
                         }
 
-                        //相关链接
                         if (!urls.isAllNull()) {
                             item {
                                 Column(
@@ -845,7 +812,6 @@ private fun ProjectInfo(
                             }
                         }
 
-                        //屏幕截图
                         items(screenshots) { screenshot ->
                             ScreenshotItemLayout(
                                 modifier = Modifier.fillMaxWidth(),
@@ -876,7 +842,6 @@ private fun ProjectInfo(
                 }
             }
 
-            // 资源类型、收藏开关
             Row(
                 modifier = Modifier.padding(all = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -897,7 +862,7 @@ private fun ProjectInfo(
                         if (isFavorite) {
                             FavoriteProjectsRepository.unfavorite(platform, projectId)
                         } else {
-                            //项目数据未就绪时无法生成收藏缓存，忽略此次操作
+
                             (projectResult as? DownloadAddonState.Success)
                                 ?.result?.first?.let { project ->
                                     FavoriteProjectsRepository.favorite(project, classes)

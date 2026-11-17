@@ -27,18 +27,12 @@ class StatefulVersionConfig(private val config: VersionConfig) {
     var touchVibrateKind by mutableStateOf(config.touchVibrateKind)
     var touchVibrateDuration by mutableIntStateOf(config.touchVibrateDuration)
 
-    /**
-     * 将当前状态重新打包为新的 [VersionConfig] 对象
-     */
     fun pack(): VersionConfig = VersionConfig(versionPath).also { packed ->
         packInto(packed)
         packed.customPath = config.customPath
         packed.versionSummary = config.versionSummary
     }
 
-    /**
-     * 将当前状态写入已有的 [VersionConfig] 对象
-     */
     fun packInto(target: VersionConfig) {
         target.isolationType = isolationType
         target.skipGameIntegrityCheck = skipGameIntegrityCheck
@@ -58,8 +52,5 @@ class StatefulVersionConfig(private val config: VersionConfig) {
         target.touchVibrateDuration = touchVibrateDuration
     }
 
-    /**
-     * @return 托管字段自创建以来是否被修改过
-     */
     fun isModified(): Boolean = config.isModified(pack())
 }

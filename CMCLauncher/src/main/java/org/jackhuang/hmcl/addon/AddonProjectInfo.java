@@ -1,27 +1,9 @@
-/*
- * Hello Minecraft! Launcher
- * Copyright (C) 2026 huangyuhui <huanghongxun2008@126.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package org.jackhuang.hmcl.addon;
 
 import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
-/// @author Glavo
 @NotNullByDefault
 public abstract class AddonProjectInfo {
 
@@ -34,9 +16,6 @@ public abstract class AddonProjectInfo {
     private final String subName;
     private final String abbrName;
 
-    /// This field is typically used to keep a reference to the `List<AddonProjectInfo>` that stores this object,
-    /// so that the cached `List<AddonProjectInfo>` is not collected while the `AddonProjectInfo` object itself
-    /// has not yet been collected, which could result in multiple identical `AddonProjectInfo` objects on the heap.
     @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private @Nullable Object keepAlive;
 
@@ -55,28 +34,22 @@ public abstract class AddonProjectInfo {
         this.abbrName = abbrName;
     }
 
-    /// Returns the recorded CurseForge identifier, possibly empty.
     public String curseforgeId() {
         return curseforgeId;
     }
 
-    /// Returns the recorded primary name.
     public String mainName() {
         return mainName;
     }
 
-    /// Returns the recorded secondary name, possibly empty.
     public String subName() {
         return subName;
     }
 
-    /// Returns the recorded abbreviation, possibly empty.
     public String abbrName() {
         return abbrName;
     }
 
-    /// Returns the primary name with a nonblank abbreviation in brackets and a nonblank
-    /// secondary name in parentheses. Only the abbreviation is trimmed.
     public String displayName() {
         StringBuilder builder = new StringBuilder();
         if (!abbrName.isBlank())

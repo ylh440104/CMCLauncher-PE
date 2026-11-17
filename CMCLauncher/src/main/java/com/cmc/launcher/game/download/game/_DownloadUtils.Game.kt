@@ -12,10 +12,6 @@ private const val TAG = "DownloadGame"
 
 fun GameManifest.isOldVersion(): Boolean = !minecraftArguments.isNullOrEmpty()
 
-/**
- * 尝试读取指定路径的文件为一个JsonObject对象
- * 若格式不正确则抛出异常
- */
 fun String?.getJsonOrNull(tag: String): JsonObject? {
     return this?.let { path ->
         val text: String = File(path).takeIf { it.exists() && it.isFile }?.readText() ?: run {
@@ -30,14 +26,6 @@ fun String?.getJsonOrNull(tag: String): JsonObject? {
     }
 }
 
-/**
- * 复制jar、json文件到临时游戏目录，作为安装ModLoader的环境
- * @param sourceGameFolder 源游戏目录
- * @param sourceVersion 源游戏版本名
- * @param destinationGameFolder 要复制到的游戏目录
- * @param targetVersion 要复制为的版本名称
- * @param filesToCopy 指定要复制的文件的后缀名
- */
 fun copyVanillaFiles(
     sourceGameFolder: File,
     sourceVersion: String,
@@ -58,18 +46,12 @@ fun copyVanillaFiles(
     }
 }
 
-/**
- * 根据提供的原始库名称生成对应的本地路径。
- * @param original 库的原始名称，例如 `groupId:artifactId:version`
- * @param baseFolder 基础文件夹路径，作为文件路径前缀，为 null 则不连接
- */
 fun getLibraryPath(
     original: String,
     baseFolder: String? = null
 ): String {
     val components = parseLibraryComponents(original)
 
-    // 处理 OptiFine 特殊情况
     if (isOptiFineLibrary(components.groupId, components.artifactId, components.version)) {
         val specialPath = handleOptiFineSpecialCase(
             baseFolder = baseFolder,
@@ -93,9 +75,6 @@ fun getLibraryPath(
     ).joinToString(File.separator)
 }
 
-/**
- * 解析原始库名称字符串为组件（groupId、artifactId、version）
- */
 fun parseLibraryComponents(original: String): LibraryComponents {
     val components = original.split(":")
     require(components.size >= 3) { "Invalid library name: $original" }

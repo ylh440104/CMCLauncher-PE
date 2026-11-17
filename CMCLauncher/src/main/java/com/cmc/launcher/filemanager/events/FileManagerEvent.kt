@@ -7,12 +7,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import java.util.UUID
 
-/**
- * 文件管理器文件变更事件
- * @param type 事件类型
- * @param changedDirs 发生变更的目录绝对路径列表
- * @param id 事件唯一 ID
- */
 @Parcelize
 data class FileManagerEvent(
     val type: Type,
@@ -20,34 +14,31 @@ data class FileManagerEvent(
     val id: String = UUID.randomUUID().toString()
 ) : Parcelable {
     enum class Type {
-        /** 新建文件/文件夹 */
+
         CREATE,
-        /** 条目重命名 */
+
         RENAME,
-        /** 删除（移入回收站） */
+
         DELETE,
-        /** 复制/粘贴 */
+
         COPY_PASTE,
-        /** 压缩 */
+
         ARCHIVE,
-        /** 解压 */
+
         EXTRACT,
-        /** 从 SAF 导入完成 */
+
         IMPORT,
-        /** 回收站恢复 */
+
         TRASH_RESTORE,
-        /** 回收站彻底删除 */
+
         TRASH_PURGE,
-        /** 回收站清空 */
+
         TRASH_CLEAR
     }
 
     companion object {
         const val KEY_EVENT = "fm_event"
 
-        /**
-         * 将事件封装为可经 Messenger 发送的 [Message]
-         */
         fun toMessage(event: FileManagerEvent): Message = Message.obtain().apply {
             what = MSG_EVENT
             data = Bundle().apply {
@@ -55,9 +46,6 @@ data class FileManagerEvent(
             }
         }
 
-        /**
-         * 从 [Message] 中解析事件；非法消息返回 null
-         */
         fun fromMessage(message: Message): FileManagerEvent? {
             if (message.what != MSG_EVENT) return null
             val data = message.data ?: return null

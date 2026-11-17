@@ -28,16 +28,6 @@ import com.cmc.launcher.ui.components.rememberDialogMaxHeight
 import com.cmc.launcher.ui.theme.cardColor
 import com.cmc.launcher.ui.theme.onCardColor
 
-/**
- * 样式操作遇到同 uuid 冲突时的三选对话框
- * @param title 标题
- * @param message 正文
- * @param primaryText 第一个选项（主按钮）的文本
- * @param secondaryText 第二个选项的文本
- * @param onPrimary 点击第一个选项（如：覆盖现有）
- * @param onSecondary 点击第二个选项（如：独立收藏/独立加入）
- * @param onCancel 取消
- */
 @Composable
 fun StyleConflictDialog(
     title: String,

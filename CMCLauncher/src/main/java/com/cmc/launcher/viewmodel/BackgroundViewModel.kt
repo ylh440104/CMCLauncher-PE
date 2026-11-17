@@ -31,55 +31,30 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-/**
- * 启动器背景管理
- */
 class BackgroundViewModel: ViewModel() {
     val backgroundFile: File = PathManager.FILE_LAUNCHER_BACKGROUND
 
-    /**
-     * 背景文件是否有效（存在，且是有效的视频或图片）
-     */
     var isValid by mutableStateOf(false)
         private set
 
-    /**
-     * 背景文件是一个视频
-     */
     var isVideo by mutableStateOf(false)
         private set
 
-    /**
-     * 背景文件是一个图片
-     */
     var isImage by mutableStateOf(false)
         private set
 
     var refreshTrigger by mutableStateOf(false)
         private set
 
-    /**
-     * 背景容器在屏幕坐标系中的区域，由背景捕获节点在布局时记录；
-     * 玻璃模糊层依据它与自身位置对齐采样模糊位图
-     */
     var backgroundBounds by mutableStateOf(Rect.Zero)
         private set
 
     private val glassBlur = BackgroundGlassBlur(backgroundFile)
 
-    /**
-     * Android 12+ 上由背景捕获节点维护的共享预模糊 GPU 层
-     */
     val glassLayer: GraphicsLayer? get() = glassBlur.glassLayer
 
-    /**
-     * Android 12- 上由背景捕获节点维护的清晰捕获层
-     */
     val captureLayer: GraphicsLayer? get() = glassBlur.captureLayer
 
-    /**
-     * 预模糊的背景位图 (Android 12-)
-     */
     val blurredBackground: ImageBitmap? get() = glassBlur.blurredBackground
 
     fun updateBackgroundBounds(coordinates: LayoutCoordinates) {
@@ -96,9 +71,6 @@ class BackgroundViewModel: ViewModel() {
         glassBlur.attachCaptureLayer(layer)
     }
 
-    /**
-     * 捕获当前捕获层的一帧并模糊为前景毛玻璃位图 (Android 12-)
-     */
     suspend fun captureGlassFrame() {
         glassBlur.captureFrame()
     }
@@ -106,11 +78,11 @@ class BackgroundViewModel: ViewModel() {
     private suspend fun updateState() {
         val (isImage0, isVideo0) = withContext(Dispatchers.IO) {
             val isImage = backgroundFile.isImageFile()
-            //如果文件是图片，则不检查是否为视频
+
             val isVideo = if (!isImage) backgroundFile.isVideoFile() else false
             isImage to isVideo
         }
-        //更新状态
+
         withContext(Dispatchers.Main) {
             isImage = isImage0
             isVideo = isVideo0
@@ -158,7 +130,7 @@ class BackgroundViewModel: ViewModel() {
             FileUtils.deleteQuietly(backgroundFile)
             context.copyLocalFile(result, backgroundFile)
             if (!backgroundFile.isImageFile() && !backgroundFile.isVideoFile()) {
-                //不是媒体类文件
+
                 FileUtils.deleteQuietly(backgroundFile)
                 error("The selected file is not an image or a video!")
             }
@@ -167,9 +139,6 @@ class BackgroundViewModel: ViewModel() {
     }
 }
 
-/**
- * 生成模糊位图的触发条件快照，任一变化都会重新生成
- */
 private data class BlurConfig(
     val blur: Int,
     val blurType: BackgroundBlur,
@@ -179,10 +148,6 @@ private data class BlurConfig(
     val generation: Boolean
 )
 
-/**
- * 本地随时可以使用的背景图片管理 ViewModel
- * 由 MainActivity 的主题提供
- */
 val LocalBackgroundViewModel = compositionLocalOf<BackgroundViewModel?> {
     error("No BackgroundViewModel provided")
 }

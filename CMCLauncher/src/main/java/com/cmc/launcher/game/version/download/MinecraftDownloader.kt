@@ -18,14 +18,8 @@ import java.io.IOException
 
 private const val TAG = "MinecraftDownloader"
 
-/** 单个安装流程的最大并发下载连接数 */
 const val DEFAULT_DOWNLOAD_THREADS = 64
 
-/**
- * Minecraft 安装器：装配版本 JSON、client jar、assets 与 libraries 的下载任务，
- * 并交由批量下载引擎执行
- * 分块并发、自动换源、失败整轮重试
- */
 class MinecraftDownloader(
     private val context: Context,
     private val version: String,
@@ -49,9 +43,6 @@ class MinecraftDownloader(
             DownloadMode.VERIFY_AND_REPAIR -> verify
         }
 
-    /**
-     * 自定义 client 目录 ->client<-/versions/..
-     */
     fun getDownloadTask(
         clientName: String = this.customName,
         clientVersionsDir: File = downloader.versionsTarget
@@ -88,7 +79,7 @@ class MinecraftDownloader(
                         }
                     )
                 }
-                //清除任务信息
+
                 task.updateProgress(1f)
                 task.updateMessage(null)
 
@@ -110,9 +101,6 @@ class MinecraftDownloader(
         )
     }
 
-    /**
-     * 仅将 Jar、Json 文件安装到自定义版本目录中
-     */
     private suspend fun progressNewDownloadTasks(
         clientName: String,
         clientVersionsDir: File
@@ -133,7 +121,6 @@ class MinecraftDownloader(
             gameManifest.inheritsFrom != null
         }?.findVersion(gameManifest.inheritsFrom)
 
-        //优先尝试解析原版
         inheritsFrom?.let {
             downloader.createVersionJson(it)
         }?.let { gameManifest1 ->
@@ -188,9 +175,6 @@ class MinecraftDownloader(
         }
     }
 
-    /**
-     * 提交计划下载
-     */
     private fun scheduleDownload(urls: List<String>, sha1: String?, targetFile: File, size: Long, isDownloadable: Boolean = true) {
         allDownloadTasks.add(
             DownloadTask(

@@ -19,24 +19,11 @@ import java.util.zip.ZipFile
 
 private const val TAG = "Lwjgl3ifyPatcher"
 
-/*
- * GTNH(GT New Horizons) / lwjgl3ify 兼容层
- *
- * lwjgl3ify 3.x 的 mod jar 内嵌一份完整的启动清单（RetroFuturaBootstrap 主类、
- * Java 17+ 的 --add-opens JVM 参数以及 Forge 1.7.10 全量依赖库）。
- *
- * 参考 FCL 的 Lwjgl3ifyPatcher（https://github.com/FCL-Team/FoldCraftLauncher/blob/main/FCL/src/main/java/com/tungsten/fcl/game/Lwjgl3ifyPatcher.java）
- */
-
 private const val GTNH_MAVEN = "https://nexus.gtnewhorizons.com/repository/public/"
 private const val FORGE_MAVEN = "https://maven.minecraftforge.net/"
 private const val EMBEDDED_VERSION_JSON = "me/eigenraven/lwjgl3ify/relauncher/version.json"
 private const val EMBEDDED_FORGE_PATCHES = "me/eigenraven/lwjgl3ify/relauncher/forgePatches.zip"
 
-/**
- * 检测 mods 中已启用的 lwjgl3ify，把内嵌启动清单合并进当前版本后返回
- * @return 补丁后的版本清单；未检测到 lwjgl3ify 或清单不可用时为 null
- */
 fun patchLwjgl3ifyIfNeeded(version: Version, mods: List<LocalMod>): GameManifest? {
     return runCatching {
         val lwjgl3ify = findLwjgl3ifyMod(mods) ?: return null
@@ -54,7 +41,7 @@ fun patchLwjgl3ifyIfNeeded(version: Version, mods: List<LocalMod>): GameManifest
         if (isLwjgl3ifyManifest(current) &&
             findForgePatchesLibrary(current)?.name == findForgePatchesLibrary(embedded)?.name
         ) {
-            //磁盘清单已是同版本的补丁产物（可能由其他启动器写入），直接可用
+
             return current
         }
 
@@ -72,13 +59,9 @@ fun patchLwjgl3ifyIfNeeded(version: Version, mods: List<LocalMod>): GameManifest
     }.getOrNull()
 }
 
-/** 清单是否已经以 RetroFuturaBootstrap 为入口 */
 private fun isLwjgl3ifyManifest(manifest: GameManifest): Boolean =
     manifest.mainClass?.startsWith("com.gtnewhorizons.retrofuturabootstrap") == true
 
-/**
- * 从 mod 列表中取已启用且版本最高的 lwjgl3ify
- */
 private fun findLwjgl3ifyMod(mods: List<LocalMod>): LocalMod? {
     return mods.asSequence()
         .filter { !it.notMod && it.id == "lwjgl3ify" && it.file.isEnabled() }
@@ -91,10 +74,6 @@ private fun findLwjgl3ifyMod(mods: List<LocalMod>): LocalMod? {
         }
 }
 
-/**
- * 合并内嵌清单的 RFB 入口、JVM 参数、Java 版本与完整依赖闭包；
- * 仅处理 lwjgl3ify 2.x/3.x 的现代格式清单
- */
 private fun patchManifest(current: GameManifest, embedded: GameManifest): GameManifest? {
     val mainClass = embedded.mainClass ?: return null
     val arguments = embedded.arguments ?: return null
@@ -108,10 +87,6 @@ private fun patchManifest(current: GameManifest, embedded: GameManifest): GameMa
     return current
 }
 
-/**
- * 为缺少下载地址的库（旧版 lwjgl3ify）按 groupId 重写 Maven 源；
- * 3.x 的内嵌清单已自带正确地址，此分支基本不触发
- */
 private fun patchLibraryUrls(libraries: List<GameManifest.Library>): List<GameManifest.Library> {
     return libraries.onEach { library ->
         if (!library.downloads?.artifact?.url.isNullOrEmpty()) return@onEach
@@ -123,11 +98,11 @@ private fun resolveLibraryBase(library: GameManifest.Library): String? {
     val groupId = library.name?.split(":")?.firstOrNull() ?: return null
     return when {
         groupId.startsWith("com.github.GTNewHorizons") -> GTNH_MAVEN
-        //1.7.10 Forge 的传递依赖（Forge/Scala/Akka）托管在 Forge Maven
+
         groupId.startsWith("net.minecraftforge") ||
                 groupId.startsWith("org.scala-lang") ||
                 groupId.startsWith("com.typesafe") -> FORGE_MAVEN
-        else -> null //其余库均可从 libraries.minecraft.net 命中
+        else -> null
     }
 }
 
@@ -149,10 +124,6 @@ private fun readEmbeddedManifest(zip: ZipFile): GameManifest? {
     }
 }
 
-/**
- * 从内嵌的 forgePatches.zip 离线还原该构件（GTNH Maven 无国内镜像，解压使其不依赖网络）；
- * 写临时文件后原子替换，中断不会留下截断的文件遮蔽重试
- */
 private fun ensureForgePatchesFile(version: Version, embedded: GameManifest, zip: ZipFile) {
     val library = findForgePatchesLibrary(embedded) ?: return
     val target = File(getLibrariesHome(version.getGameHome()), artifactToPath(library) ?: return)
@@ -190,12 +161,6 @@ private fun findForgePatchesLibrary(manifest: GameManifest): GameManifest.Librar
     }
 }
 
-/**
- * 确保实例 config/lwjgl3ify.cfg 关闭 linuxCreateAppDesktopEntry：
- * lwjgl3ify 初始化时会向 XDG_DATA_HOME（或 ~/.local/share）写桌面快捷方式，
- * Android 上不存在该目录，异常会杀死 RFB 主线程导致游戏静默退出。
- * 已有配置时跳过注释行做行级检测，优先插入已有 window 段内，无该段才在文件尾追加
- */
 private fun ensureLwjgl3ifyConfig(configDir: File) {
     runCatching {
         if (!configDir.isDirectory && !configDir.mkdirs()) return

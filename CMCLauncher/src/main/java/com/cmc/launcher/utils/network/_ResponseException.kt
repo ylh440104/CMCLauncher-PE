@@ -29,4 +29,3 @@ fun ResponseException.toLocal(): AndroidStringText {
     }
     return androidText(textRes, codeString)
 }
-

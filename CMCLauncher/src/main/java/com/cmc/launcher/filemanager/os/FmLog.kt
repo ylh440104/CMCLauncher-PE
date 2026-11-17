@@ -16,13 +16,9 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
-/**
- * 文件管理器日志
- */
 object FmLog {
     private const val SUB_DIR = "file_manager"
 
-    /** 默认保留的日志文件数量 */
     const val DEFAULT_MAX_FILES = 5
 
     private val isInitialized = AtomicBoolean(false)
@@ -33,12 +29,6 @@ object FmLog {
     @Volatile
     private var logWriter: PrintWriter? = null
 
-    /**
-     * 初始化日志
-     * @param scope 日志消费协程的作用域
-     * @param logsDir 日志目录，写入 `<logsDir>/file_manager/`；为 null 时仅输出 logcat
-     * @param maxFiles 保留的日志文件数量，超出删除最旧
-     */
     fun init(
         scope: CoroutineScope,
         logsDir: Path?,
@@ -46,27 +36,27 @@ object FmLog {
     ) {
         val keepFiles = maxFiles.coerceAtLeast(1)
         synchronized(this) {
-            // 重新初始化
+
             consumerJob?.cancel()
             consumerJob = null
             logWriter?.close()
             logWriter = null
 
             consumerJob = scope.launch(Dispatchers.IO) {
-                // 文件创建等磁盘操作放在消费协程内，避免阻塞调用线程
+
                 if (logsDir != null) {
                     try {
                         val dir = logsDir.resolve(SUB_DIR).toFile()
                         Files.createDirectories(dir.toPath())
                         val writer = PrintWriter(createLogFile(dir).writer())
-                        // 先建新文件再清理，保证清理时总数准确
+
                         cleanupOldLogs(dir, keepFiles)
                         writer.println("================ File Manager Log ================")
                         writer.flush()
                         logWriter = writer
                     } catch (e: Exception) {
                         Log.w("FmLog", "Failed to log the line.", e)
-                        // 文件日志失败不影响 logcat 输出
+
                         logWriter = null
                     }
                 }
@@ -78,7 +68,6 @@ object FmLog {
         }
     }
 
-    /** 停止消费并关闭日志文件，可再次 [init] */
     fun close() {
         synchronized(this) {
             consumerJob?.cancel()
@@ -160,7 +149,6 @@ object FmLog {
         }
     }
 
-    // 日志文件名：fm_<yyyy-MM-dd'T'HH-mm-ss>[.<counter>].log
     private fun createLogFile(dir: File): File {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.US)
         var counter = 0
@@ -190,7 +178,6 @@ object FmLog {
     }
 }
 
-/** 文件管理器日志级别 */
 enum class FmLogLevel {
     ERROR,
     WARNING,
@@ -198,7 +185,6 @@ enum class FmLogLevel {
     DEBUG
 }
 
-/** 文件管理器日志消息 */
 data class FmLogMessage(
     val time: Long,
     val tag: String,

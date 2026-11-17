@@ -76,7 +76,6 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "VersionConfigScreen"
 
-/** 页面退出后的配置保存作用域 */
 private val configSaveScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
 @Composable
@@ -106,7 +105,7 @@ fun VersionConfigScreen(
         DisposableEffect(version) {
             onDispose {
                 if (stateful.isModified()) {
-                    // 页面退出时统一进行保存
+
                     stateful.packInto(config)
                     saveConfigAsync(config, submitError)
                 }
@@ -217,7 +216,7 @@ private fun VersionConfigs(
                 }
             },
             trailingIcon = {
-                // 设置跟随全局时不能独立修改
+
                 if (configurableRenderer != null) {
                     IconButton(onClick = { showConfigDialog = true }) {
                         Icon(
@@ -259,7 +258,7 @@ private fun VersionConfigs(
             currentValue = stateful.sfpewRelaxedContext,
             enabled = effectiveRenderer?.let { renderer ->
                 renderer.supportsSfpewByDefault() ||
-                // 如果是插件，需要看是否给插件启用了这个玩意
+
                 (renderer is Plugin && sfpewPluginLayerEnabled)
             } == true,
             onValueChange = { stateful.sfpewRelaxedContext = it },
@@ -521,7 +520,6 @@ private fun SupportConfigs(
             onClick = onCheckVulkan
         )
 
-        //检查麦克风
         var microphoneState by remember { mutableStateOf<MicrophoneCheckState>(MicrophoneCheckState.None) }
         MicrophoneCheckOperation(
             state = microphoneState,

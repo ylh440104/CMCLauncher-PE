@@ -14,9 +14,6 @@ enum class BMCLAPI(val url: String) {
     LIBRARIES("$ROOT/libraries")
 }
 
-/**
- * [Modified from HMCL](https://github.com/HMCL-dev/HMCL/blob/9aa1367/HMCLCore/src/main/java/org/jackhuang/hmcl/download/BMCLAPIDownloadProvider.java#L64-L83)
- */
 private val REPLACE_MIRROR_HOLDERS = mapOf(
     Pair(BMCLAPI.BASE_URL.url, BMCLAPI.BASE_URL.url),
     Pair("https://launchermeta.mojang.com", BMCLAPI.BASE_URL.url),
@@ -39,9 +36,6 @@ private val REPLACE_MIRROR_HOLDERS = mapOf(
     Pair("https://repo.maven.apache.org/maven2", "https://mirrors.cloud.tencent.com/nexus/repository/maven-public"),
 )
 
-/**
- * 替换为镜像源链接并按用户偏好排序
- */
 fun String.mapBMCLMirrorUrls(): List<String> {
     val mainland = isChinaMainland()
     return mapBMCLMirrorUrls(
@@ -59,7 +53,7 @@ fun String.mapBMCLMirrorUrls(
 ): List<String> {
     val neoForgeCDNUrl = takeIf {
         startsWith(NEOFORGED_MAVEN_ROOT)
-    }?.replaceFirst(NEOFORGED_MAVEN_ROOT, NEOFORGE_CDN_ROOT) // NeoForge 始终保留 CurseForge CDN 作为备用源
+    }?.replaceFirst(NEOFORGED_MAVEN_ROOT, NEOFORGE_CDN_ROOT)
 
     if (!mainland) return listOfNotNull(this, neoForgeCDNUrl)
 

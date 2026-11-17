@@ -38,9 +38,6 @@ import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.ArrayDeque
 
-/**
- * 文件管理器统一任务结果
- */
 sealed interface FmResult<out T> {
     data class Ok<T>(val value: T) : FmResult<T>
     data class Failed(val error: Throwable) : FmResult<Nothing>
@@ -71,9 +68,6 @@ class FileManagerLogic(
     private val trash = TrashManager(trashRoot, scope, fileOps)
     private val renameCreate = RenameCreateOps(scope)
 
-    /**
-     * 浏览 [currentDir] 目录内容，返回 [FmListResult]
-     */
     suspend fun browse(currentDir: Path): FmResult<FmListResult> = taskManager.run(TaskKind.LIST) {
         doBrowse(currentDir)
     }.toFmResult()
@@ -115,10 +109,6 @@ class FileManagerLogic(
         )
     }
 
-    /**
-     * 校验 [candidate] 是否为可访问范围内的可读目录
-     * @return 归一化后的目录路径；不合法或越界时返回 null
-     */
     fun validateTarget(candidate: Path): Path? = runCatching {
         scope.guard(candidate).takeIf { Files.isDirectory(it) && Files.isReadable(it) }
     }.getOrNull()
@@ -130,10 +120,6 @@ class FileManagerLogic(
         throw OutOfScopeException("Output path is outside the accessible scope.")
     }
 
-    /**
-     * 解析初始访问目录
-     * 目录合法且在根目录内时返回，否则回退到根目录
-     */
     fun resolveInitialCurrent(hintPath: Path?): Path {
         val root = scope.rootAbs
         val normal = hintPath?.normalize()?.toAbsolutePath()
@@ -142,18 +128,12 @@ class FileManagerLogic(
         } ?: root
     }
 
-    /**
-     * 构建粘贴请求
-     */
     fun buildPasteRequest(
         sources: List<Path>,
         targetDir: Path,
         mode: PasteMode
     ): PasteRequest = fileOps.buildPasteRequest(sources, targetDir, mode)
 
-    /**
-     * 执行粘贴
-     */
     suspend fun executePaste(
         sources: List<Path>,
         targetDir: Path,
@@ -175,10 +155,6 @@ class FileManagerLogic(
             )
         }.toFmResult()
 
-    /**
-     * 删除一组条目
-     * @param toTrash 是否移入回收站
-     */
     suspend fun delete(
         targets: List<Path>,
         toTrash: Boolean
@@ -223,12 +199,6 @@ class FileManagerLogic(
         DeleteSummary(toTrash, results)
     }.toFmResult()
 
-    /**
-     * 执行压缩
-     * @param sources 待压缩条目
-     * @param output 输出压缩包路径
-     * @param options 压缩参数
-     */
     suspend fun compress(
         sources: List<Path>,
         output: Path,
@@ -236,8 +206,7 @@ class FileManagerLogic(
     ): FmResult<CompressSummary> = taskManager.run(TaskKind.COMPRESS) {
         val ctx = currentCoroutineContext()
         val tracker = ByteRateTracker().also { it.start() }
-        // 待压缩条目必须位于可访问范围内
-        // 输出允许范围内或文件管理器缓存临时区
+
         val safeSources = sources.map { scope.guardAbsolute(it) }
         safeSources.firstOrNull { !Files.exists(it, LinkOption.NOFOLLOW_LINKS) }
             ?.let { throw NoSuchFileException(it.toString()) }
@@ -269,12 +238,6 @@ class FileManagerLogic(
         )
     }.toFmResult()
 
-    /**
-     * 执行解压
-     * @param archive 压缩包路径
-     * @param outputDir 目标目录
-     * @param options 解压选项
-     */
     suspend fun extract(
         archive: Path,
         outputDir: Path,
@@ -283,8 +246,7 @@ class FileManagerLogic(
         val result = taskManager.run(TaskKind.EXTRACT) {
             val ctx = currentCoroutineContext()
             val tracker = ByteRateTracker().also { it.start() }
-            // 压缩包必须位于可访问范围内
-            // 输出允许范围内或文件管理器缓存临时区
+
             val safeArchive = scope.guardAbsolute(archive)
             if (!Files.exists(safeArchive, LinkOption.NOFOLLOW_LINKS)) {
                 throw NoSuchFileException(safeArchive.toString())
@@ -312,7 +274,7 @@ class FileManagerLogic(
                 }
             )
         }.toFmResult()
-        // 密码缺失或错误时不包装进 FmResult.Failed，直接抛出
+
         val error = (result as? FmResult.Failed)?.error
         if (error is ArchivePasswordException) throw error
         return result
@@ -321,10 +283,6 @@ class FileManagerLogic(
     suspend fun trashList(): FmResult<List<TrashItem>> =
         taskManager.run(TaskKind.LIST) { trash.list() }.toFmResult()
 
-    /**
-     * 预检回收站恢复冲突
-     * @return 冲突项列表，元素为 (item, 在 [items] 中的下标)
-     */
     suspend fun trashRestoreConflicts(items: List<TrashItem>): List<Pair<TrashItem, Int>> =
         withContext(Dispatchers.IO) {
             val planned = HashSet<Path>()
@@ -398,19 +356,10 @@ class FileManagerLogic(
         }
     }.toFmResult()
 
-
     suspend fun rename(target: Path, newName: String): Path = renameCreate.rename(target, newName)
     suspend fun createFolder(parent: Path, name: String): Path = renameCreate.createFolder(parent, name)
     suspend fun createFile(parent: Path, name: String): Path = renameCreate.createFile(parent, name)
 
-
-    /**
-     * 搜索匹配项
-     * @param startDir 起始目录
-     * @param keyword 匹配关键词
-     * @param caseSensitive 是否区分大小写
-     * @param onProgress 进度回调（当前搜索到的目录）
-     */
     suspend fun search(
         startDir: Path,
         keyword: String,
@@ -474,26 +423,17 @@ class FileManagerLogic(
     }
 }
 
-/**
- * 删除一项的结果
- */
 data class SingleDeleteResult(
     val path: Path,
     val success: Boolean,
     val reason: String?
 )
 
-/**
- * 删除结果汇总
- */
 data class DeleteSummary(
     val toTrash: Boolean,
     val results: List<SingleDeleteResult>
 )
 
-/**
- * 搜索结果命中条目
- */
 data class SearchHit(
     val path: Path,
     val name: String,
@@ -503,9 +443,6 @@ data class SearchHit(
     val hidden: Boolean
 )
 
-/**
- * 搜索结果
- */
 sealed interface SearchResult {
     data class Ok(val hits: List<SearchHit>) : SearchResult
     data class Failed(val error: Throwable) : SearchResult

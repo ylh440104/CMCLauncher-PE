@@ -3,9 +3,6 @@ package com.cmc.launcher.setting.unit
 import android.os.Parcelable
 import com.cmc.launcher.setting.launcherMMKV
 
-/**
- * Parcelable 设置单元，将 Parcelable 保存到设置配置文件中
- */
 class ParcelableSettingUnit<E: Parcelable>(
     key: String,
     defaultValue: E,

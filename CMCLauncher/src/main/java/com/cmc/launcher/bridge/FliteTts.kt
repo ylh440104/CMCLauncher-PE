@@ -14,14 +14,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 
-/**
- * 游戏复述功能的安卓 TTS 后端，替代缺失的 flite 语音引擎
- * Reference from FoldCraftLauncher PR #1821（FCL/src/main/java/com/mio/flite/FliteTts.kt，GPL-3.0）
- * https://github.com/FCL-Team/FoldCraftLauncher/pull/1821
- */
 object FliteTts {
     private const val TAG = "FliteTTS"
-    /** init 的快速判定窗口：无引擎时 onInit(ERROR) 几乎立即到达，超时则视为引擎仍在冷启动 */
+
     private const val FAST_CHECK_SECONDS = 2L
 
     private const val STATE_UNINIT = 0
@@ -29,11 +24,9 @@ object FliteTts {
     private const val STATE_READY = 2
     private const val STATE_FAILED = 3
 
-    // TextToSpeech 需要在带 Looper 的线程上构建与回调，游戏侧调用线程没有 Looper
     private val ttsThread = HandlerThread(TAG)
         .apply { start() }
 
-    // 只在对象锁内读写，与 state 的流转共享同一把锁
     private val pending = ArrayDeque<PendingSpeech>()
 
     @Volatile
@@ -51,10 +44,8 @@ object FliteTts {
 
     private val utteranceCounter = AtomicLong()
 
-    /** 引擎就绪前到达的朗读文本，就绪后按序补播 */
     private data class PendingSpeech(val text: String, val gain: Float)
 
-    /** 初始化 TTS 引擎；引擎冷启动时乐观返回 true，就绪前的朗读会在就绪后按序补播 */
     @JvmStatic
     fun init(): Boolean {
         synchronized(this) {
@@ -70,7 +61,7 @@ object FliteTts {
                 }
             }
         }
-        // 快速判定期间不得持有对象锁：onInit 回调与 tts 赋值都依赖锁外的执行进度
+
         val arrived = try {
             readySignal.await(FAST_CHECK_SECONDS, TimeUnit.SECONDS)
         } catch (_: InterruptedException) {
@@ -79,7 +70,6 @@ object FliteTts {
         return if (arrived) state == STATE_READY else true
     }
 
-    /** 排队朗读一段 UTF-8 文本并立即返回；不可用或文本无效返回 -1 */
     @JvmStatic
     fun speak(message: ByteArray, gain: Float): Float {
         if (state == STATE_FAILED) return -1f
@@ -96,14 +86,12 @@ object FliteTts {
         return 0f
     }
 
-    /** 立即停止当前朗读并丢弃全部排队文本，游戏打断复述时的截停入口 */
     @JvmStatic
     fun cancel() {
         synchronized(this) { pending.clear() }
         tts?.runCatching { stop() }
     }
 
-    /** 释放 TTS 引擎并丢弃全部排队文本 */
     @JvmStatic
     @Synchronized
     fun shutdown() {
@@ -123,7 +111,6 @@ object FliteTts {
         }
     }
 
-    /** 须持对象锁调用：把引擎就绪前排队的文本按序补播进 TTS 队列 */
     private fun drainPending() {
         val instance = tts ?: return
         while (pending.isNotEmpty()) {
@@ -149,11 +136,11 @@ object FliteTts {
                         signal.countDown()
                     } else {
                         Logger.error(TAG, "engine init failed: engine=${engine ?: "default"} status=$code")
-                        // 非终态：还有候选引擎时不放行等待方，由回退结果决定
+
                         tryNextEngine(signal, ref.get(), engine)
                     }
                 }
-                // 过期回调（期间已 shutdown/重新初始化）直接忽略
+
             }
             val context = GlobalContext.applicationContext
             val instance = if (engine == null) {
@@ -176,7 +163,7 @@ object FliteTts {
             })
             synchronized(this) {
                 if (state != STATE_INITIALIZING) {
-                    // 构建期间已被 shutdown，立即释放避免泄漏
+
                     instance.shutdown()
                     return
                 }
@@ -189,7 +176,6 @@ object FliteTts {
         }
     }
 
-    /** 当前引擎初始化失败后，依次尝试设备上其他已安装的语音引擎 */
     private fun tryNextEngine(signal: CountDownLatch, failed: TextToSpeech?, failedEngine: String?) {
         triedEngines.add(failedEngine ?: "default")
         val next = candidateEngines.firstOrNull { it !in triedEngines }

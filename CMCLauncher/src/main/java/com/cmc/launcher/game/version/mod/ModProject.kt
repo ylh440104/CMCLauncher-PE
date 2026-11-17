@@ -4,9 +4,6 @@ import android.os.Parcelable
 import com.cmc.launcher.game.download.addon.platform.Platform
 import kotlinx.parcelize.Parcelize
 
-/**
- * 展示到模组管理页面的项目信息
- */
 @Parcelize
 class ModProject(
     val id: String,

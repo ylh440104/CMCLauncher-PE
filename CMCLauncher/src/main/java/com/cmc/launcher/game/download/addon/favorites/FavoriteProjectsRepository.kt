@@ -26,17 +26,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 
-/**
- * 收藏键，平台与项目Id唯一确定一个收藏项
- */
 data class FavoriteKey(
     val platform: Platform,
     val projectId: String
 )
 
-/**
- * 收藏项目条目，本地缓存数据与已加载的远端项目数据
- */
 data class FavoriteEntry(
     val platform: Platform,
     val project: FavoriteProject,
@@ -44,43 +38,28 @@ data class FavoriteEntry(
     val invalid: Boolean = false
 )
 
-/**
- * 收藏项目仓库
- */
 object FavoriteProjectsRepository {
     private const val TAG = "FavoriteProjectsRepository"
     private const val REFRESH_CONCURRENCY = 8
 
-    /** 所有收藏项目，键为 [FavoriteKey] */
     val projects = mutableStateMapOf<FavoriteKey, FavoriteEntry>()
 
-    /** 收藏数据是否已完成装载 */
     var initialized by mutableStateOf(false)
         private set
 
-    //仓库内部协程作用域，承载非挂起入口的异步任务
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    //串行化数据装载与读写，避免并发修改导致的状态错乱
+
     private val mutex = Mutex()
 
-    /**
-     * 仅读取内存数据池；数据未装载时触发一次异步装载
-     */
     fun isFavorite(platform: Platform, projectId: String): Boolean {
         if (!initialized) scope.launch { ensureLoaded() }
         return projects.containsKey(FavoriteKey(platform, projectId))
     }
 
-    /**
-     * 收藏一个搜索结果项目
-     */
     fun favorite(data: PlatformSearchData, classes: PlatformClasses) {
         scope.launch { saveFavorite(data.platform(), data.toFavoriteProject(classes)) }
     }
 
-    /**
-     * 收藏一个远端项目
-     */
     fun favorite(project: PlatformProject, defaultClasses: PlatformClasses) {
         scope.launch { saveFavorite(project.platform(), project.toFavoriteProject(defaultClasses)) }
     }
@@ -89,9 +68,6 @@ object FavoriteProjectsRepository {
         scope.launch { removeFavorite(platform, projectId) }
     }
 
-    /**
-     * 切换搜索结果项目的收藏状态
-     */
     fun toggle(data: PlatformSearchData, classes: PlatformClasses) {
         scope.launch {
             val platform = data.platform()
@@ -104,9 +80,6 @@ object FavoriteProjectsRepository {
         }
     }
 
-    /**
-     * 切换远端项目的收藏状态
-     */
     fun toggle(project: PlatformProject, defaultClasses: PlatformClasses) {
         scope.launch {
             val platform = project.platform()
@@ -119,9 +92,6 @@ object FavoriteProjectsRepository {
         }
     }
 
-    /**
-     * 确保收藏数据已装载
-     */
     suspend fun ensureLoaded() {
         if (initialized) return
         mutex.withLock {
@@ -129,16 +99,10 @@ object FavoriteProjectsRepository {
         }
     }
 
-    /**
-     * 从 MMKV 重新加载收藏数据
-     */
     suspend fun reload() = mutex.withLock {
         reloadLocked()
     }
 
-    /**
-     * 并发刷新所有收藏项目的远端数据，逐条更新内存与本地缓存
-     */
     suspend fun refreshRemote() = coroutineScope {
         val pending = projects.values.toList()
         if (pending.isEmpty()) return@coroutineScope
@@ -151,9 +115,6 @@ object FavoriteProjectsRepository {
         }.awaitAll()
     }
 
-    /**
-     * 装载数据，须持有互斥锁调用
-     */
     private suspend fun reloadLocked() {
         val latest = withContext(Dispatchers.IO) { readAll() }
         if (!initialized) {
@@ -201,11 +162,11 @@ object FavoriteProjectsRepository {
                 platform = entry.platform,
                 printLog = false
             )
-            //条目可能在刷新过程中被移除，仅更新仍然存在的条目
+
             mutex.withLock {
                 projects[key]?.let { current ->
                     if (!remote.platformAvailable()) {
-                        //项目被平台标记为不可见（如已删除），标记条目失效
+
                         markInvalid(key, current)
                     } else {
                         val merged = mergeCache(current.project, remote)
@@ -217,7 +178,7 @@ object FavoriteProjectsRepository {
             throw e
         } catch (e: Throwable) {
             if (e.isProjectNotFound()) {
-                //远端项目已不可访问，标记条目失效
+
                 mutex.withLock {
                     projects[key]?.let { current -> markInvalid(key, current) }
                 }
@@ -232,15 +193,9 @@ object FavoriteProjectsRepository {
         projects[key] = current.copy(invalid = true)
     }
 
-    /**
-     * 平台接口是否返回了项目未找到
-     */
     private fun Throwable.isProjectNotFound(): Boolean =
         this is NotFoundException || (this is ClientRequestException && response.status.value == 404)
 
-    /**
-     * 以远端数据校正本地缓存，数据有变化时回写 MMKV，收藏时间保持不变
-     */
     private suspend fun mergeCache(cached: FavoriteProject, remote: PlatformProject): FavoriteProject {
         val classes = remote.platformClasses(cached.classes)
         val iconUrl = remote.platformIconUrl()
@@ -286,9 +241,6 @@ object FavoriteProjectsRepository {
     }
 }
 
-/**
- * 从搜索结果数据生成收藏缓存
- */
 fun PlatformSearchData.toFavoriteProject(classes: PlatformClasses): FavoriteProject = FavoriteProject(
     projectId = platformId(),
     iconUrl = platformIconUrl(),
@@ -299,9 +251,6 @@ fun PlatformSearchData.toFavoriteProject(classes: PlatformClasses): FavoriteProj
     followTime = System.currentTimeMillis()
 )
 
-/**
- * 从远端项目数据生成收藏缓存
- */
 fun PlatformProject.toFavoriteProject(defaultClasses: PlatformClasses): FavoriteProject = FavoriteProject(
     projectId = platformId(),
     iconUrl = platformIconUrl(),

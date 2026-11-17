@@ -72,28 +72,20 @@ import java.util.concurrent.TimeoutException
 
 private const val TAG = "ModifyVersionViewModel"
 
-/** 版本修改状态操作 */
 sealed interface ModifyOperation {
     data object None : ModifyOperation
-    /** 警告通知权限，可以无视，并进入确认对话框 */
+
     data class WarningForNotification(val payload: ModifyPayload) : ModifyOperation
-    /** 确认对话框：确认版本名称与变更内容 */
+
     data class Confirm(val payload: ModifyPayload) : ModifyOperation
-    /** 开始修改 */
+
     data object Install : ModifyOperation
-    /** 修改过程中出现异常 */
+
     data class Error(val th: Throwable) : ModifyOperation
-    /** 修改成功 */
+
     data object Success : ModifyOperation
 }
 
-/**
- * 版本修改载荷
- * @param info 修改后的游戏安装信息
- * @param currentVersion 版本对应的 [Version] 对象
- * @param newVersionName 修改完成后的新版本名称，与当前名称一致时不重命名
- * @param diffs 变更内容
- */
 data class ModifyPayload(
     val info: GameDownloadInfo,
     val currentVersion: Version,
@@ -104,31 +96,25 @@ data class ModifyPayload(
         get() = currentVersion.getVersionName()
 }
 
-/**
- * 版本的变更内容
- */
 data class ModifyDiffs(
     val list: List<Diff>
 ) {
-    /** Minecraft 版本 */
+
     data class McChange(
         val original: String,
         val updateTo: String
     ) : Diff
 
-    /** 模组加载器版本 */
     data class LoaderChange(
         val modloader: ModLoader,
         val original: String,
         val updateTo: String
     ) : Diff
 
-    /** 移除模组加载器 */
     data class LoaderRemove(
         val modloader: ModLoader
     ) : Diff
 
-    /** 安装模组加载器 */
     data class LoaderInstall(
         val modloader: ModLoader,
         val version: String
@@ -137,15 +123,9 @@ data class ModifyDiffs(
     sealed interface Diff
 }
 
-/**
- * 版本修改的安装操作状态机
- */
 class ModifyVersionViewModel : ViewModel() {
     var installOperation by mutableStateOf<ModifyOperation>(ModifyOperation.None)
 
-    /**
-     * 游戏安装器
-     */
     var installer by mutableStateOf<GameInstaller?>(null)
 
     fun modify(context: Context, payload: ModifyPayload) {
@@ -170,7 +150,7 @@ class ModifyVersionViewModel : ViewModel() {
                         if (isNameChanged) {
                             lateinit var refreshListener: suspend () -> Unit
                             refreshListener = {
-                                // 同步主界面版本卡片的记录，避免卡片因改名失效
+
                                 VersionCardManager.onVersionRenamed(
                                     gameHome = gameHome,
                                     oldName = payload.currentVersionName,
@@ -195,7 +175,7 @@ class ModifyVersionViewModel : ViewModel() {
     }
 
     fun cancel() {
-        //目标是已存在的版本，取消时不能清除版本目录
+
         installer?.cancelInstall(clearTarget = false)
         installer = null
         installOperation = ModifyOperation.None
@@ -206,10 +186,6 @@ class ModifyVersionViewModel : ViewModel() {
     }
 }
 
-
-/**
- * 修订差异条目
- */
 @Composable
 private fun DiffItem(diff: ModifyDiffs.Diff) {
     when (diff) {
@@ -318,7 +294,7 @@ fun ModifyVersionOperation(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            //标题
+
                             Text(
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp)
@@ -380,7 +356,6 @@ fun ModifyVersionOperation(
                                 }
                             }
 
-                            //按钮
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -412,7 +387,7 @@ fun ModifyVersionOperation(
                 val tasks by installer.tasksFlow.collectAsStateWithLifecycle()
                 val installLog = installer.logOutput.collectAsStateWithLifecycle()
                 if (tasks.isNotEmpty()) {
-                    //修改版本流程对话框
+
                     TitleTaskFlowDialog(
                         title = stringResource(R.string.versions_modify_version),
                         tasks = tasks,

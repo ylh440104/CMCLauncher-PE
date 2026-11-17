@@ -3,9 +3,6 @@ package com.cmc.launcher.utils.network
 import android.net.ConnectivityManager
 import com.cmc.launcher.context.GlobalContext
 
-/**
- * 获取设备当前网络的真实 DNS 服务器
- */
 fun getSystemDnsServerAddresses(): List<String>? {
     return runCatching {
         val connectivityManager = GlobalContext.applicationContext

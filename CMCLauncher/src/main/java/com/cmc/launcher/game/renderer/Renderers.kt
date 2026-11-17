@@ -11,9 +11,6 @@ import com.cmc.launcher.utils.logging.Logger
 
 private const val TAG = "Renderers"
 
-/**
- * 启动器所有渲染器总管理者，启动器内置的渲染器与渲染器插件加载的渲染器，都会加载到这里
- */
 object Renderers {
     private val renderers: MutableList<RendererInterface> = mutableListOf()
     private var currentRenderer: RendererInterface? = null
@@ -41,32 +38,20 @@ object Renderers {
         )
     }
 
-    /**
-     * 获取当前的渲染器列表
-     */
     fun getRenderers(): List<RendererInterface> = renderers
 
-    /**
-     * 获取全部渲染器的旧配置命名空间到当前唯一标识的映射，用于配置迁移
-     */
     fun getLegacyRendererIds(): Map<String, String> = buildMap {
         renderers.filterIsInstance<ConfigurableRenderer>().forEach { renderer ->
             renderer.legacyConfigKeys.forEach { put(it, renderer.getUniqueIdentifier()) }
         }
     }
 
-    /**
-     * 加入一些渲染器
-     */
     fun addRenderers(vararg renderers: RendererInterface) {
         renderers.forEach { renderer ->
             addRenderer(renderer)
         }
     }
 
-    /**
-     * 加入单个渲染器
-     */
     fun addRenderer(renderer: RendererInterface): Boolean {
         return if (renderers.any { it.getUniqueIdentifier() == renderer.getUniqueIdentifier() }) {
             Logger.warning(TAG, "The unique identifier of this renderer (${renderer.getRendererName()} - ${renderer.getUniqueIdentifier()}) conflicts with an already loaded renderer. " +
@@ -79,11 +64,6 @@ object Renderers {
         }
     }
 
-    /**
-     * 设置当前的渲染器
-     * @param uniqueIdentifier 渲染器的唯一标识符，用于找到当前想要设置的渲染器
-     * @param retryToFirstOnFailure 如果未找到匹配的渲染器，是否跳回渲染器列表的首个渲染器
-     */
     fun setCurrentRenderer(uniqueIdentifier: String, retryToFirstOnFailure: Boolean = true) {
         if (!isInitialized) throw IllegalStateException("Uninitialized renderer!")
         currentRenderer = renderers.find { it.getUniqueIdentifier() == uniqueIdentifier } ?: run {
@@ -95,16 +75,10 @@ object Renderers {
         }
     }
 
-    /**
-     * 获取当前的渲染器
-     */
     fun getCurrentRenderer(): RendererInterface {
         if (!isInitialized) throw IllegalStateException("Uninitialized renderer!")
         return currentRenderer ?: throw IllegalStateException("Current renderer not set")
     }
 
-    /**
-     * 当前是否设置了渲染器
-     */
     fun isCurrentRendererValid(): Boolean = isInitialized && currentRenderer != null
 }

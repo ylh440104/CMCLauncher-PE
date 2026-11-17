@@ -31,13 +31,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAG = "FmBrowse"
 
-/** 浏览任务被其它任务占用时的重试间隔 */
 private const val BUSY_RETRY_DELAY_MS = 150L
 
-/**
- * 浏览 / 导航控制器，负责目录列表刷新与导航历史管理
- * 并集中管理目录刷新这一条协程任务的生命周期
- */
 class BrowseController(
     private val logic: FileManagerLogic,
     private val scope: AccessScope,
@@ -48,13 +43,8 @@ class BrowseController(
 
     private var refreshJob: Job? = null
 
-    /** 待处理的最新刷新目标：快速导航时中间目标被覆盖合并（仅允许在 [refreshLock] 内访问） */
     private var pendingTarget: Path? = null
 
-    /**
-     * 请求刷新目录：合并到目标流水线，最新目标必定被处理。
-     * @param target 目标目录；null 表示刷新当前路径
-     */
     fun refreshDir(target: Path? = null) {
         val t = target ?: store.history.currentPath
         synchronized(refreshLock) {
@@ -67,10 +57,8 @@ class BrowseController(
         }
     }
 
-    /** 操作出错后刷新当前目录内容，使列表反映磁盘真实状态 */
     fun refreshCurrentDir() = refreshDir(store.history.currentPath)
 
-    /** 目标刷新流水线：顺序处理刷新期间累积的最新目标。 */
     private suspend fun refreshPipeline() {
         while (true) {
             val target = takePendingTarget()
@@ -102,7 +90,6 @@ class BrowseController(
         }
     }
 
-    /** 原子取出最新待刷新目标 */
     private fun takePendingTarget(): Path? = synchronized(refreshLock) {
         val t = pendingTarget
         pendingTarget = null
@@ -111,7 +98,7 @@ class BrowseController(
 
     private suspend fun refreshOnce(target: Path) {
         FmLog.info(TAG, "refreshList target=$target")
-        // 任务被占用时等待重试，动画由 UI 层按内容状态驱动，流水线只负责数据
+
         val result = browseAwaitingMutex(target) ?: return
 
         if (target != store.history.currentPath) {
@@ -121,7 +108,7 @@ class BrowseController(
 
         when (result) {
             is FmResult.Ok -> {
-                // 应用前二次校验，等待 / 应用间隙用户可能已导航走，过期结果不写入状态
+
                 if (result.value.currentDir == store.history.currentPath) {
                     FmLog.info(TAG, "browse ok: entries=${result.value.entries.size}, current=${result.value.currentDir}")
                     updateList(result.value)
@@ -132,8 +119,7 @@ class BrowseController(
             is FmResult.Failed -> {
                 FmLog.warn(TAG, "browse failed", result.error)
                 store.emitSnackbar(FmSnackbar(result.error.message ?: store.stringResolver(R.string.fm_error_browse_failed)))
-                // 导航失败，恢复显示最后成功的目录，
-                // 避免路径栏停留在失效路径、内容与路径不一致
+
                 val lastGood = store.stateValue().rawList?.currentDir
                 if (lastGood != null && target != lastGood) {
                     FmLog.info(TAG, "browse failed for navigation target, revert to: $lastGood")
@@ -163,7 +149,6 @@ class BrowseController(
         return result
     }
 
-    /** 导航到目录（计入历史） */
     fun navigateTo(path: Path) {
         val safe = logic.validateTarget(path) ?: run {
             store.emitSnackbar(FmSnackbar(store.stringResolver(R.string.fm_error_invalid_target)))
@@ -175,16 +160,11 @@ class BrowseController(
         refreshDir(safe)
     }
 
-    /** 点击目录条目进入目录 */
     fun enterDirectory(entry: FmEntry) {
         if (!entry.isDirectory) return
         navigateTo(entry.path)
     }
 
-    /**
-     * 后退
-     * @return true 表示已移动
-     */
     fun back(): Boolean {
         val p = store.history.back() ?: return false
         store.clearSelectionAndExitMulti()
@@ -193,10 +173,6 @@ class BrowseController(
         return true
     }
 
-    /**
-     * 前进
-     * @return true 表示已移动
-     */
     fun forward(): Boolean {
         val p = store.history.forward() ?: return false
         store.clearSelectionAndExitMulti()
@@ -205,10 +181,6 @@ class BrowseController(
         return true
     }
 
-    /**
-     * 返回上一级目录
-     * @return true 表示已移动
-     */
     fun goParent(): Boolean {
         val parent = store.history.currentPath.parent ?: return false
         if (!scope.isUnder(parent)) return false
@@ -216,10 +188,6 @@ class BrowseController(
         return true
     }
 
-    /**
-     * 跳转目录
-     * 目标限制在可访问范围内，越界或不存在时提示并拒绝
-     */
     fun jumpTo(targetInput: String) {
         val candidate = Paths.get(targetInput).normalize().toAbsolutePath()
         val safe = logic.validateTarget(candidate)
@@ -230,11 +198,6 @@ class BrowseController(
         navigateTo(safe)
     }
 
-    /**
-     * 提交跳转目录
-     * 校验失败时返回 false
-     * @return 跳转是否发起成功
-     */
     fun submitJump(targetInput: String): Boolean {
         val candidate = try {
             Paths.get(targetInput).normalize().toAbsolutePath()
@@ -250,7 +213,6 @@ class BrowseController(
         return true
     }
 
-    /** 选择某条搜索结果：跳转到其所在目录并定位该条目 */
     fun navigateToSearchHit(hitPath: Path) {
         val target = hitPath.parent ?: store.history.currentPath
         val safe = logic.validateTarget(target) ?: return
@@ -262,21 +224,16 @@ class BrowseController(
         refreshDir(safe)
     }
 
-    /** 派发文件系统变更事件并刷新当前目录 */
     fun notifyFileChanged(event: FileManagerEvent) {
         FileManagerEventBus.dispatch(event)
         refreshCurrentDir()
     }
 
-    /**
-     * 目录被删除后清理导航历史
-     */
     fun pruneHistory(deleted: Path) {
         store.history.pruneDeleted(deleted)
         syncNavState()
     }
 
-    /** 应用排序配置并重算可见列表 */
     fun setSortConfig(config: SortConfig) {
         config.persist()
         val newVisible = applyVisibility(store.stateValue().rawList?.entries ?: emptyList(), config, store.stateValue().showHidden)
@@ -285,7 +242,6 @@ class BrowseController(
         reconcileSelectionWith(newVisible)
     }
 
-    /** 切换“显示隐藏文件”开关并重算可见列表 */
     fun toggleHidden() {
         val show = !store.stateValue().showHidden
         FmConfig.setShowHidden(show)
@@ -307,7 +263,7 @@ class BrowseController(
     private fun updateList(result: FmListResult) {
         val raw = RawList.of(result)
         val visible = applyVisibility(raw.entries, store.stateValue().sortConfig, store.stateValue().showHidden)
-        // 保留选中集合中仍存在的项（按路径字符串比较，规避 Path 实例 hashCode 差异）
+
         val present = visible.mapTo(mutableSetOf()) { entryPathKey(it) }
         val newSelection = store.selection.intersect(present)
         store.setSelection(newSelection, newSelection.isNotEmpty())

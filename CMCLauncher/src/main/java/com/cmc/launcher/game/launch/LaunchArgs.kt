@@ -72,7 +72,7 @@ class LaunchArgs(
                         if (quickPlay.saveName.isEmptyOrBlank()) return@let
 
                         if (info.quickPlay.isQuickPlaySingleplayer) {
-                            //将不受支持的字符转换为Unicode
+
                             val saveName = quickPlay.saveName.toUnicodeEscaped()
                             argsList.apply {
                                 add("--quickPlaySingleplayer")
@@ -101,7 +101,6 @@ class LaunchArgs(
             }
         }
 
-        //追加版本配置的游戏参数，置于参数列表末尾
         argsList.addAll(version.getGameArgs().splitPreservingQuotes())
 
         return argsList
@@ -138,12 +137,6 @@ class LaunchArgs(
         }
     }
 
-    /**
-     * 组装 LWJGL 组件 classpath
-     * 版本 >= 3.4.1 -> 使用 3.4.1 组件；否则使用 3.3.3 组件。
-     * LWJGL2 时代（版本 <= 299）额外加入 lwjgl-lwjglx.jar 桥接层。
-     * lwjgl.jar 核心优先 -> merged-modules -> 其余模块。
-     */
     private fun getLWJGL3ClassPath(): String {
         val versionDir = lwjglVersionDir(lwjglVersion)
         val dir = File(PathManager.DIR_COMPONENTS, "lwjgl/$versionDir")
@@ -158,7 +151,7 @@ class LaunchArgs(
     private fun lwjglJarOrder(name: String, versionDir: String, isLwjgl2: Boolean): Int = when (name) {
         "lwjgl.jar" -> 0
         "lwjgl-$versionDir-merged-modules.jar" -> 1
-        "lwjgl-lwjglx.jar" -> 3 // 桥接层放最后，仅 LWJGL2 使用
+        "lwjgl-lwjglx.jar" -> 3
         else -> 2
     }
 
@@ -167,7 +160,7 @@ class LaunchArgs(
 
         if (account.isLocalAccount()) {
             if (account.hasSkinFile) {
-                //该离线账号拥有本地皮肤，启用离线yggdrasil服务器
+
                 offlineServer.start()
                 offlineServer.addCharacter(account)
                 offlineServer.getPort()?.let { port ->
@@ -177,17 +170,17 @@ class LaunchArgs(
                     argsList.add("-javaagent:${LibPath.AUTHLIB_INJECTOR.absolutePath}=http://localhost:$port")
                     argsList.add("-Dauthlibinjector.side=client")
                 } ?: run {
-                    //无法获取端口号，说明服务器未成功启动
+
                     val msg = "Failed to start offline Yggdrasil server!"
                     LoggerBridge.append(msg)
                     Logger.warning(TAG, msg)
-                    //本次启动将被忽略，为避免浪费性能，关停服务器
+
                     offlineServer.stop()
                 }
             }
         } else if (account.isAuthServerAccount()) {
             if (account.otherBaseUrl!!.contains("auth.mc-user.com")) {
-                argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https://auth.mc-user.com:233/", "")}")
+                argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https:
                 argsList.add("-Dnide8auth.client=true")
             } else {
                 argsList.add("-javaagent:${LibPath.AUTHLIB_INJECTOR.absolutePath}=${account.otherBaseUrl}")
@@ -197,7 +190,6 @@ class LaunchArgs(
 
         argsList.addAll(getCacioJavaArgs(runtime.javaVersion == 8))
 
-        //MioLibPatcher 需作为 JVM 选项注册在 cacio agent 之后、-cp 之前
         argsList.add("-javaagent:${LibPath.MIO_LIB_PATCHER.absolutePath}")
 
         val configFilePath = version.getVersionPath().child("log4j2.xml")
@@ -223,10 +215,6 @@ class LaunchArgs(
     }
 
     private fun getMinecraftJVMArgs(): Array<String> {
-//        // Parse Forge 1.17+ additional JVM Arguments
-//        if (versionInfo.inheritsFrom == null || versionInfo.arguments == null || versionInfo.arguments.jvm == null) {
-//            return emptyArray()
-//        }
 
         val varArgMap: MutableMap<String, String> = android.util.ArrayMap()
         val launchClassPath = buildList {
@@ -234,7 +222,7 @@ class LaunchArgs(
             add(LibPath.MIO_LAUNCH_WRAPPER.absolutePath)
             putLaunchClassPath(gameManifest)
         }.joinToString(":")
-        var hasClasspath = false //是否已经在jvm参数中包含 ${classpath} 配置
+        var hasClasspath = false
 
         varArgMap["classpath_separator"] = ":"
         varArgMap["library_directory"] = getLibrariesHome(version.getGameHome())
@@ -244,7 +232,7 @@ class LaunchArgs(
 
         fun Any.processJvmArg(): String? = (this as? String)?.let { argument ->
             if (argument.startsWith("-Djava.library.path=")) {
-                //26.2+ Mojang 更改到了具体的路径，需要手动重定向
+
                 return@let $$"-Djava.library.path=${natives_directory}"
             }
             when {
@@ -254,7 +242,7 @@ class LaunchArgs(
                 argument.contains("-Dio.netty.native.workdir") ||
                 argument.contains("-Djna.tmpdir") ||
                 argument.contains("-Dorg.lwjgl.system.SharedLibraryExtractPath") -> {
-                    //使用一个可读的目录
+
                     argument.replace($$"${natives_directory}", PathManager.DIR_CACHE.absolutePath)
                 }
                 argument == $$"${classpath}" -> {
@@ -274,14 +262,11 @@ class LaunchArgs(
         return if (hasClasspath) {
             replacedArgs
         } else {
-            //不包含 ${classpath} 配置，则需要手动添加
+
             replacedArgs + arrayOf("-cp", launchClassPath)
         }
     }
 
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L572-L592)
-     */
     private fun MutableList<String>.putLaunchClassPath(gameManifest: GameManifest) {
         val classpath: Array<String> = generateLibClasspath(gameManifest)
 
@@ -298,9 +283,6 @@ class LaunchArgs(
         }
     }
 
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L871-L882)
-     */
     private fun generateLibClasspath(gameManifest: GameManifest): Array<String> {
         val libSortFix = LibSortFix()
         val libs = LinkedHashMap<GameManifest.Library, String>()
@@ -316,10 +298,6 @@ class LaunchArgs(
         return libs.values.toTypedArray<String>()
     }
 
-
-    /**
-     * @return 库相对路径
-     */
     private fun GameManifest.Library.progressLibrary(): String? {
         if (filterLibrary()) return null
 
@@ -355,7 +333,7 @@ class LaunchArgs(
 
         val minecraftArgs: MutableList<String> = ArrayList()
         gameManifest.arguments?.apply {
-            // Support Minecraft 1.13+
+
             game.forEach { if (it is String) minecraftArgs.add(it) }
         }
 
@@ -384,12 +362,6 @@ class LaunchArgs(
     }
 }
 
-/**
- * 从版本清单中探测要求的 LWJGL 主版本
- * 解析 `org.lwjgl:lwjgl:X.Y.Z` / `org.lwjgl.lwjgl:lwjgl:X.Y.Z` 坐标，
- * 返回去掉句点后的整数（如 3.3.3→333、3.4.1→341、2.9.9→299）
- * @return 无法确定时返回 0（默认按 LWJGL3 处理）
- */
 fun detectLwjglVersion(manifest: GameManifest): Int {
     for (lib in manifest.libraries) {
         val name = lib.name ?: continue
@@ -407,8 +379,4 @@ fun detectLwjglVersion(manifest: GameManifest): Int {
     return 0
 }
 
-/**
- * LWJGL 版本整数 -> 组件目录名。
- * 版本 >= 3.4.1 -> 3.4.1 组件；否则（含 LWJGL2 桥接场景）-> 3.3.3 组件
- */
 fun lwjglVersionDir(lwjglVersion: Int): String = if (lwjglVersion >= 341) "3.4.1" else "3.3.3"

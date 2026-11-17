@@ -4,8 +4,6 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import org.lwjgl.glfw.CallbackBridge
 
-// Reference AAMC (https://github.com/AngelAuraMC/Amethyst-Android/blob/21cfcdb15e21771810c830036097197ba9f21941/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/customcontrols/gamepad/direct/DirectGamepad.java)
-
 private const val GLFW_RELEASE: Byte = 0
 private const val GLFW_PRESS: Byte = 1
 
@@ -17,7 +15,7 @@ private const val GLFW_GAMEPAD_BUTTON_LEFT_BUMPER: Int = 4
 private const val GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER: Int = 5
 private const val GLFW_GAMEPAD_BUTTON_BACK: Int = 6
 private const val GLFW_GAMEPAD_BUTTON_START: Int = 7
-// Home 键，未被使用，因为 Android 会自己响应 Home 键事件
+
 private const val GLFW_GAMEPAD_BUTTON_GUIDE: Int = 8
 private const val GLFW_GAMEPAD_BUTTON_LEFT_THUMB: Int = 9
 private const val GLFW_GAMEPAD_BUTTON_RIGHT_THUMB: Int = 10
@@ -74,8 +72,7 @@ private fun handleGamepadInput(keycode: Int, value: Float) {
         KeyEvent.KEYCODE_DPAD_LEFT -> gKeycode = GLFW_GAMEPAD_BUTTON_DPAD_LEFT
         KeyEvent.KEYCODE_DPAD_RIGHT -> gKeycode = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT
         KeyEvent.KEYCODE_DPAD_CENTER -> {
-            // Behave the same way as the Gamepad here, as GLFW doesn't have a keycode
-            // for the dpad center.
+
             CallbackBridge.sGamepadButtonBuffer.put(GLFW_GAMEPAD_BUTTON_DPAD_UP, GLFW_RELEASE)
             CallbackBridge.sGamepadButtonBuffer.put(GLFW_GAMEPAD_BUTTON_DPAD_DOWN, GLFW_RELEASE)
             CallbackBridge.sGamepadButtonBuffer.put(GLFW_GAMEPAD_BUTTON_DPAD_LEFT, GLFW_RELEASE)

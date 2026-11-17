@@ -4,19 +4,11 @@ import com.cmc.launcher.R
 import com.cmc.launcher.game.download.addon.platform.PlatformClasses
 import com.cmc.launcher.game.download.addon.platform.PlatformFilterCode
 
-/**
- * CurseForge类别过滤器
- */
 interface CurseForgeCategory {
-    /**
-     * 转换为CurseForge接受的格式
-     */
+
     fun describe(): String
 }
 
-/**
- * CurseForge 模组下载类别
- */
 enum class CurseForgeModCategory : CurseForgeCategory, PlatformFilterCode {
     WORLDGEN {
         override fun describe(): String = "406"
@@ -122,9 +114,6 @@ enum class CurseForgeModCategory : CurseForgeCategory, PlatformFilterCode {
     override fun index(): Int = this.ordinal
 }
 
-/**
- * CurseForge 整合包下载类别
- */
 enum class CurseForgeModpackCategory : CurseForgeCategory, PlatformFilterCode {
     MULTIPLAYER {
         override fun describe(): String = "4484"
@@ -194,9 +183,6 @@ enum class CurseForgeModpackCategory : CurseForgeCategory, PlatformFilterCode {
     override fun index(): Int = this.ordinal
 }
 
-/**
- * CurseForge 资源包下载类别
- */
 enum class CurseForgeResourcePackCategory : CurseForgeCategory, PlatformFilterCode {
     TRADITIONAL {
         override fun describe(): String = "403"
@@ -254,9 +240,6 @@ enum class CurseForgeResourcePackCategory : CurseForgeCategory, PlatformFilterCo
     override fun index(): Int = this.ordinal
 }
 
-/**
- * CurseForge 存档下载类别
- */
 enum class CurseForgeSavesCategory : CurseForgeCategory, PlatformFilterCode {
     ADVENTURE {
         override fun describe(): String = "253"
@@ -290,9 +273,6 @@ enum class CurseForgeSavesCategory : CurseForgeCategory, PlatformFilterCode {
     override fun index(): Int = this.ordinal
 }
 
-/**
- * CurseForge 光影包下载类别
- */
 enum class CurseForgeShadersCategory : CurseForgeCategory, PlatformFilterCode {
     FANTASY {
         override fun describe(): String = "6554"

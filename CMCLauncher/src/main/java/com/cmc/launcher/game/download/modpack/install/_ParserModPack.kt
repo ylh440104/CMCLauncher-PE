@@ -20,13 +20,6 @@ import java.util.zip.ZipFile as JdkZipFile
 
 private const val TAG = "ParserModPack"
 
-/**
- * 用于统一解析流程的整合包解析配置
- * @param manifestPath 清单文件在压缩包内的位置
- * @param manifestType 清单文件类型（用于反序列化的类）
- * @param createPack 通过清单创建通用整合包格式
- * @param readPack 使用创建的通用整合包格式生成 [ModPackInfo]
- */
 private data class PackParserConfig<M, P : AbstractPack>(
     val manifestPath: String,
     val manifestType: Class<M>,
@@ -34,18 +27,13 @@ private data class PackParserConfig<M, P : AbstractPack>(
     val readPack: suspend P.(Task, File, suspend (String, File) -> Unit) -> ModPackInfo
 )
 
-/**
- * 仅适用于内置在线下载，通过 [Platform] 解析不同类型的整合包
- * @return 整合包在线下载模组信息
- */
 suspend fun parserModPack(
     file: File,
     platform: Platform,
     targetFolder: File,
     task: Task
 ): ModPackInfo = withContext(Dispatchers.IO) {
-    //此处不需要使用root，因为仅仅只是获取ModPackInfo对象
-    //所以使用emptyFile填充，创建对象而已
+
     val emptyFile = File("")
 
     when (platform) {
@@ -74,9 +62,6 @@ suspend fun parserModPack(
     }
 }
 
-/**
- * 使用 [JdkZipFile] 工具尝试解析，如果出现问题，将使用 [ApacheZipFile] 工具兜底解析
- */
 suspend fun <T> withZipFile(
     file: File,
     loaderJdk: suspend (JdkZipFile) -> T,
@@ -92,9 +77,6 @@ suspend fun <T> withZipFile(
     }
 }
 
-/**
- * 通用整合包解析逻辑
- */
 private suspend fun <M, P : AbstractPack> parseModPackGeneric(
     file: File,
     targetFolder: File,

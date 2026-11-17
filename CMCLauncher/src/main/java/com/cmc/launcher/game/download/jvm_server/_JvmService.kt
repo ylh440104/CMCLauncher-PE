@@ -8,14 +8,10 @@ import com.cmc.launcher.notification.NoticeProgress
 import com.cmc.launcher.path.PathManager
 import java.io.File
 
-const val PROCESS_SERVICE_PORT = 53151 //random
+const val PROCESS_SERVICE_PORT = 53151
 
-/**
- * 安装 JVM 进程的运行日志文件
- */
 val LATEST_PROCESS_LOG_FILE: File get() = File(PathManager.DIR_FILES_EXTERNAL, "latest_process.log")
 
-//构造变量
 const val SERVICE_JVM_ARGS = "service.jvm.args"
 const val SERVICE_JRE_NAME = "service.jre.name"
 const val SERVICE_USER_HOME = "service.user.home"
@@ -43,25 +39,14 @@ fun startJvmService(
     context.startForegroundService(intent)
 }
 
-/**
- * 判定是否为系统拒绝创建安装进程（:jvm）导致的启动失败
- */
 fun Throwable.isProcessStartRefused(): Boolean =
     this is SecurityException && message?.contains("process is bad") == true
 
-/**
- * 与 JVM 安装运行互斥、开跑前必须清场的子进程名后缀
- */
 private val JVM_EXCLUSIVE_SUFFIXES = listOf(":jvm", ":game")
 
-/** 判定进程名是否属于运行安装 JVM 前必须消失的互斥进程 */
 internal fun isJvmExclusiveProcess(processName: String, mainProcessName: String): Boolean =
     JVM_EXCLUSIVE_SUFFIXES.any { processName == mainProcessName + it }
 
-/**
- * 列出仍在运行的互斥子进程
- * @return 空列表代表可以开跑
- */
 fun listBlockingProcesses(context: Context): List<String> {
     val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     val mainProcessName = context.packageName
@@ -72,9 +57,6 @@ fun listBlockingProcesses(context: Context): List<String> {
         .map { "${it.processName}(${it.pid})" }
 }
 
-/**
- * 停止所有与 JVM 安装互斥的子进程（:jvm、:game）
- */
 fun stopAllNonMainProcesses(context: Context) {
     val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     val mainPid = android.os.Process.myPid()
@@ -86,7 +68,7 @@ fun stopAllNonMainProcesses(context: Context) {
             try {
                 android.os.Process.killProcess(it.pid)
             } catch (_: Exception) {
-                //忽略
+
             }
         }
 }

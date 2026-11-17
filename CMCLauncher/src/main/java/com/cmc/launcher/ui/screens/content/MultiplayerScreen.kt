@@ -72,7 +72,7 @@ fun MultiplayerScreen(
         AnimatedRow(
             modifier = Modifier.fillMaxSize(),
             isVisible = isVisible,
-            stagger = false, //同时进行
+            stagger = false,
         ) {
             AnimatedItem { ctx ->
                 TutorialMenu(
@@ -107,7 +107,7 @@ fun MultiplayerScreen(
 private sealed interface MultiplayerOperation {
     data object None : MultiplayerOperation
     data object Notice : MultiplayerOperation
-    /** 没有通知权限，提醒用户 */
+
     data object WarningNotification : MultiplayerOperation
 }
 
@@ -146,9 +146,6 @@ private fun MultiplayerOperation(
     }
 }
 
-/**
- * 主菜单：所有主要操作都在这里
- */
 @Composable
 private fun MainMenu(
     modifier: Modifier = Modifier,
@@ -181,27 +178,11 @@ private fun MainMenu(
             .padding(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-//        //关于地区的警告
-//        BackgroundCard(
-//            modifier = Modifier.fillMaxWidth(),
-//            colors = CardDefaults.cardColors().copy(
-//                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-//                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-//            ),
-//            shape = MaterialTheme.shapes.extraLarge
-//        ) {
-//            Text(
-//                modifier = Modifier.padding(all = 16.dp),
-//                text = stringResource(R.string.terracotta_warning_region),
-//                style = MaterialTheme.typography.titleSmall
-//            )
-//        }
 
-        //多人联机设置菜单
         SettingsCardColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
-            //启用多人联机
+
             SwitchSettingsCard(
                 modifier = Modifier.fillMaxWidth(),
                 position = CardPosition.Top,
@@ -212,7 +193,7 @@ private fun MainMenu(
                     if (value) {
                         when {
                             AllSettings.terracottaNoticeVer.getValue() < Terracotta.TERRACOTTA_USER_NOTICE_VERSION -> {
-                                //未阅读公告
+
                                 operation = MultiplayerOperation.Notice
                             }
                             !NotificationManager.checkNotificationEnabled(context) -> {
@@ -223,7 +204,6 @@ private fun MainMenu(
                 }
             )
 
-            // 自定义服务器节点
             SwitchSettingsCard(
                 modifier = Modifier.fillMaxWidth(),
                 position = CardPosition.Middle,
@@ -252,7 +232,6 @@ private fun MainMenu(
 
             val terracottaEnabled = AllSettings.enableTerracotta.state
 
-            //分享联机核心日志
             SettingsCard(
                 modifier = Modifier.fillMaxWidth(),
                 position = CardPosition.Middle,
@@ -262,7 +241,6 @@ private fun MainMenu(
                 enabled = terracottaEnabled
             )
 
-            //关于 EasyTier
             SettingsCard(
                 modifier = Modifier.fillMaxWidth(),
                 position = CardPosition.Bottom,
@@ -276,17 +254,10 @@ private fun MainMenu(
     }
 }
 
-/**
- * 教程Tab分区
- * @param text 板块标题字符串资源
- */
 private data class TabItem(
     val text: Int
 )
 
-/**
- * 教程菜单
- */
 @Composable
 private fun TutorialMenu(
     modifier: Modifier = Modifier
@@ -312,7 +283,6 @@ private fun TutorialMenu(
             pagerState.animateScrollToPage(selectedTabIndex)
         }
 
-        //顶贴标签栏
         SecondaryTabRow(
             containerColor = influencedByBackgroundColor(
                 color = cardTitleColor(),
@@ -340,7 +310,7 @@ private fun TutorialMenu(
         ) { page ->
             when(page) {
                 0 -> {
-                    //用户须知
+
                     SingleTitleColumn(
                         modifier = Modifier.fillMaxSize(),
                         title = stringResource(R.string.terracotta_confirm_title),
@@ -352,7 +322,7 @@ private fun TutorialMenu(
                     )
                 }
                 1 -> {
-                    //房主教程
+
                     DoubleTitleColumn(
                         modifier = Modifier.fillMaxSize(),
                         firstTitle = stringResource(R.string.terracotta_tutorial_host_tip),
@@ -373,7 +343,7 @@ private fun TutorialMenu(
                     )
                 }
                 2 -> {
-                    //房客教程
+
                     DoubleTitleColumn(
                         modifier = Modifier.fillMaxSize(),
                         firstTitle = stringResource(R.string.terracotta_tutorial_guest_tip),
@@ -397,9 +367,6 @@ private fun TutorialMenu(
     }
 }
 
-/**
- * 单标题文本Column，标题+正文的布局
- */
 @Composable
 private fun SingleTitleColumn(
     modifier: Modifier = Modifier,
@@ -416,9 +383,6 @@ private fun SingleTitleColumn(
     )
 }
 
-/**
- * 双标题文本Column，第一个标题+文本+第二个标题+文本
- */
 @Composable
 private fun DoubleTitleColumn(
     modifier: Modifier = Modifier,

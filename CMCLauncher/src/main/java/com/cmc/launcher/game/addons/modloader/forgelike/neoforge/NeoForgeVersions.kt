@@ -21,9 +21,6 @@ object NeoForgeVersions {
     private const val TAG = "NeoForgeVersions"
     private var cacheResult: List<NeoForgeVersion>? = null
 
-    /**
-     * 获取 NeoForge 版本列表
-     */
     suspend fun fetchNeoForgeList(
         force: Boolean = false,
         gameVersion: String
@@ -53,9 +50,6 @@ object NeoForgeVersions {
         }
     }
 
-    /**
-     * 在官方源获取版本列表
-     */
     private fun fetchListWithOfficial(): MirrorSource<List<NeoForgeVersion>?> = MirrorSource(
         type = SourceType.OFFICIAL
     ) {
@@ -83,9 +77,6 @@ object NeoForgeVersions {
         }
     }
 
-    /**
-     * 在BMCL API源获取版本列表
-     */
     private fun fetchListWithBMCLAPI(): MirrorSource<List<NeoForgeVersion>?> = MirrorSource(
         type = SourceType.BMCLAPI
     ) {
@@ -101,9 +92,6 @@ object NeoForgeVersions {
         }
     }
 
-    /**
-     * 统一处理任务，处理异常、排序
-     */
     private suspend fun processVersionList(
         sourceType: SourceType,
         block: suspend () -> List<NeoForgeVersion>
@@ -120,8 +108,5 @@ object NeoForgeVersions {
         }
     }
 
-    /**
-     * 获取 NeoForge 对应版本的下载链接
-     */
     fun getDownloadUrl(version: NeoForgeVersion) = "${version.baseUrl}-installer.jar"
 }

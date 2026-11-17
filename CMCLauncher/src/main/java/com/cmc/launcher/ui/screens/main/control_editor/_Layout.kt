@@ -60,7 +60,6 @@ import com.cmc.launcher.ui.theme.itemColor
 import com.cmc.launcher.ui.theme.onItemColor
 import com.cmc.launcher.utils.animation.getAnimateTween
 
-
 @Composable
 fun InfoLayoutSliderItem(
     modifier: Modifier = Modifier,
@@ -122,9 +121,6 @@ fun InfoLayoutSliderItem(
     }
 }
 
-/**
- * 列表信息设置项
- */
 @Composable
 fun <E> InfoLayoutListItem(
     modifier: Modifier = Modifier,

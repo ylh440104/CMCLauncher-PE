@@ -161,7 +161,6 @@ fun MirrorSettingScreen(
                 }
             }
 
-
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),

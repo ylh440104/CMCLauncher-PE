@@ -7,22 +7,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/**
- * 根据屏幕宽与高计算的屏幕类型
- */
 enum class ScreenType {
-    /** 手表 */
+
     Watch,
-    /** 平板 */
+
     Tablet,
-    /** 手机 */
+
     Phone
 }
 
-/**
- * [BoxWithConstraints] 包装函数，便于自动判断当前设备的屏幕类型
- * @param content 包含屏幕类型枚举
- */
 @Composable
 fun ScreenTypeLayout(
     modifier: Modifier = Modifier,

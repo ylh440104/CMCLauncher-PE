@@ -24,33 +24,22 @@ import kotlin.io.path.exists
 
 private const val TAG = "GamePathManager"
 
-/**
- * 游戏目录管理，为支持将游戏文件保存至不同的路径
- */
 object GamePathManager {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val mutex = Mutex()
     private val defaultGamePath = File(PathManager.DIR_FILES_EXTERNAL, ".minecraft").absolutePath
-    /**
-     * 默认游戏目录的ID
-     */
+
     const val DEFAULT_ID = "default"
 
     private val _gamePathData = MutableStateFlow<List<GamePath>>(listOf())
     val gamePathData = _gamePathData.asStateFlow()
 
     private val _currentPath = MutableStateFlow(defaultGamePath)
-    /** 当前选择的路径 */
+
     val currentPath = _currentPath.asStateFlow()
 
-    /**
-     * 启动器默认游戏目录
-     */
     fun getDefaultPath(): String = defaultGamePath
 
-    /**
-     * 当前用户路径
-     */
     fun getUserPath(): String = File(_currentPath.value).parentFile!!.absolutePath
 
     private lateinit var database: AppDatabase
@@ -67,11 +56,11 @@ object GamePathManager {
                 _gamePathData.update { emptyList() }
 
                 val newValue = mutableListOf<GamePath>()
-                //添加默认游戏目录
+
                 newValue.add(0, GamePath(DEFAULT_ID, "", defaultGamePath))
 
                 run parseConfig@{
-                    //从数据库中加载游戏目录
+
                     val paths = gamePathDao.getAllPaths()
                     newValue.addAll(paths.sortedBy { it.title })
                 }
@@ -91,9 +80,6 @@ object GamePathManager {
         }
     }
 
-    /**
-     * 执行在路径列表刷新完成后可执行的任务
-     */
     suspend fun waitForRefresh() {
         mutex.withLock {}
     }
@@ -109,30 +95,16 @@ object GamePathManager {
         }
     }
 
-    /**
-     * 查找是否存在指定id的项
-     */
     fun containsId(id: String): Boolean = _gamePathData.value.any { it.id == id }
 
-    /**
-     * 查找是否存在指定path的项
-     */
     fun containsPath(path: String): Boolean = _gamePathData.value.any { it.path == path }
 
-    /**
-     * 修改并保存指定目录的标题
-     * @throws IllegalArgumentException 未找到匹配项
-     */
     fun modifyTitle(path: GamePath, modifiedTitle: String) {
         if (!containsId(path.id)) throw IllegalArgumentException("Item with ID ${path.id} not found, unable to rename.")
         path.title = modifiedTitle
         savePath(path)
     }
 
-    /**
-     * 添加新的路径并保存
-     * @throws IllegalArgumentException 当前添加的路径与现有项冲突
-     */
     fun addNewPath(title: String, path: String) {
         if (containsPath(path)) throw IllegalArgumentException("The path conflicts with an existing item!")
         savePath(
@@ -140,26 +112,15 @@ object GamePathManager {
         )
     }
 
-    /**
-     * 删除路径并保存
-     */
     fun removePath(path: GamePath) {
         if (!containsId(path.id)) return
         deletePath(path)
     }
 
-    /**
-     * 保存为默认的游戏目录
-     */
     fun saveDefaultPath(reloadVersions: Boolean = true) {
         saveCurrentPathUncheck(DEFAULT_ID, reloadVersions)
     }
 
-    /**
-     * 保存当前选择的路径
-     * @throws IllegalStateException 未授予存储/管理所有文件权限
-     * @throws IllegalArgumentException 未找到匹配项
-     */
     fun saveCurrentPath(id: String, reloadVersions: Boolean = true) {
         if (canHandlePermission && !hasStoragePermission) throw IllegalStateException("Storage permissions are not granted")
         if (!containsId(id)) throw IllegalArgumentException("No match found!")
@@ -175,7 +136,7 @@ object GamePathManager {
     private fun refreshCurrentPath(reloadVersions: Boolean) {
         val id = currentGamePathId.getValue()
         _gamePathData.value.find { it.id == id }?.let { item ->
-            if (_currentPath.value == item.path) return //避免重复刷新
+            if (_currentPath.value == item.path) return
             val path = item.path
             _currentPath.update { path }
             path.createNoMediaFile()

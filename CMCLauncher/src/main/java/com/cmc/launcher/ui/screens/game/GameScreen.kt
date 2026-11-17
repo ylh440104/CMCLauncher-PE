@@ -117,56 +117,53 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAG = "GameScreen"
 
-/** 帧率历史记录的最大时间节点数 */
 private const val FPS_HISTORY_SIZE = 15
-/** 最高/最低帧所在节点被清理后，重算前等待的时间节点数 */
+
 private const val FPS_RESYNC_NODES = 10
 
 private class GameViewModel(
     private val version: Version,
     private val onChangeTextInputMode: (TextInputMode?) -> Unit
 ) : ViewModel() {
-    /** 游戏菜单操作状态 */
+
     var gameMenuState by mutableStateOf(MenuState.NONE)
-    /** 游戏菜单-控制设置区域Tab选择的索引 */
-    /** 强制关闭弹窗操作状态 */
+
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
-    /** 发送键值操作状态 */
+
     var sendKeycodeState by mutableStateOf<SendKeycodeState>(SendKeycodeState.None)
-    /** 更换控制布局操作状态 */
+
     var replacementControlState by mutableStateOf<ReplacementControlState>(ReplacementControlState.None)
-    /** 被控制布局层标记为仅滑动的指针列表 */
+
     var moveOnlyPointers = mutableSetOf<PointerId>()
-    /** 鼠标触摸指针处理层占用指针列表 */
+
     var occupiedPointers = mutableSetOf<PointerId>()
 
-    /** 游戏内帧率状态 */
     var gameFps by mutableIntStateOf(0)
         private set
-    /** 帧率历史记录（最多保留最近15个时间节点） */
+
     var fpsHistory by mutableStateOf<List<Int>>(emptyList())
         private set
-    /** 记录范围内的历史最高帧 */
+
     var fpsMax by mutableIntStateOf(0)
         private set
-    /** 记录范围内的历史最低帧 */
+
     var fpsMin by mutableIntStateOf(0)
         private set
-    /** 最高帧重算倒计时（时间节点数），-1 表示无需重算 */
+
     private var fpsMaxResyncCountdown = -1
-    /** 最低帧重算倒计时（时间节点数），-1 表示无需重算 */
+
     private var fpsMinResyncCountdown = -1
     private var fpsJob: Job? = null
-    /** 开始帧率捕获 */
+
     fun startFpsCapture() {
         if (fpsJob?.isActive == true) return
-        //新一轮捕获，重置历史记录
+
         fpsHistory = emptyList()
         fpsMax = 0
         fpsMin = 0
         fpsMaxResyncCountdown = -1
         fpsMinResyncCountdown = -1
-        //开启一个新的协程，每秒更新一次帧率数据
+
         fpsJob = viewModelScope.launch(Dispatchers.Default) {
             while (true) {
                 runCatching {
@@ -179,20 +176,15 @@ private class GameViewModel(
             }
         }
     }
-    /** 停止帧率捕获 */
+
     fun stopFpsCapture() {
         fpsJob?.cancel()
         fpsJob = null
     }
 
-    /**
-     * 记录一次帧率采样，并维护记录范围内的最高/最低帧。
-     * 被清理的最老节点若恰好是最高/最低帧，不立即重算：
-     * 若之后10个时间节点内没有出现更高/更低的帧，才用当前记录的所有节点重算一次
-     */
     private fun recordFps(fps: Int) {
         gameFps = fps
-        //衰减重算倒计时，归零说明等待期内没有出现更高/更低的帧
+
         if (fpsMaxResyncCountdown > 0) fpsMaxResyncCountdown--
         if (fpsMinResyncCountdown > 0) fpsMinResyncCountdown--
         if (fpsMaxResyncCountdown == 0) {
@@ -219,7 +211,6 @@ private class GameViewModel(
         }
         fpsHistory = fpsHistory + fps
 
-        //超出最大节点数时清理最老的节点
         if (fpsHistory.size > FPS_HISTORY_SIZE) {
             val removed = fpsHistory.first()
             fpsHistory = fpsHistory.drop(1)
@@ -234,17 +225,16 @@ private class GameViewModel(
 
     var editorRefresh by mutableIntStateOf(0)
         private set
-    /** 可观察的控制布局 */
+
     var observableLayout by mutableStateOf<ObservableControlLayout?>(null)
         private set
-    /** 当前控制布局文件 */
+
     var currentControlFile by mutableStateOf<File?>(null)
         private set
-    /** 控制布局：控件层隐藏状态 */
+
     var controlLayerHideState by mutableStateOf(HideLayerWhen.None)
         private set
 
-    /** 是否正在编辑布局 */
     var isEditingLayout by mutableStateOf(false)
         private set
 
@@ -252,19 +242,15 @@ private class GameViewModel(
         if (controlLayerHideState != hideWhen) controlLayerHideState = hideWhen
     }
 
-    /** 虚拟鼠标滚动事件处理 */
     val mouseScrollUpEvent = MouseScrollEvent(viewModelScope, 1.0)
     val mouseScrollDownEvent = MouseScrollEvent(viewModelScope, -1.0)
 
-    /** 游戏内消息发送器 */
     val gameTextSender = GameTextSender(viewModelScope)
 
-    /** 控制布局控件点击事件处理器 */
     val eventHandler = EventHandler { event, pressed ->
         onKeyEvent(event, pressed)
     }
 
-    /** 处理控制布局类点击事件 */
     fun onKeyEvent(event: ClickEvent, pressed: Boolean) {
         val key = event.key
         when (event.type) {
@@ -290,7 +276,7 @@ private class GameViewModel(
                 )
             }
             ClickEvent.Type.SendText -> {
-                //游戏内文本发送事件
+
                 if (pressed) {
                     val text = event.key
                     val inGame = ZLBridgeStates.cursorMode.value == CURSOR_DISABLED
@@ -314,11 +300,11 @@ private class GameViewModel(
             withContext(Dispatchers.Main) {
                 observableLayout = null
                 val layout = withContext(Dispatchers.IO) {
-                    delay(10L.milliseconds) //刻意等待一会再加载
+                    delay(10L.milliseconds)
                     currentControlFile = layoutFile
                     getLayout(layoutFile)
                 }
-                //将控制布局加载为可供Compose加载的形式
+
                 observableLayout = ObservableControlLayout(layout)
             }
         }
@@ -335,9 +321,6 @@ private class GameViewModel(
         } ?: EmptyControlLayout
     }
 
-    /**
-     * 开始编辑控制布局模式
-     */
     fun startControlEditor(editorVM: EditorViewModel) {
         if (!isEditingLayout) {
             clearState()
@@ -346,9 +329,6 @@ private class GameViewModel(
         }
     }
 
-    /**
-     * 退出编辑控制布局模式（如果当前确实正在编辑控制布局）
-     */
     fun exitControlEditor() {
         viewModelScope.launch(Dispatchers.Main) {
             if (isEditingLayout) {
@@ -359,16 +339,10 @@ private class GameViewModel(
         }
     }
 
-    /**
-     * 切换游戏菜单
-     */
     fun switchMenu() {
         this.gameMenuState = this.gameMenuState.next()
     }
 
-    /**
-     * 清除所有游戏状态
-     */
     fun clearState() {
         mouseScrollUpEvent.cancel()
         mouseScrollDownEvent.cancel()
@@ -389,34 +363,21 @@ private class GameViewModel(
     }
 }
 
-/**
- * 鼠标滚轮事件管理
- * @param offset 滚轮滚动距离
- */
 private class MouseScrollEvent(
     private val scope: CoroutineScope,
     private val offset: Double
 ) {
     private var mouseScrollJob: Job? = null
 
-    /**
-     * 取消滚动事件，并重置状态
-     */
     fun cancel() {
         mouseScrollJob?.cancel()
         mouseScrollJob = null
     }
 
-    /**
-     * 单击响应一次滚轮滚动事件
-     */
     fun scrollSingle() {
         CallbackBridge.sendScroll(0.0, offset)
     }
 
-    /**
-     * 长按不间断触发滚轮滚动事件
-     */
     fun scrollLongPress() {
         mouseScrollJob?.cancel()
         mouseScrollJob = scope.launch {
@@ -434,14 +395,8 @@ private class MouseScrollEvent(
     }
 }
 
-/**
- * 游戏内消息发送器
- */
 private class GameTextSender(private val scope: CoroutineScope) {
-    /**
-     * @param text 要发送的文本
-     * @param inGame 当前是否处于游戏内，如果在游戏中，则会尝试打开聊天栏
-     */
+
     data class Data(
         val text: String,
         val inGame: Boolean
@@ -457,9 +412,6 @@ private class GameTextSender(private val scope: CoroutineScope) {
         job = null
     }
 
-    /**
-     * 尝试向游戏发送文本（排队发送）
-     */
     fun send(data: Data) {
         if (job?.isActive != true || messageChannel == null) {
             job?.cancel()
@@ -480,7 +432,7 @@ private class GameTextSender(private val scope: CoroutineScope) {
 
     private suspend fun sendMessage(text: String, inGame: Boolean) {
         withContext(Dispatchers.Main) {
-            // 仅 SDL 渲染路径（MC 26.3+）经 SDL 通道提交；仅手柄子系统初始化 SDL 时游戏输入仍走 GLFW 桥
+
             val useSdl = SdlBridge.sdlEnabled && SdlBridge.isSdlRenderActive()
 
             fun sendText() {
@@ -494,12 +446,11 @@ private class GameTextSender(private val scope: CoroutineScope) {
             }
 
             if (inGame) {
-                //根据options.txt中的配置，找到打开聊天栏的键
-                //如果找不到，则忽略这次事件
+
                 mapToKeycode(OPEN_CHAT, OPEN_CHAT_VALUE)?.let { openChat ->
                     if (useSdl) {
                         SdlTextSender.sendKey(openChat)
-                        // 等待游戏侧激活文本输入通道，未激活就提交的文本会被 SDL 丢弃
+
                         if (SdlTextSender.awaitTextInputActive()) {
                             sendText()
                             delay(50L.milliseconds)
@@ -514,7 +465,7 @@ private class GameTextSender(private val scope: CoroutineScope) {
                     }
                 }
             } else {
-                //如果当前不在游戏内，则直接发送文本
+
                 sendText()
             }
         }
@@ -572,7 +523,7 @@ fun GameScreen(
     )
 
     LaunchedEffect(viewModel.isEditingLayout, viewModel.gameMenuState) {
-        //向VMActivity同步状态，编辑控制布局或打开游戏菜单时，不会继续处理按键事件
+
         val allowKeyHandle = !viewModel.isEditingLayout && viewModel.gameMenuState != MenuState.SHOW
         eventViewModel.sendEvent(EventViewModel.Event.Game.KeyHandle(allowKeyHandle))
     }
@@ -623,7 +574,7 @@ fun GameScreen(
             }
 
             if (AllSettings.gamepadControl.state && gamepadViewModel.gamepadEngaged) {
-                //手柄事件监听
+
                 GamepadKeyListener(
                     gamepadViewModel = gamepadViewModel,
                     isGrabbing = isGrabbing,
@@ -634,7 +585,6 @@ fun GameScreen(
                     }
                 )
 
-                //手柄摇杆控制移动事件监听
                 GamepadStickMovementListener(
                     gamepadViewModel = gamepadViewModel,
                     isGrabbing = isGrabbing,
@@ -644,7 +594,6 @@ fun GameScreen(
                 )
             }
 
-            //控制布局层
             ControlBoxLayout(
                 modifier = Modifier.fillMaxSize(),
                 observedLayout = viewModel.observableLayout,
@@ -658,7 +607,7 @@ fun GameScreen(
                 hideLayerWhen = viewModel.controlLayerHideState,
                 isDark = isLauncherInDarkTheme()
             ) {
-                //虚拟鼠标控制层
+
                 MouseControlLayout(
                     isTouchProxyEnabled = isTouchProxyEnabled,
                     modifier = Modifier.fillMaxSize(),
@@ -678,7 +627,6 @@ fun GameScreen(
                 )
             }
 
-            //物品栏触发层
             val gameDisplayLayout = currentGameDisplayLayout(screenSize)
             MinecraftHotbar(
                 screenSize = screenSize,
@@ -695,7 +643,6 @@ fun GameScreen(
             )
         }
 
-        //陀螺仪控制
         val isGyroscopeAvailable = remember(context) {
             isGyroscopeAvailable(context = context)
         }
@@ -756,13 +703,12 @@ fun GameScreen(
         )
 
         if (AllSettings.gamepadControl.state) {
-            //手柄事件捕获层
+
             SimpleGamepadCapture(
                 gamepadViewModel = gamepadViewModel
             )
         }
 
-        //手柄输入模式选择询问
         GamepadModePromptDialog(
             visible = gamepadViewModel.modePromptVisible,
             onConfirm = { mode ->
@@ -790,7 +736,7 @@ fun GameScreen(
             }
         } else {
             if (AllSettings.showMenuBall.state) {
-                //在这里根据设置决定是否启用帧率捕获协程
+
                 val showFps = AllSettings.showFPS.state
                 DisposableEffect(showFps) {
                     if (showFps) viewModel.startFpsCapture()
@@ -830,7 +776,7 @@ fun GameScreen(
                 when (event) {
                     is EventViewModel.Event.Game.OnBack -> {
                         if (viewModel.isEditingLayout) {
-                            //处于控制布局编辑模式
+
                             editorViewModel.onBackPressed(
                                 context = context,
                                 onExit = {
@@ -840,7 +786,7 @@ fun GameScreen(
                         } else if (!AllSettings.showMenuBall.getValue()) {
                             viewModel.switchMenu()
                         } else {
-                            //按下返回键
+
                             val event = ClickEvent(
                                 type = ClickEvent.Type.Key,
                                 key = ControlEventKeycode.GLFW_KEY_ESCAPE
@@ -853,7 +799,7 @@ fun GameScreen(
                     is EventViewModel.Event.Game.OnResume -> {
                         viewModel.clearState()
                     }
-                    else -> { /*忽略*/ }
+                    else -> {  }
                 }
             }
     }
@@ -886,7 +832,6 @@ private fun GameInfoBox(
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
 
-                    //提示信息
                     Column(
                         modifier = Modifier.weight(1f, fill = false),
                         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -936,17 +881,6 @@ private fun PreviewGameInfoBox() {
     }
 }
 
-/**
- * 鼠标控制层
- * @param isTouchProxyEnabled 是否启用控制代理（TouchController模组支持）
- * @param cursorMode 当前鼠标模式
- * @param textInputMode 输入法状态
- * @param isMoveOnlyPointer 检查指针是否被标记为仅处理滑动事件
- * @param onOccupiedPointer 标记指针已被占用
- * @param onReleasePointer 标记指针已被释放
- * @param onMouseMoved 实体鼠标操作时回调
- * @param onTouch 手指触摸操作鼠标层时回调
- */
 @Composable
 private fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,

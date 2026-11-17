@@ -15,31 +15,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.nio.file.AccessDeniedException
 import java.nio.file.NoSuchFileException
 
-/** 文件名最大长度 */
 private const val MAX_FILENAME_LENGTH = 255
 
-/** 选中集合的元素键：归一化路径字符串，规避 Path 实例 hashCode 差异 */
 fun entryPathKey(entry: FmEntry): String = entry.path.normalize().toAbsolutePath().toString()
 
-/**
- * 文件管理器共享状态
- */
 class FmStateStore(private val context: Context) {
 
-    /** 当前目录导航历史 */
     lateinit var history: NavHistory
 
     var clipboard: FmClipboard? = null
         private set
 
-    /** 选中集合（归一化路径字符串） */
     var selection: Set<String> = emptySet()
     var rangeAnchorKey: String? = null
 
-    /** 单条目删除确认暂存的条目键 */
     var stagedSingleDeleteKey: String? = null
 
-    /** 待清理的导入临时目录 */
     var pendingImportTempDir: java.nio.file.Path? = null
 
     private val _state = MutableStateFlow(FileManagerUiState())
@@ -103,7 +94,6 @@ class FmStateStore(private val context: Context) {
         )
     }
 
-    /** 清空选中并退出多选 */
     fun clearSelectionAndExitMulti() {
         rangeAnchorKey = null
         setSelection(emptySet(), false)

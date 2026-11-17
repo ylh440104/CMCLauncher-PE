@@ -76,36 +76,27 @@ import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.ui.theme.onItemColor
 import com.cmc.launcher.utils.formatNumberByLocale
 
-/**
- * 下载对话框中的依赖项
- * @param dependency 依赖信息
- * @param project 依赖项目信息，为null代表信息获取失败
- * @param notFound 依赖项目在平台上不存在
- */
 class DependencyEntry(
     val dependency: PlatformVersion.PlatformDependency,
     val project: PlatformProject?,
     val notFound: Boolean = false
 )
 
-/**
- * 操作状态：下载单个资源文件
- */
 sealed interface DownloadSingleOperation {
     data object None : DownloadSingleOperation
-    /** 警告用户正在使用移动网络 */
+
     data class WarningForMobileData(
         val classes: PlatformClasses,
         val version: PlatformVersion,
         val dependencyEntries: List<DependencyEntry>
     ) : DownloadSingleOperation
-    /** 选择版本 */
+
     data class SelectVersion(
         val classes: PlatformClasses,
         val version: PlatformVersion,
         val dependencyEntries: List<DependencyEntry>
     ) : DownloadSingleOperation
-    /** 安装 */
+
     data class Install(
         val classes: PlatformClasses,
         val version: PlatformVersion,
@@ -133,7 +124,7 @@ fun DownloadSingleOperation(
                     changeOperation(DownloadSingleOperation.None)
                 },
                 onConfirm = {
-                    //用户坚持使用移动网络
+
                     changeOperation(
                         DownloadSingleOperation.SelectVersion(
                             classes = operation.classes,
@@ -206,10 +197,9 @@ private fun DownloadDialog(
             onDismiss = onDismiss
         )
     } else {
-        //当前选择的版本，将会把资源安装到该版本
+
         val selectedVersions = remember { mutableStateListOf(version0) }
 
-        //拆分依赖项目、可选项目
         val dependencies = remember(dependencyEntries) {
             dependencyEntries.filter { it.dependency.type == PlatformDependencyType.REQUIRED }
         }
@@ -218,7 +208,6 @@ private fun DownloadDialog(
         }
         val hasDeps = dependencies.isNotEmpty() || optionals.isNotEmpty()
 
-        //用户是否手动修改过依赖的勾选状态
         var userChangedDependencies by remember(dependencyEntries) { mutableStateOf(false) }
 
         val selectedDependencyKeys = remember(dependencyEntries) { mutableStateListOf<String>() }
@@ -231,8 +220,6 @@ private fun DownloadDialog(
             }
         }
 
-        // 默认勾选必装依赖，本地已安装的模组依赖默认不勾选
-        // 已安装信息可能晚于对话框到达，用户未手动修改过时重新套用默认状态
         LaunchedEffect(dependencyEntries, installedProjects, userChangedDependencies) {
             if (userChangedDependencies) return@LaunchedEffect
             selectedDependencyKeys.clear()
@@ -344,7 +331,6 @@ private fun DownloadDialog(
                                     }
                                 }
 
-                                //选择游戏版本
                                 ChoseGameVersionLayout(
                                     modifier = Modifier.fadeEdge(state = listState),
                                     versions = versions,
@@ -499,12 +485,12 @@ private fun LazyListScope.dependencyLayout(
             style = MaterialTheme.typography.labelLarge
         )
     }
-    //前置项目列表
+
     items(list) { entry ->
         val dependency = entry.dependency
         val project = entry.project
         if (project == null) {
-            //依赖项目信息获取失败，展示占位项且不可选
+
             AddonUnavailableDependencyItem(
                 modifier = Modifier.fillMaxWidth(),
                 title = dependency.projectId ?: dependency.versionId.orEmpty(),
@@ -534,14 +520,8 @@ private fun LazyListScope.dependencyLayout(
     }
 }
 
-/**
- * 是否可安装：依赖项目信息获取成功的才能被选中安装
- */
 private fun DependencyEntry.isInstallable(): Boolean = project != null
 
-/**
- * 该依赖是否为本地已安装的模组项目
- */
 private fun DependencyEntry.isModInstalled(
     installedProjects: Map<Platform, Set<String>>,
     defaultClasses: PlatformClasses
@@ -551,9 +531,6 @@ private fun DependencyEntry.isModInstalled(
             installedProjects[dependency.platform]?.contains(project.platformId()) == true
 }
 
-/**
- * 依赖项目信息获取失败时的占位项
- */
 @Composable
 private fun AddonUnavailableDependencyItem(
     modifier: Modifier = Modifier,
@@ -628,7 +605,6 @@ private fun AddonVersionDependencyItem(
 ) {
     val context = LocalContext.current
 
-    //项目基本信息
     val platform = remember { project.platform() }
     val title = remember { project.platformTitle() }
     val summary = remember { project.platformSummary() }
@@ -688,7 +664,7 @@ private fun AddonVersionDependencyItem(
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // 作者
+
                         authors?.let {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -706,7 +682,6 @@ private fun AddonVersionDependencyItem(
                             }
                         }
 
-                        // 下载量
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -722,7 +697,6 @@ private fun AddonVersionDependencyItem(
                             )
                         }
 
-                        // 收藏数量（Modrinth）
                         followsCount?.let {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -741,7 +715,6 @@ private fun AddonVersionDependencyItem(
                         }
                     }
 
-                    //描述
                     Text(
                         text = summary,
                         style = MaterialTheme.typography.labelSmall,
@@ -752,7 +725,6 @@ private fun AddonVersionDependencyItem(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                //加载器标签与已安装标注
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -774,9 +746,6 @@ private fun AddonVersionDependencyItem(
     }
 }
 
-/**
- * 依赖项目支持的模组加载器标签
- */
 @Composable
 private fun AddonDependencyTags(
     modifier: Modifier = Modifier,

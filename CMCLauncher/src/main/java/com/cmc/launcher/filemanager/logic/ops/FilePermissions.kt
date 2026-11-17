@@ -21,7 +21,7 @@ object FilePermissions {
             val permissions = if (isDir) DIR_PERMS else FILE_PERMS
             Files.setPosixFilePermissions(path, permissions)
         } catch (_: UnsupportedOperationException) {
-            //文件系统不支持 POSIX 权限，忽略
+
         } catch (e: Exception) {
             FmLog.warn(TAG, "Failed to set permissions on $path", e)
         }

@@ -64,22 +64,15 @@ import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.utils.animation.getAnimateTween
 import com.cmc.launcher.utils.getTimeAgo
 
-/** Addon 加载状态 */
 sealed interface AddonState {
-    /** 已完成加载 */
+
     data object None : AddonState
-    /** 加载中 */
+
     data object Loading : AddonState
-    /**
-     * 加载出现异常
-     * @param message 异常消息代理对象
-     */
+
     data class Error(val message: AndroidStringText): AddonState
 }
 
-/**
- * 简易 Addon 文本占位
- */
 @Composable
 private fun AddonTextLayout(
     modifier: Modifier = Modifier,
@@ -98,9 +91,6 @@ private fun AddonTextLayout(
     )
 }
 
-/**
- * 简易 Addon 文本占位
- */
 @Composable
 private fun AddonTextLayout(
     modifier: Modifier = Modifier,
@@ -119,9 +109,6 @@ private fun AddonTextLayout(
     )
 }
 
-/**
- * 简易 Addon 文本占位
- */
 @Composable
 private fun AddonTextLayout(
     modifier: Modifier = Modifier,
@@ -140,19 +127,6 @@ private fun AddonTextLayout(
     }
 }
 
-/**
- * Addon 版本列表
- * @param state Addon 当前的加载状态
- * @param items Addon 版本列表
- * @param current 当前选择的 Addon 版本
- * @param incompatibleSet 当前 Addon 的不兼容列表
- * @param checkIncompatible 检查当前的 Addon 的不兼容情况
- * @param triggerCheckIncompatible 手动触发检查不兼容情况
- * @param error 设置错误名称，让该列表不可用
- * @param iconPainter Addon 的图标
- * @param maxListHeight 列表展开最高显示高度
- * @param autoCollapse 选择版本后是否自动收起
- */
 @Composable
 fun <E> AddonListLayout(
     modifier: Modifier = Modifier,
@@ -180,7 +154,7 @@ fun <E> AddonListLayout(
     var selectedItem by remember { mutableStateOf<E?>(null) }
 
     LaunchedEffect(state, selectedItem, *triggerCheckIncompatible) {
-        //加载状态 || 选择项变更 || 手动触发，检查一次不兼容情况
+
         checkIncompatible()
     }
 
@@ -195,7 +169,6 @@ fun <E> AddonListLayout(
         if (autoCollapse) expanded = false
     }
 
-    //不兼容列表不为空，清除当前Addon的选择
     LaunchedEffect(incompatibleSet) {
         if (incompatibleSet.isNotEmpty()) clear()
     }
@@ -222,7 +195,7 @@ fun <E> AddonListLayout(
                 incompatibleSet = incompatibleSet,
                 error = error,
                 expanded = expanded,
-                //加载已完成 && 版本列表不为空 && 不兼容列表为空 && 错误名称为 null -> 可展开
+
                 enabled = state == AddonState.None && !items.isNullOrEmpty() && incompatibleSet.isEmpty() && error == null,
                 onClick = { expanded = !expanded },
                 onClear = ::clear,
@@ -468,7 +441,7 @@ fun OptiFineVersionSummary(
         modifier = Modifier.alpha(alpha = 0.7f),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        //版本状态
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -480,7 +453,7 @@ fun OptiFineVersionSummary(
             )
             Text(text = typeText, style = textStyle)
         }
-        //发布时间
+
         optifine.releaseDate.takeIf { it.isNotEmpty() }?.let { releaseDate ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -495,7 +468,6 @@ fun OptiFineVersionSummary(
             }
         }
 
-        //兼容状态
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -539,7 +511,7 @@ fun ForgeVersionSummary(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         if (forgeVersion.isRecommended) {
-            //Forge 官方推荐
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -555,7 +527,7 @@ fun ForgeVersionSummary(
                 )
             }
         }
-        //发布时间
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -586,7 +558,7 @@ fun NeoForgeSummary(
         modifier = Modifier.alpha(alpha = 0.7f),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        //版本状态
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -617,7 +589,7 @@ fun FabricLikeSummary(
         modifier = Modifier.alpha(alpha = 0.7f),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        //版本状态
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -644,7 +616,7 @@ fun ModSummary(
         modifier = Modifier.alpha(alpha = 0.7f),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        //版本状态
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -659,7 +631,7 @@ fun ModSummary(
                 style = textStyle
             )
         }
-        //更新时间
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically

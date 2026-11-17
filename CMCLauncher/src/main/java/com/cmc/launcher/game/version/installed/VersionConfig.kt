@@ -155,9 +155,6 @@ class VersionConfig(
         touchVibrateKind,
     )
 
-    /**
-     * 判断此配置与另一个配置所承载的设置是否存在差异
-     */
     fun isModified(other: VersionConfig): Boolean {
         return getSettingStateNotNull(isolationType) != getSettingStateNotNull(other.isolationType) ||
                 getSettingStateNotNull(skipGameIntegrityCheck) != getSettingStateNotNull(other.skipGameIntegrityCheck) ||
@@ -301,7 +298,7 @@ class VersionConfig(
             return runCatching getConfig@{
                 when {
                     configFile.exists() -> {
-                        //读取此文件的内容，并解析为VersionConfig
+
                         val config = GSON.fromJson(configFile.readText(), VersionConfig::class.java)
                         config.setVersionPath(versionPath)
                         config
@@ -326,10 +323,6 @@ class VersionConfig(
             return config
         }
 
-        /**
-         * 为整合包创建版本配置：如果整合包通过 overrides 预置了 CMCLauncher/version.config，
-         * 则沿用其中的渲染器、驱动与图形 API 设置，其余设置保持默认
-         */
         fun createIsolationForModPack(versionPath: File): VersionConfig {
             val config = createIsolation(versionPath)
             val presetFile = File(getLauncherVersionPath(versionPath), "version.config")
@@ -363,16 +356,16 @@ enum class GraphicsApi(
     val displayName: String,
     val option: String
 ) {
-    /** 默认使用游戏设定 */
+
     @SerializedName("DEFAULT")
     DEFAULT("", "\"default\""),
-    /** 强制切换到OpenGL，覆盖游戏原有设定 */
+
     @SerializedName("OPENGL")
     OPENGL("OpenGL", "\"opengl\""),
-    /** 默认切换到OpenGL，如果游戏有设定过则不覆盖 */
+
     @SerializedName("DEFAULT_OPENGL")
     DEFAULT_OPENGL(OPENGL.displayName, OPENGL.option),
-    /** 强制切换到Vulkan，覆盖游戏原有设定 */
+
     @SerializedName("VULKAN")
     VULKAN("Vulkan", "\"vulkan\"")
 }

@@ -24,27 +24,18 @@ object VersionsManager {
     private val mutex = Mutex()
     private val listeners: MutableList<suspend () -> Unit> = CopyOnWriteArrayList()
 
-    /**
-     * 注册版本列表刷新监听器
-     */
     fun registerListener(listener: suspend () -> Unit) {
         listeners.add(listener)
     }
 
-    /**
-     * 移除版本列表刷新监听器
-     */
     fun unregisterListener(listener: suspend () -> Unit) {
         listeners.remove(listener)
     }
 
     private val _versions = MutableStateFlow<List<Version>>(emptyList())
-    /** 当前所有的游戏版本 */
+
     val versions = _versions.asStateFlow()
 
-    /**
-     * 当前的游戏信息
-     */
     var gameInfo: CurrentGameInfo? = null
         private set
 
@@ -54,24 +45,16 @@ object VersionsManager {
     private var currentJob: Job? = null
 
     private val _isRefreshing = MutableStateFlow(false)
-    /** 是否正在刷新版本 */
+
     val isRefreshing = _isRefreshing.asStateFlow()
 
-    /**
-     * 检查版本是否已经存在
-     */
     fun isVersionExists(versionName: String, checkJson: Boolean = false): Boolean {
         val folder = File(getVersionsHome(), versionName)
-        //保证版本文件夹存在的同时，也应保证其版本json文件存在
+
         return if (checkJson) File(folder, "${folder.name}.json").exists()
         else folder.exists()
     }
 
-    /**
-     * 刷新所有版本
-     * @param tag 是由谁发起的刷新，输出到日志方便定位
-     * @param trySetVersion 在刷新完成后尝试设置当前版本
-     */
     fun refresh(tag: String, trySetVersion: String? = null) {
         currentJob?.cancel()
         currentJob = scope.launch {
@@ -79,7 +62,6 @@ object VersionsManager {
                 _isRefreshing.update { true }
                 Logger.debug(TAG, "Initiated by $tag: starting to refresh the version list.")
 
-                //本次刷新绑定的游戏目录，避免刷新过程中目录切换导致数据串目录
                 val gameHome = getGameHome()
 
                 if (trySetVersion != null) {
@@ -110,7 +92,6 @@ object VersionsManager {
                     }
                 }
 
-                //清理随已失效的旧版本对象创建的 ViewModelStore（仍被承载屏幕持有的会被跳过）
                 VersionViewModelStores.clearStale(newVersions)
 
                 _isRefreshing.update { false }
@@ -118,9 +99,6 @@ object VersionsManager {
         }
     }
 
-    /**
-     * 执行在版本列表刷新完成后可执行的任务
-     */
     suspend fun waitForRefresh() {
         mutex.withLock {}
     }
@@ -135,22 +113,16 @@ object VersionsManager {
         return version
     }
 
-    /**
-     * 加载指定游戏目录下的单个版本
-     * @return 版本不存在或不是有效版本文件夹时返回 null
-     */
     fun loadVersion(gameHome: String, versionName: String): Version? {
         val versionFile = File(getVersionsHome(gameHome), versionName)
         if (!versionFile.exists() || !versionFile.isDirectory) return null
 
         var isVersion = false
 
-        //通过判断是否存在版本的.json文件，来确定其是否为一个版本
         val jsonFile = File(versionFile, "${versionFile.name}.json")
         val versionInfo = if (jsonFile.exists() && jsonFile.isFile) {
             parseJsonToVersionInfo(jsonFile)?.also {
-                //如果解析失败了，可能不是标准版本
-                //保险起见，只有解析成功了的版本，才会被判定为有效版本
+
                 isVersion = true
             }
         } else {
@@ -176,7 +148,7 @@ object VersionsManager {
 
             fun getVersionByFirst(): Version? {
                 return currentList.find { it.isValid() }?.apply {
-                    //确保版本有效
+
                     saveCurrentVersion(getVersionName(), refresh = false)
                 }
             }
@@ -206,19 +178,12 @@ object VersionsManager {
         return null
     }
 
-    /**
-     * 保存当前选择的版本
-     * @return 是否执行保存
-     */
     fun saveVersion(version: Version, refresh: Boolean = true): Boolean {
         if (!version.isValid()) return false
         saveCurrentVersion(version.getVersionName(), refresh)
         return true
     }
 
-    /**
-     * 保存当前选择的版本
-     */
     fun saveCurrentVersion(versionName: String, refresh: Boolean = true) {
         runCatching {
             gameInfo!!.apply {
@@ -234,24 +199,18 @@ object VersionsManager {
         }
     }
 
-    /**
-     * 重命名当前版本，但并不会在这里对即将重命名的名称，进行非法性判断
-     * @param refresh 重命名结束后，是否触发刷新
-     */
     fun renameVersion(
         version: Version,
         name: String,
         refresh: Boolean = true
     ) {
         val currentVersionName = _currentVersion.value?.getVersionName()
-        //如果当前的版本是即将被重命名的版本，那么就把将要重命名的名字设置为当前版本
+
         val saveToCurrent = version.getVersionName() == currentVersionName
 
         val versionFolder = version.getVersionPath()
         val renameFolder = File(version.getVersionsFolder(), name)
 
-        //不管重命名之后的文件夹是什么，只要这个文件夹存在，那么就必须删除
-        //否则将出现问题
         FileUtils.deleteQuietly(renameFolder)
 
         val originalName = versionFolder.name
@@ -269,50 +228,42 @@ object VersionsManager {
         FileUtils.deleteQuietly(versionFolder)
 
         if (saveToCurrent) {
-            //设置并刷新当前版本
+
             saveCurrentVersion(name, refresh = false)
         }
 
         if (refresh) refresh("VersionsManager.renameVersion")
     }
 
-    /**
-     * 将选中的版本复制为一个新的版本
-     * @param version 选中的版本
-     * @param name 新的版本的名称
-     * @param copyAllFile 是否复制全部文件
-     */
     fun copyVersion(version: Version, name: String, copyAllFile: Boolean) {
         val versionsFolder = version.getVersionsFolder()
         val newVersion = File(versionsFolder, name)
 
         val originalName = version.getVersionName()
 
-        //新版本的json与jar文件
         val newJsonFile = File(newVersion, "$name.json")
         val newJarFile = File(newVersion, "$name.jar")
 
         val originalVersionFolder = version.getVersionPath()
         if (copyAllFile) {
-            //启用复制所有文件时，直接将原文件夹整体复制到新版本
+
             FileUtils.copyDirectory(originalVersionFolder, newVersion)
-            //重命名json、jar文件
+
             val jsonFile = File(newVersion, "$originalName.json")
             val jarFile = File(newVersion, "$originalName.jar")
             if (jsonFile.exists()) jsonFile.renameTo(newJsonFile)
             if (jarFile.exists()) jarFile.renameTo(newJarFile)
         } else {
-            //不复制所有文件时，仅复制并重命名json、jar文件
+
             val originalJsonFile = File(originalVersionFolder, "$originalName.json")
             val originalJarFile = File(originalVersionFolder, "$originalName.jar")
             newVersion.mkdirs()
-            // versions/1.21.3/1.21.3.json -> versions/name/name.json
+
             if (originalJsonFile.exists()) originalJsonFile.copyTo(newJsonFile)
-            // versions/1.21.3/1.21.3.jar -> versions/name/name.jar
+
             if (originalJarFile.exists()) originalJarFile.copyTo(newJarFile)
         }
 
-        //保存版本配置文件
         version.getVersionConfig().copy().let { config ->
             config.setVersionPath(newVersion)
             config.isolationType = SettingState.ENABLE
@@ -322,9 +273,6 @@ object VersionsManager {
         refresh("VersionsManager.copyVersion")
     }
 
-    /**
-     * 删除版本
-     */
     fun deleteVersion(version: Version) {
         FileUtils.deleteQuietly(version.getVersionPath())
         refresh("VersionsManager.deleteVersion")

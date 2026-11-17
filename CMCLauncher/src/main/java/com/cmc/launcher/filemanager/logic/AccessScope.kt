@@ -7,7 +7,6 @@ import java.nio.file.Paths
 
 private const val TAG = "FileAccessScope"
 
-/** 访问范围控制器 */
 class AccessScope(val root: Path) {
     init {
         require(Files.isDirectory(root)) {
@@ -15,10 +14,6 @@ class AccessScope(val root: Path) {
         }
     }
 
-    /**
-     * 归一化并校验 [target] 位于 [root] 之内（相对路径以 [root] 为基础解析），返回归一化后的绝对路径
-     * @throws OutOfScopeException 越界时抛出
-     */
     fun guard(target: Path): Path {
         val resolved = resolveAgainstRoot(target)
         val normalized = resolved.normalize().toAbsolutePath()
@@ -26,17 +21,12 @@ class AccessScope(val root: Path) {
         return normalized
     }
 
-    /**
-     * 校验绝对路径 [target] 位于 [root] 之内，返回归一化后的绝对路径
-     * @throws OutOfScopeException 越界时抛出
-     */
     fun guardAbsolute(target: Path): Path {
         val normalized = target.normalize().toAbsolutePath()
         requireInside(normalized)
         return normalized
     }
 
-    /** 判断 [child] 是否是 [root] 的子项 */
     fun isUnder(child: Path): Boolean {
         val normalized = child.normalize().toAbsolutePath()
         return normalized == rootAbs || normalized.startsWith(rootAbs)
@@ -60,10 +50,7 @@ class AccessScope(val root: Path) {
     }
 
     companion object {
-        /**
-         * 通过字符串路径构建 [AccessScope]
-         * @throws IllegalArgumentException 根目录不存在时抛出
-         */
+
         fun ofRoot(rootPath: String): AccessScope {
             val root = Paths.get(rootPath).normalize().toAbsolutePath()
             if (!Files.isDirectory(root)) {
@@ -74,5 +61,4 @@ class AccessScope(val root: Path) {
     }
 }
 
-/** 超出可访问范围时抛出的异常，不携带越界路径细节 */
 class OutOfScopeException(message: String) : SecurityException(message)

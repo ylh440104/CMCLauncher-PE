@@ -13,10 +13,7 @@ abstract class AbstractAPI(
     val api: String,
     val root: String
 ) {
-    /**
-     * 上传日志到目标服务器，并生成链接
-     * @return 返回生成的链接
-     */
+
     @Throws(Exception::class)
     suspend fun onUpload(content: String): MCLogsResponse {
         return withContext(Dispatchers.IO) {

@@ -31,25 +31,16 @@ private const val AXIS_RESET_THRESHOLD = 0.4f
 class GamepadViewModel : ViewModel() {
     private val keyListeners = mutableListOf<(KeyEvent) -> Unit>()
 
-    /**
-     * 发送一个按键事件
-     */
     fun sendKeyEvent(event: KeyEvent) {
         keyListeners.forEach { listener ->
             listener(event)
         }
     }
 
-    /**
-     * 添加一个原生按键事件监听器
-     */
     fun registerKeyListener(listener: (KeyEvent) -> Unit) {
         this.keyListeners.add(listener)
     }
 
-    /**
-     * 移除一个原生按键事件监听器
-     */
     fun unregisterKeyListener(listener: (KeyEvent) -> Unit) {
         this.keyListeners.remove(listener)
     }
@@ -58,16 +49,10 @@ class GamepadViewModel : ViewModel() {
 
     private val actionListeners = mutableListOf<() -> Unit>()
 
-    /**
-     * 注册一个手柄活动监听者
-     */
     fun registerActionListener(listener: () -> Unit) {
         actionListeners.add(listener)
     }
 
-    /**
-     * 移除已注册的手柄活动监听者
-     */
     fun unregisterActionListener(listener: () -> Unit) {
         actionListeners.remove(listener)
     }
@@ -85,14 +70,10 @@ class GamepadViewModel : ViewModel() {
     var currentMapping: GamepadMappingList? = null
         private set
 
-    /** 左摇杆状态 */
     private val leftJoystick = Joystick(JoystickType.Left)
-    /** 右摇杆状态 */
+
     private val rightJoystick = Joystick(JoystickType.Right)
 
-    /**
-     * 手柄活动状态控制
-     */
     var gamepadEngaged by mutableStateOf(false)
         private set
 
@@ -103,36 +84,21 @@ class GamepadViewModel : ViewModel() {
         reloadAllMappings()
     }
 
-    /**
-     * 手柄输入模式选择询问是否正在显示
-     */
     var modePromptVisible by mutableStateOf(false)
         private set
 
-    /**
-     * 手柄活动上报：尚未完成选择询问时弹出对话框
-     * @return true 表示询问未完成，调用方应吞掉本次手柄输入，
-     * 保证选择确认前映射、SDL 直通、绑定向导均不响应手柄
-     */
     fun checkModePrompt(): Boolean {
         if (AllSettings.gamepadInputModePrompted.state) return false
         modePromptVisible = true
         return true
     }
 
-    /**
-     * 用户确认了模式选择，保存并关闭
-     */
     fun confirmModePrompt(selected: GamepadInputMode) {
         AllSettings.gamepadInputMode.save(selected)
         AllSettings.gamepadInputModePrompted.save(true)
         modePromptVisible = false
     }
 
-    /**
-     * 检查并更新手柄是否活动中
-     * @return 当前轮询频率等级
-     */
     fun checkGamepadActive(): PollLevel {
         val now = System.nanoTime()
 
@@ -149,7 +115,6 @@ class GamepadViewModel : ViewModel() {
         return pollLevel
     }
 
-    /** 激活状态更新 */
     private fun onActive() {
         notifyActivity()
         val wasInactive = !gamepadEngaged
@@ -160,9 +125,6 @@ class GamepadViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 通知手柄活动
-     */
     fun notifyActivity() {
         sendActionEvent()
     }
@@ -198,7 +160,7 @@ class GamepadViewModel : ViewModel() {
         }
 
         if (!movedOldData && listMMKV.count() == 0L) {
-            //当前没有任何的配置
+
             val list = createDefaultMapping(defaultName)
             AllSettings.gamepadMappingConfig.save(defaultName)
             listMMKV.encode(defaultName, list)
@@ -231,21 +193,12 @@ class GamepadViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 获取所有的手柄映射配置名称
-     */
     fun getAllConfigKeys(): List<String> {
         return mappingLists.map { it.name }
     }
 
-    /**
-     * 该名称是否已被保存的配置使用
-     */
     fun containsConfig(name: String): Boolean = listMMKV.containsKey(name)
 
-    /**
-     * 创建新的手柄映射配置
-     */
     fun createNewConfig(
         name: String,
         onContainsConfig: () -> Unit,
@@ -265,9 +218,6 @@ class GamepadViewModel : ViewModel() {
         onFinished()
     }
 
-    /**
-     * 创建一个默认的映射配置
-     */
     private fun createDefaultMapping(name: String): GamepadMappingList {
         val defaultMappings = mutableListOf<GamepadMapping>()
         GamepadMap.entries.forEach { entry ->
@@ -286,9 +236,6 @@ class GamepadViewModel : ViewModel() {
         )
     }
 
-    /**
-     * 删除一个手柄映射配置
-     */
     fun deleteConfig(
         name: String,
         onFinished: () -> Unit = {}
@@ -308,7 +255,7 @@ class GamepadViewModel : ViewModel() {
     fun updateMotion(axisCode: Int, value: Float) {
         onActive()
         when (axisCode) {
-            //更新摇杆状态
+
             GamepadRemap.MotionX.code -> leftJoystick.updateState(horizontal = value)
             GamepadRemap.MotionY.code -> leftJoystick.updateState(vertical = value)
             GamepadRemap.MotionZ.code -> rightJoystick.updateState(horizontal = value)
@@ -316,7 +263,7 @@ class GamepadViewModel : ViewModel() {
         }
 
         when (axisCode) {
-            //更新左右触发器状态
+
             GamepadRemap.MotionLeftTrigger.code,
             GamepadRemap.MotionRightTrigger.code -> {
                 checkAxisPress(
@@ -327,7 +274,6 @@ class GamepadViewModel : ViewModel() {
                 )
             }
 
-            //更新方向键状态
             GamepadRemap.MotionHatX.code -> {
                 updateDpad(DpadDirection.Left, value < -BUTTON_PRESS_THRESHOLD)
                 updateDpad(DpadDirection.Right, value > BUTTON_PRESS_THRESHOLD)
@@ -365,10 +311,6 @@ class GamepadViewModel : ViewModel() {
         sendEvent(Event.Dpad(direction, pressed))
     }
 
-    /**
-     * 轮询调用，持续发送当前拥有的摇杆状态
-     * @param deltaMs 距离上次轮询经过的毫秒数
-     */
     fun pollJoystick(deltaMs: Double) {
         leftJoystick.onTick(deltaMs, ::sendEvent)
         rightJoystick.onTick(deltaMs, ::sendEvent)
@@ -380,55 +322,29 @@ class GamepadViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 添加一个事件监听者，在事件发送时立即回调
-     */
     fun addEventListener(listener: (Event) -> Unit) {
         eventListeners.add(listener)
     }
 
-    /**
-     * 移除已添加的事件监听者
-     */
     fun removeEventListener(listener: (Event) -> Unit) {
         eventListeners.remove(listener)
     }
 
     sealed interface Event {
-        /**
-         * 手柄按钮按下/松开事件
-         * @param code 经过映射转化后的标准按钮键值
-         */
+
         data class Button(val code: Int, val pressed: Boolean) : Event
 
-        /**
-         * 手柄摇杆偏移量事件
-         * @param joystickType 摇杆类型（左、右）
-         */
         data class StickOffset(val joystickType: JoystickType, val offset: Offset) : Event
 
-        /**
-         * 手柄摇杆方向变更事件
-         * @param joystickType 摇杆类型（左、右）
-         */
         data class StickDirection(val joystickType: JoystickType, val direction: JoystickDirection) : Event
 
-        /**
-         * 手柄方向键按下/松开事件
-         * @param direction 方向
-         */
         data class Dpad(val direction: DpadDirection, val pressed: Boolean) : Event
     }
 
     enum class PollLevel(val delayMs: Long) {
-        /**
-         * 高轮询等级：4ms延迟 ≈ 250fps
-         */
+
         High(4L),
 
-        /**
-         * 不进行轮询
-         */
         Close(10_000L)
     }
 }

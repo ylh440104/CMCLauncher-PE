@@ -24,10 +24,6 @@ abstract class FabricLikeVersions(
 ) {
     private var cacheVersions: FabricLikeVersionsJson? = null
 
-    /**
-     * 通用 Loader 列表获取
-     * [Reference PCL2](https://github.com/Meloong-Git/PCL/blob/28ef67e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L1035-L1054)
-     */
     protected suspend fun fetchLoaderList(
         force: Boolean,
         tag: String,
@@ -41,7 +37,7 @@ abstract class FabricLikeVersions(
                 ).orderedByGameSourcePreference()
             )
         } ?: run {
-            //不支持镜像源，只使用官方源
+
             fetchListWithSource(force, tag, mcVersion, officialUrl)
         }
     }
@@ -56,9 +52,6 @@ abstract class FabricLikeVersions(
         fetchListWithSource(force, tag, mcVersion, sourceUrl)
     }
 
-    /**
-     * 指定特定源获取版本列表
-     */
     private suspend fun fetchListWithSource(
         force: Boolean,
         tag: String,

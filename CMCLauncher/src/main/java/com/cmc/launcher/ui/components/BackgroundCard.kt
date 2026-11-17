@@ -34,10 +34,6 @@ private fun flatCardElevation() = CardDefaults.cardElevation(
     disabledElevation = 0.dp
 )
 
-/**
- * 背景卡片组件，
- * 使用方式与原本的[Card]无异，但[BackgroundCard]配置了更舒适的背景颜色
- */
 @Composable
 fun BackgroundCard(
     modifier: Modifier = Modifier,
@@ -78,10 +74,6 @@ private fun cmcCardBorder(): BorderStroke = BorderStroke(
     )
 )
 
-/**
- * 背景卡片组件，
- * 使用方式与原本的[Card]无异，但[BackgroundCard]配置了更舒适的背景颜色
- */
 @Composable
 fun BackgroundCard(
     modifier: Modifier = Modifier,
@@ -115,10 +107,7 @@ fun BackgroundCard(
         )
     }
 }
-/**
- * 适合在背景卡片组件顶部使用的标题栏Layout
- * @param alpha 组件背景颜色不透明度
- */
+
 @Composable
 fun CardTitleLayout(
     modifier: Modifier = Modifier,

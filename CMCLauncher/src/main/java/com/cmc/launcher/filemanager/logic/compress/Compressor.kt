@@ -30,15 +30,7 @@ private const val TAG = "FmCompress"
 private const val BUFFER_SIZE = 64 * 1024
 
 object Compressor {
-    /**
-     * 执行压缩，将一组条目打包为 ZIP / 7Z / TAR 压缩包
-     * @param sources 待压缩条目
-     * @param output 输出压缩包路径（已含正确后缀）
-     * @param options 压缩参数
-     * @param onProgress 进度回调（completed, total, currentName）
-     * @param checkCancel 取消检查；返回 true 表示取消
-     * @return 输出路径与总条目数
-     */
+
     suspend fun compress(
         sources: List<Path>,
         output: Path,
@@ -158,7 +150,7 @@ object Compressor {
         ctx: Context
     ) {
         if (ctx.options.password != null) {
-            // 带密码走自定义 solid 写入器，使读取端只需一次密钥派生
+
             SolidSevenZWriter.write(
                 sources = sources,
                 output = output,
@@ -253,7 +245,7 @@ object Compressor {
         withContext(Dispatchers.IO) {
             Files.newOutputStream(output).use { fos ->
                 TarArchiveOutputStream(BufferedOutputStream(fos)).use { tarOut ->
-                    // TAR 长文件名处理格式：GNU / POSIX
+
                     val gnu = ctx.options.method == CompressMethod.TAR_GNU
                     tarOut.setLongFileMode(
                         if (gnu) TarArchiveOutputStream.LONGFILE_GNU
@@ -359,7 +351,7 @@ object Compressor {
 
     private fun dictionarySize(level: Int?): Int {
         val l = level?.coerceIn(1, 9) ?: 5
-        return 1 shl (18 + l.coerceAtMost(7)) // 256KB ~ 32MB
+        return 1 shl (18 + l.coerceAtMost(7))
     }
 
     private fun toZipLevel(level: Int): CompressionLevel {

@@ -53,11 +53,6 @@ private fun CreateType.stringResource(): String {
     }
 }
 
-/**
- * 新建文件或文件夹对话框。
- * @param onConfirmFile 以输入的名称创建文件
- * @param onConfirmFolder 以输入的名称创建文件夹
- */
 @Composable
 fun FmCreateDialog(
     onDismiss: () -> Unit,
@@ -67,7 +62,6 @@ fun FmCreateDialog(
     var name by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(CreateType.File) }
 
-    // 实时校验文件名合法性，错误就地标注在输入框下方
     val filenameError = key(name) { fmFilenameInvalid(name) }
     val isError = name.isEmpty() || filenameError != null
 
@@ -135,18 +129,13 @@ fun FmCreateDialog(
     }
 }
 
-/**
- * 跳转目录对话框。
- * @param currentPath 输入框默认填充的当前路径
- * @param onConfirm 以校验通过的目标路径跳转
- */
 @Composable
 fun FmJumpDialog(
     currentPath: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    // 初始化时默认将光标定位到路径末尾，便于直接追加修改
+
     var input by remember {
         mutableStateOf(TextFieldValue(currentPath, TextRange(currentPath.length)))
     }
@@ -182,11 +171,6 @@ fun FmJumpDialog(
     )
 }
 
-/**
- * 删除确认对话框，可选择是否放入回收站
- * @param count 待删除的条目数量
- * @param onConfirm 确认删除，参数表示是否放入回收站
- */
 @Composable
 fun FmDeleteConfirmDialog(
     count: Int,
@@ -233,14 +217,6 @@ fun FmDeleteConfirmDialog(
     )
 }
 
-/**
- * 重命名对话框，实时校验并就地提示错误。
- * @param entry 待重命名的条目
- * @param initialName 输入框的初始名称
- * @param isFile 是否为文件，决定默认选中范围
- * @param onConfirm 以校验通过的新名称确认重命名
- * @param validate 名称校验函数，返回 null 表示通过，否则返回错误提示文本
- */
 @Composable
 fun FmRenameDialog(
     entry: FmEntry,
@@ -264,7 +240,6 @@ fun FmRenameDialog(
     val keyboard = LocalSoftwareKeyboardController.current
     val focus = remember { FocusRequester() }
 
-    // 输入变化即校验，有错误时禁用确认
     val err = key(tfv.text) { validate(entry, tfv.text) }
 
     FmEditDialog(
@@ -280,23 +255,13 @@ fun FmRenameDialog(
         onDismissRequest = onDismiss,
         onCancel = onDismiss,
         onConfirm = {
-            // 有错误时确认已禁用，此处直接提交
+
             keyboard?.hide()
             onConfirm(tfv.text)
         }
     )
 }
 
-/**
- * 文件属性对话框。
- * @param name 条目名称
- * @param path 条目完整路径
- * @param isDirectory 是否为目录
- * @param sizeText 大小文本
- * @param modifiedText 修改时间文本
- * @param dirScan 目录扫描状态，用于展示目录的异步统计结果
- * @param onDismiss 关闭对话框
- */
 @Composable
 fun FmPropertyDialog(
     name: String,

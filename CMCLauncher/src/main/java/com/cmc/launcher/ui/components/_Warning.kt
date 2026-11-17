@@ -26,13 +26,6 @@ import com.cmc.launcher.setting.AllSettings
 import com.cmc.launcher.ui.screens.content.settings.layouts.CardPosition
 import com.cmc.launcher.ui.screens.content.settings.layouts.rememberSettingsCardShape
 
-/**
- * 一个简单的警告/提示卡片，用于将信息以醒目的方式展示给用户看
- * @param title 这个卡片的标题
- * @param text 这个卡片的实际内容
- * @param position 卡片在UI组中的位置，用于控制卡片的四个角的圆角度
- * @param influencedByBackground 背景颜色是否受到启动器自定义背景影响
- */
 @Composable
 fun WarningCard(
     title: String,
@@ -77,7 +70,7 @@ fun WarningCard(
                 .padding(all = 8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            //标题部分
+
             Row(
                 modifier = Modifier
                     .height(IntrinsicSize.Min)
@@ -97,7 +90,6 @@ fun WarningCard(
                 )
             }
 
-            //实际自定义的警告内容部分
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 content = text

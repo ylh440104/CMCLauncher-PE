@@ -41,41 +41,30 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import javax.inject.Inject
 
-/** 文件管理器初始化状态 */
 sealed interface FmInitState {
-    /** 初始化中（或尚未开始） */
+
     data object Pending : FmInitState
-    /** 初始化完成 */
+
     data object Ready : FmInitState
-    /** 初始化失败 */
+
     data class Failed(val message: String) : FmInitState
 }
 
-/**
- * 文件管理器数据控制层门面：负责装配各功能控制器并转发 UI 调用。
- * 具体业务逻辑与协程启动由各控制器自行管理。
- *
- * 初始化策略：构造器只解析参数并创建纯内存状态容器（零 IO、零协程、零副作用），
- * 所有文件系统 / MMKV / 协程初始化收敛到 [initialize]，由 UI 在首帧组合提交后调用：
- * 避免启动早期主线程 IO 与首帧组合竞争（HyperOS 上可导致启动 ANR），
- * 且初始化失败可展示错误而非崩溃。
- */
 @HiltViewModel
 class FileManagerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    /** 可访问范围目录的绝对路径。 */
     private val rootPathStr: String = savedStateHandle[KEY_ROOT_PATH]
         ?: throw IllegalStateException("Missing required argument: $KEY_ROOT_PATH")
-    /** 可选的初始当前目录；无效时回退根目录。 */
+
     private val currentPathStr: String? = savedStateHandle[KEY_CURRENT_PATH]
 
     private val store = FmStateStore(context)
 
     private val _initState = MutableStateFlow<FmInitState>(FmInitState.Pending)
-    /** 初始化状态 */
+
     val initState: StateFlow<FmInitState> = _initState.asStateFlow()
 
     private lateinit var taskManager: TaskManager
@@ -100,7 +89,7 @@ class FileManagerViewModel @Inject constructor(
     val errorEvents: SharedFlow<String> get() = store.errorEvents
 
     private val _taskProgress = MutableStateFlow<TaskProgress?>(null)
-    /** 当前任务进度 */
+
     val taskProgress: StateFlow<TaskProgress?> = _taskProgress.asStateFlow()
 
     fun initialize() {
@@ -157,8 +146,6 @@ class FileManagerViewModel @Inject constructor(
         }
     }
 
-    // ---------------- 浏览 / 导航 ----------------
-
     fun refresh() {
         browseCtr.refreshDir()
     }
@@ -172,41 +159,30 @@ class FileManagerViewModel @Inject constructor(
     fun setSortConfig(config: SortConfig) = browseCtr.setSortConfig(config)
     fun toggleHidden() = browseCtr.toggleHidden()
 
-    // ---------------- 选择 / 多选 ----------------
     fun toggleSelection(entry: FmEntry) = selectionCtr.toggleSelection(entry)
     fun swipeRangeSelect(entry: FmEntry) = selectionCtr.swipeRangeSelect(entry)
     fun selectAll() = selectionCtr.selectAll()
     fun clearSelection() = selectionCtr.clearSelection()
 
-    /**
-     * 系统返回键处理
-     * 多选模式下先退出多选，否则后退
-     * @return 位于根目录时返回 false
-     */
     fun consumeBack(): Boolean {
         if (store.stateValue().multiSelect) {
             store.clearSelectionAndExitMulti()
             return true
         }
-        // 系统返回键视为返回上一层目录，而非后退到上一个访问的目录
+
         if (browseCtr.goParent()) return true
-        // 根目录
+
         return false
     }
 
-    // ---------------- 目录属性扫描 ----------------
-
     fun startDirectoryScan(path: Path) = directoryScanCtr.startDirectoryScan(path)
     fun stopDirectoryScan() = directoryScanCtr.stopDirectoryScan()
-
-    // ---------------- 搜索 ----------------
 
     fun showSearchDialog() = searchCtr.showSearchDialog()
     fun submitSearch(keyword: String, caseSensitive: Boolean) = searchCtr.submitSearch(keyword, caseSensitive)
     fun clearSearch() = searchCtr.clearSearch()
     fun backToSearchSetup() = searchCtr.backToSearchSetup()
 
-    // ---------------- 剪贴板 / 粘贴 ----------------
     fun copyEntry(entry: FmEntry) {
         store.setClipboard(FmClipboard(listOf(entry.path), false))
     }
@@ -216,7 +192,6 @@ class FileManagerViewModel @Inject constructor(
     fun requestPaste() = pasteCtr.requestPaste()
     fun resolvePasteConflict(resolution: ConflictResolution) = pasteCtr.resolvePasteConflict(resolution)
 
-    /** 复制 / 剪贴登记剪贴板后，关闭批量操作对话框 */
     fun bulkCopy() {
         val src = store.selectedEntries().map { it.path }
         if (!src.isEmpty()) {
@@ -232,8 +207,6 @@ class FileManagerViewModel @Inject constructor(
         store.dismissDialog()
     }
 
-    // ---------------- 压缩 ----------------
-
     fun bulkCompress() = compressCtr.bulkCompress()
     fun compressEntry(entry: FmEntry) = compressCtr.compressEntry(entry)
     fun onCompressSetupConfirmed(name: String, sources: List<Path>, options: CompressOptions) =
@@ -244,8 +217,6 @@ class FileManagerViewModel @Inject constructor(
     fun onCompressOutputPicked(treeUri: Uri) = compressCtr.onCompressOutputPicked(treeUri)
     fun resolveCompressConflict(resolution: ConflictResolution) = compressCtr.resolveCompressConflict(resolution)
 
-    // ---------------- 解压 ----------------
-
     fun showExtract(entry: FmEntry) = extractCtr.showExtract(entry)
     fun onExtractSetupConfirmed(independentFolder: Boolean) = extractCtr.onExtractSetupConfirmed(independentFolder)
     fun onExtractPasswordConfirmed(password: String) = extractCtr.onExtractPasswordConfirmed(password)
@@ -254,8 +225,6 @@ class FileManagerViewModel @Inject constructor(
     fun onExtractOutputPicked(treeUri: Uri) = extractCtr.onExtractOutputPicked(treeUri)
     fun onExtractOutputPickedCancelled() = extractCtr.onExtractOutputPickedCancelled()
     fun resolveExtractConflict(resolution: ConflictResolution) = extractCtr.resolveExtractConflict(resolution)
-
-    // ---------------- 导入 ----------------
 
     fun showImportFilesDialog() {
         store.dismissDialog()
@@ -275,8 +244,6 @@ class FileManagerViewModel @Inject constructor(
         store.dismissDialog()
     }
 
-    // ---------------- 删除 / 重命名 / 新建 / 分享 ----------------
-
     fun stageSingleDelete(entry: FmEntry) = entryCtr.stageSingleDelete(entry)
     fun cancelStagedDelete() = entryCtr.cancelStagedDelete()
     fun deleteSelected(toTrash: Boolean) = entryCtr.deleteSelected(toTrash)
@@ -285,8 +252,6 @@ class FileManagerViewModel @Inject constructor(
     fun submitRename(entry: FmEntry, newName: String, onSuccess: () -> Unit) = entryCtr.submitRename(entry, newName, onSuccess)
     fun validateRename(entry: FmEntry, newName: String): String? = entryCtr.validateRename(entry, newName)
     fun showShare(entry: FmEntry) = entryCtr.showShare(entry)
-
-    // ---------------- 回收站 ----------------
 
     fun loadTrashList() = trashCtr.loadTrashList()
     fun refreshTrashList() = trashCtr.refreshTrashList()
@@ -306,38 +271,29 @@ class FileManagerViewModel @Inject constructor(
     fun trashRangeSelect(swipeItem: TrashItem) = trashCtr.trashRangeSelect(swipeItem)
     fun selectedTrashItems(): List<TrashItem> = trashCtr.selectedTrashItems()
 
-    // ---------------- 文本编辑器 ----------------
-
-    /** 打开文件并异步加载内容 */
     fun editorOpen(path: Path) = editorCtr.open(path)
-    /** 编辑器内容变化回调 */
+
     fun editorTextChanged() = editorCtr.onTextChanged()
-    /** 保存编辑器内容 */
+
     fun editorSave(onDone: (Boolean) -> Unit = {}) = editorCtr.save(onDone)
-    /** 取消进行中的保存 */
+
     fun editorCancelSave() = editorCtr.cancelSave()
-    /** 请求显示未保存修改的退出确认弹窗 */
+
     fun editorRequestExitConfirm() = editorCtr.requestExitConfirm()
-    /** 取消退出确认弹窗 */
+
     fun editorCancelExitConfirm() = editorCtr.cancelExitConfirm()
-    /** 是否存在未保存的修改 */
+
     fun editorHasDirty(): Boolean = editorCtr.hasDirty()
 
-    /** 通过系统分享唤起其他文件管理器应用浏览当前目录 */
     fun browseInExternalManager() {
         val dir = store.stateValue().currentDir?.toString() ?: return
         shareFile(context, File(dir))
     }
 
-    // ---------------- 对话框 / Snackbar ----------------
-
     fun dismissDialog() = store.dismissDialog()
     fun consumeSnackbar() = store.updateState { it.copy(snackbar = null) }
     fun consumeLocateHighlight() = store.updateState { it.copy(locateHighlightPath = null) }
 
-    // ---------------- 任务进度同步 ----------------
-
-    /** 订阅 [TaskManager] 的任务状态与进度，同步到状态集合。 */
     fun observeTasks() {
         viewModelScope.launch {
             taskManager.state.collect { st ->
@@ -351,22 +307,18 @@ class FileManagerViewModel @Inject constructor(
         }
     }
 
-    /** 取消当前任务 */
     fun cancelCurrentTask() {
         taskManager.cancel()
     }
 
-    /** 返回应用上下文 */
     fun appContext(): Context = context
 
     companion object {
         private const val TAG = "FileManagerViewModel"
         private const val TRASH_SUBDIR = "fileManagerTrash"
 
-        /** [SavedStateHandle] 键：可访问范围目录绝对路径。 */
         const val KEY_ROOT_PATH = "fm.rootPath"
 
-        /** [SavedStateHandle] 键：可选初始当前目录。 */
         const val KEY_CURRENT_PATH = "fm.currentPath"
     }
 }

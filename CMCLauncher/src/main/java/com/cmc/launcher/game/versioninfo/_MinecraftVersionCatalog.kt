@@ -3,9 +3,6 @@ package com.cmc.launcher.game.versioninfo
 import com.cmc.launcher.R
 import org.jackhuang.hmcl.util.versioning.GameVersionNumber
 
-/**
- * 所有热门的模组支持版本
- */
 val popularVersions = listOf(
     "26.2", "26.1",
     "1.21.11", "1.21.4", "1.21.1",
@@ -18,66 +15,37 @@ val popularVersions = listOf(
     "1.7.10",
 )
 
-/**
- * 愚人节版本类型
- */
 enum class AprilFoolsType(
     val summary: Int? = null,
     val urlSuffix: String? = null
 ) {
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/26w14a)
-     */
+
     HerdCraft(R.string.version_summary_fools_herd_craft),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/25w14craftmine)
-     */
+
     CraftMine(R.string.version_summary_fools_creaft_mine),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/24w14potato)
-     */
+
     Potato(R.string.version_summary_fools_potato),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/23w13a_or_b)
-     */
+
     AOrB(R.string.version_summary_fools_a_or_b),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/22w13oneBlockAtATime)
-     */
+
     OneBlockAtATime(R.string.version_summary_fools_one_block_at_time),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/20w14infinite)
-     */
+
     Infinite(R.string.version_summary_fools_infinite),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/Java%E7%89%883D_Shareware_v1.34?variant=zh-cn)
-     */
+
     Minecraft3DShareware(R.string.version_summary_fools_3d_shareware),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/Java%E7%89%881.RV-Pre1?variant=zh-cn)
-     */
+
     TrendyUpdate(R.string.version_summary_fools_trendy_update),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/15w14a)
-     */
+
     TheLoveAndHugsUpdate(R.string.version_summary_fools_the_love_and_hugs_update),
-    /**
-     * [Wiki](https://zh.minecraft.wiki/w/Java%E7%89%882.0)
-     */
+
     `2_0`(R.string.version_summary_fools_2_0, "2.0")
 }
 
-/**
- * 愚人节版本
- */
 data class AprilFoolsVersion(
     val version: String,
     val type: AprilFoolsType
 )
 
-/**
- * 可供下载的愚人节版本
- */
 val allAprilFools = listOf(
     AprilFoolsVersion("26w14a", AprilFoolsType.HerdCraft),
     AprilFoolsVersion("25w14craftmine", AprilFoolsType.CraftMine),
@@ -94,9 +62,6 @@ val allAprilFools = listOf(
     AprilFoolsVersion("2.0_purple", AprilFoolsType.`2_0`),
 )
 
-/**
- * 给出的 MC 版本号是否为正式版
- */
 fun filterRelease(versionString: String): Boolean {
     return GameVersionNumber.asGameVersion(versionString).isRelease
 }

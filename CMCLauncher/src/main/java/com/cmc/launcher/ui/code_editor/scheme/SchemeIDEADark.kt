@@ -20,7 +20,6 @@ class SchemeIDEADark: EditorColorScheme(true) {
         setColor(SCROLL_BAR_THUMB_PRESSED, 0xFF565656.toInt())
         setColor(COMPLETION_WND_BACKGROUND, 0xFF27282B.toInt())
 
-        //语法高亮
         setColor(KEYWORD, 0xFFCF8E6D.toInt())
         setColor(COMMENT, 0xFF7A7E85.toInt())
         setColor(LITERAL, 0xFF6AAB73.toInt())
@@ -33,12 +32,10 @@ class SchemeIDEADark: EditorColorScheme(true) {
         setColor(ATTRIBUTE_NAME, 0xFFBCBEC4.toInt())
         setColor(ATTRIBUTE_VALUE, 0xFF6AAB73.toInt())
 
-        //问题诊断
         setColor(PROBLEM_ERROR, 0xFFFA6675.toInt())
         setColor(PROBLEM_WARNING, 0xFFF2C55C.toInt())
         setColor(PROBLEM_TYPO, 0xFF7EC482.toInt())
 
-        //其他
         setColor(MATCHED_TEXT_BACKGROUND, 0xFF2D543F.toInt())
         setColor(HIGHLIGHTED_DELIMITERS_BACKGROUND, 0xFF43454A.toInt())
     }

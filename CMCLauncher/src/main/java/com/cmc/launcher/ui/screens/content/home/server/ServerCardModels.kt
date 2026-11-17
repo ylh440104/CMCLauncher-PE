@@ -4,24 +4,13 @@ import com.cmc.launcher.game.version.multiplayer.ServerPingResult
 import com.cmc.launcher.ui.screens.content.home.version.VersionCardDir
 import com.cmc.launcher.ui.screens.content.home.version.VersionCardStatus
 
-/** 快速启动使用的游戏版本模式 */
 enum class ServerCardVersionMode {
-    /** 启动时使用当前选中的版本 */
+
     CURRENT,
-    /** 启动时使用记录绑定的特定版本 */
+
     SPECIFIC
 }
 
-/**
- * 服务器卡片的持久化记录
- * @param cardId 卡片 id，即服务器 IP 字符串
- * @param name 服务器名称，添加时自服务器列表条目复制，此后卡片自治
- * @param icon 服务器图标缓存（ping 得到的 favicon）
- * @param quickLaunchEnabled 是否在卡片上显示快速启动按钮
- * @param versionMode 快速启动的版本模式
- * @param dir 绑定版本所在的游戏目录，仅 SPECIFIC 模式使用
- * @param versionName 绑定的版本名，仅 SPECIFIC 模式使用
- */
 data class ServerCardRecord(
     val cardId: String,
     val name: String,
@@ -58,20 +47,18 @@ data class ServerCardRecord(
     }
 }
 
-/** 服务器卡片的 ping 状态；Loading 与 Failed 仅在尚无可展示数据时出现 */
 sealed interface ServerCardPingStatus {
-    /** 尚未完成首次 ping */
+
     data object Loading : ServerCardPingStatus
-    /** ping 成功 */
+
     data class Loaded(val result: ServerPingResult) : ServerCardPingStatus
-    /** 从未成功连接 */
+
     data object Failed : ServerCardPingStatus
 }
 
-/** 服务器卡片的完整状态 */
 data class ServerCardState(
     val record: ServerCardRecord,
     val ping: ServerCardPingStatus,
-    /** 绑定版本的可用性状态，仅 SPECIFIC 模式非空 */
+
     val versionStatus: VersionCardStatus? = null
 )

@@ -55,7 +55,6 @@ import com.cmc.launcher.ui.components.imePanAnchor
 import com.cmc.launcher.ui.components.rememberDialogMaxHeight
 import com.cmc.launcher.ui.components.verticalScrollWithBar
 
-/** 文件管理器通用对话框容器 */
 @Composable
 internal fun FmDialogSurface(
     onDismissRequest: () -> Unit,
@@ -124,8 +123,6 @@ internal fun FmDialogButtons(
     }
 }
 
-
-/** 显示带文本输入框的编辑对话框 */
 @Composable
 fun FmEditDialog(
     title: String,
@@ -207,7 +204,6 @@ fun FmEditDialog(
     }
 }
 
-/** 显示带文本输入框的编辑对话框 */
 @Composable
 fun FmEditDialog(
     title: String,
@@ -296,7 +292,6 @@ fun FmEditDialog(
     }
 }
 
-/** 显示带文本输入框与复选框的编辑对话框 */
 @Composable
 fun FmCheckEditDialog(
     title: String,
@@ -366,8 +361,6 @@ fun FmCheckEditDialog(
     )
 }
 
-
-/** 通用下拉选择框 */
 @Composable
 fun <T> ExposedDropdown(
     selectedText: String,

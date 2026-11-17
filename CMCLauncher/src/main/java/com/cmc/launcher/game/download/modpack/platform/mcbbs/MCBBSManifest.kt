@@ -87,15 +87,9 @@ data class MCBBSManifest(
         val authlibInjectorServer: String?
     )
 
-    /**
-     * 尝试获取 Minecraft 版本
-     */
     fun getMinecraftVersion(): String? =
         addons.find { it.id == "game" }?.version
 
-    /**
-     * 匹配模组加载器与版本
-     */
     fun Addon.retrieveLoader(): Pair<ModLoader, String>? {
         return when (id) {
             "forge" -> ModLoader.FORGE to version

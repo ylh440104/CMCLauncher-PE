@@ -10,22 +10,14 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-/**
- * 一个待下载文件的完整描述
- * 候选源、目标位置与校验方式
- * 批量执行交给 [BatchDownloader]，单个文件也可以通过 [com.cmc.launcher.game.download.engine.DownloadEngine] 直接驱动
- */
 class DownloadTask(
     val urls: List<String>,
     private val verifyIntegrity: Boolean,
     val targetFile: File,
     val sha1: String? = null,
-    /** 已知大小，用于进度统计与预分配；未知传 -1 */
+
     val size: Long = -1L,
-    /**
-     * 是否本身是可以被下载的，如果不可下载，则只允许以目标文件已存在的形式满足，
-     * 若强行下载会以 404 失败
-     */
+
     val isDownloadable: Boolean = true
 ) {
     init {
@@ -48,14 +40,13 @@ class DownloadTask(
         }
     }
 
-    /** 目标已存在且校验可用时返回 true */
     fun existingFileValid(): Boolean {
         val file = targetFile
         if (!file.exists()) return false
         if (!verifyIntegrity) return true
 
         if (sha1.isNullOrBlank()) {
-            //排除目标无法被下载的情况，比如Forge的client
+
             if (!isDownloadable) return true
             return archiveOrPlainValid(file)
         }

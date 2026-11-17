@@ -17,9 +17,6 @@ import java.nio.charset.StandardCharsets
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-/**
- * TextMate 语法与主题注册表
- */
 object TextMateRegistry {
     private const val GRAMMAR_DIR = "textmate/grammars"
     private const val THEME_DIR = "textmate/themes"
@@ -27,10 +24,6 @@ object TextMateRegistry {
     private const val THEME_DARK = "dark_vs"
     private const val THEME_LIGHT = "light_vs"
 
-    /**
-     * 已打包的语法
-     * 语法文件名与其对应的 TextMate scope
-     */
     private val grammarScopes = listOf(
         "c.tmLanguage.json" to "source.c",
         "cpp.tmLanguage.json" to "source.cpp",
@@ -52,9 +45,6 @@ object TextMateRegistry {
         "yaml-embedded.tmLanguage.json" to "source.yaml.embedded"
     )
 
-    /**
-     * 文件扩展名对应的 TextMate scope
-     */
     private val textMateScopes = mapOf(
         "md" to "text.html.markdown",
         "markdown" to "text.html.markdown",
@@ -95,14 +85,6 @@ object TextMateRegistry {
     private var textMateEnabled = true
     private val lock = ReentrantLock()
 
-    /**
-     * jcodings 的 unicode 表格通过类加载器资源加载
-     * 若 APK 中资源缺失，[org.jcodings.unicode.UnicodeEncoding.CaseFold] 等类的
-     * 静态初始化会抛 [org.jcodings.exception.InternalException]
-     * 高亮线程因此产生未捕获异常并杀掉整个进程
-     *
-     * 这里在加载语法前提前触发这些类的初始化，失败则禁用高亮
-     */
     private fun jcodingsTablesAvailable(): Boolean {
         val tableClasses = listOf(
             "org.jcodings.unicode.UnicodeEncoding",
@@ -123,9 +105,6 @@ object TextMateRegistry {
         }
     }
 
-    /**
-     * 注册 assets 中的语法与主题
-     */
     private suspend fun ensureLoaded(context: Context) = withContext(Dispatchers.IO) {
         lock.withLock {
             if (!textMateEnabled) return@withLock
@@ -161,7 +140,7 @@ object TextMateRegistry {
                     FmLog.warn(TAG, "Load TextMate theme failed: $name", it)
                 }
             }
-            // 库内不会自动从主题 JSON 读取明暗属性，手动标记以让配色方案正确判定
+
             themeRegistry.findThemeByFileName(THEME_DARK)?.isDark = true
             themeRegistry.findThemeByFileName(THEME_LIGHT)?.isDark = false
 
@@ -174,10 +153,6 @@ object TextMateRegistry {
         themeRegistry.setTheme(if (isDark) THEME_DARK else THEME_LIGHT)
     }
 
-    /**
-     * 获取指定 scope 的 TextMate 语言实例
-     * @return 失败返回 null 由调用方降级为纯文本
-     */
     suspend fun languageFor(scopeName: String, context: Context): TextMateLanguage? {
         ensureLoaded(context)
         if (!textMateEnabled) return null
@@ -185,7 +160,7 @@ object TextMateRegistry {
             lock.withLock {
                 runCatching {
                     languageCache.getOrPut(scopeName) {
-                        // collectIdentifiers = true：收集文档标识符，提供代码补全条目
+
                         TextMateLanguage.create(scopeName, grammarRegistry, themeRegistry, true)
                     }
                 }.getOrElse { e ->
@@ -196,11 +171,6 @@ object TextMateRegistry {
         }
     }
 
-    /**
-     * 获取与文件名对应的编辑器语言
-     * TextMate 语言首次创建需解析语法，耗时较高，应在 IO 线程调用
-     * @return 加载失败时返回 null
-     */
     suspend fun editorLanguageFor(name: String, context: Context): Language? {
         val ext = name.substringAfterLast('.', "").lowercase()
         return textMateScopes[ext]?.let { scope ->
@@ -208,10 +178,6 @@ object TextMateRegistry {
         }
     }
 
-    /**
-     * 获取与当前主题一致的 TextMate 配色方案
-     * @return 失败返回 null
-     */
     suspend fun colorScheme(isDark: Boolean, context: Context): TextMateColorScheme? {
         applyTheme(isDark, context)
         val themeModel = themeRegistry.currentThemeModel ?: return null

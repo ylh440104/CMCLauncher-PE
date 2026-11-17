@@ -3,14 +3,6 @@ package com.cmc.launcher.filemanager.logic.trash
 import org.json.JSONObject
 import java.nio.file.Path
 
-/**
- * 回收站条目元数据
- * @param originalPath 被删项的原始绝对路径
- * @param deletedAt 删除时间（epoch 毫秒）
- * @param name 被删项名称
- * @param isFolder 类型是否为目录
- * @param corrupted 异常标记
- */
 data class TrashMeta(
     val originalPath: String,
     val deletedAt: Long,
@@ -40,11 +32,6 @@ data class TrashMeta(
     }
 }
 
-/**
- * 回收站列表项
- * @param contentDir 回收站内存储内容的路径
- * @param size 回收站内内容的总大小（字节）
- */
 data class TrashItem(
     val uuid: String,
     val meta: TrashMeta,

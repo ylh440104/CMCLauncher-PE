@@ -8,9 +8,6 @@ object FabricVersions : FabricLikeVersions(
     mirrorUrl = "https://bmclapi2.bangbang93.com/fabric-meta/v2"
 ) {
 
-    /**
-     * 获取 Fabric 列表
-     */
     suspend fun fetchFabricLoaderList(mcVersion: String, force: Boolean = false): List<FabricVersion>? {
         val list: List<FabricLikeLoader> = fetchLoaderList(force, "FabricVersions", mcVersion) ?: return null
 

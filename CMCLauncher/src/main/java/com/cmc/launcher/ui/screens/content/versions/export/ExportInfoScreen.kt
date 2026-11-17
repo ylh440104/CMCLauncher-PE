@@ -83,10 +83,6 @@ private fun List<String>.rememberCardPosition(
     }
 }
 
-/**
- * 填写整合包配置信息
- * @param onFinishClick 结束编辑
- */
 @Composable
 fun ExportInfoScreen(
     info: ExportInfo,
@@ -112,7 +108,7 @@ fun ExportInfoScreen(
             contentPadding = PaddingValues(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            //整合包名称/版本编辑
+
             animatedItem { ctx ->
                 Row(
                     modifier = Modifier
@@ -211,7 +207,7 @@ fun ExportInfoScreen(
             }
 
             if (info.packType.options.requireGameArgs) {
-                //游戏参数
+
                 animatedItem { ctx ->
                     TextInputSettingsCard(
                         modifier = Modifier
@@ -231,7 +227,7 @@ fun ExportInfoScreen(
             }
 
             if (info.packType.options.requireJavaArgs) {
-                //Java虚拟机参数
+
                 animatedItem { ctx ->
                     TextInputSettingsCard(
                         modifier = Modifier
@@ -251,7 +247,7 @@ fun ExportInfoScreen(
             }
 
             if (info.packType.options.requireWebsiteUrl) {
-                //整合包官方网站
+
                 animatedItem { ctx ->
                     TextInputSettingsCard(
                         modifier = Modifier
@@ -271,7 +267,7 @@ fun ExportInfoScreen(
             }
 
             if (info.packType.options.requireMinMemory) {
-                //最小内存
+
                 animatedItem { ctx ->
                     var memory by remember(info) { mutableIntStateOf(info.minMemory) }
 
@@ -295,7 +291,7 @@ fun ExportInfoScreen(
             }
 
             if (info.packType.options.requirePackModrinth) {
-                //是否打包 Modrinth 的远程资源
+
                 animatedItem { ctx ->
                     SwitchSettingsCard(
                         modifier = Modifier
@@ -315,7 +311,7 @@ fun ExportInfoScreen(
             }
 
             if (info.packType.options.requirePackCurseForge) {
-                //是否打包 CurseForge 的远程资源
+
                 animatedItem { ctx ->
                     val enabled = remember(info) {
                         info.packType == PackType.CurseForge ||
@@ -344,7 +340,6 @@ fun ExportInfoScreen(
                 }
             }
 
-            //导出按钮
             animatedItem { ctx ->
                 Column(
                     modifier = Modifier
@@ -361,7 +356,6 @@ fun ExportInfoScreen(
                         }
                     }
 
-                    //对于打包远端资源的提示
                     if (packRemote)  {
                         Column(
                             modifier = Modifier.fillMaxWidth()

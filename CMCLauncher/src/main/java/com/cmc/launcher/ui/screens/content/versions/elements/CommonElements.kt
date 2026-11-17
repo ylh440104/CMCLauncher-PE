@@ -44,20 +44,19 @@ import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-/** 加载状态 */
 sealed interface LoadingState {
     data object None : LoadingState
-    /** 正在加载 */
+
     data object Loading : LoadingState
 }
 
 sealed interface DeleteAllOperation {
     data object None : DeleteAllOperation
-    /** 警告用户是否真的要批量删除资源 */
+
     data class Warning(val files: List<File>): DeleteAllOperation
-    /** 开始删除所有选中的资源 */
+
     data class Delete(val files: List<File>): DeleteAllOperation
-    /** 已成功删除所有选中的资源 */
+
     data object Success : DeleteAllOperation
 }
 
@@ -89,7 +88,7 @@ fun DeleteAllOperation(
             SimpleTaskDialog(
                 title = stringResource(R.string.manage_delete_all),
                 task = {
-                    //开始删除所有文件
+
                     operation.files.forEach { file ->
                         FileUtils.delete(file)
                     }
@@ -124,11 +123,6 @@ fun DeleteAllOperation(
     }
 }
 
-/**
- * Minecraft 颜色占位符、样式占位符格式化后的 Text
- * 像 Minecraft 一样，渲染两层文本，底层作为背景层，顶层作为前景层
- * 若输入字符串内不存在 `§`，则使用普通的 Text
- */
 @Composable
 fun MinecraftColorTextNormal(
     modifier: Modifier = Modifier,
@@ -160,15 +154,10 @@ fun MinecraftColorTextNormal(
     }
 }
 
-/** 格式化类型：只渲染前景层 */
 private const val FORMAT_TYPE_FOREGROUND = 0
-/** 格式化类型：只渲染背景层 */
+
 private const val FORMAT_TYPE_BACKGROUND = 1
 
-/**
- * Minecraft 颜色占位符、样式占位符格式化后的 Text
- * 像 Minecraft 一样，渲染两层文本，底层作为背景层，顶层作为前景层
- */
 @Composable
 fun MinecraftColorText(
     modifier: Modifier = Modifier,
@@ -211,7 +200,6 @@ private fun MinecraftColorText(
         (style.fontSize.toPx() * 1.1f).toSp()
     }
 
-    //计算出合适的偏移量
     val offsetFactor = 1f / 16f
     val offsetDp = with(density) {
         (style.fontSize.toPx() * offsetFactor).toDp()
@@ -220,7 +208,7 @@ private fun MinecraftColorText(
     Box(
         modifier = modifier
     ) {
-        //背景层
+
         Text(
             text = background,
             fontSize = fontSize,
@@ -230,7 +218,7 @@ private fun MinecraftColorText(
             softWrap = softWrap,
             style = style,
         )
-        //前景层
+
         Text(
             text = foreground,
             fontSize = fontSize,
@@ -262,7 +250,7 @@ private fun parseSegments(input: String): List<Pair<String, TextStyleState>> {
     var buffer = StringBuilder()
 
     while (index < input.length) {
-        //判断是否是格式代码
+
         if (input[index] == '§' && index + 1 < input.length) {
             if (buffer.isNotEmpty()) {
                 segments.add(buffer.toString() to currentStyle)
@@ -278,12 +266,12 @@ private fun parseSegments(input: String): List<Pair<String, TextStyleState>> {
                         background = colors.background
                     )
                 }
-                'r' -> TextStyleState() //重置样式
+                'r' -> TextStyleState()
                 'l' -> currentStyle.copy(bold = true)
                 'o' -> currentStyle.copy(italic = true)
                 'n' -> currentStyle.copy(underline = true)
                 'm' -> currentStyle.copy(strikethrough = true)
-                else -> currentStyle //忽略未知或不支持的格式代码（如k）
+                else -> currentStyle
             }
 
             index += 2
@@ -310,10 +298,6 @@ private fun parseTextWithStyle(input: ComponentDescription) =
         strikethrough = input.strikethrough ?: false,
     )
 
-/**
- * 拼接单节点所有文本组件
- * @param description 文本组件节点
- */
 private fun flattenComponents(
     description: ComponentDescription,
     out: MutableList<Pair<String, TextStyleState>>
@@ -341,9 +325,6 @@ private fun parseComponentSegments(
     return result
 }
 
-/**
- * 模仿 Minecraft 原版对于文本组件的渲染
- */
 @Composable
 fun ComponentText(
     descriptions: List<ComponentDescription>,
@@ -386,14 +367,6 @@ fun ComponentText(
     }
 }
 
-/**
- * @param color 前景颜色
- * @param background 背景颜色，默认为深灰色
- * @param bold 加粗
- * @param italic 斜体
- * @param underline 下划线
- * @param strikethrough 删除线
- */
 private data class TextStyleState(
     val color: Color? = WHITE.foreground,
     val background: Color? = WHITE.background,

@@ -111,94 +111,44 @@ class MainActivity : BaseAppCompatActivity() {
         return super.dispatchGenericMotionEvent(event)
     }
 
-    /**
-     * 屏幕堆栈管理ViewModel
-     */
     private val screenBackStackModel: ScreenBackStackViewModel by viewModels()
 
-    /**
-     * 启动游戏ViewModel
-     */
     private val launchGameViewModel: LaunchGameViewModel by viewModels()
 
-    /**
-     * 错误信息ViewModel
-     */
     private val errorViewModel: ErrorViewModel by viewModels()
 
-    /**
-     * 与Compose交互的事件ViewModel
-     */
     val eventViewModel: EventViewModel by viewModels()
 
-    /**
-     * 启动器背景内容管理 ViewModel
-     */
     val backgroundViewModel: BackgroundViewModel by viewModels()
 
-    /**
-     * 整合包导入 ViewModel
-     */
     val modpackImportViewModel: ModpackImportViewModel by viewModels()
 
-    /**
-     * 版本修改 ViewModel
-     */
     private val modifyVersionViewModel: ModifyVersionViewModel by viewModels()
 
-    /**
-     * 启动器更新状态 ViewModel
-     */
-
-    /**
-     * 当月赞助者 ViewModel
-     */
-
-    /**
-     * 游戏日志分享菜单 ViewModel
-     */
     private val logShareViewModel: LogShareViewModel by viewModels()
 
-    /**
-     * 游戏日志上传 ViewModel
-     */
     private val logsUploadViewModel: LogsUploadViewModel by viewModels()
 
-    /**
-     * Vulkan检测状态 ViewModel
-     */
     private val vulkanCheckerViewModel: VulkanCheckerViewModel by viewModels()
 
-    /**
-     * 是否开启捕获按键模式
-     */
     private var isCaptureKey = false
 
-    /**
-     * 文件管理器事件监听
-     */
     private var fmEventRegistrar: FileManagerEventRegistrar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //处理外部导入
+
         val isImporting = handleImportIfNeeded(intent)
 
-        //加载渲染器
         Renderers.init()
-        //加载插件
+
         PluginLoader.loadAllPlugins(this, false)
         refreshData()
 
-        //注册文件管理器事件监听
         fmEventRegistrar = FileManagerEventRegistrar(this, ::onFileManagerEvent).also { it.start() }
 
-        //初始化通知管理（创建渠道）
         NotificationManager.initManager(this)
 
-
-
-        //错误信息展示
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 errorViewModel.errorEvents.collect { tm ->
@@ -210,7 +160,6 @@ class MainActivity : BaseAppCompatActivity() {
             }
         }
 
-        //事件处理
         lifecycleScope.launch {
             eventViewModel.events.collect { event ->
                 when (event) {
@@ -272,7 +221,7 @@ class MainActivity : BaseAppCompatActivity() {
                         )
                     }
                     else -> {
-                        //忽略
+
                     }
                 }
             }
@@ -305,7 +254,7 @@ class MainActivity : BaseAppCompatActivity() {
                         )
                     }
                 }
-                //启动游戏操作流程
+
                 LaunchGameOperation(
                         activity = this@MainActivity,
                         eventViewModel = eventViewModel,
@@ -339,7 +288,6 @@ class MainActivity : BaseAppCompatActivity() {
                         }
                     )
 
-                    //启动游戏流程展示
                     val launchFlow by launchGameViewModel.launchFlow.collectAsStateWithLifecycle()
                     val flow = launchFlow
                     if (flow != null) {
@@ -364,7 +312,6 @@ class MainActivity : BaseAppCompatActivity() {
                     }
                 )
 
-                //用户确认版本名称 操作流程
                 ModpackVersionNameOperation(
                     operation = modpackImportViewModel.versionNameOperation,
                     onConfirmVersionName = { name ->
@@ -375,7 +322,6 @@ class MainActivity : BaseAppCompatActivity() {
                     }
                 )
 
-                //用户确认使用移动网络 操作流程
                 ModpackConfirmUseMobileDataOperation(
                     operation = modpackImportViewModel.confirmMobileDataOperation,
                     onConfirmUse = { use ->
@@ -383,7 +329,6 @@ class MainActivity : BaseAppCompatActivity() {
                     }
                 )
 
-                //游戏日志分享菜单
                 val logFile = logShareViewModel.currentLogFile
                 if (logShareViewModel.showMenu && logFile != null) {
                     LogShareMenu(
@@ -425,14 +370,13 @@ class MainActivity : BaseAppCompatActivity() {
                     }
                 )
 
-                //版本修改操作流程
                 ModifyVersionOperation(
                     operation = modifyVersionViewModel.installOperation,
                     changeOperation = { modifyVersionViewModel.installOperation = it },
                     installer = modifyVersionViewModel.installer,
                     onModify = { payload ->
                         modifyVersionViewModel.modify(this@MainActivity, payload)
-                        //任务开始执行，立刻返回主界面，不停留在可能失效的版本设置屏幕
+
                         screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
                     },
                     onCancel = {
@@ -462,9 +406,9 @@ class MainActivity : BaseAppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleImportIfNeeded(intent)
-        // 重载渲染器
+
         Renderers.init(true)
-        // 重载插件
+
         PluginLoader.loadAllPlugins(this, true)
     }
 
@@ -474,9 +418,6 @@ class MainActivity : BaseAppCompatActivity() {
         super.onDestroy()
     }
 
-    /**
-     * 文件管理器文件变更事件处理
-     */
     private fun onFileManagerEvent(event: FileManagerEvent) {
         val versionsHome = File(getVersionsHome()).absolutePath
         val touchesVersions = event.changedDirs.any { dir ->
@@ -488,9 +429,6 @@ class MainActivity : BaseAppCompatActivity() {
         }
     }
 
-    /**
-     * 检查设备 Vulkan 支持情况
-     */
     private suspend fun checkVulkan(version: Version) {
         withContext(Dispatchers.Main) {
             val (result, useTurnip) = vulkanCheckerViewModel.check(version)
@@ -498,9 +436,6 @@ class MainActivity : BaseAppCompatActivity() {
         }
     }
 
-    /**
-     * 是否保持屏幕不熄屏
-     */
     private suspend fun keepScreen(on: Boolean) {
         withContext(Dispatchers.Main) {
             window?.apply {
@@ -513,11 +448,8 @@ class MainActivity : BaseAppCompatActivity() {
         }
     }
 
-    /**
-     * 弹出下载插件的链接提示对话框
-     */
     private suspend fun showDownloadPlugins(link: EventViewModel.Event.DownloadPlugins.Links) {
-        //匹配当前系统语言可见的网盘链接
+
         val locale = Locale.getDefault()
         val cloudDrive = link.cloudDrives.sortedByDescending {
             it.language.contains("_")
@@ -545,9 +477,6 @@ class MainActivity : BaseAppCompatActivity() {
         }
     }
 
-    /**
-     * 导入控制布局
-     */
     private fun importControlFiles(uris: List<Uri>) {
         fun showError(
             title: AndroidStringText = androidText(R.string.control_manage_import_failed),
@@ -604,10 +533,6 @@ class MainActivity : BaseAppCompatActivity() {
         )
     }
 
-    /**
-     * 处理外部导入
-     * @return 是否有导入任务正在进行中
-     */
     private fun handleImportIfNeeded(intent: Intent?): Boolean {
         if (intent == null) return false
 
@@ -623,9 +548,6 @@ class MainActivity : BaseAppCompatActivity() {
         return importing
     }
 
-    /**
-     * @return 是否已经触发了整合包导入程序
-     */
     private fun handleModpackImport(intent: Intent): Boolean {
         val uri: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(EXTRA_IMPORT_URI, Uri::class.java)
@@ -652,9 +574,6 @@ class MainActivity : BaseAppCompatActivity() {
         return uri != null
     }
 
-    /**
-     * @return 是否已经触发了控制布局导入程序
-     */
     private fun handleControlsImport(intent: Intent): Boolean {
         val uri: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(EXTRA_IMPORT_URI, Uri::class.java)

@@ -15,10 +15,9 @@ import com.cmc.launcher.ui.components.SimpleEditDialog
 import com.cmc.launcher.utils.string.isEmptyOrBlank
 import net.burningtnt.terracotta.TerracottaAndroidAPI
 
-/** 等待中：房客操作状态 */
 sealed interface GuestWaitingOperation {
     data object None : GuestWaitingOperation
-    /** 被点击，开始输入邀请码 */
+
     data object OnClick : GuestWaitingOperation
 }
 
@@ -43,9 +42,6 @@ fun GuestWaitingOperation(
     }
 }
 
-/**
- * 房客输入邀请码对话框
- */
 @Composable
 private fun InviteCodeInputDialog(
     onPositive: (roomCode: String) -> Unit,
@@ -54,11 +50,10 @@ private fun InviteCodeInputDialog(
 ) {
     var code by remember { mutableStateOf("") }
 
-    /** 验证不通过时 */
     var isError by remember { mutableStateOf(false) }
     val supportingText: AndroidStringText? = remember(code) {
         if (code.isEmpty()) {
-            //还未填写内容
+
             isError = false
             return@remember null
         }
@@ -70,7 +65,7 @@ private fun InviteCodeInputDialog(
             TerracottaAndroidAPI.RoomType.SCAFFOLDING -> androidText(R.string.terracotta_status_waiting_guest_prompt_scaffolding)
             else -> null
         }.also { text ->
-            //根据是否检测出对应格式判断
+
             isError = text == null
         } ?: androidText(R.string.terracotta_status_waiting_guest_prompt_invalid)
     }

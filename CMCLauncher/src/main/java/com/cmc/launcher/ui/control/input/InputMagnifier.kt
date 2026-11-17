@@ -337,4 +337,3 @@ private fun clampedSourceCenter(
         )
     )
 }
-

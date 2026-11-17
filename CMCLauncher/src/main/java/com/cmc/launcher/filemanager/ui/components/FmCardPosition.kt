@@ -7,9 +7,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * 卡片在列表组中的方位，记录四个角各自使用大圆角还是小圆角
- */
 @ConsistentCopyVisibility
 data class FmCardPosition private constructor(
     val outerTopStart: Boolean,
@@ -18,9 +15,7 @@ data class FmCardPosition private constructor(
     val outerBottomEnd: Boolean
 ) {
     companion object {
-        /**
-         * 四角均为大圆角，用于独立卡片
-         */
+
         val Single = FmCardPosition(
             outerTopStart = true,
             outerTopEnd = true,
@@ -28,16 +23,10 @@ data class FmCardPosition private constructor(
             outerBottomEnd = true
         )
 
-        /**
-         * 根据条目在列表组中的位置推导方位
-         * @param index 条目下标
-         * @param count 组内条目总数
-         * @param columns 列数，单列列表使用默认值
-         */
         fun of(index: Int, count: Int, columns: Int = 1): FmCardPosition {
             if (count <= 1) return Single
             val cols = columns.coerceAtLeast(1)
-            // 网格只有一行时，条目的上下边缘与组端暴露，邻接边使用小圆角
+
             if (count <= cols) {
                 val start = index == 0
                 val end = index == count - 1
@@ -55,12 +44,11 @@ data class FmCardPosition private constructor(
 
             val top = row == 0
             val start = col == 0
-            // 末行未占满时，由组内最后一个条目收拢右边缘
+
             val end = col == cols - 1 || (row == lastRow && col == lastCol)
-            // 末行未占满时，超出末行占有列的条目底部暴露在组边缘
+
             val bottom = row == lastRow || (row == lastRow - 1 && col > lastCol)
 
-            // 角只有在其相邻的两条边都暴露在组边缘时才使用大圆角
             return FmCardPosition(
                 outerTopStart = top && start,
                 outerTopEnd = top && end,
@@ -71,9 +59,6 @@ data class FmCardPosition private constructor(
     }
 }
 
-/**
- * 根据卡片方位组合四个角的圆角
- */
 @Composable
 fun rememberFmCardShape(
     position: FmCardPosition,

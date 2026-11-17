@@ -140,7 +140,7 @@ fun StyleListDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        //样式收藏柜入口
+
                         FilledTonalButton(
                             onClick = onOpenCabinet
                         ) {

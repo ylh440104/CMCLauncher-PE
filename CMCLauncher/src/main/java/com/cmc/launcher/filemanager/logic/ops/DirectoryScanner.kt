@@ -12,7 +12,6 @@ import java.util.ArrayDeque
 
 private const val TAG = "FmDirScanner"
 
-/** 目录统计信息 */
 data class DirStats(
     val totalSize: Long = 0L,
     val fileCount: Long = 0L,
@@ -20,12 +19,7 @@ data class DirStats(
 )
 
 object DirectoryScanner {
-    /**
-     * 迭代扫描 [root] 目录并统计大小与数量
-     * @param onProgress 进度回调（传入当前统计信息与正在扫描的目录）
-     * @param checkCancelled 取消检查，返回 true 时抛 CancellationException
-     * @return 目录统计信息
-     */
+
     suspend fun scan(
         root: Path,
         onProgress: ((stats: DirStats, current: Path?) -> Unit)? = null,
@@ -50,7 +44,7 @@ object DirectoryScanner {
                                 LinkOption.NOFOLLOW_LINKS
                             )
                             if (attrs.isSymbolicLink) {
-                                //跳过符号链接
+
                                 FmLog.debug(TAG, "Skip symlink during scan: $child")
                                 continue
                             }
@@ -65,7 +59,7 @@ object DirectoryScanner {
                             }
                         } catch (e: Exception) {
                             FmLog.warn(TAG, "Failed to stat: $child", e)
-                            //单项失败不中断整体扫描
+
                         }
                     }
                 }

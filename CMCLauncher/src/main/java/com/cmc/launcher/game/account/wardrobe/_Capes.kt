@@ -4,14 +4,8 @@ import androidx.annotation.StringRes
 import com.cmc.launcher.R
 import com.cmc.launcher.game.account.yggdrasil.PlayerProfile
 
-/**
- * 空披风，可用来表示不选择、重置披风
- */
 val EmptyCape = PlayerProfile.Cape("", "", "", "")
 
-/**
- * @return 披风名称字符串资源
- */
 @StringRes
 fun PlayerProfile.Cape.capeLocalRes(): Int? {
     if (this == EmptyCape || id.isEmpty()) return R.string.cape_name_none

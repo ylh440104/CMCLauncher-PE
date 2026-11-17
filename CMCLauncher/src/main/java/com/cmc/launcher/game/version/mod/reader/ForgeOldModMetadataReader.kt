@@ -19,9 +19,6 @@ import java.io.File
 import java.io.IOException
 import java.util.zip.ZipFile as JDKZipFile
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/3eddfa2/HMCLCore/src/main/java/org/jackhuang/hmcl/mod/modinfo/ForgeOldModMetadata.java)
- */
 object ForgeOldModMetadataReader : ModMetadataReader {
     override suspend fun fromLocal(modFile: File): LocalMod = withContext(Dispatchers.IO) {
         try {
@@ -31,7 +28,7 @@ object ForgeOldModMetadataReader : ModMetadataReader {
                         ?: throw IOException("File $modFile is not a Forge mod.")
 
                     zip.getInputStream(mcmodEntry).bufferedReader().use { reader ->
-                        // new changed from https://github.com/HMCL-dev/HMCL/commit/2c428faa9540e8666ce3cec07ff284cb53eab34a
+
                         val jsonReader = JsonReader(reader)
                         val firstToken: JsonToken = jsonReader.peek()
 

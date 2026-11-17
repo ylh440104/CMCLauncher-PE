@@ -3,7 +3,6 @@ package com.cmc.launcher.game.download.engine
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
-/** 一份批量下载的只读进度快照，供 UI 层消费 */
 data class BatchProgress(
     val downloadedBytes: Long,
     val totalBytes: Long,
@@ -12,13 +11,6 @@ data class BatchProgress(
     val speedBytesPerSec: Long
 )
 
-/**
- * 跨线程的字节/文件计数器，内嵌"逐秒分块"测速：
- * 每个报表值就是刚刚完整过去的一秒里真实落盘的字节数，每秒更新一次，
- * 不做任何跨窗口平滑或外推——报出来的数字永远有对应的实际流量。
- * 热路径只有原子加法。
- * 文件/字节维度全部使用原子量，最多与并发连接数同量级的线程同时完成也不会丢计数。
- */
 class DownloadStats {
     private val downloaded = AtomicLong(0L)
     private val totalBytesCounter = AtomicLong(-1L)
@@ -39,10 +31,6 @@ class DownloadStats {
         registerBytes(expectedSize)
     }
 
-    /**
-     * 把字节数补进字节分母，不影响文件计数；
-     * 用于下载前未知大小的文件在完成时补记实际大小
-     */
     fun registerBytes(bytes: Long) {
         if (bytes > 0) {
             totalBytesCounter.accumulateAndGet(bytes) { previous, add ->
@@ -55,9 +43,6 @@ class DownloadStats {
         downloadedFilesCounter.incrementAndGet()
     }
 
-    /**
-     * 把"本地已复用文件"的字节并入已下载量
-     */
     fun resetSpeedBaseline() {
         synchronized(this) {
             blockStartNanos = System.nanoTime()
@@ -67,9 +52,6 @@ class DownloadStats {
 
     val downloadedBytes: Long get() = downloaded.get()
 
-    /**
-     * 返回上一个完整采样秒的真实平均吞吐
-     */
     fun refreshSpeed(): Long {
         val now = System.nanoTime()
         synchronized(this) {
@@ -85,7 +67,6 @@ class DownloadStats {
         }
     }
 
-    /** 先刷新测速再产出快照，调用方无需单独触发采样 */
     fun snapshotProgress(): BatchProgress = BatchProgress(
         downloadedBytes = downloaded.get(),
         totalBytes = expectedTotalBytes,
@@ -100,7 +81,7 @@ class DownloadStats {
     private var currentSpeed: Long = 0L
 
     companion object {
-        /** 速率采样周期 */
+
         private const val SAMPLE_INTERVAL_NANOS = 1_000_000_000L
         private const val NANOS_PER_SEC = 1_000_000_000L
     }

@@ -31,9 +31,6 @@ import com.cmc.launcher.utils.animation.EaseOutFluent
 import com.cmc.launcher.utils.animation.EnterTranslateEasing
 import com.cmc.launcher.utils.animation.SwapTimeline
 
-/**
- * 子项动画的进入方向
- */
 enum class AnimatedDirection {
     Auto, Top, Bottom, Left, Right, None
 }
@@ -46,11 +43,6 @@ class AnimatedContext(
     val defaultDirection: AnimatedDirection
 )
 
-/**
- * 创建独立于容器使用的 [AnimatedContext]，适用于整块内容的进出场动画
- * @param isVisible 进出场状态，true 为进入
- * @param delayMillis 动画延迟(ms)
- */
 @Composable
 fun rememberAnimatedContext(
     isVisible: Boolean,
@@ -88,12 +80,6 @@ private fun rememberAnimatedContext(
     }
 }
 
-/**
- * 对子项应用进出场动画，按方向位移并伴随淡入
- * @param from 进入方向，[AnimatedDirection.Auto] 时使用容器默认方向
- * @param distance 位移距离，按方向取正负号
- * @param fade 是否伴随淡入
- */
 fun Modifier.animated(
     ctx: AnimatedContext,
     from: AnimatedDirection = AnimatedDirection.Auto,
@@ -103,8 +89,7 @@ fun Modifier.animated(
     val progress = ctx.progress.value
     val direction = if (from == AnimatedDirection.Auto) ctx.defaultDirection else from
     if (direction != AnimatedDirection.None) {
-        //退场位移距离小于进场：进场滑入全程，退场仅向进入方向溜出一段短距离
-        //位移比例随动画平滑过渡，打断反转时从当前值回退，不会因比例硬切换而跳变
+
         val hiddenOffset = distance.toPx() * ctx.distanceScale.value * (1f - progress)
         when (direction) {
             AnimatedDirection.Top -> {
@@ -230,12 +215,6 @@ private fun swapAnimateDistanceScaleAsState(
     )
 }
 
-
-/**
- * 支持连锁动画效果的垂直布局容器，自动为每个子项应用递增的动画延迟
- * @param isVisible 控制容器内所有子项的动画触发状态
- * @param stagger 是否启用子项连锁错峰
- */
 @Composable
 fun AnimatedColumn(
     modifier: Modifier = Modifier,
@@ -255,10 +234,7 @@ fun AnimatedColumn(
 }
 
 interface AnimatedColumnScope : ColumnScope {
-    /**
-     * 在 [AnimatedColumn] 中声明一个具有动画效果的子项
-     * @param delay 指定当前子项的进场额外延迟时间(ms)
-     */
+
     @Composable
     fun AnimatedItem(
         delay: Int? = null,
@@ -289,12 +265,6 @@ private class AnimatedColumnScopeImpl(
     }
 }
 
-
-/**
- * 支持连锁动画效果的水平布局容器，自动为每个子项应用递增的动画延迟
- * @param isVisible 控制容器内所有子项的动画触发状态
- * @param stagger 是否启用子项连锁错峰
- */
 @Composable
 fun AnimatedRow(
     modifier: Modifier = Modifier,
@@ -312,10 +282,7 @@ fun AnimatedRow(
 }
 
 interface AnimatedRowScope : RowScope {
-    /**
-     * 在 [AnimatedRow] 中声明一个具有动画效果的子项
-     * @param delay 指定当前子项的进场额外延迟时间(ms)
-     */
+
     @Composable
     fun AnimatedItem(
         delay: Int? = null,
@@ -346,15 +313,6 @@ private class AnimatedRowScopeImpl(
     }
 }
 
-
-// Lazy Column
-
-
-/**
- * 支持连锁动画效果的懒加载垂直列表容器，自动为每个子项应用递增的动画延迟
- * @param isVisible 控制列表内所有子项的动画触发状态
- * @param stagger 是否启用子项连锁错峰
- */
 @Composable
 fun AnimatedLazyColumn(
     modifier: Modifier = Modifier,
@@ -376,20 +334,13 @@ fun AnimatedLazyColumn(
 }
 
 interface AnimatedLazyListScope {
-    /**
-     * 添加单个动画列表项
-     * @param delay 指定当前项的进场额外延迟时间(ms)
-     */
+
     fun animatedItem(
         key: Any? = null,
         delay: Int? = null,
         content: @Composable LazyItemScope.(ctx: AnimatedContext) -> Unit
     )
 
-    /**
-     * 批量添加动画列表项，每项延迟按列表索引递增
-     * @param delay 每项叠加的进场额外延迟时间(ms)
-     */
     fun <T> animatedItems(
         items: List<T>,
         delay: Int = 0,

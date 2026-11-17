@@ -56,9 +56,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAG = "GamepadRemapper"
 
-/**
- * 构建出需要重新映射的所有步骤
- */
 fun buildRemapperSteps(
     a: Boolean = false,
     b: Boolean = false,
@@ -109,12 +106,6 @@ sealed interface GamepadRemapOperation {
     data object Finished: GamepadRemapOperation
 }
 
-/**
- * 重新映射手柄各个按键、摇杆的事件的可视化操作流程
- * @param remapperViewModel 需要通过在View绑定MotionEvent、KeyEvent事件监听器
- *                          将事件发送至此ViewModel，该流程负责接收并处理事件，从而完成绑定
- * @param steps             所有事件绑定的步骤，可自定义需要哪些流程
- */
 @Composable
 fun GamepadRemapperDialog(
     operation: GamepadRemapOperation,
@@ -169,12 +160,11 @@ fun GamepadRemapperDialog(
                 if (progress > 0) {
                     progress--
                 } else {
-                    //如果已经是第一步，返回提示界面
+
                     changeOperation(GamepadRemapOperation.Tip(deviceName))
                 }
             }
 
-            //进度变更之后，需要固定等待一段时间重新开始监听事件
             LaunchedEffect(progress) {
                 isListening = false
                 delay(700L.milliseconds)
@@ -220,10 +210,6 @@ fun GamepadRemapperDialog(
                     }
                 }
             }
-
-            //----------------------
-            //UI交互页面，这里无法使用Dialog，因为这里不应该获得焦点
-            //----------------------
 
             if (true)  {
                 Box(
@@ -286,7 +272,6 @@ fun GamepadRemapperDialog(
                                 targetValue = progress.toFloat() / steps.size.toFloat()
                             )
 
-                            //当前进度显示
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),

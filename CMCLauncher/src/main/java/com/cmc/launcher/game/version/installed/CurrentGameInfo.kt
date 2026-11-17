@@ -10,11 +10,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "CurrentGameInfo"
 
-/**
- * 当前游戏状态信息（支持旧配置迁移）
- * @property version 当前选择的版本名称
- * @property favoritesMap 收藏夹映射表 <收藏夹名称, 包含的版本集合>
- */
 @Keep
 data class CurrentGameInfo(
     @SerializedName("version")
@@ -22,10 +17,7 @@ data class CurrentGameInfo(
     @SerializedName("favoritesInfo")
     val favoritesMap: MutableMap<String, MutableSet<String>> = ConcurrentHashMap()
 ) {
-    /**
-     * 原子化保存当前状态到文件
-     * @param gameHome 信息所属的游戏目录
-     */
+
     fun saveCurrentInfo(gameHome: String) {
         val infoFile = getInfoFile(gameHome)
         runCatching {
@@ -39,10 +31,6 @@ data class CurrentGameInfo(
 
 private fun getInfoFile(gameHome: String) = File(gameHome, "cmc-game.cfg")
 
-/**
- * 刷新并返回最新的游戏信息（自动处理旧配置迁移）
- * @param gameHome 信息所属的游戏目录
- */
 fun refreshCurrentInfo(gameHome: String): CurrentGameInfo {
     val infoFile = getInfoFile(gameHome)
 

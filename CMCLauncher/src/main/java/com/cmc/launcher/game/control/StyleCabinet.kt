@@ -20,16 +20,12 @@ import java.io.File
 
 private const val TAG = "StyleCabinet"
 
-/**
- * 样式收藏柜中的样式项
- */
 sealed interface CabinetStyleItem {
-    /** 样式文件 */
+
     val file: File
-    /** 样式显示名称 */
+
     val name: String
 
-    /** 控件外观样式 */
     data class Button(
         override val file: File,
         val style: ObservableButtonStyle
@@ -37,7 +33,6 @@ sealed interface CabinetStyleItem {
         override val name: String get() = style.name
     }
 
-    /** 摇杆样式 */
     data class Joystick(
         override val file: File,
         val style: ObservableJoystickStyle
@@ -46,23 +41,16 @@ sealed interface CabinetStyleItem {
     }
 }
 
-/**
- * 样式收藏柜状态
- */
 class StyleCabinetState {
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    /** 控件样式收藏本地目录 */
     private val dirControls = File(PathManager.DIR_CONTROL_LAYOUTS, "styles/controls")
-    /** 摇杆样式收藏本地目录 */
+
     private val dirJoystick = File(PathManager.DIR_CONTROL_LAYOUTS, "styles/joystick")
 
     private val _items = MutableStateFlow<List<CabinetStyleItem>>(emptyList())
     val items = _items.asStateFlow()
 
-    /**
-     * 加载收藏柜内全部样式
-     */
     fun load() {
         scope.launch {
             val buttons = loadItems(dirControls) { file ->
@@ -72,17 +60,13 @@ class StyleCabinetState {
                 CabinetStyleItem.Joystick(file, ObservableJoystickStyle(loadJoystickStyle(file)))
             }
             _items.update { old ->
-                //合并而非整表替换，避免异步加载覆盖加载完成前已收藏的项
+
                 val loaded = buttons + joysticks
                 sortItems(loaded.filterNot { item -> old.any { sameIdentity(it, item) } } + old)
             }
         }
     }
 
-    /**
-     * 检查样式是否已被收藏
-     * @return 同类型下是否存在相同 uuid
-     */
     fun exists(isJoystick: Boolean, uuid: String): Boolean {
         return _items.value.any { item ->
             when (item) {
@@ -92,10 +76,6 @@ class StyleCabinetState {
         }
     }
 
-    /**
-     * 收藏一个控件外观样式，同 uuid 文件将被覆盖
-     * @param onResult 收藏结果（主线程回调）
-     */
     fun favorite(style: ButtonStyle, onResult: (Boolean) -> Unit = {}) {
         launchFavorite(onResult) {
             val file = style.saveToStyleFile(dirControls)
@@ -103,10 +83,6 @@ class StyleCabinetState {
         }
     }
 
-    /**
-     * 收藏一个摇杆样式，同 uuid 文件将被覆盖
-     * @param onResult 收藏结果（主线程回调）
-     */
     fun favorite(style: JoystickStyle, onResult: (Boolean) -> Unit = {}) {
         launchFavorite(onResult) {
             val file = style.saveToStyleFile(dirJoystick)
@@ -114,9 +90,6 @@ class StyleCabinetState {
         }
     }
 
-    /**
-     * 保存柜内样式的编辑结果，不替换收藏柜内存中的可观察对象
-     */
     fun save(item: CabinetStyleItem) {
         scope.launch {
             runCatching {
@@ -130,9 +103,6 @@ class StyleCabinetState {
         }
     }
 
-    /**
-     * 删除一个收藏项，移除本地文件
-     */
     fun delete(item: CabinetStyleItem) {
         scope.launch {
             runCatching {

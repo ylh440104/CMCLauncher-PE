@@ -10,43 +10,39 @@ import com.cmc.launcher.filemanager.logic.trash.TrashItem
 import com.cmc.launcher.ui.code_editor.EditorState
 import java.nio.file.Path
 
-/** 目录属性扫描状态 */
 data class DirScanUiState(
     val running: Boolean,
     val stats: DirStats?
 )
 
-/** 文本编辑器状态 */
 data class EditorUiState(
-    /** 正在编辑的文件路径 */
+
     val path: Path? = null,
-    /** 文件内容状态（加载中 / 加载完成） */
+
     val state: EditorState = EditorState.Loading,
-    /** 文件是否可写，不可写时以只读方式打开 */
+
     val writable: Boolean = true,
-    /** 是否存在未保存的修改 */
+
     val dirty: Boolean = false,
-    /** 是否正在保存 */
+
     val saving: Boolean = false,
-    /** 是否请求显示退出确认弹窗 */
+
     val exitConfirm: Boolean = false,
-    /** 打开 / 加载失败的错误提示 */
+
     val error: String? = null
 )
 
-/** 搜索状态 */
 data class SearchUiState(
-    /** 是否正在搜索 */
+
     val running: Boolean = false,
-    /** 当前正在扫描的目录 */
+
     val currentDir: Path? = null,
-    /** 搜索结果列表 */
+
     val hits: List<SearchHitView> = emptyList(),
-    /** 最近一次搜索的关键词 */
+
     val lastKeyword: String = ""
 )
 
-/** 搜索命中结果视图 */
 data class SearchHitView(
     val path: Path,
     val name: String,
@@ -54,10 +50,9 @@ data class SearchHitView(
     val size: Long
 )
 
-/** 文件管理器状态集合 */
 data class FileManagerUiState(
     val currentDir: Path? = null,
-    /** 刷新流水线是否运行中 */
+
     val refreshing: Boolean = false,
     val visibleEntries: List<FmEntry> = emptyList(),
     val rawList: RawList? = null,
@@ -75,13 +70,12 @@ data class FileManagerUiState(
     val locateHighlightPath: Path? = null,
     val canNavigateBack: Boolean = false,
     val canNavigateForward: Boolean = false,
-    /** 当前打开的对话框意图；为空表示无对话框 */
+
     val dialogIntent: DialogIntent? = null
 ) {
     val canBack: Boolean get() = rawList?.let { it.currentDir != it.rootDir } ?: false
 }
 
-/** 原始浏览结果 */
 data class RawList(
     val currentDir: Path,
     val rootDir: Path,
@@ -102,10 +96,9 @@ data class RawList(
     }
 }
 
-/** 回收站视图 */
 sealed interface TrashViewState {
     data object Idle : TrashViewState
-    /** 回收站已打开 */
+
     data class Opened(
         val rawItems: List<TrashItem>,
         val trashListView: TrashListView
@@ -121,7 +114,6 @@ data class TrashItemView(
     val corrupted: Boolean
 )
 
-/** 回收站内部加载视图 */
 data class TrashListView(
     val items: List<TrashItemView> = emptyList(),
     val totalSize: Long = 0L,
@@ -131,74 +123,59 @@ data class TrashListView(
     val multiSelect: Boolean = false
 )
 
-/** Snackbar 消息 */
 data class FmSnackbar(
     val text: String,
     val long: Boolean = true
 )
 
-/** 对话框意图 */
 sealed interface DialogIntent {
-    /** 搜索设置对话框 */
+
     data object Search : DialogIntent
-    /** 搜索任务对话框 */
+
     data object SearchTask : DialogIntent
-    /** 搜索结果列表对话框 */
+
     data object SearchResult : DialogIntent
 
-    /**
-     * 压缩设置对话框
-     * @param defaultName 默认压缩包名（不含后缀）
-     * @param sources 待压缩条目的绝对路径
-     */
     data class CompressSetup(
         val defaultName: String,
         val sources: List<Path>
     ) : DialogIntent
-    /** 压缩输出位置选择 */
+
     data object CompressOutputChoice : DialogIntent
-    /** 压缩输出位置标记，通过 SAF 选择输出目录。 */
+
     data object CompressOutputPick : DialogIntent
-    /** 输出目录已存在同名压缩包时的冲突对话框 */
+
     data class CompressConflict(
         val fileName: String
     ) : DialogIntent
 
-    /**
-     * 解压设置对话框
-     * @param archivePath 压缩包绝对路径
-     * @param archiveName 压缩包文件名
-     */
     data class ExtractSetup(
         val archivePath: Path,
         val archiveName: String
     ) : DialogIntent
-    /** 解压输出位置选择 */
+
     data object ExtractOutputChoice : DialogIntent
-    /** 解压输出位置标记，通过 SAF 选择输出目录 */
+
     data object ExtractOutputPick : DialogIntent
-    /** 解压目标已存在同名顶层内容时的冲突对话框 */
+
     data class ExtractConflict(
         val name: String
     ) : DialogIntent
-    /** 解压密码输入对话框 */
+
     data class ExtractPassword(
         val errorText: String? = null
     ) : DialogIntent
 
-    /** 通过 SAF 多选文件 */
     data object ImportFiles : DialogIntent
-    /** 通过 SAF 选择目录 */
+
     data object ImportDir : DialogIntent
 
-    /** 粘贴冲突流程 */
     data class PasteConflict(
         val request: PasteRequest.ResolveRequest,
         val decidedResolutions: List<ConflictResolution> = emptyList(),
         val currentIndex: Int = 0
     ) : DialogIntent
 
-    /** 回收站恢复冲突流程 */
     data class TrashRestoreConflict(
         val trashItems: List<TrashItem>,
         val conflictItems: List<Pair<TrashItem, Int>>,

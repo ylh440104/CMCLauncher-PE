@@ -33,19 +33,12 @@ import com.cmc.launcher.viewmodel.EventViewModel
 
 private const val TAG = "AppGuides"
 
-/**
- * @param mainScreen 启动器主界面的引导
- * @param editorScreen 控制布局编辑器的引导
- */
 class AppGuides(
     val mainScreen: GuideController,
     val editorScreen: GuideController,
     val joystickEvents: GuideController,
 ) {
-    /**
-     * 启动指定组的引导流，启动成功后记录进度
-     * @return 是否成功启动（流为空或已有其他流激活时失败）
-     */
+
     fun start(group: GuideKeys.Keys): Boolean {
         val controller = when (group) {
             GuideKeys.Main -> mainScreen
@@ -60,10 +53,6 @@ class AppGuides(
         return started
     }
 
-    /**
-     * 启动指定组的引导流，持久化存储播放版本，已播放过当前版本时忽略
-     * @return 是否成功启动（流为空或已有其他流激活时失败，或已播放过当前版本）
-     */
     fun startOnce(group: GuideKeys.Keys): Boolean {
         return !GuideProgress.isPlayed(group) && start(group)
     }
@@ -227,16 +216,10 @@ private fun rememberJoystickEventsGuides() = rememberGuide {
     }
 }
 
-/**
- * 发布启动引导事件
- */
 fun EventViewModel.sendStartGuide(group: GuideKeys.Keys) {
     sendEvent(EventViewModel.Event.Guide.StartGuide(group))
 }
 
-/**
- * 发布启动引导事件，已播放过的引导将被忽略
- */
 fun EventViewModel.sendStartGuideOnce(group: GuideKeys.Keys) {
     sendEvent(EventViewModel.Event.Guide.StartGuideOnce(group))
 }
@@ -261,9 +244,6 @@ fun NextTipLabel(tip: NextTip) {
     }
 }
 
-/**
- * 引导的文本卡片
- */
 @Composable
 private fun GuideCard(
     modifier: Modifier = Modifier,

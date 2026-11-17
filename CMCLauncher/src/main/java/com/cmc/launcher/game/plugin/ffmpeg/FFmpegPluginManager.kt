@@ -18,15 +18,9 @@ object FFmpegPluginManager {
     var executablePath: String? = null
         private set
 
-    /**
-     * 插件是否可用
-     */
     var isAvailable: Boolean = false
         private set
 
-    /**
-     * 加载 FFmpeg 插件
-     */
     fun loadPlugin(
         context: Context,
         loaded: (ApkPlugin) -> Unit = {}
@@ -39,7 +33,7 @@ object FFmpegPluginManager {
                     PackageManager.GET_SHARED_LIBRARY_FILES
                 )
             } catch (_: PackageManager.NameNotFoundException) {
-                //未安装
+
                 return
             }
             val applicationInfo = info.applicationInfo!!

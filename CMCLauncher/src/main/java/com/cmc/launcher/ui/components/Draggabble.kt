@@ -52,12 +52,9 @@ fun FloatingBall(
     var dragging by remember { mutableStateOf(false) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
 
-    //在首次启动时，将悬浮球放到屏幕的 TopCenter
-    //确保这个行为只触发一次
     var isInitialized by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) { isInitialized = true }
 
-    //检查是否是RTL布局，需要做初始位置适配
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     BoxWithConstraints(
         modifier = Modifier
@@ -85,7 +82,7 @@ fun FloatingBall(
                 .onSizeChanged { size ->
                     ballSize = size
                     if (isInitialized || currentPosition != Offset.Zero) return@onSizeChanged
-                    val x = ((parentWidth - ballSize.width) / 2f) //默认位置 TopCenter
+                    val x = ((parentWidth - ballSize.width) / 2f)
                     val positionX = x.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
                     val positionY = 0f.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
                     onPositionChanged(Offset(positionX, positionY))
@@ -114,20 +111,18 @@ fun FloatingBall(
                             onPositionChanged(Offset(clampedX, clampedY))
                         }
 
-                        //drag 返回 false 表示手势被取消，此时不触发点击与保存
                         val completed = drag(down.id) { change ->
                             val delta = change.positionChange()
                             val distanceFromStart = (change.position - startPosition).getDistance()
 
                             if (!isDragging && distanceFromStart > viewConfiguration.touchSlop) {
-                                //超出了拖动检测距离，说明是真的在进行拖动
-                                //标记当前为拖动，避免松开手指后，判定为点击事件
+
                                 isDragging = true
                                 dragging = true
                                 dragPosition = Offset(clampedX, clampedY)
                             }
 
-                            if (isDragging) { //只有在拖动的情况下，才会变更位置
+                            if (isDragging) {
                                 val deltaX = if (isRtl) -delta.x else delta.x
                                 val newX = dragPosition.x + deltaX
                                 val newY = dragPosition.y + delta.y
@@ -140,21 +135,21 @@ fun FloatingBall(
                         }
 
                         val upConsumed = if (completed) {
-                            //复核抬起事件是否已被上层消费
+
                             awaitPointerEvent(PointerEventPass.Final)
                                 .changes.firstOrNull { it.id == down.id }?.isConsumed ?: true
                         } else {
                             true
                         }
                         if (isDragging) {
-                            //拖动结束才一次性同步位置
+
                             onPositionChanged(dragPosition)
                             if (!upConsumed) {
                                 currentOnSavePos()
                             }
                             dragging = false
                         } else if (!upConsumed) {
-                            //非拖动事件，判定为一次点击
+
                             currentOnClick()
                         }
                     }

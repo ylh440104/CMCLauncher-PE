@@ -155,64 +155,44 @@ import kotlin.math.roundToInt
 
 private const val TAG = "AccountElements"
 
-/** 账号登录菜单操作状态 */
 sealed interface LoginMenuOperation {
     data object None : LoginMenuOperation
 
-    /** 呼出登陆账号菜单，将所有登录方式放到一个对话框中展示 */
     data object Login : LoginMenuOperation
 }
 
-/**
- * 微软登录的操作状态
- */
 sealed interface MicrosoftLoginOperation {
     data object None : MicrosoftLoginOperation
 
-    /** 微软账号相关提示Dialog流程 */
     data object Tip : MicrosoftLoginOperation
 
-    /** 选择微软登录验证方式的Dialog流程 */
     data object SelectBrowser : MicrosoftLoginOperation
 }
 
-/**
- * 离线登陆的操作状态
- */
 sealed interface LocalLoginOperation {
     data object None : LocalLoginOperation
 
-    /** 编辑用户名流程 */
     data object Edit : LocalLoginOperation
 
-    /** 创建账号流程 */
     data class Create(val userName: String, val userUUID: String?) : LocalLoginOperation
 
-    /** 警告非法用户名流程 */
     data class Alert(val userName: String, val userUUID: String?) : LocalLoginOperation
 }
 
-/**
- * 添加认证服务器时的状态
- */
 sealed interface ServerOperation {
     data object None : ServerOperation
-    /** 添加认证服务器对话框 */
+
     data object AddNew : ServerOperation
-    /** 删除认证服务器对话框 */
+
     data class Delete(val server: AuthServer) : ServerOperation
     data class OnThrowable(val throwable: Throwable) : ServerOperation
 }
 
-/**
- * 账号操作的状态
- */
 sealed interface AccountOperation {
     data object None : AccountOperation
     data class Delete(val account: Account) : AccountOperation
     data class OnFailed(val th: Throwable) : AccountOperation
 
-    /** 账号凭据已被服务端拒绝，需要重新登录 */
     data class OnRelogin(
         val account: Account,
         val logging: Boolean = false,
@@ -220,29 +200,19 @@ sealed interface AccountOperation {
     ) : AccountOperation
 }
 
-/**
- * 更换账号皮肤的状态
- */
 sealed interface AccountSkinOperation {
     data object None : AccountSkinOperation
 
-    /** 修改皮肤主对话框 */
     data class ChangeSkin(val account: Account) : AccountSkinOperation
 }
 
-/**
- * 认证服务器登陆时的状态
- */
 sealed interface OtherLoginOperation {
     data object None : OtherLoginOperation
 
-    /** 账号登陆（输入账号密码Dialog）流程 */
     data class OnLogin(val server: AuthServer) : OtherLoginOperation
 
-    /** 登陆失败流程 */
     data class OnFailed(val th: Throwable) : OtherLoginOperation
 
-    /** 账号存在多角色的情况，多角色处理流程 */
     data class SelectRole(
         val profiles: List<AuthResult.AvailableProfiles>,
         val selected: (AuthResult.AvailableProfiles) -> Unit
@@ -347,7 +317,7 @@ fun AccountItem(
                 )
             }
             Row {
-                //刷新
+
                 IconButton(
                     onClick = onRefreshClick,
                     enabled = account.accountType != AccountType.LOCAL.tag
@@ -359,7 +329,6 @@ fun AccountItem(
                     )
                 }
 
-                //更多操作
                 var menuExpanded by remember { mutableStateOf(false) }
                 Box {
                     IconButton(onClick = { menuExpanded = true }) {
@@ -495,7 +464,7 @@ fun LoginMenuDialog(
                         ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        //微软登录
+
                         item {
                             LoginItem(
                                 modifier = Modifier.fillMaxWidth(),
@@ -506,7 +475,7 @@ fun LoginMenuDialog(
                                 }
                             )
                         }
-                        //离线登录
+
                         item {
                             LoginItem(
                                 modifier = Modifier.fillMaxWidth(),
@@ -522,7 +491,6 @@ fun LoginMenuDialog(
                             )
                         }
 
-                        //添加认证服务器
                         item {
                             InfoLayoutTextItem(
                                 modifier = Modifier.fillMaxWidth(),
@@ -781,19 +749,15 @@ fun LocalLoginDialog(
     onConfirm: (isUserNameInvalid: Boolean, userName: String, userUUID: String?) -> Unit,
     openLink: (url: String) -> Unit
 ) {
-    /** 用户输入的用户名 */
+
     var userName by rememberSaveable { mutableStateOf("") }
 
-    /** 用户名是否无效 */
     var isUserNameInvalid by rememberSaveable { mutableStateOf(false) }
 
-    /** 用户编辑了UUID */
     var userEditedUUID by rememberSaveable { mutableStateOf(false) }
 
-    /** 用户输入的UUID */
     var userUUID by rememberSaveable { mutableStateOf("") }
 
-    /** 根据用户名生成的待定UUID */
     val pendingUUID = remember(userName) {
         runCatching {
             getUUIDFromUserName(userName).toString()
@@ -804,7 +768,6 @@ fun LocalLoginDialog(
         }
     }
 
-    /** 用户UUID是否无效 */
     val isUserUUIDInvalid: Boolean = remember(userUUID) {
         userUUID.isNotEmpty() && runCatching {
             accountUUID(userUUID)
@@ -902,7 +865,6 @@ fun LocalLoginDialog(
                                 text = stringResource(R.string.account_supporting_microsoft_tip_link_purchase)
                             )
 
-                            //打开高级设置
                             BaseIconTextButton(
                                 onClick = {
                                     editUUID = !editUUID
@@ -925,7 +887,6 @@ fun LocalLoginDialog(
                             )
                         }
 
-                        //编辑自定义 UUID
                         if (editUUID)  {
                             Column(
                                 modifier = Modifier.fillMaxWidth()
@@ -955,7 +916,6 @@ fun LocalLoginDialog(
                                     shape = MaterialTheme.shapes.large
                                 )
 
-                                //关于 UUID 的提示
                                 Surface(
                                     modifier = Modifier.fillMaxWidth(),
                                     color = MaterialTheme.colorScheme.secondaryContainer,
@@ -1010,7 +970,7 @@ fun LocalLoginDialog(
                                             onConfirm(isUserNameInvalid, userName, uuidString)
                                         }
                                     } else {
-                                        //如果未填写UUID，则默认使用待定UUID
+
                                         onConfirm(
                                             isUserNameInvalid,
                                             userName,
@@ -1038,7 +998,7 @@ fun OtherServerLoginDialog(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    val confirmAction = { //确认操作
+    val confirmAction = {
         if (email.isNotEmpty() && password.isNotEmpty()) {
             onConfirm(email, password)
         }
@@ -1109,7 +1069,7 @@ fun OtherServerLoginDialog(
                             ),
                             keyboardActions = KeyboardActions(
                                 onNext = {
-                                    //自动跳到密码输入框，无缝衔接
+
                                     passwordFocus.requestFocus()
                                 }
                             ),
@@ -1118,7 +1078,7 @@ fun OtherServerLoginDialog(
                         )
 
                         Spacer(modifier = Modifier.size(8.dp))
-                        /** 是否显示密码 */
+
                         var showPassword by rememberSaveable { mutableStateOf(false) }
 
                         SingleLineTextCheck(
@@ -1169,7 +1129,7 @@ fun OtherServerLoginDialog(
                             ),
                             keyboardActions = KeyboardActions(
                                 onDone = {
-                                    //用户按下返回，甚至可以在这里直接进行登陆
+
                                     focusManager.clearFocus(true)
                                     confirmAction()
                                 }
@@ -1361,10 +1321,6 @@ fun OtherAccountReloginDialog(
     }
 }
 
-/**
- * 更改皮肤流程需要让 uri 与皮肤模型深度绑定
- * 重置或者确认更改时，能更方便的处理数据
- */
 sealed interface ChangeSkin {
     data object None : ChangeSkin
 
@@ -1373,22 +1329,18 @@ sealed interface ChangeSkin {
         val data: SkinModel
     ) : ChangeSkin
 
-    /**
-     * 重置离线皮肤
-     */
     data object ResetSkin : ChangeSkin
 
     sealed interface SkinModel {
-        /** 拒绝选择皮肤模型 */
+
         data object Rejected : SkinModel
         data class Model(val model: SkinModelType): SkinModel
-        /** @return 获取模型类型 */
+
         fun getModelType(): SkinModelType = when (this) {
             is Rejected -> SkinModelType.STEVE
             is Model -> model
         }
 
-        /** @return 获取模型类型 */
         fun getModelTypeNullable(): SkinModelType? = when (this) {
             is Rejected -> null
             is Model -> model
@@ -1396,9 +1348,6 @@ sealed interface ChangeSkin {
     }
 }
 
-/**
- * 更改披风流程
- */
 sealed interface ChangeCape {
     data object None : ChangeCape
     data class ChangeCapeData(
@@ -1443,13 +1392,12 @@ fun ChangeSkinDialog(
         }
     }
 
-    // 加载披风
     val previewCape by produceState<ByteArray?>(null, currentCapeToLoad, availableCapes) {
         if (!account.isMicrosoftAccount()) return@produceState
 
         value = withContext(Dispatchers.IO) {
             if (currentCapeToLoad != EmptyCape) {
-                // 列表已加载完成才会走到这里
+
                 runCatching {
                     currentCapeToLoad
                         .getFile(PathManager.DIR_ACCOUNT_CAPE)
@@ -1457,7 +1405,7 @@ fun ChangeSkinDialog(
                         .use { it.readBytes() }
                 }.getOrNull()
             } else if (availableCapes == null && account.getCapeFile().exists()) {
-                // 列表就绪前若本地有缓存披风则优先显示，列表加载完或切换时更新 ↑
+
                 runCatching {
                     account.getCapeFile()
                         .inputStream()
@@ -1474,7 +1422,6 @@ fun ChangeSkinDialog(
             uri?.let(onSkinPicked)
         }
 
-    // 皮肤状态变化时重载预览皮肤
     val previewSkin by produceState<ByteArray?>(null, skinState) {
         value = withContext(Dispatchers.IO) {
             when (skinState) {
@@ -1555,7 +1502,7 @@ Column(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            //更换皮肤：选择皮肤图片文件
+
                             when (skinState) {
                                 ChangeSkin.None, ChangeSkin.ResetSkin -> {
                                     InfoLayoutTextItem(
@@ -1593,12 +1540,12 @@ Column(
                                             text = stringResource(R.string.account_change_skin_arm_style),
                                             style = MaterialTheme.typography.bodyMedium
                                         )
-                                        //选择样式
+
                                         Column(
                                             modifier = Modifier.fillMaxWidth(),
                                             verticalArrangement = Arrangement.spacedBy(12.dp)
                                         ) {
-                                            //粗臂
+
                                             RadioCard(
                                                 selected = model == SkinModelType.STEVE,
                                                 enabled = skinState.data !is SkinModel.Rejected,
@@ -1611,7 +1558,7 @@ Column(
                                                     )
                                                 }
                                             )
-                                            //细臂
+
                                             RadioCard(
                                                 selected = model == SkinModelType.ALEX,
                                                 enabled = skinState.data !is SkinModel.Rejected,
@@ -1629,7 +1576,6 @@ Column(
                                 }
                             }
 
-                            //仅微软账号支持更改披风
                             if (account.isMicrosoftAccount()) {
                                 InfoLayoutTextItem(
                                     modifier = Modifier.fillMaxWidth(),
@@ -1659,7 +1605,6 @@ Column(
                                 )
                             }
 
-                            //离线账号重置皮肤
                             if (account.isLocalAccount() && account.hasSkinFile && skinState != ChangeSkin.ResetSkin) {
                                 InfoLayoutTextItem(
                                     modifier = Modifier.fillMaxWidth(),
@@ -1722,7 +1667,7 @@ Column(
     }
 
     if (showCapeSelector) {
-        //若当前未更改披风，则使用使用中的披风
+
         val cape = if (capeState is ChangeCape.ChangeCapeData) {
             capeState.cape
         } else {
@@ -1736,7 +1681,7 @@ Column(
             },
             selectedCape = cape,
             onSelected = { cape ->
-                //检查是否已经为正在使用的披风
+
                 val state = if (cape != currentUsingCape) {
                     ChangeCape.ChangeCapeData(cape)
                 } else {

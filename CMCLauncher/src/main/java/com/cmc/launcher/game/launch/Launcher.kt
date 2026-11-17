@@ -49,19 +49,12 @@ abstract class Launcher(
     lateinit var runtime: Runtime
         protected set
 
-    /** 当前启动版本要求的 LWJGL 版本（见 [detectLwjglVersion]），0 = 未探测/默认 */
     protected var lwjglVersion: Int = 0
         private set
 
-    /**
-     * 当前启动版本的 LWJGL natives 目录
-     */
     protected lateinit var lwjglNativesDir: String
         private set
 
-    /**
-     * 初始化 LWJGL 组件
-     */
     protected suspend fun initLwjglComponent(context: Context, version: Int) {
         check(!::lwjglNativesDir.isInitialized) { "LWJGL component has already been initialized" }
         lwjglVersion = version
@@ -105,9 +98,6 @@ abstract class Launcher(
     abstract fun getLogFile(): File
     abstract fun exit()
 
-    /**
-     * 游戏目录（.minecraft），默认为当前选择的游戏目录
-     */
     protected open fun getMinecraftPath(): String = getGameHome()
 
     protected suspend fun launchJvm(
@@ -140,7 +130,6 @@ abstract class Launcher(
         )
     }
 
-    //伪 suspend 函数，等待 JVM 的退出代码
     private suspend fun launchJavaVM(
         context: Context,
         jvmArgs: List<String>,
@@ -182,9 +171,6 @@ abstract class Launcher(
         return exitCode
     }
 
-    /**
-     * 添加 JVM 参数
-     */
     protected open fun MutableMap<String, String>.putJavaArgs() {}
 
     private fun getJavaArgs(
@@ -211,8 +197,7 @@ abstract class Launcher(
             put("pojav.path.minecraft", getMinecraftPath())
             put("pojav.path.private.account", PathManager.DIR_DATA_BASES.absolutePath)
             put("org.lwjgl.vulkan.libname", "libvulkan.so")
-            // LWJGL 3.4 的 Library.loadSystem 通过该属性定位 native 库。
-            // 指向 per-version natives 目录，保证 3.4.x 游戏加载对应版本的 liblwjgl.so 等。
+
             put("org.lwjgl.librarypath", lwjglNativesDir)
             put("glfwstub.windowWidth", screenSize.width.toString())
             put("glfwstub.windowHeight", screenSize.height.toString())
@@ -220,14 +205,13 @@ abstract class Launcher(
             put("ext.net.resolvPath", resolvFile.absolutePath)
 
             put("log4j2.formatMsgNoLookups", "true")
-            // Fix RCE vulnerability of log4j2
+
             put("java.rmi.server.useCodebaseOnly", "true")
             put("com.sun.jndi.rmi.object.trustURLCodebase", "false")
             put("com.sun.jndi.cosnaming.object.trustURLCodebase", "false")
 
             put("net.minecraft.clientmodname", BuildKeys.LAUNCHER_NAME)
 
-            // fml
             put("fml.earlyprogresswindow", "false")
             put("fml.ignoreInvalidMinecraftCertificates", "true")
             put("fml.ignorePatchDiscrepancies", "true")
@@ -261,16 +245,13 @@ abstract class Launcher(
         return userArguments
     }
 
-    /**
-     * 确保 DNS 配置文件存在
-     */
     private fun ensureDNSConfig(): File {
         val resolvFile = File(PathManager.DIR_GAME, "resolv.conf")
         val servers = buildResolvConfSet()
         Logger.info(TAG, "Using DNS servers for game: $servers")
         val configText = servers.joinToString(separator = "\n") { "nameserver $it" }
         runCatching {
-            // 配置文件不存在或内容不一致时覆写一次
+
             if (!resolvFile.exists() || resolvFile.readText().trim() != configText.trim()) {
                 resolvFile.writeText(configText)
             }
@@ -284,11 +265,10 @@ abstract class Launcher(
     private fun buildResolvConfSet(): Set<String> {
         return buildSet {
             getSystemDnsServerAddresses()
-                // JNDI DNS 的 nameserver 解析无法处理裸 IPv6 地址，仅保留 IPv4
+
                 ?.filterNot { it.contains(':') }
                 ?.let { addAll(it) }
 
-            // 按地区获取公共 DNS
             if (LocaleList.getDefault().get(0).displayName != Locale.CHINA.displayName) {
                 add("1.1.1.1")
                 add("1.0.0.1")
@@ -299,10 +279,6 @@ abstract class Launcher(
         }
     }
 
-    /**
-     * @param args 需要进行处理的参数
-     * @param ramAllocation 指定内存空间大小
-     */
     protected open fun progressFinalUserArgs(
         args: MutableList<String>,
         ramAllocation: Int = AllSettings.ramAllocation.getOrMin()
@@ -316,30 +292,23 @@ abstract class Launcher(
         args.purgeArg("-XX:+UseLargePagesInMetaspace")
         args.purgeArg("-XX:+UseLargePages")
         args.purgeArg("-Dorg.lwjgl.opengl.libname")
-        // Don't let the user specify a custom Freetype library (as the user is unlikely to specify a version compiled for Android)
+
         args.purgeArg("-Dorg.lwjgl.freetype.libname")
-        // Overridden by us to specify the exact number of cores that the android system has
+
         args.purgeArg("-XX:ActiveProcessorCount")
 
-        //Add automatically generated args
         val ramAllocationString = ramAllocation.toString()
         args.add("-Xms${ramAllocationString}M")
         args.add("-Xmx${ramAllocationString}M")
 
         args.add("-Dorg.lwjgl.openal.libname=${PathManager.DIR_NATIVE_LIB}/libopenal.so")
 
-        // Force LWJGL to use the Freetype library intended for it, instead of using the one
-        // that we ship with Java (since it may be older than what's needed).
-        // 始终指向 LWJGL 组件 natives 目录内的库，禁止回退到应用原生 libs 目录（其中不含 LWJGL 系库）
         args.add("-Dorg.lwjgl.freetype.libname=${File(lwjglNativesDir, "libfreetype.so").absolutePath}")
 
-        // Our spirv-cross is compiled shared, so it gets named shared.
         args.add("-Dorg.lwjgl.spvc.libname=spirv-cross-c-shared")
 
-        // We don't have jemalloc for our LWJGL so set the allocator to system to avoid error logs
         args.add("-Dorg.lwjgl.system.allocator=system")
 
-        // Some phones are not using the right number of cores, fix that
         args.add("-XX:ActiveProcessorCount=${java.lang.Runtime.getRuntime().availableProcessors()}")
     }
 
@@ -401,7 +370,7 @@ abstract class Launcher(
     protected fun getLibraryPath(): String {
         val libDirName = if (is64BitsDevice) "lib64" else "lib"
         val path = listOfNotNull(
-            // per-version LWJGL natives 优先，避免 APK 内旧版 native 抢占
+
             lwjglNativesDir,
             "/system/$libDirName",
             "/vendor/$libDirName",
@@ -525,7 +494,6 @@ fun getCacioJavaArgs(
 ): List<String> {
     val argsList: MutableList<String> = ArrayList()
 
-    // Caciocavallo config AWT-enabled version
     argsList.add("-Djava.awt.headless=false")
     argsList.add("-Dcacio.managed.screensize=${screenSize.width}x${screenSize.height}")
     argsList.add("-Dcacio.font.fontmanager=sun.awt.X11FontManager")
@@ -555,7 +523,6 @@ fun getCacioJavaArgs(
         argsList.add("--add-opens=java.desktop/sun.java2d=ALL-UNNAMED")
         argsList.add("--add-opens=java.base/java.lang.reflect=ALL-UNNAMED")
 
-        // Opens the java.net package to Arc DNS injector on Java 9+
         argsList.add("--add-opens=java.base/java.net=ALL-UNNAMED")
     }
 
@@ -571,9 +538,6 @@ fun getCacioJavaArgs(
     return argsList
 }
 
-/**
- * 获取设备 SoC 名称，在 API 31+ 读取系统属性 ro.soc.model，若失败则返回 Build.HARDWARE
- */
 fun getSocName(): String {
     return runCatching {
         ProcessBuilder("getprop", "ro.soc.model")

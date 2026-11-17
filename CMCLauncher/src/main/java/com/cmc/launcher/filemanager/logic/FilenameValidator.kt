@@ -4,10 +4,7 @@ import com.cmc.launcher.utils.file.InvalidFilenameException
 import com.cmc.launcher.utils.file.checkFilenameValidity
 
 object FilenameValidator {
-    /**
-     * 校验文件名合法性
-     * @throws FmFilenameException 非法时抛出，携带错误类别与细节
-     */
+
     @Throws(FmFilenameException::class)
     fun check(name: String) {
         try {
@@ -26,10 +23,6 @@ object FilenameValidator {
         }
     }
 
-    /**
-     * 验证文件名合法性
-     * @return 校验失败时的错误异常，合法时为 null
-     */
     fun verify(name: String): FmFilenameException? {
         return try {
             check(name)

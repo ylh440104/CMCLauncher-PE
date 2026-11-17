@@ -13,54 +13,35 @@ import java.nio.file.StandardCopyOption
 
 private const val TAG = "LocalMod"
 
-/** 已禁用的模组的文件后缀 */
 const val DISABLED_MOD_SUFFIX = ".disabled"
 
-/** 本地模组信息 */
 class LocalMod(
-    /** 本地模组对应的文件 */
+
     modFile: File,
 
-    /** 本地模组对应的文件的大小 */
     val fileSize: Long,
 
-    /** 模组ID */
     val id: String,
 
-    /** 模组所属的加载器 */
     val loader: ModLoader,
 
-    /** 模组的显示名称 */
     val name: String,
 
-    /** 模组描述 */
     val description: String? = null,
 
-    /** 模组版本 */
     val version: String? = null,
 
-    /** 模组的作者列表 */
     val authors: List<String>,
 
-    /** 模组的图标 */
     val icon: ByteArray? = null,
 
-    /**
-     * 标记是否为非模组
-     */
     val notMod: Boolean = false,
 
-    /**
-     * 是否从远端获取模组信息
-     */
     val checkRemote: Boolean = true,
 ) {
     var file by mutableStateOf(modFile)
         private set
 
-    /**
-     * 禁用模组
-     */
     fun disable() {
         val currentPath = file.absolutePath
         if (file.isDisabled()) return
@@ -71,9 +52,6 @@ class LocalMod(
         file = newFile
     }
 
-    /**
-     * 启用模组
-     */
     fun enable() {
         val newFile = enabledMod(file)
         if (!file.renameToSafely(newFile)) return
@@ -97,19 +75,10 @@ class LocalMod(
     }
 }
 
-/**
- * 模组是否启用
- */
 fun File.isEnabled(): Boolean = !absolutePath.endsWith(DISABLED_MOD_SUFFIX, ignoreCase = true)
 
-/**
- * 模组是否禁用
- */
 fun File.isDisabled(): Boolean = !this.isEnabled()
 
-/**
- * 创建一个非模组文件
- */
 fun createNotMod(file: File): LocalMod = LocalMod(
     modFile = file,
     fileSize = FileUtils.sizeOf(file),

@@ -1,21 +1,3 @@
-/*
- * Zalith Launcher 2
- * Copyright (C) 2025-2026 MovTery <movtery228@qq.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
- */
-
 package com.cmc.launcher.provider;
 
 import android.content.Context;
@@ -70,9 +52,6 @@ public class FolderProvider extends DocumentsProvider {
     private String packageName;
     private File androidDataDir;
 
-    /**
-     * @noinspection ALL
-     */
     @Override
     public void attachInfo(Context context, ProviderInfo info) {
         super.attachInfo(context, info);
@@ -83,16 +62,10 @@ public class FolderProvider extends DocumentsProvider {
         }
     }
 
-    /**
-     * 返回null表示在根目录
-     */
     private File getFileForDocId(String docId) throws FileNotFoundException {
         return getFileForDocId(docId, true);
     }
 
-    /**
-     * 返回null表示在根目录
-     */
     private File getFileForDocId(String docId, boolean checkExists) throws FileNotFoundException {
         String filename = docId;
         if (filename.startsWith(packageName)) {
@@ -125,7 +98,7 @@ public class FolderProvider extends DocumentsProvider {
         }
         if (checkExists) {
             try {
-                Os.lstat(f.getPath()); // 不能用File.exists: 如果file是个link，且目标无法访问，则exists返回false
+                Os.lstat(f.getPath());
             } catch (Exception e) {
                 throw new FileNotFoundException(docId + " not found");
             }
@@ -269,7 +242,7 @@ public class FolderProvider extends DocumentsProvider {
     private static boolean isSymbolicLink(File file) {
         try {
             StructStat stat = Os.lstat(file.getPath());
-            //noinspection OctalInteger
+
             return (stat.st_mode & 0170000) == 0120000;
         } catch (ErrnoException e) {
             e.printStackTrace();
@@ -403,12 +376,6 @@ public class FolderProvider extends DocumentsProvider {
         return out;
     }
 
-    /**
-     * Add a representation of a file to a cursor.
-     *
-     * @param result the cursor to modify
-     * @param docId  the document ID representing the desired file (may be null if given file)
-     */
     @SuppressWarnings("OctalInteger")
     private void includeFile(MatrixCursor result, String docId, File file)
             throws FileNotFoundException {
@@ -434,7 +401,7 @@ public class FolderProvider extends DocumentsProvider {
         } else if (file.canWrite()) {
             flags |= Document.FLAG_SUPPORTS_WRITE;
         }
-        //noinspection ConstantConditions
+
         if (file.getParentFile().canWrite()) {
             flags |= Document.FLAG_SUPPORTS_DELETE;
             flags |= Document.FLAG_SUPPORTS_RENAME;

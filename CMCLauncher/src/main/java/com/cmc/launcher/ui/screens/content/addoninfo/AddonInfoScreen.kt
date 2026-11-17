@@ -27,9 +27,6 @@ import com.cmc.launcher.utils.network.isUsingMobileData
 import com.cmc.launcher.viewmodel.ErrorViewModel
 import com.cmc.launcher.viewmodel.EventViewModel
 
-/**
- * Addons资源信息屏幕 独立于下载页面的导航栈
- */
 @Composable
 fun AddonInfoScreen(
     key: NestedNavKey.AddonInfo,
@@ -46,7 +43,6 @@ fun AddonInfoScreen(
 
     val context = LocalContext.current
 
-    // 下载资源操作
     var operation by remember { mutableStateOf<DownloadSingleOperation>(DownloadSingleOperation.None) }
     DownloadSingleOperation(
         operation = operation,

@@ -11,7 +11,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cmc.launcher.filemanager.ui.theme.fmSecondaryTextColor
 
-/** 属性-值 行布局 */
 @Composable
 fun PropertyRow(
     labelRes: Int,

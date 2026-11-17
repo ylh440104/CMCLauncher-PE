@@ -24,7 +24,7 @@ fun OnKeyboardClosed(
 
     LaunchedEffect(imeVisible) {
         if (lastImeVisible && !imeVisible) {
-            // IME insets 可能先于弹窗的窗口失焦事件变化，延迟确认以避免误关输入模式
+
             delay(100.milliseconds)
             if (localView.hasWindowFocus()) {
                 onClosed()

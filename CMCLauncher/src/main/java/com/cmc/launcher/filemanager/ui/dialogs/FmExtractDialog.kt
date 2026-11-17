@@ -25,12 +25,6 @@ import com.cmc.launcher.filemanager.ui.components.FmEditDialog
 import com.cmc.launcher.filemanager.ui.theme.fmErrorColor
 import com.cmc.launcher.ui.components.SimpleAlertDialog
 
-/**
- * 解压设置对话框。
- * @param archiveName 待解压的压缩包名称
- * @param onDismiss 取消并关闭对话框
- * @param onConfirm 确认解压，参数表示是否解压到独立文件夹
- */
 @Composable
 fun FmExtractDialog(
     archiveName: String,
@@ -71,12 +65,6 @@ fun FmExtractDialog(
     )
 }
 
-/**
- * 解压密码输入对话框。
- * @param errorText 密码错误时展示的提示文本，可为 null
- * @param onDismiss 取消解压并关闭对话框
- * @param onConfirm 以输入的密码继续解压
- */
 @Composable
 fun FmExtractPasswordDialog(
     errorText: String?,

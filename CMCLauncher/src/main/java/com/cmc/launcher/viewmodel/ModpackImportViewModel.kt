@@ -51,42 +51,35 @@ import kotlin.coroutines.resume
 
 private const val TAG = "ModpackImportVM"
 
-/** 导入整合包相关操作 */
 sealed interface ModpackImportOperation {
     data object None : ModpackImportOperation
-    /** 开始导入整合包 */
+
     data object Import : ModpackImportOperation
-    /** 不支持的整合包或格式无效 */
+
     data class NotSupport(val reason: UnsupportedPackReason) : ModpackImportOperation
-    /** 整合包导入完成 */
+
     data object Finished : ModpackImportOperation
-    /** 导入整合包时出现异常 */
+
     data class Error(val th: Throwable) : ModpackImportOperation
 }
 
-/** 整合包版本名称自定义状态操作 */
 sealed interface VersionNameOperation {
     data object None : VersionNameOperation
-    /** 等待用户输入版本名称 */
+
     data class Waiting(val name: String) : VersionNameOperation
 }
 
-/** 整合包安装确认使用移动网络状态操作 */
 sealed interface ConfirmMobileDataOperation {
     data object None : ConfirmMobileDataOperation
-    /** 等待用户确认使用移动网络 */
+
     data object Waiting : ConfirmMobileDataOperation
 }
 
-/**
- * 导入整合包ViewModel
- */
 class ModpackImportViewModel : ViewModel() {
     var importOperation by mutableStateOf<ModpackImportOperation>(ModpackImportOperation.None)
     var versionNameOperation by mutableStateOf<VersionNameOperation>(VersionNameOperation.None)
     var confirmMobileDataOperation by mutableStateOf<ConfirmMobileDataOperation>(ConfirmMobileDataOperation.None)
 
-    //等待用户输入版本名称相关
     private var versionNameContinuation: (Continuation<String>)? = null
     suspend fun waitForVersionName(name: String): String {
         return suspendCancellableCoroutine { cont ->
@@ -95,17 +88,13 @@ class ModpackImportViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 用户确认输入版本名称
-     */
     fun confirmVersionName(name: String) {
-        //恢复continuation
+
         versionNameContinuation?.resume(name)
         versionNameContinuation = null
         versionNameOperation = VersionNameOperation.None
     }
 
-    //警告使用移动网络相关
     private var confirmMobileData : (Continuation<Boolean>)? = null
     suspend fun waitForConfirmMobileData(): Boolean {
         return suspendCancellableCoroutine { cont ->
@@ -114,24 +103,15 @@ class ModpackImportViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 用户是否确认使用移动网络
-     */
     fun confirmUseMobileData(use: Boolean) {
-        //恢复continuation
+
         confirmMobileData?.resume(use)
         confirmMobileData = null
         confirmMobileDataOperation = ConfirmMobileDataOperation.None
     }
 
-    /**
-     * 整合包导入器
-     */
     var importer by mutableStateOf<ModpackImporter?>(null)
 
-    /**
-     * 开始导入整合包
-     */
     fun import(
         context: Context,
         uri: Uri,
@@ -139,7 +119,7 @@ class ModpackImportViewModel : ViewModel() {
         onStop: () -> Unit = {}
     ) {
         if (importOperation != ModpackImportOperation.None) {
-            //当前有别的导入任务，拒绝这次导入
+
             return
         }
         importOperation = ModpackImportOperation.Import
@@ -165,7 +145,7 @@ class ModpackImportViewModel : ViewModel() {
                 onError = { th ->
                     importer = null
                     importOperation = if (th is PackNotSupportedException) {
-                        //整合包不受支持，无法导入
+
                         ModpackImportOperation.NotSupport(th.reason)
                     } else {
                         ModpackImportOperation.Error(th)
@@ -232,7 +212,7 @@ fun ModpackImportOperation(
                     ) {
                         when (operation.reason) {
                             UnsupportedPackReason.CorruptedArchive -> {
-                                //因文件无法解压导致的无法导入
+
                                 Text(text = stringResource(R.string.import_modpack_not_supported_text1))
 
                                 Text(text = stringResource(R.string.import_modpack_not_supported_text2))
@@ -241,7 +221,7 @@ fun ModpackImportOperation(
                                 Text(text = stringResource(R.string.import_modpack_not_supported_text4))
                             }
                             UnsupportedPackReason.UnsupportedFormat -> {
-                                //启动器确实不支持这个格式
+
                                 Text(text = stringResource(R.string.import_modpack_not_supported_formats))
                                 AllSupportPackDisplay(modifier = Modifier.fillMaxWidth())
                             }
@@ -312,9 +292,6 @@ fun ModpackImportOperation(
     }
 }
 
-/**
- * 所有支持的整合包格式展示
- */
 @Composable
 fun AllSupportPackDisplay(
     modifier: Modifier = Modifier
@@ -366,7 +343,7 @@ fun ModpackConfirmUseMobileDataOperation(
                     onConfirmUse(false)
                 },
                 onConfirm = {
-                    //用户坚持使用移动网络
+
                     onConfirmUse(true)
                 }
             )

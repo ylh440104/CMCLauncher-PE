@@ -14,16 +14,6 @@ import com.cmc.launcher.filemanager.viewmodel.DirScanUiState
 import com.cmc.launcher.ui.components.SimpleAlertDialog
 import com.cmc.launcher.utils.file.formatFileSize
 
-/**
- * 回收站条目属性对话框。
- * @param name 条目名称
- * @param sourcePath 条目被删除前的源路径
- * @param isDirectory 是否为目录
- * @param sizeText 大小文本
- * @param deletedText 删除时间文本
- * @param dirScan 目录扫描状态，用于展示目录的异步统计结果
- * @param onDismiss 关闭对话框
- */
 @Composable
 fun FmTrashPropertyDialog(
     name: String,

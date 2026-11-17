@@ -9,29 +9,15 @@ import com.cmc.launcher.game.plugin.cacheAppIcon
 import com.cmc.launcher.game.plugin.renderer_v2.RendererV2PluginManager
 import com.cmc.launcher.game.renderer.Renderers
 
-/**
- * FCL、CMCLauncher 渲染器插件，同时支持使用本地渲染器插件
- * [FCL Renderer Plugin](https://github.com/FCL-Team/FCLRendererPlugin)
- */
 object RendererPluginManager: ApkPluginManager() {
     private val rendererPluginList: MutableList<RendererPlugin> = mutableListOf()
 
-    /**
-     * 获取当前渲染器插件加载的所有渲染器
-     */
     fun getRendererList(): List<RendererPlugin> = rendererPluginList
 
-    /**
-     * 移除某些已加载的渲染器
-     */
     fun removeRenderer(rendererPlugins: Collection<RendererPlugin>) {
         rendererPluginList.removeAll(rendererPlugins)
     }
 
-    /**
-     * 当前选择的渲染器插件所加载的渲染器
-     * 根据总渲染器管理者选择的渲染器的渲染器唯一标识符进行判断
-     */
     val selectedRendererPlugin: RendererPlugin?
         get() {
             val currentRenderer = runCatching {
@@ -40,25 +26,16 @@ object RendererPluginManager: ApkPluginManager() {
             return rendererPluginList.find { it.packageName == currentRenderer }
         }
 
-    /**
-     * 清除渲染器插件
-     */
     fun clearPlugin() {
         rendererPluginList.clear()
     }
 
-    /**
-     * 当前渲染器插件是否带有配置项（软件式插件、白名单包名）
-     */
     @JvmStatic
     fun isConfigurablePlugin(rendererUniqueIdentifier: String): Boolean {
         val renderer = rendererPluginList.find { it.packageName == rendererUniqueIdentifier }
         return renderer?.isConfigurable == true
     }
 
-    /**
-     * 解析 CMCLauncher、FCL 渲染器插件
-     */
     override fun parseApkPlugin(
         context: Context,
         info: ApplicationInfo,
@@ -74,7 +51,6 @@ object RendererPluginManager: ApkPluginManager() {
                 val packageName = info.packageName
                 val appName = info.loadLabel(packageManager).toString()
 
-                // 如果已加载新架构渲染器插件，此处不再继续加载其提供的旧架构
                 if (
                     RendererV2PluginManager.getRendererList().any { v2Plugin ->
                         v2Plugin.packageName == packageName

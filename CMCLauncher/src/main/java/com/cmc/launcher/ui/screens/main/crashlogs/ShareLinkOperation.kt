@@ -15,19 +15,13 @@ import com.cmc.launcher.crashlogs.LinkNotFoundException
 import com.cmc.launcher.ui.components.SimpleAlertDialog
 import com.cmc.launcher.utils.string.getMessageOrToString
 
-/**
- * 上传游戏崩溃日志操作流程
- */
 sealed interface ShareLinkOperation {
     data object None : ShareLinkOperation
-    /** 提示对话框 */
+
     data object Tip : ShareLinkOperation
-    /**
-     * 上传日志中
-     * @param apiRoot API 站点链接，仅作透明化展示
-     */
+
     data class Uploading(val apiRoot: String) : ShareLinkOperation
-    /** 发生错误，展示对话框 */
+
     data class Error(val error: Throwable) : ShareLinkOperation
 }
 

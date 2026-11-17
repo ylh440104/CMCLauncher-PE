@@ -38,18 +38,18 @@ fun DefaultSwitch(
                 label = "switch_thumb_rotation"
             )
             run {
-                val it = checked
+                val checkedNow = checked
                 Box(modifier = Modifier.rotate(rotation)) {
                     Icon(
-                    modifier = Modifier.size(16.dp),
-                    painter = painterResource(
-                    if (it) R.drawable.ic_check else R.drawable.ic_close
-                    ),
-                    contentDescription = null,
-                    tint = colors.trackColor(enabled, checked)
+                        modifier = Modifier.size(16.dp),
+                        painter = painterResource(
+                            if (checkedNow) R.drawable.ic_check else R.drawable.ic_close
+                        ),
+                        contentDescription = null,
+                        tint = colors.trackColor(enabled, checked)
                     )
                 }
-                }
+            }
         },
         interactionSource = interactionSource
     )

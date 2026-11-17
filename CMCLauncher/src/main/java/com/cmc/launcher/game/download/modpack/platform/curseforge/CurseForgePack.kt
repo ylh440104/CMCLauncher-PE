@@ -24,10 +24,6 @@ import java.io.IOException
 
 private const val TAG = "CurseForgePack"
 
-/**
- * CurseForge 整合包安装信息
- * @param manifest CurseForge 整合包清单
- */
 class CurseForgePack(
     root: File,
     private val manifest: CurseForgeManifest
@@ -35,9 +31,7 @@ class CurseForgePack(
     root = root,
     platform = PackPlatform.CurseForge
 ) {
-    /**
-     * 将 CurseForge 的清单读取为 [ModPackInfo] 信息对象
-     */
+
     suspend fun readCurseForge(
         task: Task,
         targetFolder: File,
@@ -45,7 +39,6 @@ class CurseForgePack(
     ): ModPackInfo {
         val modsFolder = VersionFolders.MOD.getDir(targetFolder)
 
-        //获取全部需要下载的模组文件
         val totalCount = manifest.files.size
         val files = manifest.files.mapIndexed { index, manifestFile ->
             val modFile = if (manifestFile.fileName.isNullOrBlank() || manifestFile.getFileUrl() == null) {
@@ -63,7 +56,6 @@ class CurseForgePack(
                             val url = version.fixedFileUrl() ?: throw IOException("Can't get the file url")
                             val fileName = version.fileName ?: throw IOException("Can't get the file name")
 
-                            //获取项目
                             val project = mirroredPlatformSearcher(
                                 searchers = mirroredCurseForgeSource()
                             ) { searcher ->
@@ -71,7 +63,7 @@ class CurseForgePack(
                                     projectID = manifestFile.projectID.toString()
                                 )
                             }.data
-                            //通过项目类型指定目标下载目录
+
                             val folder = project.getPlatformClassesOrNull()
                                 ?.versionFolder?.folderName
                                 ?.let { folderName ->
@@ -110,7 +102,6 @@ class CurseForgePack(
             modFile
         }
 
-        //获取模组加载器信息
         val loaders = manifest.minecraft.modLoaders.mapNotNull { modloader ->
             val id = modloader.id
             when {
@@ -122,7 +113,6 @@ class CurseForgePack(
             }
         }
 
-        //提取覆盖包到目标目录
         task.updateProgress(-1f)
         task.updateMessage(androidText(R.string.download_modpack_install_overrides))
         extractFiles(manifest.overrides ?: "overrides", targetFolder)
@@ -148,7 +138,7 @@ class CurseForgePack(
                 val sourceDir = internal.takeIf { it.isNotBlank() }
                     ?.let { File(root, it) }
                     ?: root
-                //提取文件
+
                 copyDirectoryContents(
                     from = sourceDir,
                     to = out,

@@ -37,7 +37,6 @@ import com.cmc.launcher.filemanager.ui.theme.fmSecondaryTextColor
 import com.cmc.launcher.filemanager.ui.theme.fmTopbarColors
 import com.cmc.launcher.filemanager.viewmodel.SortConfig
 
-/** 文件管理器顶部应用栏 */
 @Composable
 fun FmAppBar(
     currentPath: String,
@@ -123,7 +122,6 @@ fun FmAppBar(
                 )
             }
 
-            // 下拉菜单
             DropdownMenu(
                 expanded = menuExpanded,
                 onDismissRequest = {
@@ -296,7 +294,6 @@ fun AppBarSubTexts(
         }
     }
 }
-
 
 @Composable
 private fun SortSubmenu(

@@ -66,28 +66,19 @@ public class CallbackBridge {
     private static void postFrameCallbackDelayed(Choreographer.FrameCallback callback, long delayMillis) {
         MAIN_HANDLER.post(() -> Choreographer.getInstance().postFrameCallbackDelayed(callback, delayMillis));
     }
-    
+
     public static final int CLIPBOARD_COPY = 2000;
     public static final int CLIPBOARD_PASTE = 2001;
     public static final int CLIPBOARD_OPEN = 2002;
 
-    // SDL launcher integration. See the AAMC reference implementation:
-    // https://github.com/AngelAuraMC/Amethyst-Android
-    // Notification types
     public static final int NOTIF_TYPE_SDL = 0;
 
-    // Notification actions
     public static final int ACTION_INIT_LAUNCHER_INTEGRATION = 0;
     public static final int ACTION_SEND_TEXTBOX_RECT = 1;
 
-    // org.lwjgl.sdl.SDLInit 通过这两个常量调用 nativeNotifyLauncher
     public static final int SDL = NOTIF_TYPE_SDL;
     public static final int INIT = ACTION_INIT_LAUNCHER_INTEGRATION;
 
-    /**
-     * 由 JRE 侧（sdl_hook JNI）调用的通知入口。
-     * @return 通知是否处理成功
-     */
     @SuppressWarnings("unused")
     @Keep
     public static boolean notifyLauncher(int type, int... action) {
@@ -128,22 +119,18 @@ public class CallbackBridge {
                     }
                 }
                 if (action[0] == ACTION_SEND_TEXTBOX_RECT) {
-                    // TODO: 输入框位置同步（后续接入）
+
                 }
         }
         return false;
     }
 
-    /**
-     * org.lwjgl.sdl.SDLInit（LWJGL 3.4.1 的 SDL Java 绑定）调用的入口，转发到 {@link #notifyLauncher}。
-     * 注意：LWJGL 组件内声明为 native，运行时以本实现为准（避免依赖额外 C 符号）。
-     */
     @SuppressWarnings("unused")
     @Keep
     public static void nativeNotifyLauncher(int type, int... action) {
         notifyLauncher(type, action);
     }
-    
+
     public static volatile int windowWidth, windowHeight;
     public static volatile int physicalWidth, physicalHeight;
     public static float mouseX, mouseY, deltaX, deltaY;
@@ -151,11 +138,10 @@ public class CallbackBridge {
     public volatile static boolean holdingAlt, holdingCapslock, holdingCtrl,
             holdingNumlock, holdingShift;
 
-    // GLFW direct gamepad 共享缓冲
     public static final ByteBuffer sGamepadButtonBuffer;
     public static final FloatBuffer sGamepadAxisBuffer;
     public static boolean sGamepadDirectInput = false;
-    // Use a weak reference here to avoid possibly statically referencing a Context.
+
     private static @Nullable WeakReference<DirectGamepadEnableHandler> sDirectGamepadEnableHandler;
 
     public static void putMouseEventWithCoords(int button, float x, float y) {
@@ -167,11 +153,10 @@ public class CallbackBridge {
         putMouseEvent(button, true);
         postFrameCallbackDelayed(l -> putMouseEvent(button, false), 33);
     }
-    
+
     public static void putMouseEvent(int button, boolean isDown) {
         sendMouseKeycode(button, CallbackBridge.getCurrentMods(), isDown);
     }
-
 
     public static void sendCursorPos(float x, float y) {
         mouseX = x;
@@ -207,7 +192,7 @@ public class CallbackBridge {
         try {
             if (isDown) {
                 SDLActivity.onNativeKeyDown(androidKeycode);
-                // 游戏只在 SDL_EVENT_TEXT_INPUT 里插入字符，仅 KEYDOWN 不会有任何输入
+
                 if (isTextEventChar(keychar, modifiers) && SDLActivity.isSDLTextInputActive()) {
                     SDLActivity.onNativeTextInput(String.valueOf(keychar));
                 }
@@ -227,7 +212,7 @@ public class CallbackBridge {
         nativeSendCharMods(keychar, modifiers);
         nativeSendChar(keychar);
         if (!SdlBridge.getSdlEnabled()) return;
-        //输入法字符只能以 SDL 文本输入形式进入游戏，不能合成按键事件触发绑定
+
         if (isTextEventChar(keychar, modifiers) && SDLActivity.isSDLTextInputActive()) {
             SDLActivity.onNativeTextInput(String.valueOf(keychar));
         }
@@ -255,9 +240,9 @@ public class CallbackBridge {
     }
 
     public static void sendMouseKeycode(int button, int modifiers, boolean isDown) {
-        // if (isGrabbing()) DEBUG_STRING.append("MouseGrabStrace: " + android.util.Log.getStackTraceString(new Throwable()) + "\n");
+
         nativeSendMouseButton(button, isDown ? 1 : 0, modifiers);
-        // SDL 输入双路（按键状态累积后一次性上报，SDL 需要 MotionEvent.getButtonState()）
+
         if (!SdlBridge.getSdlEnabled()) return;
         int aKey = -1;
         switch (button) {
@@ -270,7 +255,7 @@ public class CallbackBridge {
             case LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_MIDDLE:
                 aKey = MotionEvent.BUTTON_TERTIARY;
                 break;
-            // Yes, back and forward are flipped, for some reason it's just flipped on SDL, don't ask
+
             case LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_5:
                 aKey = MotionEvent.BUTTON_BACK;
                 break;
@@ -292,10 +277,10 @@ public class CallbackBridge {
         sendMouseKeycode(keycode, CallbackBridge.getCurrentMods(), true);
         sendMouseKeycode(keycode, CallbackBridge.getCurrentMods(), false);
     }
-    
+
     public static void sendScroll(double xoffset, double yoffset) {
         nativeSendScroll(xoffset, yoffset);
-        // SDL 输入双路
+
         if (!SdlBridge.getSdlEnabled()) return;
         SDLActivity.onNativeMouse(0, MotionEvent.ACTION_SCROLL, (float) xoffset, (float) yoffset, false);
     }
@@ -307,7 +292,7 @@ public class CallbackBridge {
     }
 
     public static boolean isGrabbing() {
-        // Avoid going through the JNI each time.
+
         return isGrabbing;
     }
 
@@ -326,7 +311,6 @@ public class CallbackBridge {
         holdingShift = false;
     }
 
-    // Called from JRE side
     @SuppressWarnings("unused")
     @Keep
     public static @Nullable String accessAndroidClipboard(int type, String copy) {
@@ -356,12 +340,6 @@ public class CallbackBridge {
         return result;
     }
 
-    /**
-     * On Android 8.x, the ClipboardManager constructor creates a Handler on the calling thread,
-     * so obtaining the clipboard service from a looper-less thread (the game threads) throws
-     * immediately. Build and cache the instance on the main thread once; afterwards calls from
-     * any thread are safe, as they only post messages to the main looper.
-     */
     private static @Nullable ClipboardManager getClipboardManager() {
         ClipboardManager clipboard = sClipboardManager;
         if (clipboard != null) return clipboard;
@@ -438,7 +416,6 @@ public class CallbackBridge {
         deltaY = 0f;
     }
 
-    //Called from JRE side
     @SuppressWarnings("unused")
     @Keep
     private static void onDirectInputEnable() {
@@ -451,7 +428,6 @@ public class CallbackBridge {
         }
     }
 
-    //Called from JRE side
     @SuppressWarnings("unused")
     @Keep
     private static void onGrabStateChanged(final boolean grabbing) {
@@ -460,7 +436,7 @@ public class CallbackBridge {
         deltaX = 0f;
         deltaY = 0f;
         postFrameCallbackDelayed((time) -> {
-            // If the grab re-changed, skip notify process
+
             if(isGrabbing != grabbing) return;
 
             System.out.println("Grab changed : " + grabbing);
@@ -471,7 +447,6 @@ public class CallbackBridge {
         }, 16);
     }
 
-    //Called from JRE side
     @SuppressWarnings("unused")
     @Keep
     private static void onCursorShapeChanged(final int shape) {
@@ -482,35 +457,35 @@ public class CallbackBridge {
             synchronized (cursorShapeListener) {
                 CursorShape shape1;
                 switch (cursorShape) {
-                    // IBeam
+
                     case GLFW_IBEAM_CURSOR:
                         shape1 = CursorShape.IBeam;
                         break;
-                    // Hand
+
                     case GLFW_HAND_CURSOR:
                         shape1 = CursorShape.Hand;
                         break;
-                    // Cross Hair
+
                     case GLFW_CROSSHAIR_CURSOR:
                         shape1 = CursorShape.CrossHair;
                         break;
-                    // Resize NS
+
                     case GLFW_RESIZE_NS_CURSOR:
                         shape1 = CursorShape.ResizeNS;
                         break;
-                    // Resize EW
+
                     case GLFW_RESIZE_EW_CURSOR:
                         shape1 = CursorShape.ResizeEW;
                         break;
-                    // Resize All
+
                     case GLFW_RESIZE_ALL_CURSOR:
                         shape1 = CursorShape.ResizeAll;
                         break;
-                    // Not Allowed
+
                     case GLFW_NOT_ALLOWED_CURSOR:
                         shape1 = CursorShape.NotAllowed;
                         break;
-                    // Arrow
+
                     case GLFW_ARROW_CURSOR:
                     default:
                         shape1 = CursorShape.Arrow;
@@ -526,7 +501,6 @@ public class CallbackBridge {
         sGraphicOutputListener = listener;
     }
 
-    //Called from JRE side
     @SuppressWarnings("unused")
     @Keep
     private static void onGraphicOutput() {
@@ -538,10 +512,10 @@ public class CallbackBridge {
     @Keep @CriticalNative public static native void nativeSetUseInputStackQueue(boolean useInputStackQueue);
 
     @Keep @CriticalNative private static native boolean nativeSendChar(char codepoint);
-    // GLFW: GLFWCharModsCallback deprecated, but is Minecraft still use?
+
     @Keep @CriticalNative private static native boolean nativeSendCharMods(char codepoint, int mods);
     @Keep @CriticalNative private static native void nativeSendKey(int key, int scancode, int action, int mods);
-    // private static native void nativeSendCursorEnter(int entered);
+
     @Keep @CriticalNative private static native void nativeSendCursorPos(float x, float y);
     @Keep @CriticalNative private static native void nativeSendMouseButton(int button, int action, int mods);
     @Keep @CriticalNative private static native void nativeResetInputState();
@@ -560,4 +534,3 @@ public class CallbackBridge {
         sGamepadAxisBuffer = nativeCreateGamepadAxisBuffer().order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
     }
 }
-

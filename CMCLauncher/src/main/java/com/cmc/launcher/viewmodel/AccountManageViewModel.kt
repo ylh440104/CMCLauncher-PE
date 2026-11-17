@@ -74,12 +74,8 @@ import java.util.UUID
 import io.ktor.client.plugins.ResponseException as KtorResponseException
 import kotlinx.coroutines.flow.combine as kotlinxCombine
 
-/**
- * 账号管理界面用户意图 (MVI Intent)
- * 封装了 UI 层发出的所有操作请求
- */
 sealed interface AccountManageIntent {
-    /** 呼出账号登录菜单 */
+
     data class UpdateLoginMenuOp(val operation: LoginMenuOperation) : AccountManageIntent
 
     data class UpdateMicrosoftLoginOp(val operation: MicrosoftLoginOperation) :
@@ -98,8 +94,6 @@ sealed interface AccountManageIntent {
     data class OnSkinPicked(val uri: Uri) : AccountManageIntent
     data object ResetAccountSkinDialogState : AccountManageIntent
 
-
-    /** 执行微软登录流程 */
     data class PerformMicrosoftLogin(
         val useSystemBrowser: Boolean,
         val toWeb: (url: String) -> Unit,
@@ -108,77 +102,53 @@ sealed interface AccountManageIntent {
         val checkIfInWebScreen: () -> Boolean
     ) : AccountManageIntent
 
-    /** 应用选中的皮肤 */
     data class ApplySkin(val account: Account, val file: File, val model: SkinModelType) : AccountManageIntent
 
-    /** 内部使用的 Intent，用于在文件导入后上传皮肤 */
     data class UploadMicrosoftSkin(
         val account: Account,
         val skinFile: File,
         val skinModel: SkinModelType
     ) : AccountManageIntent
 
-    /** 抓取该账号可用的微软披风列表 */
     data class FetchMicrosoftCapes(
         val account: Account,
     ) : AccountManageIntent
 
-    /** 应用选中的微软披风 */
     data class ApplyMicrosoftCape(
         val account: Account,
         val cape: PlayerProfile.Cape
     ) : AccountManageIntent
 
-    /** 创建新的离线账号 */
     data class CreateLocalAccount(val userName: String, val userUUID: String?) :
         AccountManageIntent
 
-    /** 使用第三方验证服务器进行登录 */
     data class LoginWithOtherServer(
         val server: AuthServer,
         val email: String,
         val pass: String
     ) : AccountManageIntent
 
-    /** 添加新的 Yggdrasil 验证服务器 */
     data class AddServer(val url: String) : AccountManageIntent
 
-    /** 删除指定的验证服务器 */
     data class DeleteServer(val server: AuthServer) : AccountManageIntent
 
-    /** 删除账号及其相关数据 */
     data class DeleteAccount(val account: Account) : AccountManageIntent
 
-    /** 刷新账号的登录凭据（Token） */
     data class RefreshAccount(val account: Account) : AccountManageIntent
 
-    /** 凭据失效后，使用新密码重新登录外置账号 */
     data class ReloginOtherAccount(
         val account: Account,
         val password: String
     ) : AccountManageIntent
 
-    /** 将账号皮肤重置为默认状态 */
     data class ResetSkin(val account: Account) : AccountManageIntent
 }
 
-/**
- * 账号管理界面单次副作用 (MVI Effect)
- * 用于处理错误弹窗等瞬时事件
- */
 sealed class AccountManageEffect {
-    /** 在 UI 层显示错误信息对话框 */
+
     data class ShowError(val title: AndroidStringText, val message: AndroidStringText) : AccountManageEffect()
 }
 
-/**
- * 账号管理界面 ViewModel
- * 
- * 核心逻辑处理器，负责将 Intent 转化为状态更新或副作用。
- * 通过 ApplicationContext 避免了 Activity 生命周期导致的内存泄漏。
- * 
- * @property context 全局应用上下文
- */
 @HiltViewModel(assistedFactory = AccountManageViewModel.Factory::class)
 class AccountManageViewModel @AssistedInject constructor(
     @Assisted private val eventViewModel: EventViewModel,
@@ -203,9 +173,6 @@ class AccountManageViewModel @AssistedInject constructor(
     private val _effect = Channel<AccountManageEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
-    /**
-     * 登录相关操作状态流统一管理
-     */
     val loginUiState: StateFlow<LoginUiState> = kotlinxCombine(
         _loginMenuOp,
         _microsoftLoginOp,
@@ -231,9 +198,6 @@ class AccountManageViewModel @AssistedInject constructor(
         val otherOp: OtherLoginOperation = OtherLoginOperation.None
     )
 
-    /**
-     * 账号数据状态流统一管理
-     */
     val profileUiState: StateFlow<ProfileUiState> = kotlinxCombine(
         AccountsManager.accountsFlow,
         AccountsManager.currentAccountFlow,
@@ -259,21 +223,12 @@ class AccountManageViewModel @AssistedInject constructor(
         val accountCapeOpMap: Map<String, List<PlayerProfile.Cape>> = emptyMap(),
     )
 
-    /**
-     * 更改账号皮肤状态流
-     * @param pendingSkinData 将要更改的皮肤
-     * @param pendingCapeData 将要更改的披风
-     * @param importingSkin 是否正在导入皮肤文件，不交给onIntent处理
-     */
     data class AccountSkinDialogState(
         val pendingSkinData: ChangeSkin = ChangeSkin.None,
         val pendingCapeData: ChangeCape = ChangeCape.None,
         val importingSkin: Boolean = false
     )
 
-    /**
-     * 数据相关操作状态流统一管理
-     */
     val operationUiState: StateFlow<OperationUiState> = kotlinxCombine(
         _serverOp,
         _accountOp,
@@ -294,9 +249,6 @@ class AccountManageViewModel @AssistedInject constructor(
         val accountSkinDialogState: AccountSkinDialogState = AccountSkinDialogState()
     )
 
-    /**
-     * 处理来自 UI 层的所有 Intent
-     */
     fun onIntent(intent: AccountManageIntent) {
         when (intent) {
             is AccountManageIntent.UpdateLoginMenuOp ->
@@ -356,9 +308,6 @@ class AccountManageViewModel @AssistedInject constructor(
         }
     }
 
-    /**
-     * 选中皮肤后，先在 VM 层做文件合法性校验，再推进后续 Dialog 流程状态
-     */
     private fun onSkinPicked(intent: AccountManageIntent.OnSkinPicked) {
         viewModelScope.launch(Dispatchers.IO) {
             _accountSkinDialogState.update {
@@ -414,14 +363,12 @@ class AccountManageViewModel @AssistedInject constructor(
         }
     }
 
-    /** 内部方法：发送错误通知 */
     private fun emitError(title: AndroidStringText, message: AndroidStringText) {
         viewModelScope.launch(Dispatchers.Main) {
             _effect.send(AccountManageEffect.ShowError(title, message))
         }
     }
 
-    /** 内部方法：发送 Toast 消息 */
     private fun emitToast(
         text: AndroidStringText,
         duration: Int = Toast.LENGTH_SHORT
@@ -429,7 +376,6 @@ class AccountManageViewModel @AssistedInject constructor(
         eventViewModel.sendToast(text, duration)
     }
 
-    /** 执行微软登录流程 */
     private fun performMicrosoftLogin(intent: AccountManageIntent.PerformMicrosoftLogin) {
         microsoftLogin(
             context,
@@ -445,7 +391,6 @@ class AccountManageViewModel @AssistedInject constructor(
         onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.None))
     }
 
-    /** 应用选中的皮肤 */
     private fun applySkin(account: Account, file: File, model: SkinModelType) {
         when {
             account.isLocalAccount() -> saveLocalSkin(account, file, model)
@@ -453,7 +398,6 @@ class AccountManageViewModel @AssistedInject constructor(
         }
     }
 
-    /** 处理皮肤文件导入 */
     private fun importSkinFile(account: Account, file: File, model: SkinModelType) {
         TaskSystem.submitTask(
             Task.runTask(
@@ -487,7 +431,6 @@ class AccountManageViewModel @AssistedInject constructor(
         )
     }
 
-    /** 上传微软皮肤 */
     private fun uploadMicrosoftSkin(intent: AccountManageIntent.UploadMicrosoftSkin) {
         val account = intent.account
         val skinFile = intent.skinFile
@@ -551,7 +494,6 @@ class AccountManageViewModel @AssistedInject constructor(
         )
     }
 
-    /** 获取微软披风列表 */
     private fun fetchMicrosoftCapes(account: Account) {
         TaskSystem.submitTask(
             Task.runTask(
@@ -565,7 +507,7 @@ class AccountManageViewModel @AssistedInject constructor(
                         task.updateProgress(-1f)
                         task.updateMessage(androidText(R.string.account_change_cape_cache_all))
                         cacheAllCapes(profile)
-                        //同时更新本地的皮肤/披风
+
                         runCatching {
                             account.downloadYggdrasil(refresh = false)
                         }.onFailure { e ->
@@ -610,7 +552,6 @@ class AccountManageViewModel @AssistedInject constructor(
         )
     }
 
-    /** 更改微软账号披风 */
     private fun applyMicrosoftCape(intent: AccountManageIntent.ApplyMicrosoftCape) {
         val account = intent.account
         val cape = intent.cape
@@ -707,7 +648,6 @@ class AccountManageViewModel @AssistedInject constructor(
         )
     }
 
-    /** 创建离线账号 */
     private fun createLocalAccount(userName: String, userUUID: String?) {
         if (!RegionGate.canUseOffline(context)) {
             onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.None))
@@ -717,7 +657,6 @@ class AccountManageViewModel @AssistedInject constructor(
         onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.None))
     }
 
-    /** 第三方 Yggdrasil 服务器登录 */
     private fun loginWithOtherServer(intent: AccountManageIntent.LoginWithOtherServer) {
         AuthServerHelper(intent.server, intent.email, intent.pass, onSuccess = { account, task ->
             task.updateMessage(androidText(R.string.account_logging_in_saving))
@@ -734,7 +673,6 @@ class AccountManageViewModel @AssistedInject constructor(
         }
     }
 
-    /** 添加自定义验证服务器 */
     private fun addServer(url: String) {
         addOtherServer(url) {
             onIntent(AccountManageIntent.UpdateServerOp(ServerOperation.OnThrowable(it)))
@@ -752,7 +690,6 @@ class AccountManageViewModel @AssistedInject constructor(
         onIntent(AccountManageIntent.UpdateAccountOp(AccountOperation.None))
     }
 
-    /** 强制刷新账号凭据 */
     private fun refreshAccount(account: Account) {
         AccountsManager.refreshAccount(context, account) { th ->
             onIntent(
@@ -767,7 +704,6 @@ class AccountManageViewModel @AssistedInject constructor(
         }
     }
 
-    /** 凭据失效后，使用新密码重新登录外置账号 */
     private fun reloginOtherAccount(intent: AccountManageIntent.ReloginOtherAccount) {
         val account = intent.account
         AuthServerHelper(
@@ -794,7 +730,6 @@ class AccountManageViewModel @AssistedInject constructor(
         }
     }
 
-    /** 保存离线账号皮肤到本地存储 */
     private fun saveLocalSkin(account: Account, file: File, model: SkinModelType) {
         val skinFile = account.getSkinFile()
 
@@ -834,7 +769,6 @@ class AccountManageViewModel @AssistedInject constructor(
         }))
     }
 
-    /** 重置皮肤数据 */
     private fun resetSkin(account: Account) {
         TaskSystem.submitTask(Task.runTask(dispatcher = Dispatchers.IO, task = {
             account.apply {
@@ -852,11 +786,5 @@ class AccountManageViewModel @AssistedInject constructor(
         )
     }
 
-    /**
-     * 将多种异常类型统一转化为用户可读的本地化字符串。
-     *
-     * @param th 捕获的异常
-     * @return 格式化后的错误提示
-     */
     fun formatAccountError(th: Throwable): AndroidStringText = accountErrorText(th)
 }

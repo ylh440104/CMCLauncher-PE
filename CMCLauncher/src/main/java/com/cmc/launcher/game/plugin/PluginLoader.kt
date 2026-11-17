@@ -12,17 +12,11 @@ import com.cmc.launcher.game.plugin.renderer_v2.RendererV2PluginManager
 import com.cmc.launcher.game.renderer.Renderers
 import com.cmc.launcher.utils.logging.Logger
 
-/**
- * 统一插件的加载，保证仅获取一次应用列表
- */
 object PluginLoader {
     private var isInitialized: Boolean = false
     private const val PACKAGE_FLAGS =
         PackageManager.GET_META_DATA or PackageManager.GET_SHARED_LIBRARY_FILES
 
-    /**
-     * 所有已加载的应用插件
-     */
     var allPlugins: List<ApkPlugin> = emptyList()
         private set
 
@@ -57,7 +51,6 @@ object PluginLoader {
         }
         FFmpegPluginManager.loadPlugin(context) { apkPluginList.add(it) }
 
-        // 加载旧架构渲染器插件
         RendererPluginManager.getRendererList().filter { plugin ->
             !Renderers.addRenderer(plugin)
         }.takeIf {
@@ -65,7 +58,7 @@ object PluginLoader {
         }?.let { failedToLoadList ->
             RendererPluginManager.removeRenderer(failedToLoadList)
         }
-        // 加载新架构渲染器插件
+
         RendererV2PluginManager.getRendererList().filter { plugin ->
             !Renderers.addRenderer(plugin)
         }.takeIf {
@@ -74,11 +67,9 @@ object PluginLoader {
             RendererV2PluginManager.removeRenderer(failedToLoadList)
         }
 
-        // 去重已加载的插件
         val seenPackages = mutableSetOf<String>()
         apkPluginList.removeAll { !seenPackages.add(it.packageName) }
 
-        //全部已加载的插件
         allPlugins = apkPluginList.sortedBy { it.appName }
     }
 }

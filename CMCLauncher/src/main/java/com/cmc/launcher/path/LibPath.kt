@@ -17,13 +17,9 @@ class LibPath {
 
         @JvmField val MIO_LIB_PATCHER = File(LAUNCHER_COMPONENTS, "MioLibPatcher.jar")
         @JvmField val MIO_LAUNCH_WRAPPER = File(LAUNCHER_COMPONENTS, "MioLaunchWrapper.jar")
-        /**
-         * [Github](https://github.com/bangbang93/forge-install-bootstrapper)
-         */
+
         @JvmField val FORGE_INSTALLER = File(LAUNCHER_COMPONENTS, "forge_installer.jar")
-        /**
-         * 供 Forge 1.13 ~ 1.16 的 ModLauncher 加载 OptiFine
-         */
+
         @JvmField val TRANSFORMER_DISCOVERY_SERVICE = File(LAUNCHER_COMPONENTS, "HMCLTransformerDiscoveryService-1.0.jar")
 
         @JvmField val AUTHLIB_INJECTOR = File(AUTH_LIBS_DIR, "authlib-injector.jar")

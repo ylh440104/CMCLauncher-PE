@@ -6,7 +6,7 @@ import java.util.Locale
 private fun getLanguage(versionId: String): String {
     val locate = Locale.getDefault()
     return if (versionId.isLowerOrEqualVer("1.10.2")) {
-        locate.language + "_" + locate.country.uppercase() // 1.10 -
+        locate.language + "_" + locate.country.uppercase()
     } else {
         locate.language + "_" + locate.country.lowercase()
     }

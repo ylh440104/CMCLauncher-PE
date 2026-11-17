@@ -17,9 +17,6 @@ import com.cmc.launcher.ui.screens.content.download.addon.favorites.FavoritesScr
 import com.cmc.launcher.ui.screens.onBack
 import com.cmc.launcher.ui.screens.rememberTransitionSpec
 
-/**
- * @param swapToDownload 跳转到资源类型对应的下载分类屏幕详情页
- */
 @Composable
 fun DownloadFavoritesScreen(
     key: NestedNavKey.DownloadFavorites,

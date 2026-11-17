@@ -45,12 +45,6 @@ private const val TAG = "Install.ForgeLike"
 
 const val FORGE_LIKE_INSTALL_ID = "Install.ForgeLike"
 
-/**
- * Forge Like 安装 Task
- * @param isNew 是否为新版本 Forge、NeoForge
- * @param tempFolderName 临时版本文件夹名称
- * @param logOutputHolder 安装器持有的日志输出容器
- */
 fun getForgeLikeInstallTask(
     isNew: Boolean,
     downloader: BaseMinecraftDownloader,
@@ -67,8 +61,8 @@ fun getForgeLikeInstallTask(
         task = { task ->
             val tempVanillaJar = File(tempMinecraftDir, "versions/$inherit/$inherit.jar")
             val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
-            if (isNew) { //新版 Forge、NeoForge
-                //以 HMCL 的方式手动安装
+            if (isNew) {
+
                 withTaskLogOutput(
                     holder = logOutputHolder,
                     title = androidText(
@@ -87,7 +81,7 @@ fun getForgeLikeInstallTask(
                         logOutput = output
                     )
                 }
-            } else { //旧版 Forge
+            } else {
                 installOldForge(
                     task = task,
                     downloader = downloader,
@@ -99,15 +93,11 @@ fun getForgeLikeInstallTask(
                 )
             }
 
-            // 修复 bootstraplauncher 0.1.17+ 的启动问题
             progressIgnoreList(tempVersionJson)
         }
     )
 }
 
-/**
- * 用 HMCL 的方式安装新版 Forge、NeoForge
- */
 private suspend fun installNewForgeHMCLWay(
     task: Task,
     loaderName: String,
@@ -125,7 +115,7 @@ private suspend fun installNewForgeHMCLWay(
 
     val installProfile = ZipFile(tempInstaller).use { zip ->
         val installProfile = zip.readText("install_profile.json").parseToJson()
-        //解压版本Json
+
         zip.extractEntryToFile("version.json", tempVersionJson)
 
         task.updateProgress(0.2f)
@@ -189,9 +179,6 @@ private suspend fun installNewForgeHMCLWay(
     )
 }
 
-/**
- * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/bf6fa718c89e8615b947d1c639ed16a72ce125e0/Plain%20Craft%20Launcher%202/Pages/PageDownload/ModDownloadLib.vb#L1481-L1532)
- */
 private suspend fun installOldForge(
     task: Task,
     downloader: BaseMinecraftDownloader,
@@ -214,13 +201,11 @@ private suspend fun installOldForge(
         if (!installProfile.has("install")) {
             Logger.info(TAG, "Starting the Forge installation, Legacy method A")
 
-            //建立 Json 文件
             val jsonVersion = zip.readText(installProfile["json"].asString.trimStart('/')).parseToJson()
             jsonVersion.addProperty("id", tempFolderName)
             tempVersionJson.writeText(GSON.toJson(jsonVersion))
             task.updateProgress(0.6f)
 
-            //解压支持库文件
             zip.extractFromZip("maven", librariesFolder)
 
             null
@@ -232,11 +217,9 @@ private suspend fun installOldForge(
             val jarFile = File(jarPath)
             if (jarFile.exists()) jarFile.delete()
 
-            //解压 Jar 文件
             zip.extractEntryToFile(installProfile["install"].asJsonObject["filePath"].asString, jarFile)
             task.updateProgress(0.9f)
 
-            //建立 Json 文件
             val versionInfo = installProfile["versionInfo"].asJsonObject
             if (!versionInfo.has("inheritsFrom")) {
                 versionInfo.addProperty("inheritsFrom", inherit)
@@ -248,17 +231,15 @@ private suspend fun installOldForge(
                     val lib = it.asJsonObject
                     if (lib.has("name")) {
                         val name = lib["name"].asString
-                        //过滤掉 path 对应的 library (这个是需要解压出去的，没法下载)
-                        //比如 net.minecraftforge:forge:1.7.10-10.13.4.1614-1.7.10
+
                         name == artifact
-                    } else false //保留
+                    } else false
                 }
             }
         }
     }
     task.updateProgress(1f)
 
-    //判断是否需要补全 Forge 支持库
     versionInfo?.let { info ->
         val libDownloader = GameLibDownloader(
             downloader = downloader,
@@ -268,14 +249,11 @@ private suspend fun installOldForge(
             task = task,
             targetDir = librariesFolder
         )
-        //开始补全 Forge 支持库
+
         libDownloader.download(task)
     }
 }
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/6e05b5ee58e67cd40e58c6f6002f3599897ca358/HMCLCore/src/main/java/org/jackhuang/hmcl/download/forge/ForgeNewInstallTask.java#L79-L178)
- */
 private suspend fun runProcessors(
     task: Task,
     loaderName: String,
@@ -285,7 +263,7 @@ private suspend fun runProcessors(
     vars: Map<String, String>,
     logOutput: TaskLogOutput
 ): Unit = withContext(Dispatchers.IO) {
-    //优先构建所有需要执行的命令，以便于更好的计算进度
+
     val commandList = processors.mapNotNull { processor ->
         val options = parseOptions(tempMinecraftDir, processor.getArgs(), vars)
         if (options["task"] == "DOWNLOAD_MOJMAPS" || !processor.isSide("client")) return@mapNotNull null
@@ -332,7 +310,6 @@ private suspend fun runProcessors(
             }.toString()
         } + jarPath.toString()
 
-        //构建 JvmArgs
         val jvmArgs = buildList {
             add("-cp")
             add(classpath.joinToString(File.pathSeparator))
@@ -349,7 +326,7 @@ private suspend fun runProcessors(
     }
 
     stopAllNonMainProcesses(GlobalContext)
-    //正式开始执行命令
+
     commandList.forEachIndexed { index, (processor, jvmArgs, outputs) ->
         val step = index + 1
         val progress = step.toFloat() / commandList.size
@@ -390,11 +367,6 @@ private suspend fun runProcessors(
     }
 }
 
-/**
- * [Fix following HMCL](https://github.com/HMCL-dev/HMCL/blob/6b78f56/HMCLCore/src/main/java/org/jackhuang/hmcl/download/MaintainTask.java#L232-L243)
- * bootstraplauncher 0.1.17 will only apply ignoreList to file name of libraries in classpath.
- * So we only fixes name of primary jar.
- */
 private suspend fun progressIgnoreList(
     tempVersionJson: File
 ) = withContext(Dispatchers.IO) {
@@ -423,7 +395,6 @@ private suspend fun progressIgnoreList(
         it.isJsonPrimitive && it.asJsonPrimitive.isString && it.asString.startsWith("-DignoreList=")
     }.takeIf { it != -1 } ?: return@withContext
 
-    //追加 ${primary_jar_name}
     val originalArg = jvmArgs[ignoreListIndex].asString
     jvmArgs[ignoreListIndex] = GSON.toJsonTree("$originalArg,\${primary_jar_name}")
 

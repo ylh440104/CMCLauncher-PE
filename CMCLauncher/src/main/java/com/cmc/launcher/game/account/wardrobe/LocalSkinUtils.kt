@@ -23,7 +23,7 @@ private fun getLocalUuid(name: String): String {
 
     val hashCode = name.hashCode().toLong() and 0xFFFFFFFFL
     val hashHex = hashCode.toString(16)
-    val hashPart = legacyStrFill(hashHex, '0', 16) //确保最长16位
+    val hashPart = legacyStrFill(hashHex, '0', 16)
 
     return buildString(34) {
         append(lengthPart.take(12))
@@ -34,9 +34,6 @@ private fun getLocalUuid(name: String): String {
     }
 }
 
-/**
- * 根据皮肤模型类型，生成 profileId
- */
 fun getLocalUUIDWithSkinModel(userName: String, skinModelType: SkinModelType): String {
     val baseUuid = getLocalUuid(userName)
     if (skinModelType == SkinModelType.NONE) return baseUuid
@@ -60,9 +57,6 @@ fun getLocalUUIDWithSkinModel(userName: String, skinModelType: SkinModelType): S
     return prefix + suffix.toString(16).padStart(5, '0').uppercase()
 }
 
-/**
- * 检查皮肤像素合法性，Minecraft仅支持使用64x64或64x32像素的皮肤
- */
 suspend fun validateSkinFile(skinFile: File): SkinType {
     return withContext(Dispatchers.IO) {
         val options = BitmapFactory.Options()
@@ -74,30 +68,20 @@ suspend fun validateSkinFile(skinFile: File): SkinType {
     }
 }
 
-/**
- * 是否为双层皮肤：64x64
- */
 fun BitmapFactory.Options.isDualLayerSkin(): Boolean {
     return outWidth == 64 && outHeight == 64
 }
 
-/**
- * 是否为经典皮肤（单层皮肤），早期皮肤类型，双手、双腿的贴图是分别共用的
- * 64x32
- */
 fun BitmapFactory.Options.isClassicSkin(): Boolean {
     return outWidth == 64 && outHeight == 32
 }
 
-/**
- * 检查皮肤是否为纤细（Alex）模型
- */
 suspend fun File.isSlimModel(): Boolean = withContext(Dispatchers.IO) {
     val options = BitmapFactory.Options()
     val bitmap = BitmapFactory.decodeFile(absolutePath, options) ?: return@withContext false
     try {
         if (options.isClassicSkin()) {
-            //旧版单层皮肤不支持细臂
+
             false
         } else {
             val rightHand = bitmap.isTransparent(50..51, 16..19)

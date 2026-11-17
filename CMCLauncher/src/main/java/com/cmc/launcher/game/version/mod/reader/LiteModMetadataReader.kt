@@ -16,9 +16,6 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipFile as JDKZipFile
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/242df8a/HMCLCore/src/main/java/org/jackhuang/hmcl/mod/modinfo/LiteModMetadata.java)
- */
 object LiteModMetadataReader : ModMetadataReader {
     override suspend fun fromLocal(modFile: File): LocalMod = withContext(Dispatchers.IO) {
         try {
@@ -41,7 +38,7 @@ object LiteModMetadataReader : ModMetadataReader {
                             description = metadata.description,
                             version = metadata.version,
                             authors = parseAuthors(metadata.author),
-                            icon = null //LiteLoader 通常没有图标
+                            icon = null
                         )
                     }
                 } catch (e: Exception) {
@@ -77,7 +74,7 @@ object LiteModMetadataReader : ModMetadataReader {
                     description = metadata.description,
                     version = metadata.version,
                     authors = parseAuthors(metadata.author),
-                    icon = null //LiteLoader 通常没有图标
+                    icon = null
                 )
             }
         }

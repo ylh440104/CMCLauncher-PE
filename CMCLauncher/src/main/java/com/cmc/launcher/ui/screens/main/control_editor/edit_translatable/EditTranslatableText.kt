@@ -55,13 +55,6 @@ import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.ui.theme.onItemColor
 import com.cmc.launcher.utils.string.isEmptyOrBlank
 
-/**
- * 编辑可翻译文本
- * @param onDismissRequest 由Dialog主动调用的关闭请求回调
- * @param onClose 由用户主动点击关闭按钮调用的关闭请求回调
- * @param title 对话框标题
- * @param take 限制输入文本的字数
- */
 @Composable
 fun EditTranslatableTextDialog(
     text: ObservableTranslatableString,
@@ -140,7 +133,6 @@ fun EditTranslatableTextDialog(
                             )
                         }
 
-                        //默认文本
                         OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = text.default,
@@ -208,9 +200,6 @@ fun EditTranslatableTextDialog(
     }
 }
 
-/**
- * 可翻译项
- */
 @Composable
 private fun LocalizedStringItem(
     modifier: Modifier = Modifier,

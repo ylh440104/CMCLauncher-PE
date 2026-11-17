@@ -73,7 +73,7 @@ class GameLauncher(
 
     private val version = config.version
     private val usingAccount = if (version.offlineAccountLogin) {
-        //使用临时离线账号启动游戏
+
         config.account.copy(
             accountType = AccountType.LOCAL.tag
         )
@@ -97,7 +97,7 @@ class GameLauncher(
 
         val manifest = GSON.fromJson(File(version.getVersionPath(), "${version.getVersionName()}.json").readText(), GameManifest::class.java)
         val clientJar = manifest.inheritsFrom?.let { inheritsFrom ->
-            //FIXME: 依赖的是一个原版ID的版本，但这个版本可能是用户自行安装的，只是版本名称与ID一致，不保证客户端真的是对应版本
+
             version.getInheritedClientJar(inheritsFrom)
         } ?: version.getClientJar()
 
@@ -112,7 +112,6 @@ class GameLauncher(
             .setInheriting()
             .build()
 
-        //jna
         jnaDir = gameManifest.libraries?.find { library ->
             library.name.startsWith("net.java.dev.jna:jna:")
         }?.let { library ->
@@ -143,17 +142,16 @@ class GameLauncher(
 
     override fun MutableMap<String, String>.putJavaArgs() {
         val versionInfo = version.getVersionInfo()
-        //Fix Forge 1.7.2
+
         val is172 = (versionInfo?.minecraftVersion ?: "0.0").isEqualTo("1.7.2")
         if (is172 && versionInfo?.hasLoader(ModLoader.FORGE) == true) {
             Logger.debug(TAG, "Is Forge 1.7.2, use the patched sorting method.")
             put("sort.patch", "true")
         }
 
-        //Jna
         jnaDir?.let { dir ->
             val dirPath = dir.absolutePath
-            put("jna.boot.library.path", dirPath) //覆盖父类添加的jna路径
+            put("jna.boot.library.path", dirPath)
         }
     }
 
@@ -181,8 +179,6 @@ class GameLauncher(
         }
         envMap["ZALITH_VERSION_CODE"] = BuildConfig.VERSION_CODE.toString()
 
-        //lwjgl3ify 实例：注入 XDG 数据目录兜底，避免其向不存在的 ~/.local/share
-        //写桌面快捷方式时抛出异常杀死 RFB 主线程，导致游戏静默退出
         if (File(version.getGameDir(), "config/lwjgl3ify.cfg").isFile()) {
             val xdgDataHome = File(version.getGameDir(), ".local/share")
             if (!xdgDataHome.isDirectory) xdgDataHome.mkdirs()
@@ -195,7 +191,6 @@ class GameLauncher(
         super.dlopenEngine()
         appendTitle("DLOPEN Renderer")
 
-        //声音引擎加载后，dlopen渲染器的库
         RendererPluginManager.selectedRendererPlugin?.let { renderer ->
             val libs by renderer.getDlopenLibrary()
             libs.forEach { libPath ->
@@ -229,11 +224,10 @@ class GameLauncher(
         disableSplash(gameDirPath)
 
         if (version.getVersionInfo()?.hasLoader(ModLoader.NEOFORGE) == true) {
-            // 关闭NeoForge 12早期加载屏动画
+
             disableFmlEarlyWindow(gameDirPath)
         }
 
-        //初始化运行环境
         this.runtime = runtime
         val launchArgs = LaunchArgs(
             runtimeLibraryPath = getRuntimeLibraryPath(),
@@ -304,11 +298,6 @@ class GameLauncher(
         appendInfo("Account: ${usingAccount.username} (${usingAccount.accountType})")
     }
 
-    /**
-     * 获取Java运行环境名称，
-     * 如果版本独立设置了运行环境，则直接选定它；
-     * 如果版本未设置，则根据全局设置或自动选择
-     */
     private fun getRuntime(): String {
         val versionRuntime = version.getJavaRuntime().takeIf { it.isNotEmpty() } ?: ""
         if (versionRuntime.isNotEmpty()) return versionRuntime
@@ -318,9 +307,9 @@ class GameLauncher(
 
         if (AllSettings.autoPickJavaRuntime.getValue()) {
             val loaderInfo = version.getVersionInfo()?.primaryLoader
-            //开启了自动选择，根据游戏需求的版本做选择
+
             val targetJavaVersion = when (loaderInfo?.loader) {
-                ModLoader.BABRIC -> 17 //Babric 推荐使用 17
+                ModLoader.BABRIC -> 17
                 else -> gameManifest.javaVersion?.majorVersion ?: 8
             }
             if (pickedRuntime.javaVersion == 0 || pickedRuntime.javaVersion < targetJavaVersion) {
@@ -337,10 +326,6 @@ class GameLauncher(
         return runtime
     }
 
-    /**
-     * 禁用Forge的启动屏幕
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L372-L391)
-     */
     private fun disableSplash(dir: File) {
         File(dir, "config").let { configDir ->
             if (configDir.ensureDirectorySilently()) {
@@ -364,13 +349,6 @@ class GameLauncher(
         }
     }
 
-    /**
-     * 关闭 FML 的早期加载屏
-     *
-     * NeoForge 12（MC 26.3+）移除了 -Dfml.earlyprogresswindow 属性通道，仅读取 config/fml.toml
-     * 早期加载屏的渲染会在启动扫描期反复分配 gralloc 缓冲，与启动器 UI 互相阻塞导致界面冻结直至无响应，
-     * 写入 earlyWindowControl = false 关闭
-     */
     private fun disableFmlEarlyWindow(dir: File) {
         File(dir, "config").let { configDir ->
             if (configDir.ensureDirectorySilently()) {
@@ -389,10 +367,10 @@ class GameLauncher(
                             lines.joinToString(separator = "\n", prefix = "$disabledLine\n", postfix = "\n")
                         )
                     } else {
-                        // 值可能带引号或行尾注释，取值前先截断
+
                         val value = keyLine.substringAfter('=').substringBefore('#').trim().trim('"', '\'')
                         if (value.equals("true", ignoreCase = true)) {
-                            // 仅改写该行的值，行内其余内容保留
+
                             val fixedLine = keyLine.replaceFirst(Regex("true", RegexOption.IGNORE_CASE), "false")
                             fmlToml.writeText(
                                 lines.joinToString(separator = "\n", postfix = "\n") { line ->
@@ -412,7 +390,7 @@ class GameLauncher(
 }
 
 private fun checkAndUsedJSPH(envMap: MutableMap<String, String>, runtime: Runtime) {
-    if (runtime.javaVersion < 11) return //onUseJSPH
+    if (runtime.javaVersion < 11) return
     val dir = File(PathManager.DIR_NATIVE_LIB).takeIf { it.isDirectory } ?: return
     val jsphHome = if (runtime.javaVersion == 17) "libjsph17" else "libjsph21"
     dir.listFiles { _, name -> name.startsWith(jsphHome) }?.takeIf { it.isNotEmpty() }?.let {
@@ -429,7 +407,6 @@ private fun setRendererEnv(
     val renderer = Renderers.getCurrentRenderer()
     val rendererId = renderer.getRendererId()
 
-    // SDL 环境变量
     envMap["SDL_OPENGL_LIBRARY"] = rendererId
 
     if (rendererId.startsWith("opengles2")) {
@@ -452,10 +429,10 @@ private fun setRendererEnv(
         envMap["POJAVEXEC_EGL"] = eglName
 
         val eglPath = if (eglName.startsWith("/")) {
-            // 路径不存在时不设置，交给 SDL 按自身默认解析
+
             eglName
         } else {
-            // eglName 已是绝对路径时直接使用，仅裸名拼接库目录
+
             val nativeLibPath = if (renderer is Plugin) {
                 renderer.getNativeLibPath()
             } else {
@@ -486,7 +463,7 @@ private fun setRendererEnv(
     if (RendererPluginManager.selectedRendererPlugin != null) return
 
     if (renderer.mesaBased) {
-        // Mesa 系渲染器的 OSMesa 桥依据该变量定位 Mesa 库
+
         envMap["LIB_MESA_NAME"] = getRendererLibrary() ?: "null"
         envMap["MESA_GLSL_CACHE_DIR"] = PathManager.DIR_CACHE.absolutePath
     }
@@ -505,13 +482,12 @@ private fun setRendererEnv(
         Logger.info(TAG, "GLES version detected: $glesMajor")
 
         envMap["LIBGL_ES"] = if (glesMajor < 3) {
-            //fallback to 2 since it's the minimum for the entire app
+
             "2"
         } else if (rendererId.startsWith("opengles")) {
             rendererId.replace("opengles", "").replace("_5", "")
         } else {
-            // TODO if can: other backends such as Vulkan.
-            // Sure, they should provide GLES 3 support.
+
             "3"
         }
     }
@@ -532,13 +508,10 @@ private fun getGameRendererLibrary(version: Version, configuredRenderer: Rendere
     }
 }
 
-/**
- * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/98947f2/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/JREUtils.java#L505-L516)
- */
 private fun hasExtension(extensions: String, name: String): Boolean {
     var start = extensions.indexOf(name)
     while (start >= 0) {
-        // check that we didn't find a prefix of a longer extension name
+
         val end = start + name.length
         if (end == extensions.length || extensions[end] == ' ') {
             return true

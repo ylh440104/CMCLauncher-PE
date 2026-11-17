@@ -51,7 +51,7 @@ class PathManager {
         fun refreshPaths(context: Context) {
             DIR_FILES_PRIVATE = context.filesDir
             DIR_FILES_EXTERNAL = context.getExternalFilesDir(null) ?: run {
-                //from FCL (commit 744156a)
+
                 val externalDir = File(Environment.getExternalStorageDirectory(), "Android/data/${context.packageName}/files")
                 if (externalDir.ensureDirectorySilently()) externalDir
                 else {
@@ -112,11 +112,8 @@ class PathManager {
             }
         }
 
-        /**
-         * 处理历史遗留的旧文件
-         */
         private fun handleLegacy() {
-            //不再支持的共用游戏运行日志
+
             File(DIR_FILES_EXTERNAL, LogName.GAME.fileName).takeIf { it.exists() }?.let {
                 FileUtils.deleteQuietly(it)
             }

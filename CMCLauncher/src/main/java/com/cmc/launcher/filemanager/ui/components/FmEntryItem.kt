@@ -40,7 +40,6 @@ import com.cmc.launcher.filemanager.ui.theme.fmSelectionColor
 import com.cmc.launcher.utils.file.formatFileSize
 import com.cmc.launcher.utils.formatDate
 
-/** 文件管理器条目行。 */
 @Composable
 fun FmEntryItem(
     entry: FmEntry,
@@ -85,7 +84,7 @@ fun FmEntryItem(
             .fillMaxWidth()
             .fmSwipeTrigger(
                 state = swipeState,
-                // 任意条目均可作为选区边界
+
                 triggerable = true,
                 onTriggered = onSwipeTrigger
             ),
@@ -102,7 +101,7 @@ fun FmEntryItem(
                         if (multiSelect) {
                             onClick()
                         } else if (entry.isFile) {
-                            // 非多选模式下单击文件弹出条目菜单
+
                             menuExpanded = true
                         } else {
                             onClick()
@@ -120,7 +119,7 @@ fun FmEntryItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            //图标
+
             FmIcons.IconFor(
                 modifier = Modifier.alpha(contentAlpha),
                 name = entry.name,
@@ -130,7 +129,7 @@ fun FmEntryItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 下拉菜单锚点
+
                 if (!multiSelect) {
                     FmEntryMenu(
                         expanded = menuExpanded,

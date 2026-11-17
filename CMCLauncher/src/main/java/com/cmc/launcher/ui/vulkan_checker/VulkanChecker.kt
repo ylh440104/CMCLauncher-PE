@@ -113,7 +113,6 @@ fun VulkanChecker(
                                     } else {
                                         val profiles = data.profileSupport()
 
-                                        //总体结论
                                         val summary = when {
                                             profiles.all { it.supported } ->
                                                 stringResource(R.string.game_vulkan_check_supp, profiles.first().since)
@@ -124,7 +123,6 @@ fun VulkanChecker(
                                         }
                                         Text(text = summary)
 
-                                        //仅在部分版本区间受支持时，展示各版本区间的支持情况
                                         if (profiles.distinctBy { it.supported }.size > 1) {
                                             TextGroup(text = stringResource(R.string.game_vulkan_check_versions)) {
                                                 profiles.forEach { profile ->
@@ -146,12 +144,10 @@ fun VulkanChecker(
                                             }
                                         }
 
-                                        //版本号
                                         Text(stringResource(R.string.game_vulkan_check_version, data.versionString))
-                                        //是否使用 Turnip
+
                                         Text(stringResource(R.string.game_vulkan_check_turnip, operation.useTurnip))
 
-                                        //各功能/扩展的支持情况与版本依赖标注
                                         TextGroup(text = stringResource(R.string.game_vulkan_check_extensions)) {
                                             VulkanRequirements.EXTENSIONS.forEach {
                                                 DependencyText(

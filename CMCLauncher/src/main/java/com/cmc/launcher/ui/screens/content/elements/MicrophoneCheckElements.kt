@@ -84,7 +84,7 @@ fun MicrophoneCheckDialog(
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
-    /** 测试获得的相对音量值 */
+
     var level by remember { mutableDoubleStateOf(0.0) }
 
     val micMeter = remember { MicMeter() }
@@ -97,11 +97,11 @@ fun MicrophoneCheckDialog(
                     context,
                     onLevelUpdate = { level = it },
                     onPermissionRequest = {
-                        //本次已授权，无需处理权限申请，忽略
+
                     }
                 )
             } else {
-                //用户拒绝授权，停止麦克风测试
+
                 micMeter.stop()
                 noPermissions()
                 onDismissRequest()
@@ -119,7 +119,7 @@ fun MicrophoneCheckDialog(
                 context,
                 onLevelUpdate = { level = it },
                 onPermissionRequest = {
-                    //申请麦克风权限
+
                     requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 }
             )
@@ -186,14 +186,14 @@ fun VoiceDbShower(
     shape: Shape = RoundedCornerShape(50.dp),
     backgroundColor: Color = itemColor()
 ) {
-    val normalizedDb = level.coerceIn(0.0, 100.0) //0~100db
+    val normalizedDb = level.coerceIn(0.0, 100.0)
     val progress by animateFloatAsState((normalizedDb / 100.0f).toFloat())
 
     val color = if (level <= 50) {
-        //0~50：绿色到黄色的渐变
+
         lerp(Color(0xFF4CAF50), Color(0xFFFFEB3B), (level / 50).toFloat())
     } else {
-        //50~100+：黄色到红色的渐变
+
         lerp(Color(0xFFFFEB3B), Color(0xFFF44336), ((level - 50) / 50).toFloat().coerceIn(0f, 1f))
     }
 
@@ -204,7 +204,7 @@ fun VoiceDbShower(
             .clip(shape)
             .background(backgroundColor)
     ) {
-        //背景
+
         Box(
             modifier = Modifier
                 .fillMaxWidth(progress)

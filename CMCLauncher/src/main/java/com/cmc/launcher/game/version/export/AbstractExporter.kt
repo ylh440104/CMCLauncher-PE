@@ -8,9 +8,7 @@ import java.io.File
 abstract class AbstractExporter(
     val type: PackType
 ) {
-    /**
-     * 构建所需的导出任务
-     */
+
     abstract fun MutableList<TitledTask>.buildTasks(
         context: Context,
         version: Version,
@@ -18,9 +16,6 @@ abstract class AbstractExporter(
         tempPath: File
     )
 
-    /**
-     * 整合包文件后缀
-     */
     abstract val fileSuffix: String
 
     protected fun generateTargetRoot(
@@ -31,9 +26,6 @@ abstract class AbstractExporter(
         return File(targetPath, relativePath(file, rootPath))
     }
 
-    /**
-     * 获取一个文件的相对路径
-     */
     protected fun relativePath(
         file: File,
         rootPath: String

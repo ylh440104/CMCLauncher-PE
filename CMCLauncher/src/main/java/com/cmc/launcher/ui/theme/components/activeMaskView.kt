@@ -42,7 +42,7 @@ fun Context.activeMaskView(
     }
 }
 private fun captureView(view: View, window: Window, bitmapCallback: (Bitmap)->Unit) {
-    // Above Android O, use PixelCopy
+
     val bitmap = createBitmap(view.width, view.height)
     val location = IntArray(2)
     view.getLocationInWindow(location)

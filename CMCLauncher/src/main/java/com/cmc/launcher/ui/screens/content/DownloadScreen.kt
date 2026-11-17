@@ -83,9 +83,6 @@ import com.cmc.launcher.viewmodel.EventViewModel
 import com.cmc.launcher.viewmodel.ModpackImportViewModel
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
 
-/**
- * 导航至DownloadScreen
- */
 fun ScreenBackStackViewModel.navigateToDownload(targetScreen: TitledNavKey? = null) {
     downloadScreen.clearWith(targetScreen ?: downloadGameScreen)
     mainScreen.removeAndNavigateTo(
@@ -95,9 +92,6 @@ fun ScreenBackStackViewModel.navigateToDownload(targetScreen: TitledNavKey? = nu
     )
 }
 
-/**
- * 跳转到资源类型对应的下载分类屏幕，并进入项目详情页
- */
 private fun ScreenBackStackViewModel.swapToCategoryAddon(
     platform: Platform,
     classes: PlatformClasses,
@@ -133,7 +127,7 @@ fun DownloadScreen(
     eventViewModel: EventViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    //进入下载屏幕时确保收藏仓库完成初始化
+
     LaunchedEffect(Unit) {
         FavoriteProjectsRepository.ensureLoaded()
     }

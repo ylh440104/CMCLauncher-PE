@@ -8,10 +8,6 @@ import com.cmc.launcher.game.plugin.ApkPluginManager
 import com.cmc.launcher.game.plugin.cacheAppIcon
 import com.cmc.launcher.setting.AllSettings
 
-/**
- * FCL 驱动器插件
- * [FCL DriverPlugin.kt](https://github.com/FCL-Team/FoldCraftLauncher/blob/main/FCLauncher/src/main/java/com/tungsten/fclauncher/plugins/DriverPlugin.kt)
- */
 object DriverPluginManager: ApkPluginManager() {
     private val driverList: MutableList<Driver> = mutableListOf()
 
@@ -20,9 +16,6 @@ object DriverPluginManager: ApkPluginManager() {
     fun getDriver(driverId: String): Driver =
         driverList.find { it.id == driverId } ?: driverList[0]
 
-    /**
-     * 初始化驱动器
-     */
     fun initDriver(context: Context) {
         driverList.clear()
         val applicationInfo = context.applicationInfo
@@ -38,9 +31,6 @@ object DriverPluginManager: ApkPluginManager() {
         )
     }
 
-    /**
-     * 通用 FCL 插件
-     */
     override fun parseApkPlugin(
         context: Context,
         info: ApplicationInfo,

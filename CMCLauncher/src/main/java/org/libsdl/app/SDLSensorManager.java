@@ -1,19 +1,9 @@
-/*
- * This file is part of SDL3 android-project java code.
- * Licensed under the zlib license: https://www.libsdl.org/license.php
- */
-
 package org.libsdl.app;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-
-// This class coordinates synchronized access to sensor manager registration
-//
-// This prevents a java.util.ConcurrentModificationException exception on
-// Android 16, specifically on the Samsung Tab S9 Ultra.
 
 class SDLSensorManager
 {
@@ -39,7 +29,7 @@ class SDLSensorManager
             } catch (java.util.ConcurrentModificationException e) {
                 ++retries;
                 if (retries <= RETRY_COUNT) {
-                    // Sleep a bit and try again
+
                     try {
                         Thread.sleep(1);
                     } catch (Exception e2) {
@@ -62,7 +52,7 @@ class SDLSensorManager
             } catch (java.util.ConcurrentModificationException e) {
                 ++retries;
                 if (retries <= RETRY_COUNT) {
-                    // Sleep a bit and try again
+
                     try {
                         Thread.sleep(1);
                     } catch (Exception e2) {
@@ -75,4 +65,3 @@ class SDLSensorManager
         }
     }
 }
-

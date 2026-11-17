@@ -38,9 +38,6 @@ import com.cmc.launcher.viewmodel.EventViewModel
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
 import org.apache.commons.io.FileUtils
 
-/**
- * 导航至WebViewScreen并访问特定网址
- */
 fun NavBackStack<TitledNavKey>.navigateToWeb(webUrl: String) = this.navigateTo(
     screenKey = NormalNavKey.WebScreen(webUrl),
     useClassEquality = true
@@ -90,7 +87,6 @@ fun WebViewScreen(
                     )
                 }
 
-                //网址，可供用户复制
                 if (webUrl.isNotEmptyOrBlank())  {
                     MarqueeText(
                         modifier = Modifier
@@ -131,7 +127,7 @@ fun WebViewScreen(
                         }
                     },
                     update = {
-                        //不在此处重复加载 url
+
                     }
                 )
             }

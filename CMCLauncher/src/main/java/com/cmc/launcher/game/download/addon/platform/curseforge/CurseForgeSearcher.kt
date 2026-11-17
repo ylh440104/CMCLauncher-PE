@@ -54,9 +54,6 @@ class CurseForgeSearcher(
         return project
     }
 
-    /**
-     * 在 CurseForge 平台获取某项目的某个文件
-     */
     suspend fun getVersion(
         projectID: String,
         fileID: String,
@@ -66,11 +63,6 @@ class CurseForgeSearcher(
         )
     }
 
-    /**
-     * 在 CurseForge 平台根据分页获取项目的版本列表
-     * @param index 开始处
-     * @param pageSize 每页请求数量
-     */
     suspend fun getVersions(
         projectID: String,
         index: Int = 0,
@@ -123,10 +115,6 @@ class CurseForgeSearcher(
             ?.file
     }
 
-    /**
-     * 通过多个本地文件的 CurseForge 指纹批量获取对应的文件信息
-     * @return 键为文件指纹，值为匹配到的文件，未命中的指纹不在结果中
-     */
     suspend fun getFilesByFingerprints(
         fingerprints: List<Long>
     ): Map<Long, CurseForgeFile> {
@@ -140,25 +128,12 @@ class CurseForgeSearcher(
     }
 }
 
-/**
- * 批量获取文件指纹匹配的请求体
- */
 @Serializable
 private data class CurseForgeFingerprintsRequest(
     @SerialName("fingerprints")
     val fingerprints: List<Long>
 )
 
-/**
- * 持续分页获取项目的所有版本文件，直到全部加载完成
- * @param pageSize 每页请求数量
- * @param chunkSize 一个区间的最大页数
- * @param maxConcurrent 同时最多允许的请求数
- * @param pageCallback 加载每一页时都通过此函数回调
- * @param checkNotEmpty 检查请求内容返回结果不为空
- * @param asyncVersions 异步获取单区块的版本数据
- * @param processVersions 加工返回数据，同时需要返回当前结果实际的页面大小
- */
 private suspend fun <E, T> getAllVersions(
     pageSize: Int = 100,
     chunkSize: Int = 10,
@@ -170,17 +145,17 @@ private suspend fun <E, T> getAllVersions(
 ): List<T> = withContext(Dispatchers.IO) {
     coroutineScope {
         val allVersions = mutableListOf<T>()
-        /** 当前区间编号 */
+
         var currentChunk = 1
-        /** 起始页码 */
+
         var startPage = 0
-        /** 是否已经到达过最后一页，控制是否进入下一区间 */
+
         var reachedEnd = false
 
         val semaphore = Semaphore(maxConcurrent)
 
         while (!reachedEnd) {
-            //创建当前区间的任务列表
+
             val jobs = (0 until chunkSize).map { offset ->
                 val pageIndex = startPage + offset
                 val index = pageIndex * pageSize
@@ -188,10 +163,9 @@ private suspend fun <E, T> getAllVersions(
                 async {
                     semaphore.withPermit {
                         val response = asyncVersions(index, pageSize)
-                        //检查当前页返回的结果是否正常
-                        //如果是最后一页之后的内容，则这里的列表是空的
+
                         if (checkNotEmpty(response)) {
-                            //有东西，回调即可
+
                             pageCallback(currentChunk, pageIndex + 1)
                             response
                         } else null
@@ -205,10 +179,9 @@ private suspend fun <E, T> getAllVersions(
                     allVersions.addAll(list)
                 }
 
-                //少于pageSize，已经是最后一页
                 if (realSize < pageSize) {
                     reachedEnd = true
-                    //取消后续页
+
                     for (j in (i + 1) until jobs.size) {
                         jobs[j].cancel()
                     }
@@ -216,7 +189,6 @@ private suspend fun <E, T> getAllVersions(
                 }
             }
 
-            //如果没发现最后一页，则进入下一区间
             if (!reachedEnd) {
                 startPage += chunkSize
                 currentChunk++

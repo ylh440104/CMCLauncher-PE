@@ -22,30 +22,24 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/**
- * 横向滑动触发手势的状态，记录拖动偏移以联动条目的视觉效果
- * @param triggerPx 触发距离（px）
- */
 @Stable
 class FmSwipeTriggerState(
     val triggerPx: Float
 ) {
     val offsetX = Animatable(0f)
-    /** 是否正处于拖动手势中，回弹动画结束后复位 */
+
     var isDragging by mutableStateOf(false)
-    /** 当前拖动偏移相对触发距离的比例，随拖动与回弹实时变化，范围 0..1 */
+
     val dragFraction: Float
         get() = (abs(offsetX.value) / triggerPx).coerceIn(0f, 1f)
 }
 
-/** 创建横向滑动触发手势的状态 */
 @Composable
 fun rememberFmSwipeTriggerState(triggerDistanceDp: Float = 80f): FmSwipeTriggerState {
     val triggerPx = with(LocalDensity.current) { triggerDistanceDp.dp.toPx() }
     return remember(triggerPx) { FmSwipeTriggerState(triggerPx) }
 }
 
-/** 为条目添加横向滑动触发手势 */
 fun Modifier.fmSwipeTrigger(
     state: FmSwipeTriggerState,
     triggerable: Boolean,

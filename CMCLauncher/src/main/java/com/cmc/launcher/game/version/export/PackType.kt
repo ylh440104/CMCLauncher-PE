@@ -1,12 +1,7 @@
 package com.cmc.launcher.game.version.export
 
-/**
- * 打包的类型
- */
 enum class PackType(val options: PackEditOptions) {
-    /**
-     * MCBBS 导出格式
-     */
+
     MCBBS(
         PackEditOptions.Builder()
             .requireAuthor()
@@ -18,9 +13,6 @@ enum class PackType(val options: PackEditOptions) {
             .build()
     ),
 
-    /**
-     * Modrinth 标准导出格式
-     */
     Modrinth(
         PackEditOptions.Builder()
             .requireSummary()

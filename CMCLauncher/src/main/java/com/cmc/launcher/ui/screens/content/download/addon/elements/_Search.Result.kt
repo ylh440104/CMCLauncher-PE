@@ -85,12 +85,6 @@ sealed interface SearchAddonState {
     data class Error(val message: AndroidStringText): SearchAddonState
 }
 
-/**
- * 资源搜索结果展示列表
- * @param swapToDownload 跳转到下载详情页
- * @param installedInfo 查询项目本地是否已安装，键为平台与平台项目ID
- * @param onNavigatePage 导航到指定页面
- */
 @Composable
 fun ResultListLayout(
     modifier: Modifier = Modifier,
@@ -132,7 +126,6 @@ fun ResultListLayout(
                 val listState = rememberLazyListState()
                 val maxCollapsePx = with(LocalDensity.current) { controllerHeight.toPx() }
 
-                //计算缩放比例，滑动偏移限制在0 ~ maxCollapsePx之间
                 val fraction by remember {
                     derivedStateOf {
                         val index = listState.firstVisibleItemIndex
@@ -237,7 +230,7 @@ private fun PageController(
             if (editPageNumber)  {
                 var number by remember { mutableIntStateOf(page.pageNumber) }
                 var numberText by remember { mutableStateOf("${page.pageNumber}") }
-                //编辑页码
+
                 SmallOutlinedEditField(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -248,7 +241,7 @@ private fun PageController(
                     onValueChange = onValueChange@ { value ->
                         if (page.totalPage <= 0) return@onValueChange
                         val number0 = if (value.isEmptyOrBlank()) {
-                            1 //为了编辑体验，留空时视为1
+                            1
                         } else {
                             value.toIntOrNull() ?: return@onValueChange
                         }
@@ -271,7 +264,6 @@ private fun PageController(
                 )
             }
 
-            //页码
             if (!editPageNumber)  {
                 Text(
                     modifier = Modifier.padding(start = 16.dp),
@@ -313,7 +305,7 @@ private fun PageController(
             }
 
             IconButton(
-                enabled = page.pageNumber > 1, //不是第一页
+                enabled = page.pageNumber > 1,
                 onClick = {
                     onPreviousPage()
                     editPageNumber = false
@@ -326,7 +318,7 @@ private fun PageController(
             }
 
             IconButton(
-                enabled = !page.isLastPage, //不是最后一页
+                enabled = !page.isLastPage,
                 onClick = {
                     onNextPage()
                     editPageNumber = false
@@ -369,7 +361,6 @@ private fun ResultList(
             val followsCount = remember(item) { item.platformFollows() }
 
             val isInstalled = installedInfo?.invoke(platform, item.platformId()) != null
-//            val isFavorite = FavoriteProjectsRepository.isFavorite(platform, item.platformId())
 
             ResultProjectLayout(
                 modifier = Modifier
@@ -385,10 +376,7 @@ private fun ResultList(
                 categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
                 followsCount = followsCount,
                 isInstalled = isInstalled,
-//                isFavorite = isFavorite,
-//                onFavoriteClick = {
-//                    FavoriteProjectsRepository.toggle(item, classes)
-//                },
+
                 onClick = {
                     swapToDownload(platform, item.platformId(), iconUrl)
                 }
@@ -411,8 +399,7 @@ fun ResultProjectLayout(
     categories: List<PlatformFilterCode>? = null,
     followsCount: Long? = null,
     isInstalled: Boolean = false,
-//    isFavorite: Boolean = false,
-//    onFavoriteClick: (() -> Unit)? = null,
+
     shape: Shape = MaterialTheme.shapes.large,
     influencedByBackground: Boolean = true,
     color: Color = cardColor(influencedByBackground),
@@ -469,7 +456,7 @@ fun ResultProjectLayout(
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // 作者
+
                         authors?.let {
                             Row(
                                 modifier = Modifier.weight(1f, fill = false),
@@ -489,7 +476,6 @@ fun ResultProjectLayout(
                             }
                         }
 
-                        // 下载量
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -507,7 +493,6 @@ fun ResultProjectLayout(
                             )
                         }
 
-                        // 收藏数量（Modrinth）
                         followsCount?.let {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -528,7 +513,6 @@ fun ResultProjectLayout(
                         }
                     }
 
-                    //描述
                     Text(
                         text = description,
                         style = MaterialTheme.typography.labelSmall,
@@ -542,7 +526,7 @@ fun ResultProjectLayout(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    //标签栏
+
                     Row(
                         modifier = Modifier
                             .weight(1f)
@@ -568,7 +552,6 @@ fun ResultProjectLayout(
                         }
                     }
 
-                    //资源的类别
                     if (classes != null) {
                         ClassesIdentifier(classes = classes)
                     }
@@ -577,12 +560,6 @@ fun ResultProjectLayout(
                         InstalledModBadge()
                     }
 
-//                    onFavoriteClick?.let { onFavorite ->
-//                        FavoriteToggleLabel(
-//                            isFavorite = isFavorite,
-//                            onClick = onFavorite
-//                        )
-//                    }
                 }
             }
         }
@@ -595,13 +572,13 @@ fun ProjectTitleHead(
     platform: Platform,
     title: String,
 ) {
-    //标题栏、作者栏、平台标签
+
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        //标题栏
+
         MarqueeText(
             modifier = Modifier
                 .weight(1f)
@@ -609,7 +586,7 @@ fun ProjectTitleHead(
             text = title,
             style = MaterialTheme.typography.titleSmall,
         )
-        //平台标签
+
         PlatformIdentifier(platform = platform)
     }
 }

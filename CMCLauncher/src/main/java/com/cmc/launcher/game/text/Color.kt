@@ -21,11 +21,6 @@ const val IDENTIFIER_LIGHT_PURPLE = "light_purple"
 const val IDENTIFIER_YELLOW = "yellow"
 const val IDENTIFIER_WHITE = "white"
 
-/**
- * 表示 Minecraft 中的文本颜色
- * @param foreground 文字的前景色
- * @param background 文字的背景色
- */
 @Serializable
 data class TextColor(
     @Contextual val foreground: Color,
@@ -50,9 +45,6 @@ val LIGHT_PURPLE = TextColor(foreground = Color(0xFFFF55FF), background = Color(
 val YELLOW = TextColor(foreground = Color(0xFFFFFF55), background = Color(0xFF3F3F15))
 val WHITE = TextColor(foreground = Color(0xFFFFFFFF), background = Color(0xFF3F3F3F))
 
-/**
- * 通过颜色名称获取文本颜色
- */
 fun parseColorFromIdentifier(identifier: String): TextColor? {
     return when (identifier.lowercase()) {
         IDENTIFIER_BLACK -> COMMON_BLACK
@@ -89,15 +81,9 @@ fun scaleColor(
     )
 }
 
-/**
- * 仿 Minecraft，生成与之对应的阴影色
- */
 fun shadowColor(color: Color): Color =
     scaleColor(color, 0.25f, 0.25f, 0.25f)
 
-/**
- * Minecraft 的颜色代码，参考 [Minecraft Wiki](https://zh.minecraft.wiki/w/%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BB%A3%E7%A0%81#%E9%A2%9C%E8%89%B2%E4%BB%A3%E7%A0%81)
- */
 val MINECRAFT_COLOR_FORMAT = mapOf(
     '0' to COMMON_BLACK,
     '1' to DARK_BLUE,
@@ -105,7 +91,7 @@ val MINECRAFT_COLOR_FORMAT = mapOf(
     '3' to DARK_AQUA,
     '4' to DARK_RED,
     '5' to DARK_PURPLE,
-    '6' to GOLD, //仅 JE，BE 为 #402A00
+    '6' to GOLD,
     '7' to GRAY,
     '8' to DARK_GRAY,
     '9' to BLUE,

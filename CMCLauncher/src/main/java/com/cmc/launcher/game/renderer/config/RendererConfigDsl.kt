@@ -5,11 +5,9 @@ import androidx.annotation.StringRes
 @DslMarker
 annotation class RendererConfigDsl
 
-/** 以声明式 DSL 创建渲染器配置规范 */
 fun rendererConfigSpec(block: RendererConfigSpecBuilder.() -> Unit): RendererConfigSpec =
     RendererConfigSpecBuilder().apply(block).build()
 
-/** 收集固定环境变量和各类配置项 */
 @RendererConfigDsl
 class RendererConfigSpecBuilder {
     private val entries = mutableListOf<ConfigEntry>()
@@ -196,7 +194,6 @@ class RendererConfigSpecBuilder {
     internal fun build(): RendererConfigSpec = RendererConfigSpec(entries, fixedEnv)
 }
 
-/** 收集单选配置项的候选值及其展示文案 */
 @RendererConfigDsl
 class RendererChoiceBuilder {
     internal val options = mutableListOf<ChoiceOption>()

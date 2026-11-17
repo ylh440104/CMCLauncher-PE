@@ -57,9 +57,6 @@ data class NativeColorScheme(
     val surfaceContainerHighest: Color,
 )
 
-/**
- * 判断当前是否为暗色主题
- */
 fun isDarkTheme(context: Context): Boolean {
     return when (AllSettings.launcherDarkMode.state) {
         DarkMode.Enable -> true
@@ -71,9 +68,6 @@ fun isDarkTheme(context: Context): Boolean {
     }
 }
 
-/**
- * 从当前主题设置生成原生主题配色调色板
- */
 fun getColorScheme(context: Context): NativeColorScheme {
     val darkTheme = isDarkTheme(context)
     val seedColor = getSeedColor(context, darkTheme)

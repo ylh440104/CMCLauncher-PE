@@ -31,9 +31,6 @@ import com.cmc.launcher.ui.screens.main.control_editor.edit_joystick.JoystickSty
 import com.cmc.launcher.ui.screens.main.control_editor.edit_joystick.resolveThemeConfig
 import com.cmc.launcher.ui.screens.main.control_editor.orUnspecified
 
-/**
- * 为摇杆控件选择外观
- */
 @Composable
 fun EditJoystickStyle(
     screenKey: TitledNavKey,

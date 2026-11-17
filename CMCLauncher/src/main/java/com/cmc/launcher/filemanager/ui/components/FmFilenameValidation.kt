@@ -6,10 +6,6 @@ import com.cmc.launcher.R
 import com.cmc.launcher.utils.file.InvalidFilenameException
 import com.cmc.launcher.utils.file.checkFilenameValidity
 
-/**
- * 实时校验文件名合法性，返回本地化错误提示
- * @return 合法时返回 null，不合法时返回本地化错误字符串
- */
 @Composable
 fun fmFilenameInvalid(str: String): String? {
     return try {

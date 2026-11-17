@@ -14,7 +14,6 @@ import java.nio.file.StandardCopyOption
 
 class RenameCreateOps(private val scope: AccessScope) {
 
-    /** 重命名条目 */
     suspend fun rename(
         target: Path,
         newName: String
@@ -41,10 +40,8 @@ class RenameCreateOps(private val scope: AccessScope) {
         return dest
     }
 
-    /** 新建文件夹 */
     suspend fun createFolder(parent: Path, name: String): Path = createEntry(parent, name, isFolder = true)
 
-    /** 新建空白文件 */
     suspend fun createFile(parent: Path, name: String): Path = createEntry(parent, name, isFolder = false)
 
     private suspend fun createEntry(

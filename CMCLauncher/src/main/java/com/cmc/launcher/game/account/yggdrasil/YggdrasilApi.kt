@@ -33,9 +33,6 @@ import java.util.concurrent.TimeUnit
 
 private const val TAG = "YggdrasilApi"
 
-/**
- * 使用 Yggdrasil 上传皮肤
- */
 suspend fun uploadSkin(
     apiUrl: String,
     accessToken: String,
@@ -65,10 +62,6 @@ suspend fun uploadSkin(
     }
 }
 
-/**
- * 使用 Yggdrasil 更改玩家披风
- * @param capeId 披风的uuid，为空字符串时则表示重置披风
- */
 suspend fun changeCape(
     apiUrl: String,
     accessToken: String,
@@ -79,7 +72,7 @@ suspend fun changeCape(
     val logTag = "YggdrasilApi.changeCape"
 
     if (capeId.isBlank()) {
-        //重置玩家选择的披风
+
         Logger.info(TAG, "$logTag: reset cape")
         withRetry(logTag = logTag, maxRetries = maxRetries) {
             GLOBAL_CLIENT.request(url) {
@@ -105,9 +98,6 @@ suspend fun changeCape(
     }
 }
 
-/**
- * 使用 Yggdrasil 获取玩家配置信息
- */
 suspend fun getPlayerProfile(
     apiUrl: String,
     accessToken: String
@@ -124,9 +114,6 @@ suspend fun getPlayerProfile(
     }
 }.getOrThrow()
 
-/**
- * 缓存玩家的所有披风图片文件
- */
 suspend fun cacheAllCapes(
     profile: PlayerProfile,
     maxThreads: Int = 6
@@ -136,7 +123,7 @@ suspend fun cacheAllCapes(
             val file = cape.getFile(PathManager.DIR_ACCOUNT_CAPE)
             if (file.exists()) {
                 if (file.lastModified() + TimeUnit.DAYS.toMillis(7) < System.currentTimeMillis()) {
-                    //超过一周，更新一次缓存
+
                     FileUtils.deleteQuietly(file)
                 } else {
                     return@mapNotNull null
@@ -166,9 +153,6 @@ suspend fun cacheAllCapes(
     }
 }.getOrThrow()
 
-/**
- * 执行需要授权的操作，如果遇到未授权（HTTP 401），会调用刷新授权的回调
- */
 suspend fun executeWithAuthorization(
     block: suspend () -> Unit,
     onRefreshRequest: suspend () -> Unit
@@ -180,7 +164,7 @@ suspend fun executeWithAuthorization(
             break
         } catch (e: ResponseException) {
             if (e.response.status == HttpStatusCode.Unauthorized) {
-                if (refreshed) throw e //已经刷新过，还是遇到这个问题就抛出异常
+                if (refreshed) throw e
                 onRefreshRequest()
                 refreshed = true
                 continue

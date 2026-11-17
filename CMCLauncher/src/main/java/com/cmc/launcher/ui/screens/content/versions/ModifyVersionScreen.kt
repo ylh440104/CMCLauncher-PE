@@ -109,8 +109,6 @@ fun ModifyVersionScreen(
 ) {
     val backStack = rememberTitledNavBackStack(NormalNavKey.Versions.ModifyVersion)
 
-    //用户选择的目标 Minecraft 版本；null 表示未变更
-    //宿主在嵌套导航期间持续组合，选择结果跨主页与选择屏存活，退出修改标签页时销毁
     var selectedGameVersion by remember { mutableStateOf<String?>(null) }
 
     NavDisplay(
@@ -210,7 +208,6 @@ private fun ModifyVersionContent(
                 )
             }
 
-            // Minecraft 版本变更，给出提示
             if (targetGameVersion != originalGameVersion) {
                 animatedItem { ctx ->
                     ModifyTipItem(
@@ -221,9 +218,8 @@ private fun ModifyVersionContent(
                 }
             }
 
-            //未识别的已安装组件提示
             val unrecognizedInstalled = if (targetGameVersion == originalGameVersion) {
-                // 切换 Minecraft 版本后视为移除，不再提示
+
                 installedLoaders.filter { it.loader in addonsVM.unmatchedLoaders }
             } else {
                 emptyList()
@@ -237,7 +233,7 @@ private fun ModifyVersionContent(
                     )
                 }
             }
-    
+
             animatedItem { ctx ->
                 OptiFineList(
                     modifier = Modifier.animated(ctx),
@@ -247,7 +243,7 @@ private fun ModifyVersionContent(
                     onReload = { addonsVM.reloadOptiFine() }
                 )
             }
-    
+
             animatedItem { ctx ->
                 ForgeList(
                     modifier = Modifier.animated(ctx),
@@ -257,7 +253,7 @@ private fun ModifyVersionContent(
                     onReload = { addonsVM.reloadForge() }
                 )
             }
-    
+
             if (loaderSupports.isNeoForgeSupports) {
                 animatedItem { ctx ->
                     NeoForgeList(
@@ -269,7 +265,7 @@ private fun ModifyVersionContent(
                     )
                 }
             }
-    
+
             if (loaderSupports.isFabricSupports) {
                 animatedItem { ctx ->
                     FabricList(
@@ -281,7 +277,7 @@ private fun ModifyVersionContent(
                     )
                 }
             }
-    
+
             if (loaderSupports.isLegacyFabricSupports) {
                 animatedItem { ctx ->
                     LegacyFabricList(
@@ -293,7 +289,7 @@ private fun ModifyVersionContent(
                     )
                 }
             }
-    
+
             if (loaderSupports.isQuiltSupports) {
                 animatedItem { ctx ->
                     QuiltList(
@@ -305,7 +301,7 @@ private fun ModifyVersionContent(
                     )
                 }
             }
-    
+
             animatedItem { ctx ->
                 Row(
                     modifier = Modifier
@@ -347,37 +343,29 @@ private fun ModifyVersionContent(
     }
 }
 
-/**
- * 修改版本的附加内容加载器
- */
 private class ModifyAddonsViewModel(
-    /** 选定的目标 Minecraft 版本 */
+
     private val gameVersion: String,
-    /** 版本当前的 Minecraft 版本 */
+
     private val originalGameVersion: String,
-    /** 当前已安装的加载器信息 */
+
     private val installedLoaders: List<VersionInfo.LoaderInfo>,
-    /** 加载器支持情况，决定初始化时拉取哪些加载器的版本列表 */
+
     loaderSupports: LoaderVerSupports
 ) : ViewModel() {
     val addonList = AddonList()
     val currentAddon = CurrentAddon()
 
-    /** 当前修改内容，无变更时为 null */
     var currentDiffs by mutableStateOf<ModifyDiffs?>(null)
         private set
 
-    /** 无法与版本列表匹配的已安装加载器，用户未主动选择新版本时保留原样 */
     var unmatchedLoaders by mutableStateOf<Set<ModLoader>>(emptySet())
         private set
 
-    /** 已加载版本列表、等待预选的加载器（列表加载失败也计入） */
     private val pendingPreselects = linkedMapOf<ModLoader, () -> Unit>()
 
-    /** 已完成预选尝试的加载器 */
     private val attemptedPreselects = mutableSetOf<ModLoader>()
 
-    /** 会加载版本列表的加载器；其余已安装加载器（如 LiteLoader）无法参与预选 */
     private val reloadableLoaders = buildSet {
         add(ModLoader.OPTIFINE)
         add(ModLoader.FORGE)
@@ -401,22 +389,17 @@ private class ModifyAddonsViewModel(
         else -> null
     }
 
-    /**
-     * 对比当前安装信息与用户的选择，生成变更内容
-     */
     fun updateDiffs() {
         val diffs = buildList {
             if (gameVersion != originalGameVersion) {
                 add(ModifyDiffs.McChange(original = originalGameVersion, updateTo = gameVersion))
             }
 
-            //已安装加载器的变更情况
-            //切换了 Minecraft 版本后旧加载器几乎必然无法匹配，未选择即视为移除，不再保留原样
             val keepUnmatched = gameVersion == originalGameVersion
             installedLoaders.forEach { installed ->
                 val selected = selectedVersionOf(installed.loader)
                 if (installed.loader !in attemptedPreselects) return@forEach
-                //未识别的加载器默认保留原样，仅在用户主动选择非等价的新版本时生成变更
+
                 if (keepUnmatched && installed.loader in unmatchedLoaders) {
                     if (selected != null && !selectedEqualsInstalled(installed, selected)) {
                         add(
@@ -441,7 +424,6 @@ private class ModifyAddonsViewModel(
                 }
             }
 
-            //新安装的加载器
             listOf(
                 ModLoader.OPTIFINE, ModLoader.FORGE, ModLoader.NEOFORGE,
                 ModLoader.FABRIC, ModLoader.LEGACY_FABRIC, ModLoader.QUILT
@@ -457,10 +439,6 @@ private class ModifyAddonsViewModel(
         currentDiffs = diffs.takeIf { it.isNotEmpty() }?.let { ModifyDiffs(list = it) }
     }
 
-    /**
-     * 判断选中的版本与已安装版本是否等价
-     * OptiFine 的已安装信息可能来自库坐标或旧版短版本串，需要与版本列表条目做等价匹配
-     */
     private fun selectedEqualsInstalled(
         installed: VersionInfo.LoaderInfo,
         selected: String
@@ -472,9 +450,6 @@ private class ModifyAddonsViewModel(
         } == true
     }
 
-    /**
-     * 独立加载单个加载器的版本列表，加载完成后刷新初始化状态与变更内容
-     */
     private fun <T> launchAddonReload(
         updateState: (AddonState) -> Unit,
         fetch: suspend () -> T?,
@@ -488,19 +463,12 @@ private class ModifyAddonsViewModel(
         }
     }
 
-    /**
-     * 登记已加载版本列表的加载器，等待按优先级执行预选
-     */
     private fun enqueuePreselect(loader: ModLoader, action: () -> Unit) {
         pendingPreselects[loader] = action
-        attemptedPreselects.remove(loader) //重新加载后允许再次尝试
+        attemptedPreselects.remove(loader)
         runPendingPreselects()
     }
 
-    /**
-     * 按主加载器优先级依次执行预选,主加载器先完成预选，其余加载器为它让位
-     * 更高优先级的加载器列表尚未加载完成时，低优先级的等待，保证预选结果确定
-     */
     private fun runPendingPreselects() {
         installedLoaders
             .sortedBy {
@@ -511,8 +479,8 @@ private class ModifyAddonsViewModel(
                 if (loader in attemptedPreselects) return@forEach
                 val action = pendingPreselects[loader]
                 if (action == null) {
-                    if (loader in reloadableLoaders) return //更高优先级的列表仍在加载，等待
-                    //无法加载版本列表的加载器，直接视为未识别
+                    if (loader in reloadableLoaders) return
+
                     attemptedPreselects.add(loader)
                     unmatchedLoaders = unmatchedLoaders + loader
                     return@forEach
@@ -522,11 +490,6 @@ private class ModifyAddonsViewModel(
             }
     }
 
-    /**
-     * 预选已安装的加载器版本
-     * 仅在当前行未选择版本、通过校验且与已选择的其他加载器全部兼容时才填入；
-     * 无法匹配时将加载器标记为未识别，修改时默认保留原样
-     */
     private fun <T : AddonVersion> preselectInstalled(
         state: MutableState<T?>,
         loader: ModLoader,
@@ -565,7 +528,7 @@ private class ModifyAddonsViewModel(
                         versions = versions,
                         installedVersion = installed.version,
                         matcher = { version, installed -> version.matchesInstalledVersion(installed) },
-                        //与已选 Forge 成对校验兼容性
+
                         validator = { version ->
                             currentAddon.forgeVersion.value?.let { forge ->
                                 isOptiFineCompatibleWithForge(version, forge)
@@ -590,7 +553,7 @@ private class ModifyAddonsViewModel(
                         loader = ModLoader.FORGE,
                         versions = versions,
                         installedVersion = installed.version,
-                        //与已选 OptiFine 成对校验兼容性
+
                         validator = { version ->
                             currentAddon.optifineVersion.value?.let { optifine ->
                                 isOptiFineCompatibleWithForge(optifine, version)
@@ -659,7 +622,7 @@ private class ModifyAddonsViewModel(
     }
 
     init {
-        //不会被加载版本列表的已安装加载器，直接标记为未识别，避免阻塞其他加载器的预选
+
         installedLoaders.forEach { installed ->
             if (installed.loader !in reloadableLoaders) {
                 attemptedPreselects.add(installed.loader)
@@ -687,9 +650,6 @@ private class ModifyAddonsViewModel(
     }
 }
 
-/**
- * @return 从版本解析出当前已安装的全部加载器
- */
 @Composable
 private fun rememberInstalledLoaders(
     version: Version,
@@ -720,9 +680,6 @@ private fun rememberInstalledLoaders(
     return installedLoaders
 }
 
-/**
- * Minecraft 版本行
- */
 @Composable
 private fun MCVersionRow(
     modifier: Modifier = Modifier,
@@ -781,9 +738,6 @@ private fun MCVersionRow(
     }
 }
 
-/**
- * 修改版本的提醒条目
- */
 @Composable
 private fun ModifyTipItem(
     title: String,

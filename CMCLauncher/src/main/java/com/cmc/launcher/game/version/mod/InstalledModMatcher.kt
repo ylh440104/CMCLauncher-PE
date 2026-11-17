@@ -19,27 +19,16 @@ import java.io.File
 
 private const val TAG = "InstalledModMatcher"
 
-/** 单次批量匹配的指纹数量，较小的批次可显著降低单次响应的解析内存开销 */
 private const val MATCH_BATCH_SIZE = 25
 
-/** 同时进行的批量匹配请求数量 */
 private const val MATCH_PARALLELISM = 4
 
-/**
- * 本地模组指纹的平台匹配结果
- * @param byProject 以平台项目Id为键
- * @param byVersion 以平台版本Id为键
- * @param complete 是否所有指纹分块都匹配成功，存在失败分块时部分指纹未匹配
- */
 class MatchedInstalledMods(
     val byProject: Map<String, InstalledMod>,
     val byVersion: Map<String, InstalledMod>,
     val complete: Boolean
 )
 
-/**
- * 并发计算模组目录内所有文件的指纹
- */
 suspend fun scanModFingerprints(modsDir: File): List<ModFingerprints> =
     withContext(Dispatchers.IO) {
         val files = modsDir.listFiles()
@@ -65,14 +54,6 @@ suspend fun scanModFingerprints(modsDir: File): List<ModFingerprints> =
         }
     }
 
-/**
- * 将本地模组指纹与指定平台匹配，得到本地已安装的模组信息
- *
- * 优先读取持久缓存，只对未命中的指纹发起批量查询；
- * 每批取回后立即写入持久缓存并通过[onCollect]增量回调，调用方可实时同步到UI
- *
- * @param onCollect 增量匹配结果回调，全部在互斥锁内按顺序触发，不会并发
- */
 suspend fun matchInstalledMods(
     fingerprints: List<ModFingerprints>,
     platform: Platform,
@@ -95,7 +76,6 @@ suspend fun matchInstalledMods(
         pending.add(installed)
     }
 
-    //增量上报已匹配的结果
     suspend fun flush() {
         if (pending.isEmpty()) return
         onCollect(
@@ -118,8 +98,6 @@ suspend fun matchInstalledMods(
         flush()
     }
 
-    // 并发进行批量查询（上限[MATCH_PARALLELISM]），每批取回后立即持久化并增量上报；
-    // 失败的批次不写任何缓存，留待下次重试
     coroutineScope {
         val semaphore = Semaphore(MATCH_PARALLELISM)
         uncached.chunked(MATCH_BATCH_SIZE).map { chunk ->
@@ -160,14 +138,8 @@ suspend fun matchInstalledMods(
     return MatchedInstalledMods(byProject, byVersion, isComplete)
 }
 
-/**
- * 可能为模组的文件扩展名（.disabled 后缀的文件已去除后缀再判断）
- */
 private val MOD_FILE_EXTENSIONS = setOf("jar", "zip", "litemod")
 
-/**
- * 文件是否可能为模组文件，非模组文件不参与指纹计算
- */
 private fun File.isModFileCandidate(): Boolean {
     val extension = if (isDisabled()) {
         File(nameWithoutExtension).extension
@@ -177,23 +149,14 @@ private fun File.isModFileCandidate(): Boolean {
     return extension.lowercase() in MOD_FILE_EXTENSIONS
 }
 
-/**
- * 指纹在持久缓存中的键，不同平台的指纹相互独立
- */
 private fun ModFingerprints.cacheKey(platform: Platform): String =
     "${platform.name}/${fingerprintValue(platform)}"
 
-/**
- * 指纹在对应平台上的匹配键
- */
 private fun ModFingerprints.fingerprintValue(platform: Platform): String = when (platform) {
     Platform.MODRINTH -> sha1
     Platform.CURSEFORGE -> murmur2.toString()
 }
 
-/**
- * 平台未命中指纹时的负缓存标记
- */
 private fun notFoundMod(platform: Platform): InstalledMod = InstalledMod(
     platform = platform,
     projectId = "",

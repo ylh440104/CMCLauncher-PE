@@ -33,9 +33,6 @@ private const val TAG = "Analyse.ForgeLike"
 
 const val FORGE_LIKE_ANALYSE_ID = "Analyse.ForgeLike"
 
-/**
- * Forge Like 分析与安装支持库 (仅支持处理新版本 Forge、NeoForge)
- */
 fun getForgeLikeAnalyseTask(
     downloader: BaseMinecraftDownloader,
     targetTempInstaller: File,
@@ -49,8 +46,7 @@ fun getForgeLikeAnalyseTask(
         dispatcher = Dispatchers.IO,
         task = { task ->
             if (sourceInherit != processedInherit) {
-                //准备安装环境
-                //复制原版文件
+
                 copyVanillaFiles(
                     sourceGameFolder = tempMinecraftFolder,
                     sourceVersion = sourceInherit,
@@ -71,10 +67,6 @@ fun getForgeLikeAnalyseTask(
     )
 }
 
-/**
- * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/bf6fa718c89e8615b947d1c639ed16a72ce125e0/Plain%20Craft%20Launcher%202/Pages/PageDownload/ModDownloadLib.vb#L1324-L1411)
- * 处理新版 Forge、NeoForge
- */
 private suspend fun analyseNewForge(
     task: Task,
     downloader: BaseMinecraftDownloader,
@@ -85,7 +77,6 @@ private suspend fun analyseNewForge(
 ) {
     task.updateProgress(-1f)
 
-    //解析 NeoForge 的支持库列表，并统一进行下载
     val (installProfile, versionString) = withContext(Dispatchers.IO) {
         ZipFile(installer).use { zip ->
             task.updateProgress(0.2f)
@@ -119,17 +110,14 @@ private suspend fun analyseNewForge(
         }
     }
 
-    //合并为一个Json
     installProfile.merge(versionString.parseToJson())
 
-    //计划下载 install_profile.json 内的所有支持库
     val libDownloader = GameLibDownloader(
         downloader = downloader,
         gameJson = installProfile.toString()
     )
     libDownloader.schedule(task, File(tempMinecraftFolder, "libraries").ensureDirectory(), false)
 
-    //添加 Mojang Mappings 下载信息
     task.updateProgress(0.4f)
     scheduleMojangMappings(
         mergedJson = installProfile,
@@ -162,15 +150,11 @@ private suspend fun analyseNewForge(
         }
     }
 
-    //开始下载 NeoForge 支持库
     libDownloader.download(task)
 
     task.updateProgress(1f)
 }
 
-/**
- * 解析并提交下载Mojang映射
- */
 private suspend fun scheduleMojangMappings(
     mergedJson: JsonObject,
     tempMinecraftDir: File,
@@ -225,9 +209,6 @@ private suspend fun scheduleMojangMappings(
     )
 }
 
-/**
- * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/6e05b5ee58e67cd40e58c6f6002f3599897ca358/HMCLCore/src/main/java/org/jackhuang/hmcl/download/forge/ForgeNewInstallTask.java#L332-L360)
- */
 private suspend fun parseProcessors(
     baseDir: File,
     jsonObject: JsonObject,

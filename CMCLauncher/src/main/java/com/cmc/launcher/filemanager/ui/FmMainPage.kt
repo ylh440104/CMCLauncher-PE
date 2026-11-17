@@ -97,26 +97,17 @@ private sealed interface FmOperation {
     data class Rename(val entry: FmEntry) : FmOperation
     data class Property(val entry: FmEntry) : FmOperation
     data class DeleteConfirm(val count: Int) : FmOperation
-    /** 未知格式文件点击编辑时的确认 */
+
     data class EditConfirm(val entry: FmEntry) : FmOperation
     data object BulkActions : FmOperation
     data object RangeSelectHelp : FmOperation
 }
 
-/**
- * 文件管理器主页面
- * @param vm 文件管理器视图模型
- * @param snackHost 全局 Snackbar 宿主
- * @param onOpenTrash 打开回收站回调
- * @param onOpenEditor 打开文本编辑器回调
- * @param onExit 退出文件管理器回调
- * @param onToggleOrientation 横竖屏切换回调
- */
 @Composable
 fun FmMainPage(
     vm: FileManagerViewModel,
     snackHost: SnackbarHostState,
-    /** 返回手势透明度（1 = 完全可见），仅作用于内容区，不随顶栏 / 底栏 */
+
     contentAlpha: Animatable<Float, AnimationVector1D>,
     onOpenTrash: () -> Unit,
     onOpenEditor: (Path) -> Unit,
@@ -187,7 +178,7 @@ fun FmMainPage(
                     .fillMaxSize()
                     .padding(inner)
             ) {
-                // 侧边操作栏
+
                 FmNavRail(
                     multiSelect = uiState.multiSelect,
                     canParent = uiState.canBack,
@@ -201,7 +192,7 @@ fun FmMainPage(
                     canBack = uiState.canNavigateBack,
                     canForward = uiState.canNavigateForward
                 )
-                // 文件项列表
+
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -237,7 +228,6 @@ fun FmMainPage(
         }
     }
 
-    // 对话框宿主
     FmMainDialogs(
         vm = vm,
         uiState = uiState,
@@ -287,7 +277,7 @@ private fun MainContent(
             }
             }
             else -> {
-            // 按各帧自己的内容渲染
+
             val visible = remember(state, uiState.sortConfig, uiState.showHidden) {
             applyVisibility(state.entries, uiState.sortConfig, uiState.showHidden)
             }
@@ -308,7 +298,6 @@ private fun MainContent(
             }
             }
 
-        // 刷新进行中，全屏透明输入拦截层
         if (uiState.refreshing) {
             Box(
                 modifier = Modifier
@@ -343,7 +332,6 @@ private fun EntryList(
     fun selectionKey(entry: FmEntry): String =
         entry.path.normalize().toAbsolutePath().toString()
 
-    // 定位高亮：自动滚动到目标项，短暂闪烁后清除
     val highlightKey = uiState.locateHighlightPath?.normalize()?.toAbsolutePath()?.toString()
     val highlightIndex = highlightKey?.let { key -> entries.indexOfFirst { selectionKey(it) == key } }
     LaunchedEffect(highlightKey, highlightIndex) {
@@ -372,12 +360,12 @@ private fun EntryList(
     }
     val onSwipeTrigger: (FmEntry) -> Unit = { vm.swipeRangeSelect(it) }
     val onEntryDelete: (FmEntry) -> Unit = { entry ->
-        // 单条目删除：临时加入选中集合后进入删除确认
+
         vm.stageSingleDelete(entry)
         updateOperation(FmOperation.DeleteConfirm(1))
     }
     val onEntryEdit: (FmEntry) -> Unit = { entry ->
-        // 已知文本格式直接进入编辑器，未知格式先弹警告确认
+
         if (isKnownTextFile(entry.name)) {
             onOpenEditor(entry.path)
         } else {
@@ -413,7 +401,7 @@ private fun EntryList(
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val gap = 2.dp
             val minColumnSize = 280.dp
-            // 与 GridCells.Adaptive 相同的列数公式，保证条目方位与实际网格一致
+
             val columns = floor(
                 (maxWidth - 24.dp + gap).value / (minColumnSize + gap).value
             ).toInt().coerceAtLeast(1)
@@ -464,7 +452,6 @@ private fun FmMainDialogs(
         }
     }
 
-    // 处理 SAF 选择导入完整目录
     val safDirLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -492,7 +479,6 @@ private fun FmMainDialogs(
         }
     }
 
-    // 处理 SAF 导入文件
     val safFilesLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -573,7 +559,7 @@ private fun FmMainDialogs(
         )
 
         DialogIntent.CompressOutputPick -> {
-            // SAF 选择器已由 LaunchedEffect 启动
+
         }
 
         is DialogIntent.CompressConflict -> FmConflictDialog(
@@ -603,7 +589,7 @@ private fun FmMainDialogs(
         )
 
         DialogIntent.ExtractOutputPick -> {
-            // SAF 选择器已由 LaunchedEffect 启动
+
         }
 
         is DialogIntent.ExtractConflict -> FmConflictDialog(
@@ -615,10 +601,10 @@ private fun FmMainDialogs(
         )
 
         DialogIntent.ImportFiles -> {
-            // SAF 选择器已由 LaunchedEffect 启动
+
         }
         DialogIntent.ImportDir -> {
-            // SAF 选择器已由 LaunchedEffect 启动
+
         }
 
         is DialogIntent.PasteConflict -> {
@@ -639,7 +625,7 @@ private fun FmMainDialogs(
         }
 
         is DialogIntent.TrashRestoreConflict -> {
-            // 由回收站页分派
+
         }
 
         else -> {}
@@ -687,7 +673,7 @@ private fun FmMainDialogs(
         is FmOperation.Property -> {
             val entry = operation.entry
             if (entry.isDirectory) {
-                // 启动异步扫描，对话框关闭时停止
+
                 LaunchedEffect(entry.path) {
                     vm.startDirectoryScan(entry.path)
                 }
@@ -731,7 +717,7 @@ private fun FmMainDialogs(
                 updateOperation(FmOperation.None)
             },
             onDelete = {
-                // 批量对话框先关闭，再弹删除确认
+
                 updateOperation(FmOperation.DeleteConfirm(uiState.selection.size))
             },
             onCompress = {

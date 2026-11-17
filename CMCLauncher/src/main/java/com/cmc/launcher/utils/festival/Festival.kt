@@ -14,9 +14,7 @@ enum class Festival(
     @field:StringRes
     val textRes: Int
 ) {
-    /**
-     * 新年
-     */
+
     NEW_YEAR(
         isChinese = true,
         isInternational = true,
@@ -30,9 +28,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 春节
-     */
     SPRING_FESTIVAL(
         isChinese = true,
         isInternational = false,
@@ -46,9 +41,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 清明节
-     */
     QING_MING(
         isChinese = true,
         isInternational = false,
@@ -62,9 +54,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 端午节
-     */
     DRAGON_BOAT(
         isChinese = true,
         isInternational = false,
@@ -78,9 +67,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 中秋节
-     */
     MID_AUTUMN(
         isChinese = true,
         isInternational = false,
@@ -94,9 +80,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 国庆节
-     */
     NATIONAL_DAY(
         isChinese = true,
         isInternational = false,
@@ -110,9 +93,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 愚人节
-     */
     APRIL_FOOLS(
         isChinese = false,
         isInternational = true,
@@ -126,9 +106,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 圣诞节
-     */
     CHRISTMAS(
         isChinese = false,
         isInternational = true,
@@ -142,9 +119,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 万圣节
-     */
     HALLOWEEN(
         isChinese = false,
         isInternational = true,
@@ -158,9 +132,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 情人节
-     */
     VALENTINES(
         isChinese = false,
         isInternational = true,
@@ -174,9 +145,6 @@ enum class Festival(
         }
     },
 
-    /**
-     * 七夕
-     */
     QIXI(
         isChinese = true,
         isInternational = false,
@@ -193,11 +161,6 @@ enum class Festival(
     abstract fun isToday(date: LocalDate, lunarCalendar: LunarCalendar): Boolean
 }
 
-
-/**
- * 获取今天的节日列表
- * @param containsChinese 是否包含中国节日
- */
 fun getTodayFestivals(
     date: LocalDate = LocalDate.now(),
     containsChinese: Boolean

@@ -76,11 +76,6 @@ import org.jackhuang.hmcl.addon.AddonProjectInfo
 
 private const val TAG = "SearchAddonScreen"
 
-/**
- * 资源搜索屏幕的 view model
- * @param initialPlatform 初始设定的平台
- * @param platformClasses 资源搜索的类型
- */
 private class SearchScreenViewModel(
     initialPlatform: Platform,
     private val platformClasses: PlatformClasses
@@ -92,19 +87,16 @@ private class SearchScreenViewModel(
     var searchFilter by mutableStateOf(PlatformSearchFilter())
 
     private val _searchedMcMods = MutableStateFlow<List<AddonProjectInfo>>(emptyList())
-    /** 搜索得到的所有 MCMOD 项目 */
+
     val searchedMcMods = _searchedMcMods.asStateFlow()
     private val _searchedVersions = MutableStateFlow<List<String>>(emptyList())
-    /** 搜索得到的所有Minecraft版本 */
+
     val searchedVersions = _searchedVersions.asStateFlow()
 
     var currentSearchJob: Job? = null
     var currentSearchMCMODSJob: Job? = null
     var currentSearchVersionJob: Job? = null
 
-    /**
-     * 仅更新搜索名称
-     */
     fun updateNameFilter(searchName: String) {
         searchFilter = searchFilter.copy(searchName = searchName)
         currentSearchMCMODSJob?.cancel()
@@ -113,7 +105,7 @@ private class SearchScreenViewModel(
                 searchName.searchMcMods(classes = platformClasses) ?: emptyList()
             } catch (_: CancellationException) {
                 emptyList()
-            }.take(20) //仅展示20个搜索结果
+            }.take(20)
             withContext(Dispatchers.Main) {
                 _searchedMcMods.update { result }
             }
@@ -121,9 +113,6 @@ private class SearchScreenViewModel(
         }
     }
 
-    /**
-     * 仅更新版本名称
-     */
     fun updateVersionFilter(version: String) {
         searchFilter = searchFilter.copy(gameVersion = version)
         refreshVerSuggestions(version)
@@ -139,12 +128,12 @@ private class SearchScreenViewModel(
                 version.isEmpty() -> popularVersions
                 allVersions.isEmpty() -> popularVersions.filter { ver ->
                     ver.contains(version)
-                }.take(20) //仅展示20个搜索结果
+                }.take(20)
                 else -> allVersions.filter {
                     it.version.id.contains(version) &&
-                            //CurseForge只能使用正式版进行过滤
+
                             (searchPlatform != Platform.CURSEFORGE || it.type == MinecraftVersion.Type.Release)
-                }.map { it.version.id }.take(20) //仅展示20个搜索结果
+                }.map { it.version.id }.take(20)
             }
             withContext(Dispatchers.Main) {
                 _searchedVersions.update { result }
@@ -153,21 +142,15 @@ private class SearchScreenViewModel(
         }
     }
 
-    /**
-     * 重置并重新搜索
-     */
     fun resetSearch() {
         pages.clear()
-        searchFilter = searchFilter.copy(index = 0) //重置索引到起始处
+        searchFilter = searchFilter.copy(index = 0)
         search()
     }
 
-    /**
-     * 更新过滤器时，重置已有结果，重新触发搜索
-     */
     fun researchWithFilter(filter: PlatformSearchFilter) {
         pages.clear()
-        searchFilter = filter.copy(index = 0) //重置索引到起始处
+        searchFilter = filter.copy(index = 0)
         search()
     }
 
@@ -178,7 +161,7 @@ private class SearchScreenViewModel(
             val targetIndex = page.pageNumber - 1
 
             if (pages.size > targetIndex) {
-                pages[targetIndex] = page //替换已有页
+                pages[targetIndex] = page
             } else {
                 while (pages.size < targetIndex) {
                     pages += null
@@ -191,7 +174,7 @@ private class SearchScreenViewModel(
     }
 
     fun search() {
-        currentSearchJob?.cancel() //取消上一个搜索
+        currentSearchJob?.cancel()
 
         currentSearchJob = viewModelScope.launch {
             searchResult = SearchAddonState.Searching
@@ -210,7 +193,7 @@ private class SearchScreenViewModel(
     }
 
     init {
-        //初始化后，执行一次搜索
+
         search()
         refreshVerSuggestions("")
         viewModelScope.launch {
@@ -242,23 +225,6 @@ private fun rememberSearchAddonViewModel(
     }
 }
 
-/**
- * @param parentScreenKey 父屏幕Key
- * @param parentCurrentKey 父屏幕当前Key
- * @param screenKey 屏幕的Key
- * @param currentKey 当前的Key
- * @param platformClasses 搜索资源的分类
- * @param initialPlatform 初始搜索平台
- * @param onPlatformChange 搜索平台变更
- * @param enablePlatform 是否允许更改平台
- * @param getCategories 根据平台获取可用的资源类别过滤器
- * @param enableModLoader 是否允许更改模组加载器
- * @param getModloaders 根据平台获取可用的模组加载器过滤器
- * @param mapCategories 通过平台获取类别本地化信息
- * @param swapToDownload 跳转到下载详情页
- * @param installedInfo 查询项目本地是否已安装，键为平台与平台项目ID
- * @param extraFilter 额外的过滤器UI
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchAddonScreen(
@@ -285,7 +251,6 @@ fun SearchAddonScreen(
         platformClasses = platformClasses
     )
 
-    //跟随平台自动变更的内容
     val categories = remember(viewModel.searchPlatform) {
         getCategories(viewModel.searchPlatform)
     }
@@ -389,7 +354,7 @@ fun SearchAddonScreen(
                         },
                         onSearch = { newIndex ->
                             viewModel.searchFilter = viewModel.searchFilter.copy(index = newIndex)
-                            viewModel.search() //搜索上一页
+                            viewModel.search()
                         }
                     )
                 },
@@ -405,7 +370,7 @@ fun SearchAddonScreen(
                         },
                         onSearch = { newIndex ->
                             viewModel.searchFilter = viewModel.searchFilter.copy(index = newIndex)
-                            viewModel.search() //搜索下一页
+                            viewModel.search()
                         }
                     )
                 },
@@ -419,7 +384,7 @@ fun SearchAddonScreen(
                         },
                         onSearch = { newIndex ->
                             viewModel.searchFilter = viewModel.searchFilter.copy(index = newIndex)
-                            viewModel.search() //搜索目标页
+                            viewModel.search()
                         }
                     )
                 }

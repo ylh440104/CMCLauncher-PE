@@ -12,27 +12,17 @@ class VersionInfoParser(private val version: Version) {
     private var inherit: Boolean? = null
     private var skipIfNotExists: Boolean = false
 
-    /**
-     * 设置预先加载的 [GameManifest]
-     */
     fun setManifest(manifest: GameManifest): VersionInfoParser {
         this.gameManifest = manifest
         return this
     }
 
-    /**
-     * 启用版本继承
-     * @param skipIfNotExists 若 [GameManifest.inheritsFrom] 对应的 JSON 文件不存在，则静默跳过继承
-     */
     fun setInheriting(skipIfNotExists: Boolean = false): VersionInfoParser {
         this.inherit = true
         this.skipIfNotExists = skipIfNotExists
         return this
     }
 
-    /**
-     * 构建并返回最终合并后的 [GameManifest]
-     */
     fun build(): GameManifest {
         val manifest = gameManifest ?: GSON.fromJson(
             File(version.getVersionPath(), "${version.getVersionName()}.json").readText(),
@@ -57,9 +47,6 @@ class VersionInfoParser(private val version: Version) {
     }
 }
 
-/**
- * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L885-L979)
- */
 private fun getGameManifest(
     gameManifest: GameManifest,
     inheritsManifest: GameManifest?,
@@ -71,12 +58,10 @@ private fun getGameManifest(
             target = inheritsManifest,
         )
 
-        // Fuse libraries
         val inheritLibraryList: MutableList<Library> = ArrayList(inheritsManifest.libraries)
         inheritLibraryList += gameManifest0.libraries
         inheritsManifest.libraries = inheritLibraryList
 
-        // Inheriting Minecraft 1.13+ with append custom args
         if (inheritsManifest.arguments != null && gameManifest0.arguments != null) {
             val totalArgList: MutableList<Any?> = ArrayList(inheritsManifest.arguments.game)
 
@@ -90,7 +75,7 @@ private fun getGameManifest(
                 var perCustomArg: Any = gameManifest0.arguments.game[i]
                 if (perCustomArg is String) {
                     var perCustomArgStr = perCustomArg
-                    // Check if there is a duplicate argument on combine
+
                     if (perCustomArgStr.startsWith("--") && totalArgList.contains(
                             perCustomArgStr
                         )
@@ -98,7 +83,7 @@ private fun getGameManifest(
                         perCustomArg = gameManifest0.arguments.game[i + 1]
                         if (perCustomArg is String) {
                             perCustomArgStr = perCustomArg
-                            // If the next is argument value, skip it
+
                             if (!perCustomArgStr.startsWith("--")) {
                                 nskip++
                             }

@@ -22,17 +22,13 @@ import java.io.File
 private const val TAG = "StorageUtils"
 
 private const val REQUEST_CODE_PERMISSIONS: Int = 0
-/** 是否有存储权限 */
+
 var hasStoragePermission: Boolean = false
     private set
-/** 是否可以处理存储权限申请 */
+
 var canHandlePermission: Boolean = false
     private set
 
-/**
- * 检查存储权限，并检查是否能够处理存储权限申请
- * @return 是否拥有存储权限
- */
 fun checkStoragePermissionsForInit(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val intent = getPermissionSettingsAndroid11AndAbove(context)
@@ -44,9 +40,6 @@ fun checkStoragePermissionsForInit(context: Context) {
     }
 }
 
-/**
- * 检查存储权限，如果没有存储权限，则弹出弹窗向用户申请
- */
 fun checkStoragePermissions(
     activity: Activity,
     title: Int = R.string.generic_warning,
@@ -62,9 +55,6 @@ fun checkStoragePermissions(
     }
 }
 
-/**
- * 适用于安卓10及一下的存储权限检查
- */
 fun hasStoragePermissions(context: Context): Boolean {
     return ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -93,7 +83,6 @@ private fun handlePermissionsForAndroid11AndAbove(
             override fun onRequest() {
                 val intent = getPermissionSettingsAndroid11AndAbove(activity)
 
-                //先检查系统是否有 Activity 能处理
                 if (intent.resolveActivity(activity.packageManager) != null) {
                     try {
                         activity.startActivityForResult(intent, REQUEST_CODE_PERMISSIONS)
@@ -163,9 +152,6 @@ private interface RequestPermissions {
     fun onCancel()
 }
 
-/**
- * @return 获取所有可插拔的外置 SD卡路径
- */
 fun getExternalSDCardPaths(context: Context): List<SDCardInfo>? {
     return runCatching {
         val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
@@ -173,10 +159,10 @@ fun getExternalSDCardPaths(context: Context): List<SDCardInfo>? {
 
         storageManager.getStorageVolumes().mapNotNull { volume ->
             val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                //SDK 30+有一个官方推荐的 API，可以直接用
+
                 volume.directory ?: return@mapNotNull null
             } else {
-                //其他情况需要进行反射
+
                 val getPathMethod = storageVolumeClazz.getMethod("getPath")
                 val path = getPathMethod.invoke(volume) as String
                 File(path)
@@ -185,9 +171,9 @@ fun getExternalSDCardPaths(context: Context): List<SDCardInfo>? {
             val state = volume.state
 
             if (
-                //已挂载，且可读/写
+
                 state == Environment.MEDIA_MOUNTED &&
-                //必须为可拔出的卡
+
                 volume.isRemovable
             ) {
                 val description = volume.getDescription(context)

@@ -62,7 +62,7 @@ fun ErrorScreen(
     onOrientationChanged: (Int) -> Unit = {},
     body: @Composable ColumnScope.() -> Unit
 ) {
-    //获取方向信息，展示两套不同的UI
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -99,9 +99,6 @@ fun ErrorScreen(
     }
 }
 
-/**
- * 崩溃页面（横屏页面）
- */
 @Composable
 private fun ErrorScreenLandscape(
     crashType: CrashType,
@@ -118,9 +115,9 @@ private fun ErrorScreenLandscape(
     Scaffold(
         topBar = {
             val text = when (crashType) {
-                //在启动器崩溃的时候，显示一个较为严重的标题
+
                 CrashType.LAUNCHER_CRASH -> stringResource(R.string.crash_launcher_title, BuildKeys.LAUNCHER_NAME)
-                //游戏运行崩溃了，大概和启动器关系不大，仅展示应用标题
+
                 CrashType.GAME_CRASH -> BuildKeys.LAUNCHER_NAME
             }
             Box(
@@ -130,7 +127,7 @@ private fun ErrorScreenLandscape(
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = text)
-                //旋转竖屏
+
                 IconButton(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
@@ -180,9 +177,6 @@ private fun ErrorScreenLandscape(
     }
 }
 
-/**
- * 崩溃页面（竖屏版本）
- */
 @Composable
 private fun ErrorScreenPortrait(
     crashType: CrashType,
@@ -196,7 +190,7 @@ private fun ErrorScreenPortrait(
     onRotateClick: () -> Unit,
     body: @Composable ColumnScope.() -> Unit
 ) {
-    //控制下拉菜单的显示状态
+
     var showMenu by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -208,11 +202,11 @@ private fun ErrorScreenPortrait(
                     actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
                 title = {
-                    //应用标题
+
                     Text(text = BuildKeys.LAUNCHER_NAME)
                 },
                 actions = {
-                    //旋转横屏
+
                     IconButton(
                         onClick = onRotateClick
                     ) {
@@ -291,7 +285,7 @@ private fun ErrorScreenPortrait(
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            //崩溃类型
+
             Text(
                 text = stringResource(
                     R.string.crash_type,
@@ -300,7 +294,7 @@ private fun ErrorScreenPortrait(
             )
 
             if (crashType == CrashType.LAUNCHER_CRASH) {
-                //仅在启动器崩溃时，才显示这行略显严重的文本
+
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {

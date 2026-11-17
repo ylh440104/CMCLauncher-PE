@@ -23,118 +23,25 @@ import androidx.compose.material3.Card as M3Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.layout.padding
 
-/**
- * 根据卡片在UI组中的位置，选择不同的圆角形状
- */
 enum class CardPosition {
-    /**
-     * 位于 UI 组的顶部
-     * ``` txt
-     *   _______
-     *  +       +
-     * |         |
-     * |         |
-     * |         |
-     *  ---------
-     * ```
-     */
+
     Top,
 
-    /**
-     * 位于 UI 组的顶部左侧
-     * ``` txt
-     *   ________
-     *  +        |
-     * |         |
-     * |         |
-     * |         |
-     *  ---------
-     * ```
-     */
     TopStart,
 
-    /**
-     * 位于 UI 组的顶部右侧
-     * ``` txt
-     *  ________
-     * |        +
-     * |         |
-     * |         |
-     * |         |
-     *  ---------
-     * ```
-     */
     TopEnd,
 
-    /**
-     * 位于 UI 组的中部
-     * ``` txt
-     *  _________
-     * |         |
-     * |         |
-     * |         |
-     * |         |
-     *  ---------
-     * ```
-     */
     Middle,
 
-    /**
-     * 位于 UI 组的底部
-     * ``` txt
-     *  _________
-     * |         |
-     * |         |
-     * |         |
-     *  +       +
-     *   -------
-     * ```
-     */
     Bottom,
 
-    /**
-     * 位于 UI 组的底部左侧
-     * ``` txt
-     *  _________
-     * |         |
-     * |         |
-     * |         |
-     *  +        |
-     *   --------
-     * ```
-     */
     BottomStart,
 
-    /**
-     * 位于 UI 组的底部右侧
-     * ``` txt
-     *  _________
-     * |         |
-     * |         |
-     * |         |
-     * |        +
-     *  --------
-     * ```
-     */
     BottomEnd,
 
-    /**
-     * 单个 UI 组件
-     * ``` txt
-     *   _______
-     *  +       +
-     * |         |
-     * |         |
-     *  +       +
-     *   -------
-     * ```
-     */
     Single
 }
 
-/**
- * 根据 UI 组件在组中的位置决定的形状
- */
 @Composable
 fun rememberSettingsCardShape(
     position: CardPosition,

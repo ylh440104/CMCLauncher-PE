@@ -20,32 +20,19 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
-/**
- * 游戏日志上传逻辑 ViewModel
- */
 class LogsUploadViewModel: ViewModel() {
     private var uploadJob: Job? = null
     private var checkJob: Job? = null
 
-    /**
-     * 日志上传操作流程
-     */
     var operation by mutableStateOf<ShareLinkOperation>(ShareLinkOperation.None)
 
-    /**
-     * 日志文件是否适合上传分享
-     */
     var canUpload by mutableStateOf(false)
         private set
-    
-    /**
-     * 检查日志文件是否适合上传
-     */
+
     fun check(logFile: File) {
         checkJob?.cancel()
         checkJob = viewModelScope.launch(Dispatchers.IO) {
-            //2MB 已经不适合上传，容易超时
-            //这种日志可能是缺某种库，狂刷 Y/N 类提醒导致的
+
             val canUpload0 = !logFile.exceeds2MB()
             withContext(Dispatchers.Main) {
                 canUpload = canUpload0
@@ -53,9 +40,6 @@ class LogsUploadViewModel: ViewModel() {
         }
     }
 
-    /**
-     * 检查文件是否超过 2MB
-     */
     private fun File.exceeds2MB(): Boolean {
         return !exists() && !isFile && length() > 2 * 1024 * 1024
     }
@@ -94,9 +78,6 @@ class LogsUploadViewModel: ViewModel() {
         }
     }
 
-    /**
-     * 开始上传日志
-     */
     fun upload(
         logFile: File,
         onSuccess: (link: String) -> Unit
@@ -105,7 +86,6 @@ class LogsUploadViewModel: ViewModel() {
         uploadJob = viewModelScope.launch(Dispatchers.IO) {
             if (logFile.exceeds2MB()) return@launch
 
-            //读取内容并尝试上传
             val content = logFile.readText()
 
             val apiList = if (isChinaMainland()) {
@@ -122,7 +102,7 @@ class LogsUploadViewModel: ViewModel() {
                 withContext(Dispatchers.Main) {
                     val link = response.url
                     if (link == null) {
-                        //远端数据没有可用的链接
+
                         operation = ShareLinkOperation.Error(
                             LinkNotFoundException()
                         )
@@ -143,9 +123,6 @@ class LogsUploadViewModel: ViewModel() {
         }
     }
 
-    /**
-     * 取消上传日志
-     */
     fun cancel() {
         uploadJob?.cancel()
         uploadJob = null

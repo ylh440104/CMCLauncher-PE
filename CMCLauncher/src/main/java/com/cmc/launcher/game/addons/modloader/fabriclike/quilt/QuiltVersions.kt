@@ -5,9 +5,6 @@ import com.cmc.launcher.game.addons.modloader.fabriclike.models.FabricLikeLoader
 
 object QuiltVersions : FabricLikeVersions("https://meta.quiltmc.org/v3") {
 
-    /**
-     * 获取 Quilt 列表
-     */
     suspend fun fetchQuiltLoaderList(mcVersion: String, force: Boolean = false): List<QuiltVersion>? {
         val list: List<FabricLikeLoader> = fetchLoaderList(force, "QuiltVersions", mcVersion) ?: return null
 

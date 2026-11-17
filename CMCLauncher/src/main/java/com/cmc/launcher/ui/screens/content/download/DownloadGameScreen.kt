@@ -63,36 +63,27 @@ import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 import java.util.concurrent.TimeoutException
 
-/** 游戏安装状态操作 */
 private sealed interface GameInstallOperation {
     data object None : GameInstallOperation
-    /** 开始安装 */
+
     data object Install : GameInstallOperation
-    /** 警告通知权限，可以无视，并直接开始安装 */
+
     data class WarningForNotification(val info: GameDownloadInfo) : GameInstallOperation
-    /** 警告正在使用流量 */
+
     data class WarningForMobileData(val info: GameDownloadInfo) : GameInstallOperation
-    /** 游戏安装出现异常 */
+
     data class Error(val th: Throwable) : GameInstallOperation
-    /** 游戏已成功安装 */
+
     data object Success : GameInstallOperation
 }
 
 private class GameDownloadViewModel: ViewModel() {
-    /**
-     * 用于刷新游戏下载页面版本名称的检查
-     */
+
     var versionNameErrorCheck by mutableStateOf(false)
     var installOperation by mutableStateOf<GameInstallOperation>(GameInstallOperation.None)
 
-    /**
-     * 游戏安装器
-     */
     var installer by mutableStateOf<GameInstaller?>(null)
 
-    /**
-     * 刷新游戏下载页面内的版本名称检查
-     */
     private fun refreshVersionNameCheck() {
         versionNameErrorCheck = !versionNameErrorCheck
     }
@@ -120,10 +111,9 @@ private class GameDownloadViewModel: ViewModel() {
                     onStop()
                 },
                 onGameAlreadyInstalled = {
-                    //很有可能发生在刚安装完成，再次点击安装按钮时
-                    //重置状态，避免无法发起新的安装的问题
+
                     installOperation = GameInstallOperation.None
-                    //保险起见，再次刷新版本名称错误检查
+
                     refreshVersionNameCheck()
                     onStop()
                 }
@@ -236,15 +226,15 @@ fun DownloadGameScreen(
                         refreshErrorCheck = viewModel.versionNameErrorCheck
                     ) { info ->
                         if (viewModel.installOperation !is GameInstallOperation.None) {
-                            //不是待安装状态，拒绝此次安装
+
                             return@DownloadGameWithAddonScreen
                         }
                         if (!NotificationManager.checkNotificationEnabled(context)) {
-                            //警告通知权限
+
                             viewModel.installOperation = GameInstallOperation.WarningForNotification(info)
                         } else {
                             if (isUsingMobileData(context)) {
-                                //警告正在使用流量
+
                                 viewModel.installOperation = GameInstallOperation.WarningForMobileData(info)
                             } else {
                                 viewModel.install(
@@ -282,11 +272,11 @@ private fun GameInstallOperation(
             NotificationCheck(
                 text = stringResource(R.string.notification_data_jvm_service_message),
                 onGranted = {
-                    //权限被授予，开始安装
+
                     onInstall(gameInstallOperation.info)
                 },
                 onIgnore = {
-                    //用户不想授权，但是支持继续进行安装
+
                     onInstall(gameInstallOperation.info)
                 },
                 onDismiss = {
@@ -303,7 +293,7 @@ private fun GameInstallOperation(
                     updateOperation(GameInstallOperation.None)
                 },
                 onConfirm = {
-                    //用户坚持使用移动网络
+
                     onInstall(gameInstallOperation.info)
                 }
             )
@@ -313,7 +303,7 @@ private fun GameInstallOperation(
                 val installGame = installer.tasksFlow.collectAsStateWithLifecycle()
                 val installLog = installer.logOutput.collectAsStateWithLifecycle()
                 if (installGame.value.isNotEmpty()) {
-                    //安装游戏流程对话框
+
                     TitleTaskFlowDialog(
                         title = stringResource(R.string.download_game_install_title),
                         tasks = installGame.value,

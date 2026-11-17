@@ -64,10 +64,6 @@ import com.cmc.launcher.ui.theme.onItemColor
 
 private data class TabItem(val titleRes: Int)
 
-/**
- * 控件样式编辑对话框
- * **不再真正使用Dialog，真的会有性能问题！**
- */
 @Composable
 fun EditButtonStyleDialog(
     visible: Boolean,
@@ -95,7 +91,7 @@ fun EditButtonStyleDialog(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            //作为背景层，被点击时关闭Dialog
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -158,7 +154,6 @@ fun EditButtonStyleDialog(
                                     onSingleLined = { style.name = it }
                                 )
 
-                                //控件外观名称
                                 OwnOutlinedTextField(
                                     modifier = Modifier.fillMaxWidth(),
                                     value = style.name,
@@ -171,14 +166,14 @@ fun EditButtonStyleDialog(
                                     },
                                     shape = MaterialTheme.shapes.large
                                 )
-                                //启用动画过渡
+
                                 InfoLayoutSwitchItem(
                                     modifier = Modifier.fillMaxWidth(),
                                     title = stringResource(R.string.control_editor_edit_style_config_animate_swap),
                                     value = style.animateSwap,
                                     onValueChange = { style.animateSwap = it }
                                 )
-                                //不区分系统主题
+
                                 InfoLayoutSwitchItem(
                                     modifier = Modifier.fillMaxWidth(),
                                     title = stringResource(R.string.control_editor_edit_style_config_common_style),
@@ -193,13 +188,13 @@ fun EditButtonStyleDialog(
                                     .fillMaxHeight()
                             ) {
                                 if (style.commonStyle) {
-                                    //仅编辑亮色外观（共用）
+
                                     StyleConfigEditor(
                                         modifier = Modifier.fillMaxSize(),
                                         styleConfig = style.lightStyle
                                     )
                                 } else {
-                                    //顶贴标签栏
+
                                     SecondaryTabRow(
                                         selectedTabIndex = selectedTabIndex,
                                         containerColor = cardColor(false)
@@ -254,9 +249,6 @@ fun EditButtonStyleDialog(
     }
 }
 
-/**
- * 渲染样式在不同状态下的外观
- */
 @Composable
 private fun RendererBox(
     style: ObservableButtonStyle,
@@ -284,7 +276,6 @@ private fun RendererBox(
         ) {
             val boxModifier = Modifier.size(50.dp)
 
-            //普通状态
             RendererStyleBox(
                 style = style,
                 isDark = isDarkTheme,
@@ -293,7 +284,6 @@ private fun RendererBox(
                 modifier = boxModifier
             )
 
-            //按下状态
             RendererStyleBox(
                 style = style,
                 isDark = isDarkTheme,
@@ -319,7 +309,6 @@ private fun StyleConfigEditor(
             .fillMaxWidth()
             .padding(start = 4.dp, end = 12.dp)
 
-        //普通
         item(key = "normal_title") {
             Text(
                 modifier = itemModifier,
@@ -355,7 +344,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //按下
         item(key = "pressed_title") {
             Text(
                 text = stringResource(R.string.control_editor_edit_style_config_pressed)
@@ -401,7 +389,7 @@ private fun LazyListScope.commonStyleConfig(
     borderRadius: ButtonShape,
     onBorderRadiusChange: (ButtonShape) -> Unit
 ) {
-    //整体不透明度
+
     item(key = "opacity_$tag") {
         InfoLayoutSliderItem(
             modifier = itemModifier.animateItem(),
@@ -415,7 +403,6 @@ private fun LazyListScope.commonStyleConfig(
         )
     }
 
-    //背景颜色
     item(key = "background_color_$tag") {
         InfoLayoutColorItem(
             modifier = itemModifier.animateItem(),
@@ -425,7 +412,6 @@ private fun LazyListScope.commonStyleConfig(
         )
     }
 
-    //内容颜色
     item(key = "content_color_$tag") {
         InfoLayoutColorItem(
             modifier = itemModifier.animateItem(),
@@ -435,7 +421,6 @@ private fun LazyListScope.commonStyleConfig(
         )
     }
 
-    //自定义文本大小
     item(key = "custom_text_size_$tag") {
         InfoLayoutSwitchItem(
             modifier = itemModifier.animateItem(),
@@ -452,7 +437,7 @@ private fun LazyListScope.commonStyleConfig(
     }
 
     if (textSize != null) {
-        //文本大小
+
         item(key = "text_size_$tag") {
             InfoLayoutSliderItem(
                 modifier = itemModifier.animateItem(),
@@ -469,7 +454,6 @@ private fun LazyListScope.commonStyleConfig(
         }
     }
 
-    //边框粗细
     item(key = "border_width_$tag") {
         InfoLayoutSliderItem(
             modifier = itemModifier.animateItem(),
@@ -483,7 +467,6 @@ private fun LazyListScope.commonStyleConfig(
         )
     }
 
-    //边框颜色
     item(key = "border_color_$tag") {
         InfoLayoutColorItem(
             modifier = itemModifier.animateItem(),
@@ -500,7 +483,6 @@ private fun LazyListScope.commonStyleConfig(
         )
     }
 
-    //控件圆角
     item(key = "corner_radius_$tag") {
         Column(
             modifier = Modifier
@@ -508,7 +490,7 @@ private fun LazyListScope.commonStyleConfig(
                 .animateItem(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            //左上角
+
             InfoLayoutSliderItem(
                 modifier = itemModifier,
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_left_top),
@@ -517,7 +499,7 @@ private fun LazyListScope.commonStyleConfig(
                 valueRange = SHAPE_RANGE,
                 suffix = "dp"
             )
-            //右上角
+
             InfoLayoutSliderItem(
                 modifier = itemModifier,
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_right_top),
@@ -526,7 +508,7 @@ private fun LazyListScope.commonStyleConfig(
                 valueRange = SHAPE_RANGE,
                 suffix = "dp"
             )
-            //左下角
+
             InfoLayoutSliderItem(
                 modifier = itemModifier,
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_left_bottom),
@@ -535,7 +517,7 @@ private fun LazyListScope.commonStyleConfig(
                 valueRange = SHAPE_RANGE,
                 suffix = "dp"
             )
-            //右下角
+
             InfoLayoutSliderItem(
                 modifier = itemModifier,
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_right_bottom),
@@ -547,4 +529,3 @@ private fun LazyListScope.commonStyleConfig(
         }
     }
 }
-

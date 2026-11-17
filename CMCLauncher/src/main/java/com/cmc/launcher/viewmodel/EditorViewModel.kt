@@ -47,75 +47,36 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/**
- * 控制布局编辑器
- */
 class EditorViewModel : ViewModel() {
     lateinit var observableLayout: ObservableControlLayout
         private set
 
-    /**
-     * 样式收藏柜
-     */
     val styleCabinet = StyleCabinetState()
 
-    /**
-     * 当前选中的控件层
-     */
     var selectedLayer by mutableStateOf<ObservableControlLayer?>(null)
 
-    /**
-     * 当前选中的组件（仅用于编辑组件对话框）
-     */
     var selectedWidget by mutableStateOf<SelectedWidgetData?>(null)
 
-    /**
-     * 编辑器菜单状态
-     */
     var editorMenu by mutableStateOf(MenuState.HIDE)
 
-    /** 编辑器菜单悬浮球当前的位置 */
     var editorBallPosition by mutableStateOf(Offset.Zero)
 
-    /**
-     * 编辑器各种操作项（主操作状态机）
-     */
     var editorOperation by mutableStateOf<EditorOperation>(EditorOperation.None)
         private set
 
-    /**
-     * 编辑器对于控件的操作项（控件操作状态机，可叠加于主操作之上）
-     */
     var editorWidgetOperation by mutableStateOf<EditorWidgetOperation>(EditorWidgetOperation.None)
         private set
 
-    /**
-     * 编辑器的一些警告状态项（警告状态机，独立弹出）
-     */
     var editorWarningOperation by mutableStateOf<EditorWarningOperation>(EditorWarningOperation.None)
         private set
 
-    /**
-     * 是否开启控件层聚焦模式
-     */
     var isLayerFocus by mutableStateOf(false)
 
-    /**
-     * 是否为预览控制布局模式
-     */
     var isPreviewMode by mutableStateOf(false)
 
-    /**
-     * 预览控制布局的场景
-     */
     var previewScenario by mutableStateOf(PreviewScenario.InMenu)
 
-    /**
-     * 预览控制布局时根据设备隐藏控制层
-     */
     var previewHideLayerWhen by mutableStateOf(HideLayerWhen.None)
-
-
 
     fun initLayout(layout: ControlLayout) {
         if (!::observableLayout.isInitialized) {
@@ -123,33 +84,21 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-
-
-    /**
-     * 在编辑画布上点击了一个控件
-     * 已选中时再次点击则打开控件编辑器
-     */
     fun onWidgetTapped(data: ObservableWidget, layer: ObservableControlLayer) {
         val current = selectedWidget?.data
         selectedWidget = SelectedWidgetData(data, layer)
         if (current == data) {
-            //选中后再点击一次，打开编辑菜单
+
             editorOperation = EditorOperation.SelectButton
         }
     }
 
-    /**
-     * 打开当前选中控件的编辑器
-     */
     fun openWidgetEditor() {
         if (selectedWidget != null) {
             editorOperation = EditorOperation.SelectButton
         }
     }
 
-    /**
-     * 新建一个控件层并进入它的属性编辑
-     */
     fun createLayer(defaultLayerName: String) {
         val newLayer = observableLayout.addLayer(
             layer = createNewLayer(defaultLayerName = defaultLayerName)
@@ -157,16 +106,10 @@ class EditorViewModel : ViewModel() {
         editorOperation = EditorOperation.EditLayer(newLayer)
     }
 
-    /**
-     * 编辑一个控件层的属性
-     */
     fun editLayer(layer: ObservableControlLayer) {
         editorOperation = EditorOperation.EditLayer(layer)
     }
 
-    /**
-     * 复制一个控件层为新的控件层，并进入新层的属性编辑
-     */
     fun copyLayer(layer: ObservableControlLayer, defaultLayerName: String) {
         val baseLayer = layer.pack()
         val newLayer = observableLayout.addLayer(
@@ -183,16 +126,10 @@ class EditorViewModel : ViewModel() {
         editorOperation = EditorOperation.EditLayer(newLayer)
     }
 
-    /**
-     * 请求删除一个控件层，弹出对话框
-     */
     fun requestDeleteLayer(layer: ObservableControlLayer) {
         editorOperation = EditorOperation.DeleteLayer(layer)
     }
 
-    /**
-     * 确认删除控件层，并清理关联的选中态
-     */
     fun confirmDeleteLayer(layer: ObservableControlLayer) {
         val isWidgetLayer = selectedWidget?.layer == layer
         removeLayer(layer)
@@ -202,40 +139,25 @@ class EditorViewModel : ViewModel() {
         editorOperation = EditorOperation.None
     }
 
-    /**
-     * 将一个控件层合并至下层
-     */
     fun mergeLayerDownward(layer: ObservableControlLayer) {
         observableLayout.mergeDownward(layer)
     }
 
-    /**
-     * 控件层隐藏状态变化，必要时清理选中控件
-     */
     fun onLayerHideChanged(hide: Boolean, layer: ObservableControlLayer) {
         if (hide && selectedWidget?.layer == layer) {
             selectedWidget = null
         }
     }
 
-    /**
-     * 切换编辑器菜单
-     */
     fun switchMenu() {
         editorMenu = editorMenu.next()
     }
 
-    /**
-     * 移除控件层
-     */
     fun removeLayer(layer: ObservableControlLayer) {
         if (layer == selectedLayer) selectedLayer = null
         observableLayout.removeLayer(layer.uuid)
     }
 
-    /**
-     * 为控件层添加控件
-     */
     fun addWidget(layers: List<ObservableControlLayer>, addToLayer: (ObservableControlLayer) -> Unit) {
         val layer = selectedLayer
         if (layers.isEmpty()) {
@@ -247,9 +169,6 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 在控件层移除控件
-     */
     fun removeWidget(layer: ObservableControlLayer, widget: ObservableWidget) {
         when (widget) {
             is ObservableNormalData -> layer.removeNormalButton(widget.uuid)
@@ -258,136 +177,79 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-
-    /**
-     * 关闭当前主操作
-     */
     fun dismissOperation() {
         editorOperation = EditorOperation.None
     }
 
-    /**
-     * 打开控件外观列表
-     */
     fun openStyleList() {
         editorOperation = EditorOperation.OpenStyleList
     }
 
-    /**
-     * 打开摇杆样式列表
-     */
     fun openJoystickStyleList() {
         editorOperation = EditorOperation.OpenJoystickStyleList
     }
 
-    /**
-     * 开始创建控件外观，弹出对话框
-     */
     fun startCreateStyle() {
         editorOperation = EditorOperation.CreateStyle
     }
 
-    /**
-     * 确认创建控件外观，回到控件外观列表
-     */
     fun confirmCreateStyle(name: String) {
         createNewStyle(name)
         editorOperation = EditorOperation.OpenStyleList
     }
 
-    /**
-     * 开始创建摇杆样式，弹出对话框
-     */
     fun startCreateJoystickStyle() {
         editorOperation = EditorOperation.CreateJoystickStyle
     }
 
-    /**
-     * 确认创建摇杆样式，回到摇杆样式列表
-     */
     fun confirmCreateJoystickStyle(name: String) {
         createNewJoystickStyle(name)
         editorOperation = EditorOperation.OpenJoystickStyleList
     }
 
-    /**
-     * 编辑布局内的控件外观样式
-     */
     fun editStyle(style: ObservableButtonStyle) {
         editorOperation = EditorOperation.EditButtonStyle(style)
     }
 
-    /**
-     * 编辑布局内的摇杆样式
-     */
     fun editJoystickStyle(style: ObservableJoystickStyle) {
         editorOperation = EditorOperation.EditJoystickStyle(style)
     }
 
-    /**
-     * 打开删除控件外观样式对话框
-     */
     fun requestDeleteStyle(style: ObservableButtonStyle) {
         editorOperation = EditorOperation.DeleteButtonStyle(style)
     }
 
-    /**
-     * 确认删除控件外观样式
-     */
     fun confirmDeleteStyle(style: ObservableButtonStyle) {
         removeStyle(style)
         editorOperation = EditorOperation.None
     }
 
-    /**
-     * 请求删除摇杆样式，弹出对话框
-     */
     fun requestDeleteJoystickStyle(style: ObservableJoystickStyle) {
         editorOperation = EditorOperation.DeleteJoystickStyle(style)
     }
 
-    /**
-     * 确认删除摇杆样式
-     */
     fun confirmDeleteJoystickStyle(style: ObservableJoystickStyle) {
         removeJoystickStyle(style)
         editorOperation = EditorOperation.None
     }
 
-
-
-    /**
-     * 关闭当前控件操作
-     */
     fun dismissWidgetOperation() {
         editorWidgetOperation = EditorWidgetOperation.None
     }
 
-    /**
-     * 请求复制一个控件，询问目标控制层
-     */
     fun requestCloneWidget(data: ObservableWidget, layer: ObservableControlLayer) {
         editorWidgetOperation = EditorWidgetOperation.CloneButton(data, layer)
     }
 
-    /**
-     * 请求删除一个控件，弹出对话框
-     */
     fun requestDeleteWidget(data: ObservableWidget, layer: ObservableControlLayer) {
         editorWidgetOperation = EditorWidgetOperation.DeleteButton(data, layer)
     }
 
-    /**
-     * 确认将控件复制到所选控制层
-     */
     fun confirmCloneWidgets(widget: ObservableWidget, layers: List<ObservableControlLayer>) {
         cloneWidgetToLayers(widget, layers)
         editorWidgetOperation = EditorWidgetOperation.None
     }
 
-    /**
-     * 确认删除控件
-     */
     fun confirmDeleteWidget(widget: ObservableWidget, layer: ObservableControlLayer) {
         removeWidget(layer, widget)
         selectedWidget = null
@@ -395,32 +257,20 @@ class EditorViewModel : ViewModel() {
         editorWidgetOperation = EditorWidgetOperation.None
     }
 
-    /**
-     * 编辑控件的显示文本
-     */
     fun editWidgetText(string: ObservableTranslatableString) {
         editorWidgetOperation = EditorWidgetOperation.EditWidgetText(string)
     }
 
-    /**
-     * 编辑切换控件层可见性事件
-     */
     fun switchLayersVisibility(data: ObservableClickEventsProvider, type: ClickEvent.Type) {
         editorWidgetOperation = EditorWidgetOperation.SwitchLayersVisibility(data, type)
     }
 
-    /**
-     * 编辑控件发送的文本
-     */
     fun sendText(data: ObservableClickEventsProvider) {
         editorWidgetOperation = EditorWidgetOperation.SendText(data)
     }
 
-    /**
-     * 确认控件发送的文本，应用事件变更
-     */
     fun confirmSendText(data: ObservableClickEventsProvider, value: String) {
-        //清除所有发送文本事件，如果文本不为空则再添加
+
         data.onRemoveAllEvents(ClickEvent.Type.SendText)
         if (value.isNotEmpty()) {
             data.onAddEvent(ClickEvent(ClickEvent.Type.SendText, value))
@@ -428,67 +278,38 @@ class EditorViewModel : ViewModel() {
         editorWidgetOperation = EditorWidgetOperation.None
     }
 
-
-
-    /**
-     * 关闭当前警告
-     */
     fun dismissWarning() {
         editorWarningOperation = EditorWarningOperation.None
     }
 
-
-
-    /**
-     * 创建一个新的控件外观
-     */
     fun createNewStyle(name: String) {
         observableLayout.addStyle(
             com.movtery.layer_controller.data.createNewButtonStyle(name)
         )
     }
 
-    /**
-     * 复制控件外观
-     */
     fun cloneStyle(style: ObservableButtonStyle) {
         observableLayout.cloneStyle(style)
     }
 
-    /**
-     * 删除一个控件外观
-     */
     fun removeStyle(style: ObservableButtonStyle) {
         observableLayout.removeStyle(style.uuid)
     }
 
-    /**
-     * 移除一个摇杆样式
-     */
     fun removeJoystickStyle(style: ObservableJoystickStyle) {
         observableLayout.removeJoystickStyle(style.uuid)
     }
 
-    /**
-     * 创建一个新的摇杆样式
-     */
     fun createNewJoystickStyle(name: String) {
         observableLayout.addJoystickStyle(
             com.movtery.layer_controller.data.createNewJoystickStyle(name)
         )
     }
 
-    /**
-     * 复制摇杆样式
-     */
     fun cloneJoystickStyle(style: ObservableJoystickStyle) {
         observableLayout.cloneJoystickStyle(style)
     }
 
-    /**
-     * 将控件外观样式收藏到样式收藏柜
-     * 已收藏同 uuid 样式时转入冲突处理
-     */
     fun favoriteStyle(style: ObservableButtonStyle, onResult: (Boolean) -> Unit) {
         if (styleCabinet.exists(isJoystick = false, uuid = style.uuid)) {
             editorOperation = EditorOperation.FavoriteButtonStyleConflict(style)
@@ -497,10 +318,6 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 将摇杆样式收藏到样式收藏柜
-     * 已收藏同 uuid 样式时转入冲突处理
-     */
     fun favoriteJoystickStyle(style: ObservableJoystickStyle, onResult: (Boolean) -> Unit) {
         if (styleCabinet.exists(isJoystick = true, uuid = style.uuid)) {
             editorOperation = EditorOperation.FavoriteJoystickStyleConflict(style)
@@ -509,10 +326,6 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 处理收藏冲突
-     * @param independent 为 true 时生成新 uuid 作为独立收藏，否则覆盖现有
-     */
     fun resolveFavoriteConflict(
         independent: Boolean,
         onResult: (Boolean) -> Unit
@@ -530,9 +343,6 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 取消收藏冲突处理，直接回到来源的样式列表
-     */
     fun cancelFavoriteConflict() {
         when (editorOperation) {
             is EditorOperation.FavoriteButtonStyleConflict -> editorOperation = EditorOperation.OpenStyleList
@@ -541,17 +351,10 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 打开样式收藏柜
-     * @param source 来源
-     */
     fun openStyleCabinet(source: OpenCabinetSource) {
         editorOperation = EditorOperation.OpenStyleCabinet(source)
     }
 
-    /**
-     * 关闭样式收藏柜，返回打开它的样式列表
-     */
     fun closeStyleCabinet() {
         val source = (editorOperation as? EditorOperation.OpenStyleCabinet)?.source
         val back = when (source) {
@@ -562,9 +365,6 @@ class EditorViewModel : ViewModel() {
         editorOperation = back
     }
 
-    /**
-     * 编辑收藏柜中的一个样式项
-     */
     fun editCabinetItem(item: CabinetStyleItem) {
         val source = (editorOperation as? EditorOperation.OpenStyleCabinet)?.source ?: OpenCabinetSource.Menu
         editorOperation = when (item) {
@@ -573,18 +373,10 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 删除一个收藏项
-     */
     fun deleteCabinetItem(item: CabinetStyleItem) {
         styleCabinet.delete(item)
     }
 
-    /**
-     * 将柜内样式加入当前控制布局
-     * 布局内已存在同 uuid 样式时转入冲突处理对话框
-     * @param onAdded 成功加入后的回调
-     */
     fun addCabinetStyleToLayout(item: CabinetStyleItem, onAdded: () -> Unit) {
         val source = (editorOperation as? EditorOperation.OpenStyleCabinet)?.source ?: OpenCabinetSource.Menu
         when (item) {
@@ -607,11 +399,6 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 处理加入布局冲突
-     * @param overwrite 为 true 时以柜内样式覆盖布局内同 uuid 样式，
-     *                  为 false 时创建新的样式
-     */
     fun resolveAddToLayoutConflict(overwrite: Boolean) {
         when (val operation = editorOperation) {
             is EditorOperation.AddToLayoutButtonStyleConflict -> {
@@ -634,9 +421,6 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 取消加入布局冲突处理，直接回到样式收藏柜
-     */
     fun cancelAddToLayoutConflict() {
         val source = when (val operation = editorOperation) {
             is EditorOperation.AddToLayoutButtonStyleConflict -> operation.source
@@ -646,17 +430,11 @@ class EditorViewModel : ViewModel() {
         editorOperation = EditorOperation.OpenStyleCabinet(source)
     }
 
-    /**
-     * 关闭柜内样式编辑器，返回样式收藏柜
-     */
     fun closeCabinetEdit(item: CabinetStyleItem, source: OpenCabinetSource) {
-        styleCabinet.save(item) // 立即保存编辑结果
+        styleCabinet.save(item)
         editorOperation = EditorOperation.OpenStyleCabinet(source)
     }
 
-    /**
-     * 关闭控件外观样式编辑器，并按来源分派后续状态
-     */
     fun closeButtonStyleEdit() {
         when (val operation = editorOperation) {
             is EditorOperation.EditCabinetButtonStyle -> {
@@ -669,9 +447,6 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 关闭摇杆样式编辑器，并按来源分派后续状态
-     */
     fun closeJoystickStyleEdit() {
         when (val operation = editorOperation) {
             is EditorOperation.EditCabinetJoystickStyle -> {
@@ -684,16 +459,10 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 保存柜内样式当前的编辑结果
-     */
     fun saveCabinetItem(item: CabinetStyleItem) {
         styleCabinet.save(item)
     }
 
-    /**
-     * 将控件复制到控件层
-     */
     fun cloneWidgetToLayers(widget: ObservableWidget, layers: List<ObservableControlLayer>) {
         when (widget) {
             is ObservableNormalData -> {
@@ -717,17 +486,10 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 将编辑器内层级隐藏状态同步到实际隐藏状态
-     * 供预览模式下使用正确的隐藏状态
-     */
     fun applyEditorHide() {
         observableLayout.applyEditorHide()
     }
 
-    /**
-     * 保存控制布局
-     */
     fun save(
         targetFile: File,
         onSaved: () -> Unit
@@ -750,14 +512,14 @@ class EditorViewModel : ViewModel() {
         context: Context,
         onExit: () -> Unit
     ) {
-        //检查并退出控件对话框、编辑控件样式对话框
+
         when (editorOperation) {
             is EditorOperation.SelectButton,
             is EditorOperation.EditButtonStyle,
             is EditorOperation.OpenStyleCabinet -> {
                 editorOperation = EditorOperation.None
             }
-            //柜内样式编辑器，保存编辑结果并返回样式收藏柜
+
             is EditorOperation.EditCabinetButtonStyle -> closeButtonStyleEdit()
             is EditorOperation.EditCabinetJoystickStyle -> closeJoystickStyleEdit()
             else -> {
@@ -769,15 +531,8 @@ class EditorViewModel : ViewModel() {
         }
     }
 
-    /**
-     * 用于检查控制布局是否被修改过
-     */
     private val checkModified = Mutex()
 
-    /**
-     * 弹出退出控制布局编辑器的对话框
-     * @param onExit 用户点击确认，退出编辑器
-     */
     fun showExitEditorDialog(
         context: Context,
         onExit: () -> Unit
@@ -792,7 +547,7 @@ class EditorViewModel : ViewModel() {
                     onExit = onExit
                 )
             } else {
-                //未被修改，可以直接退出
+
                 onExit()
             }
         }
@@ -815,10 +570,6 @@ class EditorViewModel : ViewModel() {
             .showThemed()
     }
 
-    /**
-     * 执行一次样式收藏写入
-     * @param independent 为 true 时生成新 uuid 作为独立收藏，否则同 uuid 覆盖
-     */
     private fun performFavorite(style: ButtonStyle, independent: Boolean, onResult: (Boolean) -> Unit) {
         val data = if (independent) style.cloneNew() else style
         styleCabinet.favorite(data, onResult)

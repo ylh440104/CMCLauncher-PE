@@ -10,9 +10,6 @@ import com.cmc.launcher.filemanager.os.FmLog
 
 private const val TAG = "FmEventService"
 
-/**
- * 文件管理器事件服务，作为跨进程客户端与 [FileManagerEventBus] 之间的中转
- */
 class FileManagerEventService : Service() {
     private val handler = Handler { msg ->
         when (msg.what) {

@@ -46,11 +46,11 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
         GlobalContext = this
         TLSSecurity.install()
         refreshContext(this)
-        //初始化任务保活控制器，需在任何任务开始前完成初始化
+
         TaskKeepAlive.initialize(this)
 
         Thread.setDefaultUncaughtExceptionHandler { _, th ->
-            //停止所有任务
+
             TaskSystem.stopAll()
 
             val throwable = if (th is SplashException) th.cause!!
@@ -81,7 +81,7 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
             initializeData()
             PathManager.DIR_FILES_PRIVATE = getDir("files", MODE_PRIVATE)
             DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
-            //Force x86 lib directory for Asus x86 based zenfones
+
             if (Architecture.isx86Device() && Architecture.is32BitsDevice) {
                 val originalJNIDirectory = applicationInfo.nativeLibraryDir
                 applicationInfo.nativeLibraryDir = originalJNIDirectory.take(originalJNIDirectory.lastIndexOf("/")) + "/x86"
@@ -107,14 +107,14 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
             .memoryCachePolicy(CachePolicy.ENABLED)
             .memoryCache {
                 MemoryCache.Builder()
-                    .maxSizeBytes(20L * 1024 * 1024) // 20MB
-                    .weakReferencesEnabled(true) //弱引用
+                    .maxSizeBytes(20L * 1024 * 1024)
+                    .weakReferencesEnabled(true)
                     .build()
             }
             .diskCachePolicy(CachePolicy.ENABLED)
             .diskCache {
                 DiskCache.Builder()
-                    .maxSizeBytes(512L * 1024 * 1024) // 512MB
+                    .maxSizeBytes(512L * 1024 * 1024)
                     .directory(PathManager.DIR_IMAGE_CACHE.toOkioPath())
                     .build()
             }

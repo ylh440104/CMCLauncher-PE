@@ -10,12 +10,12 @@ fun previousPage(
     onSuccess: (AddonPage) -> Unit = {},
     onSearch: (index: Int) -> Unit = {}
 ) {
-    val targetIndex = pageNumber - 2 //上一页在缓存中的索引
+    val targetIndex = pageNumber - 2
     val previousPage = pages.getOrNull(targetIndex)
     if (previousPage != null) {
         onSuccess(previousPage)
     } else {
-        //重新搜索
+
         onSearch((index - limit).coerceAtLeast(0))
     }
 }
@@ -31,12 +31,12 @@ fun nextPage(
 ) {
     if (!isLastPage) {
         val nextIndex = pageNumber
-        //判断是否已缓存下一页
+
         val nextPage = pages.getOrNull(nextIndex)
         if (nextPage != null) {
             onSuccess(nextPage)
         } else {
-            //搜索下一页
+
             onSearch(index + limit)
         }
     }
@@ -50,12 +50,12 @@ fun navigatePage(
     onSearch: (index: Int) -> Unit = {}
 ) {
     val targetNumber = pageNumber - 1
-    //判断是否已缓存目标页
+
     val targetPage = pages.getOrNull(targetNumber)
     if (targetPage != null) {
         onSuccess(targetPage)
     } else {
-        //搜索目标页
+
         onSearch(targetNumber * limit)
     }
 }

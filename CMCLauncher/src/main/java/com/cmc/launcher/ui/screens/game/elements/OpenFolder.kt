@@ -77,16 +77,10 @@ import java.io.IOException
 
 sealed interface OpenFolderOperation {
     data object None : OpenFolderOperation
-    /** 开始浏览目录 */
+
     data class OpenFolder(val initialPath: File) : OpenFolderOperation
 }
 
-/**
- * 游戏内打开的浏览目录菜单，可在这个菜单内导入文件、删除文件等操作
- * 这是一个较为简单的临时页面，所有数据均不长期保存
- * @param requestClose 发起关闭请求
- * @param lifecycleScope 可用的生命周期协程作用域，用于执行删除、导入任务
- */
 @Composable
 fun OpenFolderLayer(
     operation: OpenFolderOperation,
@@ -126,7 +120,7 @@ fun OpenFolderLayer(
                             if (nameCompare != 0) {
                                 nameCompare
                             } else {
-                                //如果文件名相同，用绝对路径作为最终依据
+
                                 o1.absolutePath.compareTo(o2.absolutePath)
                             }
                         }
@@ -142,12 +136,12 @@ fun OpenFolderLayer(
         contentAlignment = Alignment.CenterEnd
     ) {
         if (operation is OpenFolderOperation.OpenFolder) {
-            //这里不给动画，尽快恢复触控
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable(
-                        indication = null, //禁用水波纹点击效果
+                        indication = null,
                         interactionSource = remember { MutableInteractionSource() },
                         onClick = requestClose
                     )
@@ -199,7 +193,6 @@ fun OpenFolderLayer(
                             var deleteFile by remember { mutableStateOf<File?>(null) }
                             var deleteJob by remember { mutableStateOf<Job?>(null) }
 
-                            //文件浏览区域
                             val scrollState = rememberLazyListState()
                             LazyColumn(
                                 modifier = Modifier
@@ -224,7 +217,6 @@ fun OpenFolderLayer(
                                 }
                             }
 
-                            //删除文件对话框
                             deleteFile?.let { file0 ->
                                 SimpleAlertDialog(
                                     title = stringResource(R.string.generic_delete),
@@ -244,7 +236,6 @@ fun OpenFolderLayer(
                                 )
                             }
 
-                            //开始执行删除任务
                             if (deleteJob != null) {
                                 ProgressDialog()
                             }
@@ -255,7 +246,6 @@ fun OpenFolderLayer(
                                 }
                                 val context = LocalContext.current
 
-                                //导入文件到当前目录
                                 val launcher = rememberLauncherForActivityResult(
                                     contract = ActivityResultContracts.GetMultipleContents()
                                 ) { uris ->
@@ -278,13 +268,13 @@ fun OpenFolderLayer(
                                         .padding(top = 12.dp, bottom = 10.dp),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
                                 ) {
-                                    //关闭按钮
+
                                     FilledTonalButton(
                                         onClick = requestClose
                                     ) {
                                         Text(text = stringResource(R.string.generic_close))
                                     }
-                                    //导入按钮
+
                                     Button(
                                         onClick = {
                                             launcher.launch("*/*")
@@ -342,13 +332,10 @@ private fun FileItem(
 
 private sealed interface ImportFileOperation {
     data object None : ImportFileOperation
-    /** 正式开始导入文件 */
+
     data class Import(val uris: List<Uri>, val targetDir: File) : ImportFileOperation
 }
 
-/**
- * 简单的导入文件任务
- */
 @Composable
 private fun ImportFileOperation(
     context: Context,

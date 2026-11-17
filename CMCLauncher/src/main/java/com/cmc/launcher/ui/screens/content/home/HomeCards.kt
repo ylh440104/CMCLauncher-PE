@@ -21,22 +21,14 @@ import com.cmc.launcher.ui.components.BackgroundCard
 import com.cmc.launcher.ui.screens.content.home.server.ServerCardContent
 import com.cmc.launcher.ui.screens.content.home.version.VersionCardContent
 
-/** 系统卡片（不可变更），由启动器自行提供并绘制在网格之外 */
 class SystemCard(val id: String, val content: @Composable () -> Unit)
 
-/**
- * 用户卡片图标的圆角
- */
 val CardIconShape = RoundedCornerShape(percent = 28)
 
-/**
- * 主页卡片注册表
- */
 object HomeCards {
-    /** 版本卡片的类型 id */
+
     const val VERSION_CARD_TYPE_ID = "version_card"
 
-    /** 服务器卡片的类型 id */
     const val SERVER_CARD_TYPE_ID = "server_card"
 
     private val versionCardType = CardType(
@@ -52,7 +44,6 @@ object HomeCards {
         }
     )
 
-    /** 服务器卡片类型 */
     private val serverCardType = CardType(
         typeId = SERVER_CARD_TYPE_ID,
         defaultSpan = IntOffset(10, 6),
@@ -66,15 +57,11 @@ object HomeCards {
         }
     )
 
-    /** 版本卡片类型 */
     fun versionCardType(): CardType = versionCardType
 
-    /** 服务器卡片类型 */
     fun serverCardType(): CardType = serverCardType
 
-    /** 用户卡片类型注册表 */
     val userCardTypes: List<CardType> = listOf(versionCardType, serverCardType)
 
-    /** 系统卡片（不可变更） */
     fun systemCards(): List<SystemCard> = emptyList()
 }

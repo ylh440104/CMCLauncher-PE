@@ -56,10 +56,6 @@ import com.cmc.launcher.ui.theme.onItemColor
 
 private data class TabItem(val titleRes: Int)
 
-/**
- * 摇杆样式编辑对话框
- * **不再真正使用Dialog，真的会有性能问题！**
- */
 @Composable
 fun EditJoystickStyleDialog(
     visible: Boolean,
@@ -87,7 +83,7 @@ fun EditJoystickStyleDialog(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            //作为背景层，被点击时关闭Dialog
+
             if (visible) {
                 Box(
                     modifier = Modifier
@@ -126,7 +122,7 @@ fun EditJoystickStyleDialog(
                                 style = style,
                                 isDarkMode = !style.commonStyle && selectedTabIndex == 1
                             )
-                            // 摇杆样式名称
+
                             OwnOutlinedTextField(
                                 modifier = Modifier
                                     .padding(top = 6.dp)
@@ -141,7 +137,7 @@ fun EditJoystickStyleDialog(
                                 },
                                 shape = MaterialTheme.shapes.large
                             )
-                            // 不区分暗色主题
+
                             InfoLayoutSwitchItem(
                                 modifier = Modifier
                                     .padding(top = 12.dp)
@@ -230,7 +226,6 @@ private fun StyleConfigEditor(
             .fillMaxWidth()
             .padding(end = 12.dp)
 
-        //整体不透明度
         item(key = "opacity") {
             InfoLayoutSliderItem(
                 modifier = itemModifier.animateItem(),
@@ -250,7 +245,6 @@ private fun StyleConfigEditor(
             Spacer(Modifier)
         }
 
-        //背景颜色
         item(key = "background_color") {
             InfoLayoutColorItem(
                 modifier = itemModifier.animateItem(),
@@ -262,7 +256,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //摇杆颜色
         item(key = "joystick_color") {
             InfoLayoutColorItem(
                 modifier = itemModifier.animateItem(),
@@ -274,7 +267,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //摇杆颜色（可锁定时）
         item(key = "joystick_color_can_lock") {
             InfoLayoutColorItem(
                 modifier = itemModifier.animateItem(),
@@ -286,7 +278,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //摇杆颜色（锁定时）
         item(key = "joystick_color_locked") {
             InfoLayoutColorItem(
                 modifier = itemModifier.animateItem(),
@@ -298,7 +289,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //前进锁定标记颜色
         item(key = "lock_mark_color") {
             InfoLayoutColorItem(
                 modifier = itemModifier.animateItem(),
@@ -310,7 +300,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //边框颜色
         item(key = "border_color") {
             InfoLayoutColorItem(
                 modifier = itemModifier.animateItem(),
@@ -326,7 +315,6 @@ private fun StyleConfigEditor(
             Spacer(Modifier)
         }
 
-        //背景层圆角
         item(key = "background_shape") {
             InfoLayoutSliderItem(
                 modifier = itemModifier,
@@ -342,7 +330,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //边框粗细
         item(key = "border_width") {
             InfoLayoutSliderItem(
                 modifier = itemModifier.animateItem(),
@@ -358,7 +345,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //摇杆圆角
         item(key = "joystick_shape") {
             InfoLayoutSliderItem(
                 modifier = itemModifier,
@@ -374,7 +360,6 @@ private fun StyleConfigEditor(
             )
         }
 
-        //摇杆大小
         item(key = "joystick_size") {
             InfoLayoutSliderItem(
                 modifier = itemModifier,
@@ -390,9 +375,6 @@ private fun StyleConfigEditor(
     }
 }
 
-/**
- * 渲染摇杆样式预览
- */
 @Composable
 private fun RenderBox(
     style: ObservableJoystickStyle,

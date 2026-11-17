@@ -26,7 +26,6 @@ import java.nio.file.Path
 
 private const val TAG = "FmImport"
 
-/** SAF 导入控制器 */
 class ImportController(
     private val context: Context,
     private val logic: FileManagerLogic,
@@ -36,19 +35,12 @@ class ImportController(
     private val browse: BrowseController,
     private val coroutineScope: CoroutineScope
 ) {
-    /**
-     * SAF 选定要导入的文件（多选）
-     * 下载到临时目录后走粘贴流程
-     */
+
     fun onImportFiles(uris: List<Uri>) {
         if (uris.isEmpty()) return
         importFromUris(uris, multiFile = true)
     }
 
-    /**
-     * SAF 选定要导入的完整目录
-     * 枚举目录树并下载后走粘贴流程
-     */
     fun onImportDir(treeUri: Uri) {
         importFromUris(listOf(treeUri), multiFile = false)
     }
@@ -60,10 +52,10 @@ class ImportController(
     }
 
     private suspend fun doImport(uris: List<Uri>, multiFile: Boolean) {
-        // 临时目录创建与半成品清理统一由逻辑层 TempWorkspace 负责
+
         val tempDir = logic.tempWorkspace.importTempDir()
         try {
-            // 下载到临时目录
+
             val downloadResult: RunResult<List<Path>> = taskManager.run(TaskKind.IMPORT) {
                 downloadUris(uris, tempDir, multiFile) { d, t -> report(completed = d, total = t) }
             }
@@ -89,8 +81,6 @@ class ImportController(
                 return
             }
 
-            // 构建粘贴请求，复用冲突决策与执行
-            // 进入粘贴前先关闭导入意图，避免 SAF 选择器在导入期间被重复唤起
             store.dismissDialog()
             val target = store.history.currentPath
             when (val req = logic.buildPasteRequest(sources, target, PasteMode.COPY)) {
@@ -99,8 +89,7 @@ class ImportController(
                         req.sources.map { ConflictResolution.SKIP }, tempDir)
                 }
                 is PasteRequest.ResolveRequest -> {
-                    // 冲突流程延后执行粘贴
-                    // 暂存临时目录供完成后清理
+
                     val firstConflict = req.conflicts.indexOfFirst { it != null }
                     if (firstConflict < 0) {
                         paste.executeImportPaste(req.sources, req.targetDir, req.mode,
@@ -149,17 +138,17 @@ class ImportController(
             return@withContext result
         }
         val treeUri = uris.firstOrNull() ?: return@withContext emptyList()
-        // 以源目录名创建子目录，保持顶层结构
+
         val dirName = treeDisplayNameOf(treeUri) ?: "imported"
         val rootDest = tempDir.resolve(dirName)
         Files.createDirectories(rootDest)
-        // 使用 DocumentFile 递归遍历目录树
+
         val treeDoc = DocumentFile.fromTreeUri(context, treeUri)
         if (treeDoc == null) {
             FmLog.warn(TAG, "Import dir: DocumentFile.fromTreeUri returned null for $treeUri")
             return@withContext emptyList()
         }
-        // 先统计总文件数（用于进度）
+
         val total = countFiles(treeDoc)
         FmLog.info(TAG, "Import dir: '$dirName' total files=$total")
         if (total == 0) {

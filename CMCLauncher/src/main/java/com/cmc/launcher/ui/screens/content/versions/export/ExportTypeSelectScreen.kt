@@ -35,9 +35,6 @@ import com.cmc.launcher.ui.screens.TitledNavKey
 import com.cmc.launcher.ui.screens.content.settings.layouts.CardPosition
 import com.cmc.launcher.ui.screens.content.settings.layouts.rememberSettingsCardShape
 
-/**
- * 整合包导出类型选择页
- */
 @Composable
 fun ExportTypeSelectScreen(
     mainScreenKey: TitledNavKey?,
@@ -100,7 +97,7 @@ fun ExportTypeSelectScreen(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    //MCBBS
+
                     TypeItem(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Top,
@@ -110,7 +107,6 @@ fun ExportTypeSelectScreen(
                         onClick = { onTypeSelect(PackType.MCBBS) }
                     )
 
-                    //Modrinth
                     TypeItem(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,
@@ -120,7 +116,6 @@ fun ExportTypeSelectScreen(
                         onClick = { onTypeSelect(PackType.Modrinth) }
                     )
 
-                    //CurseForge
                     TypeItem(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Bottom,
@@ -135,10 +130,6 @@ fun ExportTypeSelectScreen(
     }
 }
 
-
-/**
- * 导出类型布局
- */
 @Composable
 private fun TypeItem(
     title: String,
@@ -162,7 +153,7 @@ private fun TypeItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            //图标
+
             Image(
                 modifier = Modifier.size(28.dp),
                 painter = icon,

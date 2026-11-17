@@ -37,9 +37,6 @@ import com.cmc.launcher.ui.components.rememberDialogMaxHeight
 import com.cmc.launcher.ui.theme.cardColor
 import com.cmc.launcher.ui.theme.onCardColor
 
-/**
- * 手柄输入模式选择对话框
- */
 @Composable
 fun GamepadModePromptDialog(
     visible: Boolean,
@@ -84,7 +81,6 @@ fun GamepadModePromptDialog(
                         style = MaterialTheme.typography.headlineSmall
                     )
 
-                    // 内容区域
                     Column(
                         modifier = Modifier
                             .weight(1f, fill = false)
@@ -137,7 +133,7 @@ fun GamepadModePromptDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         FilledTonalButton(
-                            //确认按钮不参与焦点导航，手柄输入也已在更上游被吞掉，避免误触
+
                             modifier = Modifier.focusProperties { canFocus = false },
                             onClick = { onConfirm(selected) }
                         ) {

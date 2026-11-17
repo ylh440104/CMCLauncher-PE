@@ -24,17 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cmc.launcher.R
 
-/**
- * 收藏状态文本
- */
 @Composable
 fun favoriteStateText(isFavorite: Boolean): String = stringResource(
     if (isFavorite) R.string.favorite_added else R.string.favorite_add
 )
 
-/**
- * 收藏开关标签，图标与文本跟随收藏状态切换
- */
 @Composable
 fun FavoriteToggleLabel(
     isFavorite: Boolean,
@@ -74,9 +68,6 @@ fun FavoriteToggleLabel(
     }
 }
 
-/**
- * 收藏状态标识元素
- */
 @Composable
 fun FavoriteIdentifier(
     isFavorite: Boolean,

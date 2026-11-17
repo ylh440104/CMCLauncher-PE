@@ -47,11 +47,6 @@ import com.cmc.launcher.ui.theme.onCardColor
 import com.cmc.launcher.utils.animation.getAnimateTween
 import com.cmc.launcher.utils.formatNumberByLocale
 
-/**
- * 收藏项目条目
- *
- * 远端项目不可用时整卡减淡并展示失效标识，点击不再生效，仍可取消收藏
- */
 @Composable
 fun FavoriteProjectLayout(
     entry: FavoriteEntry,
@@ -137,7 +132,7 @@ fun FavoriteProjectLayout(
                                     .weight(1f),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                // 作者
+
                                 authors?.let {
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -155,7 +150,6 @@ fun FavoriteProjectLayout(
                                     }
                                 }
 
-                                // 下载量
                                 downloads?.let {
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -173,7 +167,6 @@ fun FavoriteProjectLayout(
                                     }
                                 }
 
-                                // 收藏数量（Modrinth）
                                 followsCount?.let {
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -193,11 +186,9 @@ fun FavoriteProjectLayout(
                             }
                         }
 
-                        //资源的类别
                         ClassesIdentifier(classes = project.classes)
                     }
 
-                    //描述
                     Text(
                         text = description,
                         style = MaterialTheme.typography.labelSmall,
@@ -211,7 +202,7 @@ fun FavoriteProjectLayout(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    //标签栏
+
                     Row(
                         modifier = Modifier
                             .weight(1f)
@@ -233,12 +224,10 @@ fun FavoriteProjectLayout(
                         }
                     }
 
-                    //失效标识
                     if (invalid) {
                         UnavailableIdentifier()
                     }
 
-                    //取消收藏
                     FavoriteToggleLabel(
                         isFavorite = true,
                         onClick = onUnfavorite
@@ -249,9 +238,6 @@ fun FavoriteProjectLayout(
     }
 }
 
-/**
- * 失效标识元素，远端项目已不可用时展示
- */
 @Composable
 private fun UnavailableIdentifier(
     modifier: Modifier = Modifier

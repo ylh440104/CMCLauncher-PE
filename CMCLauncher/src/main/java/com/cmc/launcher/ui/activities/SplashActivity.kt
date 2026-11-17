@@ -49,7 +49,6 @@ const val IMPORT_TYPE_MODPACK = "modpack"
 const val IMPORT_TYPE_CONTROLS = "controls"
 const val IMPORT_TYPE_UNKNOWN = "unknown"
 
-
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class SplashActivity : BaseAppCompatActivity() {
@@ -101,7 +100,6 @@ lifecycleScope.launch(Dispatchers.Main) {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        //若依赖未完成，暂存外部导入，待依赖完成后处理
         if (!areAllTasksFinished()) {
             if (isImportIntent(intent) && !isLauncherIntent(intent)) {
                 pendingImportIntent = intent
@@ -150,7 +148,7 @@ lifecycleScope.launch(Dispatchers.Main) {
     }
 
     private suspend fun checkAllTask() {
-        //检查应用 assets 目录
+
         listAssetsPath("runtimes").forEach { filePath ->
             Logger.info(TAG, "The launcher contains the runtime environment: $filePath")
         }
@@ -220,7 +218,7 @@ lifecycleScope.launch(Dispatchers.Main) {
             jobs.joinAll()
             if (areAllTasksFinished()) {
                 AllSettings.javaRuntime.apply {
-                    //检查并设置默认的Java环境
+
                     if (getValue().isEmpty()) save(Jre.JRE_8.jreName)
                 }
                 finishSplash()
@@ -274,8 +272,6 @@ lifecycleScope.launch(Dispatchers.Main) {
         finish()
     }
 
-
-
     private fun handleImportIntent(source: Intent): Boolean {
         if (!isImportIntent(source)) return false
 
@@ -293,7 +289,7 @@ lifecycleScope.launch(Dispatchers.Main) {
             return false
         } else {
             try {
-                //可持久化访问授权
+
                 contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             } catch (_: Exception) {
                 Logger.warning(TAG, "No persistable permission granted for $uri")
@@ -313,9 +309,6 @@ lifecycleScope.launch(Dispatchers.Main) {
         return true
     }
 
-    /**
-     * 根据 AndroidManifest 内为 activity-alias 配置的 meta-data 来判断导入类型
-     */
     private fun resolveImportType(intent: Intent): String {
         val comp = intent.component ?: return IMPORT_TYPE_UNKNOWN
         val info = packageManager.getActivityInfo(comp, PackageManager.GET_META_DATA)

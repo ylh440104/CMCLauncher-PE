@@ -8,9 +8,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 
-/**
- * 根据屏幕高度，以特定比例计算最大高度
- */
 @Composable
 fun rememberMaxHeight(fraction: Float = 3f / 5f): Dp {
     val windowInfo = LocalWindowInfo.current
@@ -23,9 +20,6 @@ fun rememberMaxHeight(fraction: Float = 3f / 5f): Dp {
     }
 }
 
-/**
- * 根据屏幕宽度，以特定比例计算最大宽度
- */
 @Composable
 fun rememberMaxWidth(fraction: Float = 3f / 4f): Dp {
     val windowInfo = LocalWindowInfo.current

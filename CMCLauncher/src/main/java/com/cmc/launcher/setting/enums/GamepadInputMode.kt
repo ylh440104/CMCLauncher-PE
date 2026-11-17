@@ -2,21 +2,13 @@ package com.cmc.launcher.setting.enums
 
 import com.cmc.launcher.R
 
-/**
- * 手柄输入模式
- */
 enum class GamepadInputMode(val titleRes: Int, val summaryRes: Int) {
-    /**
-     * 映射模式：手柄按键/摇杆映射为虚拟键盘鼠标事件（旧版本游戏、无手柄支持的游戏）
-     */
+
     Mapped(
         titleRes = R.string.settings_gamepad_input_mode_mapped,
         summaryRes = R.string.settings_gamepad_input_mode_mapped_summary
     ),
 
-    /**
-     * SDL 直通模式：手柄输入原样交给 SDL/GLFW gamepad API（Minecraft 26.3+ 原生手柄）
-     */
     SdlDirect(
         titleRes = R.string.settings_gamepad_input_mode_sdl,
         summaryRes = R.string.settings_gamepad_input_mode_sdl_summary

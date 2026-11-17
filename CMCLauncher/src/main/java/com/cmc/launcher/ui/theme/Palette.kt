@@ -8,19 +8,11 @@ import androidx.compose.ui.unit.dp
 import com.cmc.launcher.setting.enums.isLauncherInDarkTheme
 import com.cmc.launcher.ui.components.influencedByBackgroundColor
 
-/** 应用整体背景的颜色 */
 @Composable
 fun backgroundColor(): Color = MaterialTheme.colorScheme.surfaceContainer
 @Composable
 fun onBackgroundColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
-/**
- * 卡片背景颜色
- * [androidx.compose.material3.Card]
- * [com.cmc.launcher.ui.components.BackgroundCard]
- * [androidx.compose.ui.window.Dialog]
- * @param influencedByBackground 是否受背景内容影响，更改自身不透明度
- */
 @Composable
 fun cardColor(
     influencedByBackground: Boolean = true
@@ -30,18 +22,12 @@ fun cardColor(
 )
 @Composable
 fun onCardColor(): Color = MaterialTheme.colorScheme.onSurface
-/**
- * 卡片顶部Title的背景颜色，半透明的surface
- */
+
 @Composable
 fun cardTitleColor(
     alpha: Float = 0.5f
 ): Color = MaterialTheme.colorScheme.surface.copy(alpha = alpha)
 
-/**
- * 卡片上的Item的背景颜色
- * @param influencedByBackground 是否受背景内容影响，更改自身不透明度
- */
 @Composable
 fun itemColor(
     influencedByBackground: Boolean = true,

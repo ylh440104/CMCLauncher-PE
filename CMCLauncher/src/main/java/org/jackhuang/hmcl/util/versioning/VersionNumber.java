@@ -1,33 +1,8 @@
-/*
- * Hello Minecraft! Launcher
- * Copyright (C) 2024 huangyuhui <huanghongxun2008@126.com> and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package org.jackhuang.hmcl.util.versioning;
 
 import java.math.BigInteger;
 import java.util.*;
 
-/**
- * Copied from org.apache.maven.artifact.versioning.ComparableVersion
- * Apache License 2.0
- * <p>
- * Maybe we can migrate to org.jenkins-ci:version-number:1.7?
- *
- * @see <a href="http://maven.apache.org/pom.html#Version_Order_Specification">Specification</a>
- */
 public final class VersionNumber implements Comparable<VersionNumber> {
 
     public static final VersionNumber ZERO = asVersion("0");
@@ -67,7 +42,7 @@ public final class VersionNumber implements Comparable<VersionNumber> {
             }
 
             if (endIndex - idx > 9)
-                // Numbers which are larger than 10^10 cannot be stored as integer
+
                 return false;
 
             for (int i = idx; i < endIndex; i++) {
@@ -128,7 +103,7 @@ public final class VersionNumber implements Comparable<VersionNumber> {
 
         public int compareTo(Item item) {
             if (item == null) {
-                return value == 0L ? 0 : 1; // 1.0 == 1, 1.1 > 1
+                return value == 0L ? 0 : 1;
             }
 
             switch (item.getType()) {
@@ -139,10 +114,10 @@ public final class VersionNumber implements Comparable<VersionNumber> {
                     return -1;
 
                 case STRING_ITEM:
-                    return 1; // 1.1 > 1-sp
+                    return 1;
 
                 case LIST_ITEM:
-                    return 1; // 1.1 > 1-1
+                    return 1;
 
                 default:
                     throw new AssertionError("invalid item: " + item.getClass());
@@ -159,9 +134,6 @@ public final class VersionNumber implements Comparable<VersionNumber> {
         }
     }
 
-    /**
-     * Represents a numeric item in the version item list.
-     */
     private static final class BigIntegerItem implements Item {
         private final BigInteger value;
 
@@ -174,14 +146,13 @@ public final class VersionNumber implements Comparable<VersionNumber> {
         }
 
         public boolean isNull() {
-            // Never be 0
-            // return BigInteger.ZERO.equals(value);
+
             return false;
         }
 
         public int compareTo(Item item) {
             if (item == null) {
-                // return BigInteger.ZERO.equals(value) ? 0 : 1; // 1.0 == 1, 1.1 > 1
+
                 return 1;
             }
 
@@ -192,10 +163,10 @@ public final class VersionNumber implements Comparable<VersionNumber> {
                     return value.compareTo(((BigIntegerItem) item).value);
 
                 case STRING_ITEM:
-                    return 1; // 1.1 > 1-sp
+                    return 1;
 
                 case LIST_ITEM:
-                    return 1; // 1.1 > 1-1
+                    return 1;
 
                 default:
                     throw new AssertionError("invalid item: " + item.getClass());
@@ -212,9 +183,6 @@ public final class VersionNumber implements Comparable<VersionNumber> {
         }
     }
 
-    /**
-     * Represents a string in the version item list, usually a qualifier.
-     */
     private static final class StringItem implements Item {
         private final String value;
         private final boolean pre;
@@ -240,19 +208,19 @@ public final class VersionNumber implements Comparable<VersionNumber> {
 
         public int compareTo(Item item) {
             if (item == null) {
-                // 1-beta < 1 < 1-string
+
                 return pre ? -1 : 1;
             }
             switch (item.getType()) {
                 case LONG_ITEM:
                 case BIGINTEGER_ITEM:
-                    return -1; // 1.any < 1.1 ?
+                    return -1;
 
                 case STRING_ITEM:
                     return value.compareTo(((StringItem) item).value);
 
                 case LIST_ITEM:
-                    return -1; // 1.any < 1-1
+                    return -1;
 
                 default:
                     throw new AssertionError("invalid item: " + item.getClass());
@@ -269,10 +237,6 @@ public final class VersionNumber implements Comparable<VersionNumber> {
         }
     }
 
-    /**
-     * Represents a version list item. This class is used both for the global item list and for sub-lists (which start
-     * with '-(number)' in the version specification).
-     */
     private static final class ListItem extends ArrayList<Item> implements Item {
         private final Character separator;
 
@@ -297,7 +261,7 @@ public final class VersionNumber implements Comparable<VersionNumber> {
                 Item lastItem = get(i);
 
                 if (lastItem.isNull()) {
-                    // remove null trailing items: 0, "", empty list
+
                     remove(i);
                 } else if (!(lastItem instanceof ListItem)) {
                     break;
@@ -308,7 +272,7 @@ public final class VersionNumber implements Comparable<VersionNumber> {
         public int compareTo(Item item) {
             if (item == null) {
                 if (size() == 0) {
-                    return 0; // 1-0 = 1- (normalize) = 1
+                    return 0;
                 }
                 Item first = get(0);
                 return first.compareTo(null);
@@ -316,10 +280,10 @@ public final class VersionNumber implements Comparable<VersionNumber> {
             switch (item.getType()) {
                 case LONG_ITEM:
                 case BIGINTEGER_ITEM:
-                    return -1; // 1-1 < 1.0.x
+                    return -1;
 
                 case STRING_ITEM:
-                    return 1; // 1-1 > 1-sp
+                    return 1;
 
                 case LIST_ITEM:
                     Iterator<Item> left = iterator();
@@ -329,7 +293,6 @@ public final class VersionNumber implements Comparable<VersionNumber> {
                         Item l = left.hasNext() ? left.next() : null;
                         Item r = right.hasNext() ? right.next() : null;
 
-                        // if this is shorter, then invert the compare and mul with -1
                         int result = l == null ? (r == null ? 0 : -1 * r.compareTo(l)) : l.compareTo(r);
 
                         if (result != 0) {
@@ -441,7 +404,6 @@ public final class VersionNumber implements Comparable<VersionNumber> {
         this.canonical = items.toString();
     }
 
-    // For simple version
     private VersionNumber(String version, ListItem items) {
         this.value = version;
         this.items = items;
@@ -469,7 +431,7 @@ public final class VersionNumber implements Comparable<VersionNumber> {
         if (numberLength == 0) {
             return LongItem.ZERO;
         } else if (numberLength <= MAX_LONGITEM_LENGTH) {
-            // Numbers which are larger than 10^19 cannot be stored as long
+
             return new LongItem(Long.parseLong(buf));
         } else {
             return new BigIntegerItem(buf);

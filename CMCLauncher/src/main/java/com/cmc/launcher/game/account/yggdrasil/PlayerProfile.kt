@@ -46,29 +46,14 @@ data class PlayerProfile(
     )
 }
 
-/**
- * 该皮肤是否正在使用中
- */
 fun PlayerProfile.Skin.isUsing(): Boolean = this.state == "ACTIVE"
 
-/**
- * 该披风是否正在使用中
- */
 fun PlayerProfile.Cape.isUsing(): Boolean = this.state == "ACTIVE"
 
-/**
- * 查找玩家当前正在使用的皮肤
- */
 fun List<PlayerProfile.Skin>.findUsing(): PlayerProfile.Skin? = this.find { it.isUsing() }
 
-/**
- * 查找玩家当前正在使用的披风
- */
 fun List<PlayerProfile.Cape>.findUsing(): PlayerProfile.Cape? = this.find { it.isUsing() }
 
-/**
- * 获取玩家皮肤模型类型
- */
 fun PlayerProfile.Skin.getSkinModel(): SkinModelType {
     return when (variant) {
         "CLASSIC" -> SkinModelType.STEVE
@@ -77,9 +62,6 @@ fun PlayerProfile.Skin.getSkinModel(): SkinModelType {
     }
 }
 
-/**
- * 获取披风在本地的目标文件
- */
 fun PlayerProfile.Cape.getFile(path: File): File {
     return File(path, "$id.png")
 }
