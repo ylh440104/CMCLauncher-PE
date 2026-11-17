@@ -1,0 +1,134 @@
+package com.cmc.launcher
+
+import android.app.Application
+import android.content.res.Configuration
+import android.os.Process
+import android.util.Log
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.disk.DiskCache
+import coil3.gif.GifDecoder
+import coil3.memory.MemoryCache
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.CachePolicy
+import coil3.request.crossfade
+import coil3.svg.SvgDecoder
+import com.kyant.fishnet.Fishnet
+import com.cmc.launcher.context.GlobalContext
+import com.cmc.launcher.context.refreshContext
+import com.cmc.launcher.coroutine.TaskSystem
+import com.cmc.launcher.game.account.AccountsManager
+import com.cmc.launcher.game.path.GamePathManager
+import com.cmc.launcher.keepalive.TaskKeepAlive
+import com.cmc.launcher.path.IMAGE_LOADER_CLIENT
+import com.cmc.launcher.path.PathManager
+import com.cmc.launcher.setting.loadAllSettings
+import com.cmc.launcher.ui.activities.showFatalError
+import com.cmc.launcher.ui.activities.showLauncherCrash
+import com.cmc.launcher.utils.device.Architecture
+import com.cmc.launcher.utils.logging.Logger
+import com.cmc.launcher.utils.network.TLSSecurity
+import com.cmc.launcher.utils.writeCrashFile
+import com.tencent.mmkv.MMKV
+import dagger.hilt.android.HiltAndroidApp
+import okio.Path.Companion.toOkioPath
+import kotlin.properties.Delegates
+
+@HiltAndroidApp
+class ZLApplication : Application(), SingletonImageLoader.Factory {
+    companion object {
+        @JvmStatic
+        var DEVICE_ARCHITECTURE by Delegates.notNull<Int>()
+    }
+
+    override fun onCreate() {
+        GlobalContext = this
+        TLSSecurity.install()
+        refreshContext(this)
+        //初始化任务保活控制器，需在任何任务开始前完成初始化
+        TaskKeepAlive.initialize(this)
+
+        Thread.setDefaultUncaughtExceptionHandler { _, th ->
+            //停止所有任务
+            TaskSystem.stopAll()
+
+            val throwable = if (th is SplashException) th.cause!!
+            else th
+
+            Logger.error("Startup", "An exception occurred", throwable)
+
+            writeCrashFile(
+                file = PathManager.FILE_CRASH_REPORT,
+                throwable = throwable
+            ) { t ->
+                Logger.error("AppCrash", "An exception occurred while saving the crash report", t)
+            }
+
+            showLauncherCrash(this@ZLApplication, throwable, th !is SplashException)
+            Process.killProcess(Process.myPid())
+        }
+
+        super.onCreate()
+        runCatching {
+            Fishnet.init(this, PathManager.DIR_NATIVE_LOGS.absolutePath)
+
+            MMKV.initialize(this)
+            loadAllSettings(this)
+
+            Logger.initialize(this)
+
+            initializeData()
+            PathManager.DIR_FILES_PRIVATE = getDir("files", MODE_PRIVATE)
+            DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
+            //Force x86 lib directory for Asus x86 based zenfones
+            if (Architecture.isx86Device() && Architecture.is32BitsDevice) {
+                val originalJNIDirectory = applicationInfo.nativeLibraryDir
+                applicationInfo.nativeLibraryDir = originalJNIDirectory.take(originalJNIDirectory.lastIndexOf("/")) + "/x86"
+            }
+        }.onFailure { launchTh ->
+            writeCrashFile(
+                file = PathManager.FILE_CRASH_REPORT,
+                throwable = launchTh
+            ) {
+                Log.w("ZLApplication", "An exception occurred while saving the crash report", it)
+            }
+            showFatalError(this, launchTh)
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        refreshContext(this)
+    }
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        return ImageLoader.Builder(context)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .memoryCache {
+                MemoryCache.Builder()
+                    .maxSizeBytes(20L * 1024 * 1024) // 20MB
+                    .weakReferencesEnabled(true) //弱引用
+                    .build()
+            }
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .diskCache {
+                DiskCache.Builder()
+                    .maxSizeBytes(512L * 1024 * 1024) // 512MB
+                    .directory(PathManager.DIR_IMAGE_CACHE.toOkioPath())
+                    .build()
+            }
+            .components {
+                add(KtorNetworkFetcherFactory(IMAGE_LOADER_CLIENT))
+                add(GifDecoder.Factory())
+                add(SvgDecoder.Factory())
+            }
+            .crossfade(true)
+            .build()
+    }
+
+    private fun initializeData() {
+        AccountsManager.initialize(this)
+        GamePathManager.initialize(this)
+    }
+}

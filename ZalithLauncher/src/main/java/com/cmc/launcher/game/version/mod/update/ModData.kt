@@ -1,0 +1,111 @@
+package com.cmc.launcher.game.version.mod.update
+
+import com.cmc.launcher.game.addons.modloader.ModLoader
+import com.cmc.launcher.game.download.addon.platform.PlatformVersion
+import com.cmc.launcher.game.download.addon.platform.getVersions
+import com.cmc.launcher.game.version.mod.ModFile
+import com.cmc.launcher.game.version.mod.ModProject
+import com.cmc.launcher.ui.screens.content.download.addon.elements.initAll
+import com.cmc.launcher.utils.logging.Logger
+import com.cmc.launcher.utils.string.parseInstant
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.jackhuang.hmcl.addon.AddonProjectInfo
+import java.io.File
+
+private const val TAG = "ModData"
+
+/**
+ * 需要更新的模组的数据类，记录模组文件和模组所属的项目
+ * @param modFile 模组在模组平台上对应的文件
+ * @param project 模组在模组平台上所属的项目
+ * @param mcMod 模组翻译信息
+ */
+data class ModData(
+    val file: File,
+    val modFile: ModFile,
+    val project: ModProject,
+    val mcMod: AddonProjectInfo?
+) {
+    /**
+     * 当前模组的版本号，用于新旧对比
+     */
+    var currentVersion: String? = null
+        private set
+
+    /**
+     * 检查模组更新
+     * @param minecraftVer MC版本，用于筛选版本
+     * @param modLoader 模组加载器信息，用于筛选版本
+     */
+    suspend fun checkUpdate(
+        minecraftVer: String,
+        modLoader: ModLoader
+    ): PlatformVersion? {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val projectId = project.id
+                val currentLoaderName = modLoader.displayName.lowercase()
+                val currentFileLoaders = modFile.loaders
+                    .map { it.getDisplayName().lowercase() }
+                    .toSet()
+                val targetLoaders = when {
+                    currentLoaderName in currentFileLoaders -> {
+                        // 当前模组文件支持当前游戏加载器：仅检查当前加载器通道的更新
+                        setOf(currentLoaderName)
+                    }
+
+                    currentFileLoaders.isNotEmpty() -> {
+                        // 当前模组文件不支持当前游戏加载器（例如 信雅互联 场景）：
+                        // 优先沿用该模组文件自身支持的加载器通道来检查更新
+                        currentFileLoaders
+                    }
+
+                    else -> {
+                        // 无法识别当前文件加载器信息时，回退到当前游戏加载器
+                        setOf(currentLoaderName)
+                    }
+                }
+
+                // 获取所有版本并初始化
+                val versions = getVersions(
+                    projectId,
+                    project.platform
+                ).initAll(projectId)
+
+                // 基准日期优先取实时列表中当前版本自身的发布日期
+                val currentEntry = versions.firstOrNull { it.platformId() == modFile.id }
+                if (currentEntry != null) {
+                    // 当前版本，设置版本号
+                    currentVersion = currentEntry.platformVersion()
+                }
+                val datePublished = currentEntry?.platformDatePublished() ?: run {
+                    Logger.debug(
+                        TAG,
+                        "Installed version ${modFile.id} not found in the fetched list of ${file.name}, falling back to the cached date"
+                    )
+                    parseInstant(modFile.datePublished)
+                }
+
+                val candidates = versions.filter { version ->
+                    val loaderNames = version.platformLoaders()
+                        .map { it.getDisplayName().lowercase() }
+                        .toSet()
+                    // 是否支持当前MC版本
+                    minecraftVer in version.platformGameVersion() &&
+                    // 是否匹配目标加载器（当前加载器，或当前文件自身的加载器）
+                    loaderNames.any { it in targetLoaders } &&
+                    // 是否比当前版本更新
+                    version.platformDatePublished() > datePublished
+                }
+
+                // 获取最新的版本
+                candidates.firstOrNull()?.also { version ->
+                    Logger.info(TAG, "Detected update for mod ${file.name}: $currentVersion -> ${version.platformVersion()}")
+                }
+            }.onFailure { th ->
+                Logger.warning(TAG, "An error occurred while fetching all versions of the mod.", th)
+            }.getOrNull()
+        }
+    }
+}

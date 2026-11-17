@@ -1,0 +1,44 @@
+package com.cmc.launcher.ui.screens.main.control_editor.edit_widget
+
+import com.cmc.launcher.R
+import com.cmc.launcher.ui.screens.TitledNavKey
+import com.cmc.launcher.ui.screens.content.elements.CategoryIcon
+import com.cmc.launcher.ui.screens.content.elements.CategoryItem
+import kotlinx.serialization.Serializable
+
+sealed interface EditWidgetCategory : TitledNavKey {
+    /** 基本信息 */
+    @Serializable data object Info : EditWidgetCategory
+    /** 文本样式 */
+    @Serializable data object TextStyle : EditWidgetCategory
+    /** 点击事件 */
+    @Serializable data object ClickEvent : EditWidgetCategory
+    /** 控件样式 */
+    @Serializable data object Style : EditWidgetCategory
+    /** 摇杆配置 */
+    @Serializable data object JoystickConfig : EditWidgetCategory
+    /** 方向事件 */
+    @Serializable data object DirectionEvents : EditWidgetCategory
+    /** 摇杆样式 */
+    @Serializable data object JoystickStyle : EditWidgetCategory
+}
+
+/**
+ * 编辑普通控件标签页
+ */
+val editWidgetCategories = listOf(
+    CategoryItem(EditWidgetCategory.Info, { CategoryIcon(R.drawable.ic_info_outlined, R.string.control_editor_edit_category_info) }, R.string.control_editor_edit_category_info),
+    CategoryItem(EditWidgetCategory.TextStyle, { CategoryIcon(R.drawable.ic_text_format, R.string.control_editor_edit_text) }, R.string.control_editor_edit_text),
+    CategoryItem(EditWidgetCategory.ClickEvent, { CategoryIcon(R.drawable.ic_touch_app_outlined, R.string.control_editor_edit_category_event) }, R.string.control_editor_edit_category_event),
+    CategoryItem(EditWidgetCategory.Style, { CategoryIcon(R.drawable.ic_style_outlined, R.string.control_editor_edit_category_style) }, R.string.control_editor_edit_category_style)
+)
+
+/**
+ * 编辑摇杆控件标签页
+ */
+val editJoystickCategories = listOf(
+    CategoryItem(EditWidgetCategory.Info, { CategoryIcon(R.drawable.ic_info_outlined, R.string.control_editor_edit_category_info) }, R.string.control_editor_edit_category_info),
+    CategoryItem(EditWidgetCategory.JoystickConfig, { CategoryIcon(R.drawable.ic_settings_filled, R.string.control_editor_edit_category_joystick_config) }, R.string.control_editor_edit_category_joystick_config),
+    CategoryItem(EditWidgetCategory.DirectionEvents, { CategoryIcon(R.drawable.ic_touch_app_outlined, R.string.control_editor_edit_category_joystick_events) }, R.string.control_editor_edit_category_joystick_events),
+    CategoryItem(EditWidgetCategory.JoystickStyle, { CategoryIcon(R.drawable.ic_style_outlined, R.string.control_editor_edit_category_joystick_style) }, R.string.control_editor_edit_category_joystick_style)
+)

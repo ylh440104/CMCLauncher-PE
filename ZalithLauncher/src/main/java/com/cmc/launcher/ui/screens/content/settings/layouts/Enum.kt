@@ -1,0 +1,141 @@
+package com.cmc.launcher.ui.screens.content.settings.layouts
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.cmc.launcher.setting.unit.EnumSettingUnit
+import com.cmc.launcher.ui.components.TitleAndSummary
+import com.cmc.launcher.ui.screens.content.elements.DisabledAlpha
+import com.cmc.launcher.utils.animation.getAnimateTween
+import kotlin.enums.EnumEntries
+
+@Composable
+fun <E: Enum<E>> EnumSettingsCard(
+    value: E,
+    entries: EnumEntries<E>,
+    title: String,
+    position: CardPosition,
+    modifier: Modifier = Modifier,
+    outerShape: Dp = 28.dp,
+    innerShape: Dp = 4.dp,
+    summary: String? = null,
+    getRadioText: @Composable (E) -> String,
+    getRadioEnable: (E) -> Boolean,
+    maxItemsInEachRow: Int = Int.MAX_VALUE,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
+    onRadioClick: (E) -> Unit = {},
+) {
+    SettingsCard(
+        modifier = modifier,
+        position = position,
+        outerShape = outerShape,
+        innerShape = innerShape
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
+            CmcAccentBar(active = true)
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TitleAndSummary(
+                    title = title,
+                    summary = summary,
+                    titleStyle = titleStyle,
+                    summaryStyle = summaryStyle
+                )
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(animationSpec = getAnimateTween()),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    maxItemsInEachRow = maxItemsInEachRow
+                ) {
+                    entries.forEach { enum ->
+                        Row {
+                            val radioText = getRadioText(enum)
+                            RadioButton(
+                                enabled = getRadioEnable(enum),
+                                selected = value == enum,
+                                onClick = {
+                                    onRadioClick(enum)
+                                }
+                            )
+                            Text(
+                                text = radioText,
+                                style = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .alpha(alpha = if (getRadioEnable(enum)) 1f else DisabledAlpha)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@NonRestartableComposable
+@Composable
+fun <E: Enum<E>> EnumSettingsCard(
+    unit: EnumSettingUnit<E>,
+    entries: EnumEntries<E>,
+    title: String,
+    position: CardPosition,
+    modifier: Modifier = Modifier,
+    outerShape: Dp = 28.dp,
+    innerShape: Dp = 4.dp,
+    summary: String? = null,
+    getRadioText: @Composable (E) -> String,
+    getRadioEnable: (E) -> Boolean,
+    maxItemsInEachRow: Int = Int.MAX_VALUE,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
+    onRadioClick: (E) -> Unit = {},
+    onValueChange: (E) -> Unit = {},
+) = EnumSettingsCard(
+    value = unit.state,
+    entries = entries,
+    title = title,
+    position = position,
+    modifier = modifier,
+    outerShape = outerShape,
+    innerShape = innerShape,
+    summary = summary,
+    getRadioText = getRadioText,
+    getRadioEnable = getRadioEnable,
+    maxItemsInEachRow = maxItemsInEachRow,
+    titleStyle = titleStyle,
+    summaryStyle = summaryStyle,
+    onRadioClick = { enum ->
+        onRadioClick(enum)
+        if (unit.state == enum) return@EnumSettingsCard
+        unit.save(enum)
+        onValueChange(enum)
+    },
+)

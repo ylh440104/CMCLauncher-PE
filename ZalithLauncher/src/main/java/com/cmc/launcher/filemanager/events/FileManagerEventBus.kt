@@ -1,0 +1,44 @@
+package com.cmc.launcher.filemanager.events
+
+import android.os.Messenger
+import com.cmc.launcher.filemanager.os.FmLog
+import java.util.concurrent.CopyOnWriteArrayList
+
+/**
+ * 文件管理器事件总线，维护已注册客户端并向其派发文件变更事件
+ */
+object FileManagerEventBus {
+    private const val TAG = "FmEventBus"
+
+    private val clients = CopyOnWriteArrayList<Messenger>()
+
+    internal fun register(client: Messenger) {
+        clients.addIfAbsent(client)
+        FmLog.debug(TAG, "client registered: total=${clients.size}")
+    }
+
+    internal fun unregister(client: Messenger) {
+        clients.remove(client)
+        FmLog.debug(TAG, "client unregistered: total=${clients.size}")
+    }
+
+    /**
+     * 向所有已注册的客户端派发一个文件变更事件
+     * @param event 待派发的事件
+     */
+    fun dispatch(event: FileManagerEvent) {
+        if (clients.isEmpty()) {
+            FmLog.debug(TAG, "dispatch skipped (no listeners): type=${event.type}, dirs=${event.changedDirs}")
+            return
+        }
+        FmLog.info(TAG, "dispatch: type=${event.type}, dirs=${event.changedDirs}")
+        val dead = mutableListOf<Messenger>()
+        clients.forEach { client ->
+            val ok = runCatching { client.send(FileManagerEvent.toMessage(event)) }.isSuccess
+            if (!ok) dead += client
+        }
+        if (dead.isNotEmpty()) {
+            clients.removeAll(dead.toSet())
+        }
+    }
+}

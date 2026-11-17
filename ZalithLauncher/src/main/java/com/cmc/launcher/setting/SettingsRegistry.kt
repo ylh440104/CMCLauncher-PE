@@ -1,0 +1,68 @@
+package com.cmc.launcher.setting
+
+import android.os.Parcelable
+import androidx.compose.ui.geometry.Offset
+import com.cmc.launcher.setting.unit.AbstractSettingUnit
+import com.cmc.launcher.setting.unit.BooleanSettingUnit
+import com.cmc.launcher.setting.unit.DEFAULT_FLOAT_RANGE
+import com.cmc.launcher.setting.unit.DEFAULT_INT_RANGE
+import com.cmc.launcher.setting.unit.DEFAULT_LONG_RANGE
+import com.cmc.launcher.setting.unit.EnumSettingUnit
+import com.cmc.launcher.setting.unit.FloatSettingUnit
+import com.cmc.launcher.setting.unit.IntSettingUnit
+import com.cmc.launcher.setting.unit.LongSettingUnit
+import com.cmc.launcher.setting.unit.NullableIntSettingUnit
+import com.cmc.launcher.setting.unit.OffsetSettingUnit
+import com.cmc.launcher.setting.unit.StringListSettingUnit
+import com.cmc.launcher.setting.unit.StringSettingUnit
+import com.cmc.launcher.setting.unit.parcelableSettingUnit
+
+abstract class SettingsRegistry {
+    protected val refreshableList = mutableListOf<AbstractSettingUnit<*>>()
+
+    fun reloadAll() = refreshableList.forEach { it.init() }
+
+    protected fun boolSetting(key: String, def: Boolean) =
+        BooleanSettingUnit(key, def).also { refreshableList.add(it) }
+
+    protected fun intSetting(key: String, def: Int, valueRange: IntRange = DEFAULT_INT_RANGE) =
+        IntSettingUnit(key, def, valueRange).also { refreshableList.add(it) }
+
+    protected fun intSetting(key: String, def: Int, min: Int = Int.MIN_VALUE, max: Int = Int.MAX_VALUE) =
+        IntSettingUnit(key, def, min..max).also { refreshableList.add(it) }
+
+    protected fun intSetting(key: String, def: Int?, valueRange: IntRange = DEFAULT_INT_RANGE) =
+        NullableIntSettingUnit(key, def, valueRange).also { refreshableList.add(it) }
+
+    protected fun intSetting(key: String, def: Int?, min: Int = Int.MIN_VALUE, max: Int = Int.MAX_VALUE) =
+        NullableIntSettingUnit(key, def, min..max).also { refreshableList.add(it) }
+
+    protected fun floatSetting(key: String, def: Float, valueRange: ClosedFloatingPointRange<Float> = DEFAULT_FLOAT_RANGE) =
+        FloatSettingUnit(key, def, valueRange).also { refreshableList.add(it) }
+
+    protected fun floatSetting(key: String, def: Float, min: Float = Float.MIN_VALUE, max: Float = Float.MAX_VALUE) =
+        FloatSettingUnit(key, def, min..max).also { refreshableList.add(it) }
+
+    protected fun longSetting(key: String, def: Long, valueRange: LongRange = DEFAULT_LONG_RANGE) =
+        LongSettingUnit(key, def, valueRange).also { refreshableList.add(it) }
+
+    protected fun longSetting(key: String, def: Long, min: Long = Long.MIN_VALUE, max: Long = Long.MAX_VALUE) =
+        LongSettingUnit(key, def, min..max).also { refreshableList.add(it) }
+
+    protected fun offsetSetting(key: String, def: Offset) =
+        OffsetSettingUnit(key, def).also { refreshableList.add(it) }
+
+    protected fun stringSetting(key: String, def: String) =
+        StringSettingUnit(key, def).also { refreshableList.add(it) }
+
+    protected fun stringListSetting(key: String, def: List<String>) =
+        StringListSettingUnit(key, def).also { refreshableList.add(it) }
+
+    protected inline fun <reified E : Enum<E>> enumSetting(key: String, def: E, legacyNames: Map<String, E> = emptyMap()) =
+        EnumSettingUnit(key, def) { raw ->
+            enumValues<E>().firstOrNull { it.name == raw } ?: legacyNames[raw]
+        }.also { refreshableList.add(it) }
+
+    protected inline fun <reified E: Parcelable> parcelableSetting(key: String, def: E) =
+        parcelableSettingUnit(key, def).also { refreshableList.add(it) }
+}

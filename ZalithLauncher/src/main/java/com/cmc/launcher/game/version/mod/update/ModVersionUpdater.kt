@@ -1,0 +1,67 @@
+package com.cmc.launcher.game.version.mod.update
+
+import com.cmc.launcher.R
+import com.cmc.launcher.coroutine.Task
+import com.cmc.launcher.game.download.addon.platform.PlatformVersion
+import com.cmc.launcher.game.download.addon.platform.mcim.mapMCIMMirrorUrls
+import com.cmc.launcher.game.download.engine.findHttpCode
+import com.cmc.launcher.game.version.download.DEFAULT_DOWNLOAD_THREADS
+import com.cmc.launcher.game.version.download.DownloadTask
+import com.cmc.launcher.game.version.download.runBatchDownloads
+import com.cmc.launcher.ui.androidText
+import com.cmc.launcher.utils.file.formatFileSize
+import kotlinx.coroutines.CancellationException
+import java.io.File
+import java.io.FileNotFoundException
+
+private const val TAG = "ModVersionUpdater"
+
+class ModVersionUpdater(
+    val mods: List<PlatformVersion>,
+    private val targetDir: File,
+    private val maxDownloadThreads: Int = DEFAULT_DOWNLOAD_THREADS
+) {
+    suspend fun startDownload(task: Task) {
+        val tasks = mods.map { newVersion ->
+            DownloadTask(
+                urls = newVersion.platformDownloadUrl().mapMCIMMirrorUrls(),
+                verifyIntegrity = true,
+                targetFile = File(targetDir, newVersion.platformFileName()),
+                sha1 = newVersion.platformSha1()
+            )
+        }
+
+        try {
+            task.runBatchDownloads(
+                tasks = tasks,
+                maxConnections = maxDownloadThreads,
+                retryRounds = 1,
+                onSnapshot = { snapshot ->
+                    task.updateSpeed(snapshot.speedBytesPerSec)
+                    task.updateMessage(
+                        androidText(
+                            R.string.mods_update_updating,
+                            snapshot.downloadedFiles, snapshot.totalFiles,
+                            formatFileSize(snapshot.downloadedBytes)
+                        )
+                    )
+                },
+                acceptFailure = { modTask, error ->
+                    val skipped = error is FileNotFoundException || error.findHttpCode() == 404
+                    if (skipped) {
+                        //已上架又下架的资源，直接删除本地旧版并视为完成
+                        modTask.targetFile.delete()
+                    }
+                    skipped
+                }
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            throw e
+        }
+
+        task.updateProgress(1f)
+        task.updateMessage(null)
+    }
+}

@@ -1,0 +1,144 @@
+package com.cmc.launcher.game.plugin.natives
+
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import com.cmc.launcher.game.plugin.ApkPlugin
+import com.cmc.launcher.game.plugin.ApkPluginManager
+import com.cmc.launcher.game.plugin.cacheAppIcon
+import com.cmc.launcher.setting.AllSettings
+import java.nio.file.Path
+import java.nio.file.Paths
+
+object NativePluginManager: ApkPluginManager() {
+    private val nativePlugins = mutableListOf<NativePlugin>()
+
+    private val disabledPlugins: List<String>
+        get() = AllSettings.disableNativeLibPlugins.getValue()
+
+    /**
+     * 获取全部已加载的原生库插件
+     */
+    fun getPlugins(): List<NativePlugin> = nativePlugins.toList()
+
+    /**
+     * 获取所有未禁用的原生库插件
+     */
+    fun getCheckedPlugins(): List<NativePlugin> =
+        nativePlugins.filter { it.packageName !in disabledPlugins }
+
+    /**
+     * 获取所有未禁用的原生库插件的 native lib dir
+     */
+    fun getPaths(): List<String> {
+        return buildList {
+            nativePlugins.forEach { plugin ->
+                if (plugin.packageName in disabledPlugins) return@forEach
+                add(plugin.path)
+            }
+        }
+    }
+
+    /**
+     * 获取所有未禁用的原生库插件的 JVM 环境参数
+     */
+    fun getJVMEnv(): List<String> {
+        return buildList {
+            nativePlugins.forEach { plugin ->
+                if (plugin.packageName in disabledPlugins) return@forEach
+                addAll(plugin.envList)
+            }
+        }
+    }
+
+    fun clearPlugin() {
+        nativePlugins.clear()
+    }
+
+    override fun parseApkPlugin(
+        context: Context,
+        info: ApplicationInfo,
+        loaded: (ApkPlugin) -> Unit
+    ) {
+        if (info.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
+            val metaData = info.metaData ?: return
+            if (
+                metaData.getBoolean("FCLNativePlugin", false)
+            ) {
+                val nativeLibraryDir = info.nativeLibraryDir
+                val packageManager = context.packageManager
+                val packageName = info.packageName
+                val appName = info.loadLabel(packageManager).toString()
+                val appVersion = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+
+                val environment = metaData.getString("environment") ?: return
+                val des = metaData.getString("des") ?: ""
+
+                val envList = if (environment.isNotEmpty()) {
+                    val entries = environment.split(" ")
+                    buildList {
+                        entries.forEach { entry ->
+                            add(parseEntry(entry, nativeLibraryDir))
+                        }
+                    }
+                } else {
+                    emptyList()
+                }
+
+                val plugin = NativePlugin(
+                    packageName = packageName,
+                    appName = appName,
+                    appVersion = appVersion,
+                    displayName = des,
+                    minMCVer = metaData.getVersionString("minMCVer"),
+                    maxMCVer = metaData.getVersionString("maxMCVer"),
+                    path = nativeLibraryDir,
+                    envList = envList
+                )
+                nativePlugins.add(plugin)
+
+                runCatching {
+                    cacheAppIcon(context, info)
+                    loaded(plugin)
+                }
+            }
+        }
+    }
+
+    private const val NATIVE_LIB_DIR_PLACEHOLDER = "{nativeLibraryDir}"
+
+    private fun parseEntry(
+        entry: String,
+        nativeLibraryDir: String
+    ): String {
+        var (key, value) = entry.split("=")
+
+        if (value.startsWith(NATIVE_LIB_DIR_PLACEHOLDER)) {
+            if (value == NATIVE_LIB_DIR_PLACEHOLDER) {
+                value = nativeLibraryDir
+            } else {
+                val path = safePath(
+                    baseDir = nativeLibraryDir,
+                    input = value.removePrefix(NATIVE_LIB_DIR_PLACEHOLDER)
+                )
+                value = path?.toAbsolutePath()?.toString() ?: nativeLibraryDir
+            }
+        }
+
+        return "$key=$value"
+    }
+
+    private fun safePath(baseDir: String, input: String): Path? {
+        return try {
+            val basePath = Paths.get(baseDir).normalize().toAbsolutePath()
+            val resolvedPath = basePath.resolve(input).normalize().toAbsolutePath()
+
+            if (resolvedPath.startsWith(basePath)) {
+                resolvedPath
+            } else {
+                null //阻止路径穿越
+            }
+        } catch (_: Exception) {
+            null //无效的路径
+        }
+    }
+}

@@ -1,0 +1,131 @@
+package com.cmc.launcher.ui.screens.content.settings.layouts
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.cmc.launcher.setting.unit.BooleanSettingUnit
+import com.cmc.launcher.ui.components.DefaultSwitch
+import com.cmc.launcher.ui.components.TitleAndSummary
+
+@Composable
+fun SwitchSettingsCard(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    title: String,
+    position: CardPosition,
+    modifier: Modifier = Modifier,
+    outerShape: Dp = 20.dp,
+    innerShape: Dp = 4.dp,
+    summary: String? = null,
+    enabled: Boolean = true,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
+    trailingIcon: @Composable (RowScope.() -> Unit)? = null,
+    columnLayout: @Composable (ColumnScope.() -> Unit)? = null,
+) {
+    SettingsCard(
+        modifier = modifier,
+        position = position,
+        outerShape = outerShape,
+        innerShape = innerShape,
+        onClick = { onCheckedChange(!checked) },
+        enabled = enabled
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
+            CmcAccentBar(active = checked)
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 14.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = verticalAlignment
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 16.dp)
+                    ) {
+                        TitleAndSummary(
+                            title = title,
+                            summary = summary,
+                            titleStyle = titleStyle,
+                            summaryStyle = summaryStyle
+                        )
+                    }
+
+                    Row(
+                        verticalAlignment = verticalAlignment
+                    ) {
+                        trailingIcon?.invoke(this)
+                    }
+
+                    DefaultSwitch(
+                        checked = checked,
+                        enabled = enabled,
+                        onCheckedChange = { value -> onCheckedChange(value) }
+                    )
+                }
+
+                columnLayout?.invoke(this@Column)
+            }
+        }
+    }
+}
+
+@Composable
+fun SwitchSettingsCard(
+    unit: BooleanSettingUnit,
+    modifier: Modifier = Modifier,
+    onCheckedChange: (Boolean) -> Unit = {},
+    title: String,
+    position: CardPosition,
+    outerShape: Dp = 28.dp,
+    innerShape: Dp = 4.dp,
+    summary: String? = null,
+    enabled: Boolean = true,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
+    trailingIcon: @Composable (RowScope.() -> Unit)? = null,
+    columnLayout: @Composable (ColumnScope.() -> Unit)? = null,
+) {
+    SwitchSettingsCard(
+        checked = unit.state,
+        onCheckedChange = { value ->
+            unit.save(value)
+            onCheckedChange(value)
+        },
+        title = title,
+        position = position,
+        modifier = modifier,
+        outerShape = outerShape,
+        innerShape = innerShape,
+        summary = summary,
+        enabled = enabled,
+        verticalAlignment = verticalAlignment,
+        titleStyle = titleStyle,
+        summaryStyle = summaryStyle,
+        trailingIcon = trailingIcon,
+        columnLayout = columnLayout,
+    )
+}

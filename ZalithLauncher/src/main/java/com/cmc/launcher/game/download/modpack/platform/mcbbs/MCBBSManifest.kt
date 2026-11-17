@@ -1,0 +1,109 @@
+package com.cmc.launcher.game.download.modpack.platform.mcbbs
+
+import com.google.gson.annotations.SerializedName
+import com.cmc.launcher.game.addons.modloader.ModLoader
+import com.cmc.launcher.game.download.modpack.platform.PackManifest
+import com.cmc.launcher.game.versioninfo.models.GameManifest
+
+data class MCBBSManifest(
+    @SerializedName("manifestType")
+    val manifestType: String,
+    @SerializedName("manifestVersion")
+    val manifestVersion: Int,
+    @SerializedName("name")
+    val name: String,
+    @SerializedName("version")
+    val version: String,
+    @SerializedName("author")
+    val author: String,
+    @SerializedName("description")
+    val description: String,
+    @SerializedName("fileApi")
+    val fileApi: String?,
+    @SerializedName("url")
+    val url: String,
+    @SerializedName("forceUpdate")
+    val forceUpdate: Boolean,
+    @SerializedName("origins")
+    val origins: List<Origin>,
+    @SerializedName("addons")
+    val addons: List<Addon>,
+    @SerializedName("libraries")
+    val libraries: List<GameManifest.Library>,
+    @SerializedName("files")
+    val files: List<AddonFile>,
+    @SerializedName("settings")
+    val settings: Settings,
+    @SerializedName("launchInfo")
+    val launchInfo: LaunchInfo
+): PackManifest {
+
+    data class Origin(
+        @SerializedName("type")
+        val type: String,
+        @SerializedName("id")
+        val id: Int
+    )
+
+    data class Addon(
+        @SerializedName("id")
+        val id: String,
+        @SerializedName("version")
+        val version: String
+    )
+
+    data class Settings(
+        @SerializedName("install_mods")
+        val installMods: Boolean,
+
+        @SerializedName("install_resourcepack")
+        val installResourcepack: Boolean
+    )
+
+    data class AddonFile(
+        @SerializedName("force")
+        val force: Boolean,
+        @SerializedName("path")
+        val path: String,
+        @SerializedName("hash")
+        val hash: String
+    )
+
+    data class LaunchInfo(
+        @SerializedName("minMemory")
+        val minMemory: Int,
+        @SerializedName("supportJava")
+        val supportJava: List<Int>?,
+
+        @SerializedName("launchArgument")
+        val launchArguments: List<String>?,
+
+        @SerializedName("javaArgument")
+        val javaArguments: List<String>?
+    )
+
+    data class ServerInfo(
+        @SerializedName("authlibInjectorServer")
+        val authlibInjectorServer: String?
+    )
+
+    /**
+     * 尝试获取 Minecraft 版本
+     */
+    fun getMinecraftVersion(): String? =
+        addons.find { it.id == "game" }?.version
+
+    /**
+     * 匹配模组加载器与版本
+     */
+    fun Addon.retrieveLoader(): Pair<ModLoader, String>? {
+        return when (id) {
+            "forge" -> ModLoader.FORGE to version
+            "neoforge" -> ModLoader.NEOFORGE to version
+            "fabric" -> ModLoader.FABRIC to version
+            "quilt" -> ModLoader.QUILT to version
+            "optifine" -> ModLoader.OPTIFINE to version
+            else -> null
+        }
+    }
+}

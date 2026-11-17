@@ -1,0 +1,77 @@
+package com.cmc.launcher.game.addons.mirror
+
+import com.cmc.launcher.setting.AllSettings
+import com.cmc.launcher.utils.isChinaMainland
+
+private const val ROOT = "https://bmclapi2.bangbang93.com"
+private const val NEOFORGED_MAVEN_ROOT = "https://maven.neoforged.net"
+private const val NEOFORGE_CDN_ROOT = "https://neoforged.forgecdn.net"
+
+enum class BMCLAPI(val url: String) {
+    BASE_URL(ROOT),
+    MAVEN("$ROOT/maven"),
+    ASSETS("$ROOT/assets"),
+    LIBRARIES("$ROOT/libraries")
+}
+
+/**
+ * [Modified from HMCL](https://github.com/HMCL-dev/HMCL/blob/9aa1367/HMCLCore/src/main/java/org/jackhuang/hmcl/download/BMCLAPIDownloadProvider.java#L64-L83)
+ */
+private val REPLACE_MIRROR_HOLDERS = mapOf(
+    Pair(BMCLAPI.BASE_URL.url, BMCLAPI.BASE_URL.url),
+    Pair("https://launchermeta.mojang.com", BMCLAPI.BASE_URL.url),
+    Pair("https://piston-meta.mojang.com", BMCLAPI.BASE_URL.url),
+    Pair("https://piston-data.mojang.com", BMCLAPI.BASE_URL.url),
+    Pair("https://launcher.mojang.com", BMCLAPI.BASE_URL.url),
+    Pair("https://libraries.minecraft.net", BMCLAPI.LIBRARIES.url),
+    Pair("https://resources.download.minecraft.net", BMCLAPI.ASSETS.url),
+    Pair("http://files.minecraftforge.net/maven", BMCLAPI.MAVEN.url),
+    Pair("https://files.minecraftforge.net/maven", BMCLAPI.MAVEN.url),
+    Pair("https://maven.minecraftforge.net", BMCLAPI.MAVEN.url),
+    Pair("https://maven.neoforged.net/releases/net/neoforged/forge", BMCLAPI.MAVEN.url + "/net/neoforged/forge"),
+    Pair("https://maven.neoforged.net/releases/net/neoforged/neoforge", BMCLAPI.MAVEN.url + "/net/neoforged/neoforge"),
+    Pair("http://dl.liteloader.com/versions/versions.json", BMCLAPI.MAVEN.url + "/com/mumfrey/liteloader/versions.json"),
+    Pair("http://dl.liteloader.com/versions", BMCLAPI.MAVEN.url),
+    Pair("https://meta.fabricmc.net", BMCLAPI.BASE_URL.url + "/fabric-meta"),
+    Pair("https://maven.fabricmc.net", BMCLAPI.MAVEN.url),
+    Pair("https://authlib-injector.yushi.moe", BMCLAPI.BASE_URL.url + "/mirrors/authlib-injector"),
+    Pair("https://repo1.maven.org/maven2", "https://mirrors.cloud.tencent.com/nexus/repository/maven-public"),
+    Pair("https://repo.maven.apache.org/maven2", "https://mirrors.cloud.tencent.com/nexus/repository/maven-public"),
+)
+
+/**
+ * 替换为镜像源链接并按用户偏好排序
+ */
+fun String.mapBMCLMirrorUrls(): List<String> {
+    val mainland = isChinaMainland()
+    return mapBMCLMirrorUrls(
+        mainland = mainland,
+        priority = resolveMirrorPriority(
+            source = AllSettings.gameDownloadSource.getValue(),
+            mainland = mainland
+        )
+    )
+}
+
+fun String.mapBMCLMirrorUrls(
+    mainland: Boolean,
+    priority: MirrorPriority
+): List<String> {
+    val neoForgeCDNUrl = takeIf {
+        startsWith(NEOFORGED_MAVEN_ROOT)
+    }?.replaceFirst(NEOFORGED_MAVEN_ROOT, NEOFORGE_CDN_ROOT) // NeoForge 始终保留 CurseForge CDN 作为备用源
+
+    if (!mainland) return listOfNotNull(this, neoForgeCDNUrl)
+
+    val mirrorUrl = REPLACE_MIRROR_HOLDERS.entries.firstOrNull { (origin, _) ->
+        this.startsWith(origin)
+    }?.let { (origin, mirror) ->
+        replaceFirst(origin, mirror)
+    }
+
+    return orderCandidates(
+        official = this,
+        mirror = mirrorUrl,
+        priority = priority
+    ) + listOfNotNull(neoForgeCDNUrl)
+}

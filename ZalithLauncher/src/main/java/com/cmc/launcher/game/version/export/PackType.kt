@@ -1,0 +1,81 @@
+package com.cmc.launcher.game.version.export
+
+/**
+ * 打包的类型
+ */
+enum class PackType(val options: PackEditOptions) {
+    /**
+     * MCBBS 导出格式
+     */
+    MCBBS(
+        PackEditOptions.Builder()
+            .requireAuthor()
+            .requireSummary()
+            .requireGameArgs()
+            .requireJavaArgs()
+            .requireWebsiteUrl()
+            .requireMinMemory()
+            .build()
+    ),
+
+    /**
+     * Modrinth 标准导出格式
+     */
+    Modrinth(
+        PackEditOptions.Builder()
+            .requireSummary()
+            .requirePackModrinth()
+            .requirePackCurseForge()
+            .build()
+    ),
+
+    CurseForge(
+        PackEditOptions.Builder()
+            .requireAuthor()
+            .requirePackCurseForge()
+            .requireMinMemory()
+            .build()
+    ),
+}
+
+class PackEditOptions private constructor(
+    val requireAuthor: Boolean = false,
+    val requireSummary: Boolean = false,
+    val requireGameArgs: Boolean = false,
+    val requireJavaArgs: Boolean = false,
+    val requireWebsiteUrl: Boolean = false,
+    val requireMinMemory: Boolean = false,
+    val requirePackModrinth: Boolean = false,
+    val requirePackCurseForge: Boolean = false
+) {
+    class Builder {
+        private var requireAuthor: Boolean = false
+        private var requireSummary: Boolean = false
+        private var requireGameArgs: Boolean = false
+        private var requireJavaArgs: Boolean = false
+        private var requireWebsiteUrl: Boolean = false
+        private var requireMinMemory: Boolean = false
+        private var requirePackModrinth: Boolean = false
+        private var requirePackCurseForge: Boolean = false
+
+        fun requireAuthor() = this.also { requireAuthor = true }
+        fun requireSummary() = this.also { requireSummary = true }
+        fun requireGameArgs() = this.also { requireGameArgs = true }
+        fun requireJavaArgs() = this.also { requireJavaArgs = true }
+        fun requireWebsiteUrl() = this.also { requireWebsiteUrl = true }
+        fun requireMinMemory() = this.also { requireMinMemory = true }
+        fun requirePackModrinth() = this.also { requirePackModrinth = true }
+        fun requirePackCurseForge() = this.also { requirePackCurseForge = true }
+
+        fun build() = PackEditOptions(
+            requireAuthor = requireAuthor,
+            requireSummary = requireSummary,
+            requireGameArgs = requireGameArgs,
+            requireJavaArgs = requireJavaArgs,
+            requireWebsiteUrl = requireWebsiteUrl,
+            requireMinMemory = requireMinMemory,
+            requirePackModrinth = requirePackModrinth,
+            requirePackCurseForge = requirePackCurseForge
+        )
+    }
+}

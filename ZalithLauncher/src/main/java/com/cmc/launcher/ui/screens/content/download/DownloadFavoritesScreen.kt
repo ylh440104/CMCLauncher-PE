@@ -1,0 +1,67 @@
+package com.cmc.launcher.ui.screens.content.download
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import com.cmc.launcher.game.download.addon.platform.Platform
+import com.cmc.launcher.game.download.addon.platform.PlatformClasses
+import com.cmc.launcher.ui.screens.NestedNavDisplay
+import com.cmc.launcher.ui.screens.NestedNavKey
+import com.cmc.launcher.ui.screens.NormalNavKey
+import com.cmc.launcher.ui.screens.TitledNavKey
+import com.cmc.launcher.ui.screens.content.download.addon.favorites.FavoritesScreen
+import com.cmc.launcher.ui.screens.onBack
+import com.cmc.launcher.ui.screens.rememberTransitionSpec
+
+/**
+ * @param swapToDownload 跳转到资源类型对应的下载分类屏幕详情页
+ */
+@Composable
+fun DownloadFavoritesScreen(
+    key: NestedNavKey.DownloadFavorites,
+    mainScreenKey: TitledNavKey?,
+    downloadScreenKey: TitledNavKey?,
+    downloadFavoritesScreenKey: TitledNavKey?,
+    onCurrentKeyChange: (TitledNavKey?) -> Unit,
+    swapToDownload: (Platform, PlatformClasses, projectId: String, iconUrl: String?) -> Unit
+) {
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        onCurrentKeyChange(stackTopKey)
+    }
+
+    if (backStack.isNotEmpty()) {
+        NestedNavDisplay(
+            ownerKey = key,
+            backStack = backStack,
+            modifier = Modifier.fillMaxSize(),
+            onBack = {
+                onBack(backStack)
+            },
+            extraDecorators = listOf(
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
+            entryProvider = entryProvider {
+                entry<NormalNavKey.Favorites> {
+                    FavoritesScreen(
+                        mainScreenKey = mainScreenKey,
+                        parentScreenKey = key,
+                        parentCurrentKey = downloadScreenKey,
+                        screenKey = NormalNavKey.Favorites,
+                        currentKey = downloadFavoritesScreenKey,
+                        swapToDownload = swapToDownload
+                    )
+                }
+            }
+        )
+    } else {
+        Box(Modifier.fillMaxSize())
+    }
+}

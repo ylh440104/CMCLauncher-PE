@@ -1,0 +1,121 @@
+package com.cmc.launcher.game.launch.handler
+
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.view.KeyEvent
+import android.view.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.IntSize
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.withSave
+import com.cmc.launcher.bridge.ZLBridge
+import com.cmc.launcher.game.input.AWTInputEvent
+import com.cmc.launcher.game.launch.JvmLauncher
+import com.cmc.launcher.ui.control.input.TextInputMode
+import com.cmc.launcher.ui.screens.game.JVMScreen
+import com.cmc.launcher.ui.screens.game.elements.LogState
+import com.cmc.launcher.utils.logging.Logger
+import com.cmc.launcher.viewmodel.ErrorViewModel
+import com.cmc.launcher.viewmodel.EventViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+private const val TAG = "JVMHandler"
+
+class JVMHandler(
+    jvmLauncher: JvmLauncher,
+    errorViewModel: ErrorViewModel,
+    eventViewModel: EventViewModel,
+    onExit: (code: Int) -> Unit
+) : AbstractHandler(
+    type = HandlerType.JVM,
+    errorViewModel = errorViewModel,
+    eventViewModel = eventViewModel,
+    launcher = jvmLauncher,
+    onExit = onExit
+) {
+    /**
+     * 日志展示状态
+     */
+    private var logState by mutableStateOf(LogState.CLOSE)
+
+    override suspend fun execute(
+        surface: Surface,
+        screenSize: IntSize,
+        scope: CoroutineScope
+    ) {
+        val canvasWidth = screenSize.width
+        val canvasHeight = screenSize.height
+
+        scope.launch(Dispatchers.Default) {
+            var canvas: Canvas?
+            val rgbArrayBitmap = createBitmap(canvasWidth, canvasHeight)
+            val paint = Paint()
+
+            try {
+                while (!mIsSurfaceDestroyed && surface.isValid) {
+                    canvas = surface.lockCanvas(null)
+                    canvas?.drawRGB(0, 0, 0)
+
+                    ZLBridge.renderAWTScreenFrame()?.let { rgbArray ->
+                        canvas?.withSave {
+                            rgbArrayBitmap.setPixels(
+                                rgbArray,
+                                0,
+                                canvasWidth,
+                                0,
+                                0,
+                                canvasWidth,
+                                canvasHeight
+                            )
+                            this.drawBitmap(rgbArrayBitmap, 0f, 0f, paint)
+                        }
+                    }
+
+                    canvas?.let { surface.unlockCanvasAndPost(it) }
+                }
+            } catch (throwable: Throwable) {
+                Logger.error(TAG, "An exception occurred while rendering the AWT frame.", throwable)
+            } finally {
+                rgbArrayBitmap.recycle()
+                surface.release()
+            }
+        }
+        super.execute(surface, screenSize, scope)
+    }
+
+    override fun onPause() {
+    }
+
+    override fun onResume() {
+    }
+
+    override fun onDestroy() {
+    }
+
+    override fun onGraphicOutput() {
+    }
+
+    override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
+        return true
+    }
+
+    override fun sendMouseRight(isPressed: Boolean) {
+        ZLBridge.sendMousePress(AWTInputEvent.BUTTON3_DOWN_MASK, isPressed)
+    }
+
+    @Composable
+    override fun ComposableLayout(
+        textInputMode: TextInputMode
+    ) {
+        JVMScreen(
+            logState = logState,
+            onLogStateChange = { logState = it },
+            eventViewModel = eventViewModel
+        )
+    }
+}

@@ -1,0 +1,81 @@
+package com.cmc.launcher.game.renderer
+
+/**
+ * 启动器渲染器实现
+ */
+interface RendererInterface {
+    /**
+     * 获取渲染器的ID
+     */
+    fun getRendererId(): String
+
+    /**
+     * 获取渲染器的唯一标识ID
+     */
+    fun getUniqueIdentifier(): String
+
+    /**
+     * 渲染器是否基于 Mesa
+     */
+    val mesaBased: Boolean get() = false
+
+    /**
+     * 渲染器是否依赖 Mesa zink 驱动，需要启动时注入驱动选择与桌面 GL 版本覆盖
+     */
+    val needsZinkDriverOverride: Boolean get() = false
+
+    /**
+     * 渲染器是否默认支持 SimpleFPEWrapper 兼容层
+     */
+    fun supportsSfpewByDefault(): Boolean = false
+
+    /**
+     * 获取渲染器的名称
+     */
+    fun getRendererName(): String
+
+    /**
+     * 获取渲染器的描述
+     */
+    fun getRendererSummary(): String? = null
+
+    /**
+     * 获取渲染器最低兼容版本
+     */
+    fun getMinMCVersion(): String? = null
+
+    /**
+     * 获取渲染器最高兼容版本
+     */
+    fun getMaxMCVersion(): String? = null
+
+    /**
+     * 获取渲染器最低兼容版本的展示用版本号
+     */
+    fun getDisplayMinMCVersion(): String? = getMinMCVersion()
+
+    /**
+     * 获取渲染器最高兼容版本的展示用版本号
+     */
+    fun getDisplayMaxMCVersion(): String? = getMaxMCVersion()
+
+    /**
+     * 获取渲染器的环境变量
+     */
+    fun getRendererEnv(): Lazy<Map<String, String>>
+
+    /**
+     * 获取需要dlopen的库
+     */
+    fun getDlopenLibrary(): Lazy<List<String>>
+
+    /**
+     * 获取渲染器的库
+     */
+    fun getRendererLibrary(): String
+
+    /**
+     * 获取EGL名称
+     */
+    fun getRendererEGL(): String? = null
+}

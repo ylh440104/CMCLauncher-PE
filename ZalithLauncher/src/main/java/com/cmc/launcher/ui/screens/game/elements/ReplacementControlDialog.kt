@@ -1,0 +1,93 @@
+package com.cmc.launcher.ui.screens.game.elements
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cmc.launcher.R
+import com.cmc.launcher.game.control.ControlData
+import com.cmc.launcher.game.control.ControlManager
+import com.cmc.launcher.ui.components.SimpleAlertDialog
+import com.cmc.launcher.ui.components.SimpleListDialog
+import com.cmc.launcher.ui.components.SimpleListItem
+import com.cmc.launcher.ui.screens.main.control_editor.orUnspecified
+import java.io.File
+
+sealed interface ReplacementControlState {
+    data object None : ReplacementControlState
+    /** 显示更换控制布局的对话框 */
+    data object Show : ReplacementControlState
+}
+
+@Composable
+fun ReplacementControlOperation(
+    operation: ReplacementControlState,
+    onChange: (ReplacementControlState) -> Unit,
+    currentLayout: File?,
+    replacementControl: (File) -> Unit
+) {
+    when (operation) {
+        ReplacementControlState.None -> {}
+        ReplacementControlState.Show -> {
+            ReplacementControlDialog(
+                currentLayout = currentLayout,
+                onLayoutSelected = { data ->
+                    replacementControl(data.file)
+                },
+                onDismissRequest = {
+                    onChange(ReplacementControlState.None)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ReplacementControlDialog(
+    currentLayout: File?,
+    onLayoutSelected: (ControlData) -> Unit,
+    onDismissRequest: (selected: Boolean) -> Unit
+) {
+    val dataList by ControlManager.dataList.collectAsStateWithLifecycle()
+    val controls = remember(dataList) { dataList.filter { it.isSupport } }
+
+    if (controls.isNotEmpty()) {
+        val locale = LocalConfiguration.current.locales[0]
+
+        val current = remember(controls) {
+            controls.find { currentLayout?.name == it.file.name }
+        }
+
+        SimpleListDialog(
+            title = stringResource(R.string.game_menu_option_replacement_control),
+            items = controls,
+            current = current,
+            onItemSelected = onLayoutSelected,
+            onDismissRequest = onDismissRequest,
+            itemLayout = { item, isCurrent, onClick ->
+                SimpleListItem(
+                    selected = isCurrent,
+                    itemName = item.controlLayout.info.name.translate(locale).orUnspecified(),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onClick
+                )
+            }
+        )
+    } else {
+        SimpleAlertDialog(
+            title = stringResource(R.string.game_menu_option_replacement_control),
+            text = stringResource(R.string.control_manage_list_empty),
+            onConfirm = {
+                onDismissRequest(false)
+            },
+            dismissText = stringResource(R.string.generic_refresh),
+            onDismiss = {
+                ControlManager.refresh()
+            }
+        )
+    }
+}

@@ -1,0 +1,57 @@
+package com.cmc.launcher.filemanager.logic.trash
+
+import org.json.JSONObject
+import java.nio.file.Path
+
+/**
+ * 回收站条目元数据
+ * @param originalPath 被删项的原始绝对路径
+ * @param deletedAt 删除时间（epoch 毫秒）
+ * @param name 被删项名称
+ * @param isFolder 类型是否为目录
+ * @param corrupted 异常标记
+ */
+data class TrashMeta(
+    val originalPath: String,
+    val deletedAt: Long,
+    val name: String,
+    val isFolder: Boolean,
+    val corrupted: Boolean = false
+) {
+    fun toJson(): JSONObject = JSONObject().apply {
+        put("originalPath", originalPath)
+        put("deletedAt", deletedAt)
+        put("name", name)
+        put("isFolder", isFolder)
+        put("corrupted", corrupted)
+    }
+
+    companion object {
+        fun fromJson(text: String): TrashMeta? = runCatching {
+            val obj = JSONObject(text)
+            TrashMeta(
+                originalPath = obj.getString("originalPath"),
+                deletedAt = obj.getLong("deletedAt"),
+                name = obj.getString("name"),
+                isFolder = obj.getBoolean("isFolder"),
+                corrupted = obj.optBoolean("corrupted", false)
+            )
+        }.getOrNull()
+    }
+}
+
+/**
+ * 回收站列表项
+ * @param contentDir 回收站内存储内容的路径
+ * @param size 回收站内内容的总大小（字节）
+ */
+data class TrashItem(
+    val uuid: String,
+    val meta: TrashMeta,
+    val contentDir: Path,
+    val size: Long
+) {
+    val isFolder: Boolean get() = meta.isFolder
+    val name: String get() = meta.name
+    val deletedAt: Long get() = meta.deletedAt
+}

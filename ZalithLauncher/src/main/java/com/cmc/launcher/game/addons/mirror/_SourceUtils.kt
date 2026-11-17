@@ -1,0 +1,55 @@
+package com.cmc.launcher.game.addons.mirror
+
+import com.cmc.launcher.setting.AllSettings
+import com.cmc.launcher.utils.logging.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
+
+private const val TAG = "SourceUtils"
+
+data class MirrorSource<T>(
+    val type: SourceType,
+    val block: suspend () -> T?
+)
+
+/**
+ * 按顺序尝试各源，首个成功者胜出
+ * 全部失败时抛出最后一次异常
+ */
+suspend fun <T> runMirrorable(
+    sources: List<MirrorSource<T>>
+): T? = withContext(Dispatchers.IO) {
+    var result: T? = null
+    var succeed = false
+    var lastException: Throwable? = null
+
+    loop@ for (source in sources) {
+        ensureActive()
+
+        runCatching {
+            val res = source.block()
+            result = res
+            succeed = true
+            break@loop
+        }.onFailure {
+            Logger.debug(TAG, "Source ${source.type.displayName} failed!", it)
+            lastException = it
+        }
+    }
+
+    if (!succeed) throw lastException ?: IOException("Failed to retrieve information from the source!")
+
+    result
+}
+
+/**
+ * 把官方在前、镜像在后的规范源列表按“游戏内容下载源”设置重排；
+ * 自动档下大陆用户镜像优先，官方档仅保留官方源
+ */
+fun <T> List<MirrorSource<T>>.orderedByGameSourcePreference(): List<MirrorSource<T>> =
+    when (resolveMirrorPriority(AllSettings.gameDownloadSource.getValue(), mainland = true)) {
+        MirrorPriority.OFFICIAL -> filter { it.type == SourceType.OFFICIAL }
+        MirrorPriority.MIRROR_FIRST -> reversed()
+    }
