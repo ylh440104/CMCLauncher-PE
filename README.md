@@ -141,19 +141,17 @@ cd CMCLauncher-PE
 
 ## 🙏 鸣谢
 
-### ZalithLauncher
-
-本项目抄了很多 ZalithLauncher 的代码。
-
-非常感谢 Zalith 团队、MovTery 以及所有贡献者的开源工作
-
 ### PojavLauncher
 
 启动核心基于 PojavLauncher，感谢 PojavLauncherTeam 让 Minecraft: Java Edition 能在 Android 上运行。
 
+### 其它
+
+部分实现参考自 ZalithLauncher，感谢其作者与所有贡献者。
+
 ### 其它开源项目
 
-本项目使用的开源库及其许可信息见 [ZalithLauncher README](https://github.com/ZalithLauncher/ZalithLauncher#引用开源项目)，包括但不限于：
+本项目使用的开源库，包括但不限于：
 
 - **LWJGL** - Lightweight Java Game Library
 - **SDL3** / **sdl2-compat** - 跨平台多媒体库
