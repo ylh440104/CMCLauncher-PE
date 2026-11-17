@@ -39,6 +39,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -51,6 +52,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -99,6 +101,7 @@ import com.cmc.launcher.R
 import com.cmc.launcher.game.account.Account
 import com.cmc.launcher.game.account.AccountType
 import com.cmc.launcher.game.account.AccountsManager
+import com.cmc.launcher.game.account.RegionGate
 import com.cmc.launcher.game.account.accountErrorText
 import com.cmc.launcher.game.account.accountUUID
 import com.cmc.launcher.game.account.auth_server.data.AuthServer
@@ -429,6 +432,22 @@ fun LoginMenuDialog(
     onAddAuthServer: () -> Unit,
     onDeleteAuthServer: (server: AuthServer) -> Unit,
 ) {
+    val gateContext = LocalContext.current
+    var showRegionGate by remember { mutableStateOf(false) }
+    if (showRegionGate) {
+        AlertDialog(
+            onDismissRequest = { showRegionGate = false },
+            confirmButton = {
+                TextButton(onClick = { showRegionGate = false }) { Text("知道了") }
+            },
+            title = { Text("需要先使用微软账号登录") },
+            text = {
+                Text(
+                    "当前环境被识别为中国大陆以外地区。\n\n请先添加并登录一个微软账号，之后才能添加离线账户。"
+                )
+            }
+        )
+    }
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -483,8 +502,12 @@ fun LoginMenuDialog(
                                 modifier = Modifier.fillMaxWidth(),
                                 title = stringResource(R.string.account_type_local),
                                 onClick = {
-                                    onLocalLogin()
-                                    onDismissRequest()
+                                    if (RegionGate.canUseOffline(gateContext)) {
+                                        onLocalLogin()
+                                        onDismissRequest()
+                                    } else {
+                                        showRegionGate = true
+                                    }
                                 }
                             )
                         }

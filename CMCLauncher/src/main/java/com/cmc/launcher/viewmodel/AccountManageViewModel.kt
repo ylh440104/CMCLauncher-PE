@@ -11,6 +11,7 @@ import com.cmc.launcher.coroutine.Task
 import com.cmc.launcher.coroutine.TaskSystem
 import com.cmc.launcher.game.account.Account
 import com.cmc.launcher.game.account.AccountsManager
+import com.cmc.launcher.game.account.RegionGate
 import com.cmc.launcher.game.account.accountErrorText
 import com.cmc.launcher.game.account.addOtherServer
 import com.cmc.launcher.game.account.auth_server.AuthServerHelper
@@ -708,6 +709,10 @@ class AccountManageViewModel @AssistedInject constructor(
 
     /** 创建离线账号 */
     private fun createLocalAccount(userName: String, userUUID: String?) {
+        if (!RegionGate.canUseOffline(context)) {
+            onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.None))
+            return
+        }
         localLogin(userName, userUUID)
         onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.None))
     }
