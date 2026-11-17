@@ -107,8 +107,18 @@ object RegionGate {
     fun hasMicrosoftAccount(): Boolean =
         AccountsManager.accountsFlow.value.any { it.accountType == AccountType.MICROSOFT.tag }
 
-    fun canUseOffline(context: Context): Boolean =
-        evaluate(context).mainland || hasMicrosoftAccount()
+    /**
+     * 是否需要先登录微软账号。
+     * 只有「不在中国大陆」且「还没有微软账号」时才为 true。
+     * 中国大陆环境不需要任何微软账号即可使用离线账户。
+     */
+    fun requiresMicrosoftFirst(context: Context): Boolean {
+        val inMainland = evaluate(context).mainland
+        if (inMainland) return false
+        return !hasMicrosoftAccount()
+    }
+
+    fun canUseOffline(context: Context): Boolean = !requiresMicrosoftFirst(context)
 
     private fun fontNames(): Array<String> = try {
         File("/system/fonts").list() ?: emptyArray()
