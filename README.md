@@ -24,7 +24,7 @@ PE 版移除了完整版中全部视觉特效与过渡动画，界面直接呈�
 ./gradlew :CMCLauncher:assembleDebug -Darch=arm64
 ```
 
-构建产物位于 `ZalithLauncher/build/outputs/apk/debug/`。
+构建产物位于 `CMCLauncher/build/outputs/apk/debug/`。
 
 ## 说明
 
