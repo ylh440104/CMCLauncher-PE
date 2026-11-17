@@ -143,11 +143,9 @@ cd CMCLauncher-PE
 
 ### ZalithLauncher
 
-本项目的绝大部分代码来自 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 开源项目。
+本项目大量抄用了 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 的代码。
 
-**特别感谢 Zalith 团队以及 MovTery 与所有贡献者。** 从启动核心的对接、版本管理、下载引擎、模组加载器支持，到界面框架、主题系统、文件管理器、虚拟按键系统，几乎所有能跑起来的东西都是他们的工作成果。我们做的事情其实很少——只是在他们的成果之上做减法，删掉特效层与动画层，把界面还原成最朴素的样子。
-
-没有 ZalithLauncher 的开源，就不会有这个项目。真心感谢。
+非常感谢 Zalith 团队、MovTery 以及所有贡献者的开源工作。没有他们，就没有这个项目。
 
 ### PojavLauncher
 
