@@ -27,8 +27,8 @@ val launcherVersionName = project.findProperty("launcher_version_name") as? Stri
 
 val defaultOAuthClientID = project.findProperty("oauth_client_id") as? String
 val defaultCurseForgeApiKey = project.findProperty("curseforge_api_key") as? String
-val defaultStorePassword = project.findProperty("default_store_password") as? String ?: error("The \"default_store_password\" property is not set in gradle.properties.")
-val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
+val defaultStorePassword = project.findProperty("default_store_password") as? String
+val defaultKeyPassword = project.findProperty("default_key_password") as? String
 
 val projectArch: String = System.getProperty("arch", "all")
 
@@ -115,17 +115,23 @@ android {
     }
 
     signingConfigs {
-        create("releaseBuild") {
-            storeFile = file("cmc_launcher.jks")
-            storePassword = defaultStorePassword
-            keyAlias = "cmc_debug"
-            keyPassword = defaultKeyPassword
+        val releaseStore = file("cmc_launcher.jks")
+        if (releaseStore.exists() && defaultStorePassword != null && defaultKeyPassword != null) {
+            create("releaseBuild") {
+                storeFile = releaseStore
+                storePassword = defaultStorePassword
+                keyAlias = "cmc_debug"
+                keyPassword = defaultKeyPassword
+            }
         }
-        create("debugBuild") {
-            storeFile = file("cmc_launcher_debug.jks")
-            storePassword = defaultStorePassword
-            keyAlias = "cmc_debug"
-            keyPassword = defaultKeyPassword
+        val debugStore = file("cmc_launcher_debug.jks")
+        if (debugStore.exists() && defaultStorePassword != null && defaultKeyPassword != null) {
+            create("debugBuild") {
+                storeFile = debugStore
+                storePassword = defaultStorePassword
+                keyAlias = "cmc_debug"
+                keyPassword = defaultKeyPassword
+            }
         }
     }
 
@@ -141,7 +147,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("releaseBuild")
+            signingConfigs.findByName("releaseBuild")?.let { signingConfig = it }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -150,7 +156,7 @@ android {
         debug {
             isMinifyEnabled = false
             versionNameSuffix = "-debug"
-            signingConfig = signingConfigs.getByName("debugBuild")
+            signingConfigs.findByName("debugBuild")?.let { signingConfig = it }
         }
     }
 
