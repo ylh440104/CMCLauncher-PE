@@ -101,7 +101,7 @@ object RegionGate {
         signals.add(Signal("区域设置", if (intlHit) W_INTL else 0, W_INTL, intlHit))
 
         val total = signals.sumOf { it.score }
-        return Verdict(total, total >= THRESHOLD, signals)
+        return Verdict(total, tzHit && total >= THRESHOLD, signals)
     }
 
     fun hasMicrosoftAccount(): Boolean =
