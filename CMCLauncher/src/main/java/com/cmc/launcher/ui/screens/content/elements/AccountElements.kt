@@ -403,27 +403,14 @@ fun LoginMenuDialog(
     val gateContext = LocalContext.current
     var showRegionGate by remember { mutableStateOf(false) }
     if (showRegionGate) {
-        val verdict = remember { RegionGate.evaluate(gateContext) }
         AlertDialog(
             onDismissRequest = { showRegionGate = false },
             confirmButton = {
                 TextButton(onClick = { showRegionGate = false }) { Text("知道了") }
             },
-            title = { Text("需要先使用微软账号登录") },
+            title = { Text("需要先登录微软账号") },
             text = {
-                Column {
-                    Text("当前环境被识别为中国大陆以外地区（${verdict.score}/100）。")
-                    Spacer(Modifier.height(8.dp))
-                    verdict.signals.forEach { signal ->
-                        Text(
-                            text = (if (signal.hit) "● " else "○ ") + signal.name + "  " +
-                                signal.score + "/" + signal.max,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Text("请先添加并登录一个微软账号，之后才能添加离线账户。")
-                }
+                Text("请先添加并登录一个微软账号，之后才能添加离线账户。")
             }
         )
     }
