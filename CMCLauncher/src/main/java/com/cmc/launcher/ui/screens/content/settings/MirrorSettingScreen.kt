@@ -2,7 +2,6 @@ package com.cmc.launcher.ui.screens.content.settings
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -223,7 +222,7 @@ fun MirrorSettingScreen(
                 val isVideo = backgroundViewModel?.isVideo == true
 
                 val picker = rememberLauncherForActivityResult(
-                    ActivityResultContracts.PickVisualMedia()
+                    ActivityResultContracts.OpenDocument()
                 ) { uri: Uri? ->
                     if (uri != null && backgroundViewModel != null) {
                         scope.launch {
@@ -281,8 +280,10 @@ fun MirrorSettingScreen(
                                 ),
                                 onClick = {
                                     picker.launch(
-                                        PickVisualMediaRequest(
-                                            ActivityResultContracts.PickVisualMedia.ImageAndVideo
+                                        arrayOf(
+                                            "image/*",
+                                            "video/*",
+                                            "application/octet-stream"
                                         )
                                     )
                                 }
