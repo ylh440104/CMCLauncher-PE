@@ -26,8 +26,6 @@ val launcherVersionCode = (project.findProperty("launcher_version_code") as? Str
 val launcherVersionName = project.findProperty("launcher_version_name") as? String ?: error("The \"launcher_version_name\" property is not set in gradle.properties.")
 
 val defaultOAuthClientID = project.findProperty("oauth_client_id") as? String
-val defaultStorePassword = project.findProperty("default_store_password") as? String ?: error("The \"default_store_password\" property is not set in gradle.properties.")
-val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
 val defaultCurseForgeApiKey = project.findProperty("curseforge_api_key") as? String
 
 val projectArch: String = System.getProperty("arch", "all")
@@ -114,21 +112,6 @@ android {
         }
     }
 
-    signingConfigs {
-        create("releaseBuild") {
-            storeFile = file("cmc_launcher.jks")
-            storePassword = "cmcdebug2026"
-            keyAlias = "cmc_debug"
-            keyPassword = "cmcdebug2026"
-        }
-        create("debugBuild") {
-            storeFile = file("cmc_launcher_debug.jks")
-            storePassword = "cmcdebug2026"
-            keyAlias = "cmc_debug"
-            keyPassword = "cmcdebug2026"
-        }
-    }
-
     defaultConfig {
         applicationId = cmcPackageName
         minSdk = 26
@@ -142,7 +125,6 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("releaseBuild")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -151,7 +133,6 @@ android {
         debug {
             isMinifyEnabled = false
             versionNameSuffix = "-debug"
-            signingConfig = signingConfigs.getByName("debugBuild")
         }
     }
 
