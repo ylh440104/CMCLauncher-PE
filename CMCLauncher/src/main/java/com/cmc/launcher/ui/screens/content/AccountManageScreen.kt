@@ -8,7 +8,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.ui.res.painterResource
 import com.cmc.launcher.R
@@ -54,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cmc.launcher.context.COPY_LABEL_ACCOUNT_UUID
 import com.cmc.launcher.game.account.Account
 import com.cmc.launcher.game.account.AccountsManager
+import com.cmc.launcher.game.account.RegionGate
 import com.cmc.launcher.game.account.auth_server.data.AuthServer
 import com.cmc.launcher.game.account.isAuthServerAccount
 import com.cmc.launcher.game.account.isMicrosoftAccount
@@ -202,6 +205,20 @@ private fun AccountManageContent(
     actions: AccountActions,
 ) {
     var showLoginMenu by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var showRegionGate by remember { mutableStateOf(false) }
+    if (showRegionGate) {
+        AlertDialog(
+            onDismissRequest = { showRegionGate = false },
+            confirmButton = {
+                TextButton(onClick = { showRegionGate = false }) { Text("知道了") }
+            },
+            title = { Text("需要先登录微软账号") },
+            text = {
+                Text("请先添加并登录一个微软账号，之后才能添加离线账户。")
+            }
+        )
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -234,9 +251,13 @@ private fun AccountManageContent(
             FilledTonalButton(
                 modifier = Modifier.weight(1f),
                 onClick = {
-                    actions.onIntent(
-                        AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.Edit)
-                    )
+                    if (RegionGate.canUseOffline(context)) {
+                        actions.onIntent(
+                            AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.Edit)
+                        )
+                    } else {
+                        showRegionGate = true
+                    }
                 }
             ) {
                 Text(
@@ -277,18 +298,6 @@ private fun AccountManageContent(
         LoginMenuDialog(
             onDismissRequest = { showLoginMenu = false },
             authServers = profileUiState.authServers,
-            onMicrosoftLogin = {
-                if (!isMicrosoftLogging()) {
-                    actions.onIntent(
-                        AccountManageIntent.UpdateMicrosoftLoginOp(
-                            MicrosoftLoginOperation.Tip
-                        )
-                    )
-                }
-            },
-            onLocalLogin = {
-                actions.onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.Edit))
-            },
             onAuthServerLogin = { server ->
                 actions.onIntent(
                     AccountManageIntent.UpdateOtherLoginOp(
@@ -387,18 +396,6 @@ private fun LoginMenuOperation(
                     )
                 },
                 authServers = authServers,
-                onMicrosoftLogin = {
-                    if (!isMicrosoftLogging()) {
-                        actions.onIntent(
-                            AccountManageIntent.UpdateMicrosoftLoginOp(
-                                MicrosoftLoginOperation.Tip
-                            )
-                        )
-                    }
-                },
-                onLocalLogin = {
-                    actions.onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.Edit))
-                },
                 onAuthServerLogin = { server ->
                     actions.onIntent(
                         AccountManageIntent.UpdateOtherLoginOp(

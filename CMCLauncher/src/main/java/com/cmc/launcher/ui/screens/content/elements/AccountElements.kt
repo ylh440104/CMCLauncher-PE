@@ -100,7 +100,6 @@ import com.cmc.launcher.R
 import com.cmc.launcher.game.account.Account
 import com.cmc.launcher.game.account.AccountType
 import com.cmc.launcher.game.account.AccountsManager
-import com.cmc.launcher.game.account.RegionGate
 import com.cmc.launcher.game.account.accountErrorText
 import com.cmc.launcher.game.account.accountUUID
 import com.cmc.launcher.game.account.auth_server.data.AuthServer
@@ -393,28 +392,11 @@ fun AccountItem(
 @Composable
 fun LoginMenuDialog(
     onDismissRequest: () -> Unit,
-    onMicrosoftLogin: () -> Unit,
-    onLocalLogin: () -> Unit,
     authServers: List<AuthServer>,
     onAuthServerLogin: (server: AuthServer) -> Unit,
     onAddAuthServer: () -> Unit,
     onDeleteAuthServer: (server: AuthServer) -> Unit,
 ) {
-    val gateContext = LocalContext.current
-    var showRegionGate by remember { mutableStateOf(false) }
-    if (showRegionGate) {
-        AlertDialog(
-            onDismissRequest = { showRegionGate = false },
-            confirmButton = {
-                TextButton(onClick = { showRegionGate = false }) { Text("知道了") }
-            },
-            title = { Text("需要先登录微软账号") },
-            text = {
-                Text("请先添加并登录一个微软账号，之后才能添加离线账户。")
-            }
-        )
-        return
-    }
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -449,35 +431,10 @@ fun LoginMenuDialog(
                             top = 12.dp,
                             end = 12.dp,
                             bottom = 12.dp
-                        ),
+),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-
                         item {
-                            LoginItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(R.string.account_type_microsoft),
-                                onClick = {
-                                    onMicrosoftLogin()
-                                    onDismissRequest()
-                                }
-                            )
-                        }
-
-                        item {
-                            LoginItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(R.string.account_type_local),
-                                onClick = {
-                                    if (RegionGate.canUseOffline(gateContext)) {
-                                        onLocalLogin()
-                                        onDismissRequest()
-                                    } else {
-                                        showRegionGate = true
-                                    }
-                                }
-                            )
-                        }
 
                         item {
                             InfoLayoutTextItem(
@@ -537,8 +494,6 @@ private fun PreviewLoginMenuDialog() {
     MaterialExpressiveTheme {
         LoginMenuDialog(
             onDismissRequest = {},
-            onMicrosoftLogin = {},
-            onLocalLogin = {},
             authServers = emptyList(),
             onAuthServerLogin = {},
             onAddAuthServer = {},
