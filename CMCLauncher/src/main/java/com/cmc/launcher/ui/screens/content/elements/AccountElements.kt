@@ -413,6 +413,7 @@ fun LoginMenuDialog(
                 Text("请先添加并登录一个微软账号，之后才能添加离线账户。")
             }
         )
+        return
     }
     Dialog(
         onDismissRequest = onDismissRequest,
