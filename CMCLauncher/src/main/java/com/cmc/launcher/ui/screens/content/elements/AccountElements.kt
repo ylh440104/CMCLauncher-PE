@@ -435,8 +435,6 @@ fun LoginMenuDialog(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         item {
-
-                        item {
                             InfoLayoutTextItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 title = stringResource(R.string.account_add_new_server_button),
