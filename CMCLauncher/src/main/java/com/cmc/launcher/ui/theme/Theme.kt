@@ -24,7 +24,6 @@ import com.cmc.launcher.setting.enums.isLauncherInDarkTheme
 import com.cmc.launcher.ui.theme.components.activeMaskView
 import com.cmc.launcher.ui.theme.cmc.Cmc
 import com.cmc.launcher.ui.theme.cmc.CmcShapes
-import com.cmc.launcher.ui.theme.cmc.cmcBrand
 import com.cmc.launcher.utils.festival.Festival
 import com.cmc.launcher.utils.festival.LocalFestivals
 import com.cmc.launcher.viewmodel.BackgroundViewModel
@@ -648,14 +647,8 @@ fun CMCLauncherTheme(
         LocalBackgroundViewModel provides backgroundViewModel,
         LocalFestivals provides festivals
     ) {
-        val useDynamicScheme =
-            dynamicColor && colorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         MaterialExpressiveTheme(
-            colorScheme = if (useDynamicScheme) {
-                currentDisplayScheme
-            } else {
-                currentDisplayScheme.cmcBrand(currentDarkTheme)
-            },
+            colorScheme = currentDisplayScheme,
             motionScheme = MotionScheme.standard(),
             shapes = CmcShapes,
             typography = AppTypography,
