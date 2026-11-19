@@ -45,6 +45,18 @@ import com.cmc.launcher.ui.screens.NormalNavKey
 import com.cmc.launcher.ui.screens.TitledNavKey
 import com.cmc.launcher.viewmodel.LocalBackgroundViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.materialkolor.PaletteStyle
+import com.cmc.launcher.ui.theme.ColorThemeType
 
 private data class MirrorOption(
     val type: MirrorSourceType,
@@ -145,6 +157,23 @@ fun MirrorSettingScreen(
                 }
             }
 
+            item {
+                Column(modifier = Modifier.padding(start = 4.dp, top = 16.dp, bottom = 2.dp)) {
+                    Text(
+                        text = "配色",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = "主题色板与自定义色调",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            item {
+                ThemeColorCard()
+            }
             item {
                 Column(modifier = Modifier.padding(start = 4.dp, top = 16.dp, bottom = 2.dp)) {
                     Text(
@@ -441,4 +470,277 @@ private fun MirrorCard(
             )
         }
     }
+}
+
+@Composable
+private fun ThemeColorCard() {
+    val current = AllSettings.launcherColorTheme.state
+    val customColor = Color(AllSettings.launcherCustomColor.state)
+    val customStyle = AllSettings.launcherCustomPaletteStyle.state
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(R.drawable.ic_format_paint_outlined),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp)
+                ) {
+                    Text(
+                        text = "主题色板",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = current.label(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                listOf(
+                    ColorThemeType.DYNAMIC,
+                    ColorThemeType.EMBERMIRE,
+                    ColorThemeType.VELVET_ROSE,
+                    ColorThemeType.MISTWAVE
+                ).forEach { type ->
+                    ColorSwatch(
+                        title = type.shortLabel(),
+                        color = type.previewColor(),
+                        selected = current == type,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        AllSettings.launcherColorTheme.updateState(type)
+                        AllSettings.launcherColorTheme.save(type)
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                listOf(
+                    ColorThemeType.GLACIER,
+                    ColorThemeType.VERDANTFIELD,
+                    ColorThemeType.URBAN_ASH,
+                    ColorThemeType.CUSTOM
+                ).forEach { type ->
+                    ColorSwatch(
+                        title = type.shortLabel(),
+                        color = if (type == ColorThemeType.CUSTOM) customColor else type.previewColor(),
+                        selected = current == type,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        AllSettings.launcherColorTheme.updateState(type)
+                        AllSettings.launcherColorTheme.save(type)
+                    }
+                }
+            }
+
+            if (current == ColorThemeType.CUSTOM) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "种子色",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(customColor)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                    )
+                }
+
+                Slider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 2.dp),
+                    value = Color.red(customColor),
+                    onValueChange = { v ->
+                        val c = Color(v, Color.green(customColor), Color.blue(customColor))
+                        AllSettings.launcherCustomColor.updateState(c.toArgb())
+                    },
+                    onValueChangeFinished = {
+                        AllSettings.launcherCustomColor.save(AllSettings.launcherCustomColor.state)
+                    },
+                    valueRange = 0f..1f
+                )
+                Slider(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = Color.green(customColor),
+                    onValueChange = { v ->
+                        val c = Color(Color.red(customColor), v, Color.blue(customColor))
+                        AllSettings.launcherCustomColor.updateState(c.toArgb())
+                    },
+                    onValueChangeFinished = {
+                        AllSettings.launcherCustomColor.save(AllSettings.launcherCustomColor.state)
+                    },
+                    valueRange = 0f..1f
+                )
+                Slider(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = Color.blue(customColor),
+                    onValueChange = { v ->
+                        val c = Color(Color.red(customColor), Color.green(customColor), v)
+                        AllSettings.launcherCustomColor.updateState(c.toArgb())
+                    },
+                    onValueChangeFinished = {
+                        AllSettings.launcherCustomColor.save(AllSettings.launcherCustomColor.state)
+                    },
+                    valueRange = 0f..1f
+                )
+
+                Text(
+                    text = "色调风格",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+                Column(modifier = Modifier.padding(top = 6.dp)) {
+                    PaletteStyle.entries.forEach { style ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    AllSettings.launcherCustomPaletteStyle.updateState(style)
+                                    AllSettings.launcherCustomPaletteStyle.save(style)
+                                }
+                                .padding(vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = customStyle == style,
+                                onClick = {
+                                    AllSettings.launcherCustomPaletteStyle.updateState(style)
+                                    AllSettings.launcherCustomPaletteStyle.save(style)
+                                }
+                            )
+                            Text(
+                                text = style.styleLabel(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorSwatch(
+    title: String,
+    color: Color,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .clickable { onClick() }
+            .padding(vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(color)
+                .border(
+                    width = if (selected) 2.5.dp else 1.dp,
+                    color = if (selected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                    shape = CircleShape
+                )
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 6.dp)
+        )
+    }
+}
+
+private fun ColorThemeType.label(): String = when (this) {
+    ColorThemeType.DYNAMIC -> "跟随系统取色"
+    ColorThemeType.EMBERMIRE -> "余烬"
+    ColorThemeType.VELVET_ROSE -> "丝绒玫瑰"
+    ColorThemeType.MISTWAVE -> "雾波"
+    ColorThemeType.GLACIER -> "冰川"
+    ColorThemeType.VERDANTFIELD -> "苍野"
+    ColorThemeType.URBAN_ASH -> "都市灰烬"
+    ColorThemeType.VERDANT_DAWN -> "青翠晨曦"
+    ColorThemeType.CUSTOM -> "自定义"
+}
+
+private fun ColorThemeType.shortLabel(): String = when (this) {
+    ColorThemeType.DYNAMIC -> "系统"
+    ColorThemeType.EMBERMIRE -> "余烬"
+    ColorThemeType.VELVET_ROSE -> "丝绒"
+    ColorThemeType.MISTWAVE -> "雾波"
+    ColorThemeType.GLACIER -> "冰川"
+    ColorThemeType.VERDANTFIELD -> "苍野"
+    ColorThemeType.URBAN_ASH -> "灰烬"
+    ColorThemeType.VERDANT_DAWN -> "晨曦"
+    ColorThemeType.CUSTOM -> "自定义"
+}
+
+private fun ColorThemeType.previewColor(): Color = when (this) {
+    ColorThemeType.DYNAMIC -> Color(0xFF7A8CA8)
+    ColorThemeType.EMBERMIRE -> Color(0xFFD4652F)
+    ColorThemeType.VELVET_ROSE -> Color(0xFFC2537A)
+    ColorThemeType.MISTWAVE -> Color(0xFF4F8DA8)
+    ColorThemeType.GLACIER -> Color(0xFF5B9BD5)
+    ColorThemeType.VERDANTFIELD -> Color(0xFF4E8A5C)
+    ColorThemeType.URBAN_ASH -> Color(0xFF6E7076)
+    ColorThemeType.VERDANT_DAWN -> Color(0xFF69A97B)
+    ColorThemeType.CUSTOM -> Color(0xFF3F51B5)
+}
+
+private fun PaletteStyle.styleLabel(): String = when (this) {
+    PaletteStyle.TonalSpot -> "柔和"
+    PaletteStyle.Neutral -> "中性"
+    PaletteStyle.Vibrant -> "鲜艳"
+    PaletteStyle.Expressive -> "表现力"
+    PaletteStyle.Content -> "内容"
+    PaletteStyle.Fidelity -> "忠实"
+    PaletteStyle.Monochrome -> "单色"
+    PaletteStyle.Rainbow -> "虹彩"
+    PaletteStyle.FruitSalad -> "果缤纷"
+    else -> name
 }
