@@ -54,7 +54,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.materialkolor.PaletteStyle
 import com.cmc.launcher.ui.theme.ColorThemeType
 
@@ -585,10 +584,12 @@ private fun ThemeColorCard() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 2.dp),
-                    value = Color.red(customColor),
+                    value = ((AllSettings.launcherCustomColor.state shr 16) and 0xFF) / 255f,
                     onValueChange = { v ->
-                        val c = Color(v, Color.green(customColor), Color.blue(customColor))
-                        AllSettings.launcherCustomColor.updateState(c.toArgb())
+                        val base = AllSettings.launcherCustomColor.state
+                        val r = (v * 255f).toInt().coerceIn(0, 255)
+                        val c = (0xFF shl 24) or (r shl 16) or (base and 0x00FFFF)
+                        AllSettings.launcherCustomColor.updateState(c)
                     },
                     onValueChangeFinished = {
                         AllSettings.launcherCustomColor.save(AllSettings.launcherCustomColor.state)
@@ -597,10 +598,12 @@ private fun ThemeColorCard() {
                 )
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
-                    value = Color.green(customColor),
+                    value = ((AllSettings.launcherCustomColor.state shr 8) and 0xFF) / 255f,
                     onValueChange = { v ->
-                        val c = Color(Color.red(customColor), v, Color.blue(customColor))
-                        AllSettings.launcherCustomColor.updateState(c.toArgb())
+                        val base = AllSettings.launcherCustomColor.state
+                        val g = (v * 255f).toInt().coerceIn(0, 255)
+                        val c = (0xFF shl 24) or (base and 0x00FF0000) or (g shl 8) or (base and 0x000000FF)
+                        AllSettings.launcherCustomColor.updateState(c)
                     },
                     onValueChangeFinished = {
                         AllSettings.launcherCustomColor.save(AllSettings.launcherCustomColor.state)
@@ -609,10 +612,12 @@ private fun ThemeColorCard() {
                 )
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
-                    value = Color.blue(customColor),
+                    value = (AllSettings.launcherCustomColor.state and 0xFF) / 255f,
                     onValueChange = { v ->
-                        val c = Color(Color.red(customColor), Color.green(customColor), v)
-                        AllSettings.launcherCustomColor.updateState(c.toArgb())
+                        val base = AllSettings.launcherCustomColor.state
+                        val b = (v * 255f).toInt().coerceIn(0, 255)
+                        val c = (0xFF shl 24) or (base and 0x00FFFF00) or b
+                        AllSettings.launcherCustomColor.updateState(c)
                     },
                     onValueChangeFinished = {
                         AllSettings.launcherCustomColor.save(AllSettings.launcherCustomColor.state)
