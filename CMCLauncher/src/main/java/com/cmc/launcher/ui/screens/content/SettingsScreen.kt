@@ -29,8 +29,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
 import com.cmc.launcher.R
 import com.cmc.launcher.ui.base.BaseScreen
 import com.cmc.launcher.ui.components.AnimatedDirection
@@ -51,6 +49,8 @@ import com.cmc.launcher.ui.screens.rememberTransitionSpec
 import com.cmc.launcher.viewmodel.ErrorViewModel
 import com.cmc.launcher.viewmodel.EventViewModel
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
+import com.cmc.launcher.ui.kit.CmcSegmented
+import com.cmc.launcher.ui.theme.Space
 
 @Composable
 fun SettingsScreen(
@@ -102,33 +102,17 @@ private fun TabMenu(
 ) {
     val ctx = rememberAnimatedContext(isVisible = isVisible)
     val selected = settingItems.indexOfFirst { it.key == settingsScreenKey }.coerceAtLeast(0)
-
     Column(
         modifier = modifier
             .fillMaxWidth()
             .animated(ctx, from = AnimatedDirection.Top)
+            .padding(horizontal = Space.screenH, vertical = Space.sm)
     ) {
-        PrimaryTabRow(
-            selectedTabIndex = selected,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            settingItems.forEachIndexed { index, item ->
-                Tab(
-                    selected = index == selected,
-                    onClick = { navigateTo(item.key) },
-                    text = {
-                        Text(
-                            text = stringResource(item.textRes),
-                            maxLines = 1,
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    },
-                    icon = {
-                        item.icon()
-                    }
-                )
-            }
-        }
+        CmcSegmented(
+            options = settingItems.map { stringResource(it.textRes) },
+            selectedIndex = selected,
+            onSelect = { navigateTo(settingItems[it].key) }
+        )
     }
 }
 
