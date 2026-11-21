@@ -53,12 +53,8 @@ fun ScalingLabel(
     contentColor: Color = onItemColor(),
     blur: Int = AllSettings.backgroundBlur.state,
 ) {
-    val scale = remember { Animatable(initialValue = 0.95f) }
-    LaunchedEffect(Unit) {
-        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
-    }
     Surface(
-        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor
@@ -106,12 +102,8 @@ fun ScalingLabel(
     color: Color = itemColor(influencedByBackground = influencedByBackground),
     contentColor: Color = onItemColor(),
 ) {
-    val scale = remember { Animatable(initialValue = 0.95f) }
-    LaunchedEffect(Unit) {
-        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
-    }
     Surface(
-        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+        modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor,

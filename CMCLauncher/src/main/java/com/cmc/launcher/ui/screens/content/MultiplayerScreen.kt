@@ -57,6 +57,10 @@ import com.cmc.launcher.utils.file.shareFile
 import com.cmc.launcher.viewmodel.EventViewModel
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
 import com.cmc.launcher.viewmodel.sendToast
+import com.cmc.launcher.ui.theme.Space
+import com.cmc.launcher.ui.components.ScreenTypeLayout
+import com.cmc.launcher.ui.components.ScreenType
+import androidx.compose.foundation.layout.heightIn
 
 @Composable
 fun MultiplayerScreen(
@@ -69,36 +73,52 @@ fun MultiplayerScreen(
         screenKey = NormalNavKey.Multiplayer,
         currentKey = backScreenViewModel.mainScreen.currentKey
     ) { isVisible ->
-        AnimatedRow(
-            modifier = Modifier.fillMaxSize(),
-            isVisible = isVisible,
-            stagger = false,
-        ) {
-            AnimatedItem { ctx ->
-                TutorialMenu(
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .animated(ctx, from = AnimatedDirection.Left)
-                        .padding(start = 12.dp)
-                )
+        ScreenTypeLayout(modifier = Modifier.fillMaxSize()) { screenType ->
+            val wide = screenType == ScreenType.Tablet
+            val shareLogs = {
+                val logFile = PathManager.FILE_TERRACOTTA_LOG
+                if (logFile.exists()) {
+                    shareFile(context, logFile)
+                } else {
+                    eventViewModel.sendToast(androidText(R.string.terracotta_export_log_share_null))
+                }
+                Unit
             }
 
-            AnimatedItem { ctx ->
-                MainMenu(
+            if (wide) {
+                Row(modifier = Modifier.fillMaxSize()) {
+                    MainMenu(
+                        modifier = Modifier
+                            .weight(0.5f)
+                            .padding(start = Space.screenH),
+                        eventViewModel = eventViewModel,
+                        onShareLogs = shareLogs
+                    )
+                    TutorialMenu(
+                        modifier = Modifier
+                            .weight(0.5f)
+                            .padding(horizontal = Space.screenH)
+                    )
+                }
+            } else {
+                Column(
                     modifier = Modifier
-                        .weight(0.5f)
-                        .animated(ctx, from = AnimatedDirection.Right)
-                        .padding(end = 12.dp),
-                    eventViewModel = eventViewModel,
-                    onShareLogs = {
-                        val logFile = PathManager.FILE_TERRACOTTA_LOG
-                        if (logFile.exists()) {
-                            shareFile(context, logFile)
-                        } else {
-                            eventViewModel.sendToast(androidText(R.string.terracotta_export_log_share_null))
-                        }
-                    }
-                )
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = Space.xl)
+                ) {
+                    MainMenu(
+                        modifier = Modifier.fillMaxWidth(),
+                        eventViewModel = eventViewModel,
+                        onShareLogs = shareLogs
+                    )
+                    TutorialMenu(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 360.dp)
+                            .padding(horizontal = Space.screenH)
+                    )
+                }
             }
         }
     }

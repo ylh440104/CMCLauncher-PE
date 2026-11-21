@@ -85,40 +85,7 @@ fun Modifier.animated(
     from: AnimatedDirection = AnimatedDirection.Auto,
     distance: Dp = 40.dp,
     fade: Boolean = true
-): Modifier = this.graphicsLayer {
-    val progress = ctx.progress.value
-    val direction = if (from == AnimatedDirection.Auto) ctx.defaultDirection else from
-    if (direction != AnimatedDirection.None) {
-
-        val hiddenOffset = distance.toPx() * ctx.distanceScale.value * (1f - progress)
-        when (direction) {
-            AnimatedDirection.Top -> {
-                translationX = 0f
-                translationY = -hiddenOffset
-            }
-            AnimatedDirection.Bottom -> {
-                translationX = 0f
-                translationY = hiddenOffset
-            }
-            AnimatedDirection.Left -> {
-                translationX = -hiddenOffset
-                translationY = 0f
-            }
-            AnimatedDirection.Right -> {
-                translationX = hiddenOffset
-                translationY = 0f
-            }
-            else -> {
-                translationX = 0f
-                translationY = 0f
-            }
-        }
-    } else {
-        translationX = 0f
-        translationY = 0f
-    }
-    alpha = if (fade) ctx.alphaProgress.value else 1f
-}
+): Modifier = this
 
 @Composable
 private fun swapAnimateProgressAsState(

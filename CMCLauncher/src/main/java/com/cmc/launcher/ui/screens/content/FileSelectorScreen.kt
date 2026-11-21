@@ -1,23 +1,26 @@
 package com.cmc.launcher.ui.screens.content
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.nonInteractiveScrollbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,29 +30,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import com.cmc.launcher.R
 import com.cmc.launcher.ui.base.BaseScreen
-import com.cmc.launcher.ui.components.AnimatedDirection
-import com.cmc.launcher.ui.components.BackgroundCard
-import com.cmc.launcher.ui.components.CardTitleLayout
-import com.cmc.launcher.ui.components.MarqueeText
-import com.cmc.launcher.ui.components.ScalingActionButton
-import com.cmc.launcher.ui.components.ScalingLabel
-import com.cmc.launcher.ui.components.animated
-import com.cmc.launcher.ui.components.rememberAnimatedContext
+import com.cmc.launcher.ui.kit.CmcCard
 import com.cmc.launcher.ui.screens.NormalNavKey
 import com.cmc.launcher.ui.screens.TitledNavKey
 import com.cmc.launcher.ui.screens.content.elements.BaseFileItem
 import com.cmc.launcher.ui.screens.content.elements.CreateNewDirDialog
 import com.cmc.launcher.ui.screens.navigateTo
-import com.cmc.launcher.ui.theme.itemColor
-import com.cmc.launcher.ui.theme.onItemColor
-import com.cmc.launcher.utils.animation.getAnimateTween
+import com.cmc.launcher.ui.theme.Alpha
+import com.cmc.launcher.ui.theme.Radius
+import com.cmc.launcher.ui.theme.Space
 import com.cmc.launcher.utils.file.sortWithFileName
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
@@ -74,7 +71,6 @@ fun NavBackStack<TitledNavKey>.navigateToFileSelector(
 
 private sealed interface SelectorOperation {
     data object None : SelectorOperation
-
     data object CreateDir : SelectorOperation
 }
 
@@ -83,16 +79,14 @@ private fun SelectorOperation(
     operation: SelectorOperation,
     onChange: (SelectorOperation) -> Unit,
     currentPath: String,
-    onCreatePath: (File) -> Unit,
+    onCreatePath: (File) -> Unit
 ) {
     when (operation) {
         SelectorOperation.None -> {}
         SelectorOperation.CreateDir -> {
             CreateNewDirDialog(
                 onDismissRequest = { onChange(SelectorOperation.None) },
-                createDir = {
-                    onCreatePath(File(currentPath, it))
-                }
+                createDir = { onCreatePath(File(currentPath, it)) }
             )
         }
     }
@@ -104,23 +98,18 @@ fun FileSelectorScreen(
     backScreenViewModel: ScreenBackStackViewModel,
     back: () -> Unit
 ) {
-
-    var currentPath by remember(key.startPath) {
-        mutableStateOf(key.startPath)
-    }
+    var currentPath by remember(key.startPath) { mutableStateOf(key.startPath) }
     var files by remember { mutableStateOf<List<File>>(emptyList()) }
     var operation by remember { mutableStateOf<SelectorOperation>(SelectorOperation.None) }
 
     LaunchedEffect(currentPath, key.selectFile) {
-        val loadedFiles = withContext(Dispatchers.IO) {
+        files = withContext(Dispatchers.IO) {
             val path = File(currentPath)
-            path.listFiles()?.toList()?.filter {
-                if (!key.selectFile) it.isDirectory else true
-            }?.sortedWith { o1, o2 ->
-                sortWithFileName(o1, o2)
-            } ?: emptyList()
+            path.listFiles()?.toList()
+                ?.filter { if (!key.selectFile) it.isDirectory else true }
+                ?.sortedWith { o1, o2 -> sortWithFileName(o1, o2) }
+                ?: emptyList()
         }
-        files = loadedFiles
     }
 
     val scope = rememberCoroutineScope()
@@ -128,9 +117,7 @@ fun FileSelectorScreen(
         scope.launch(Dispatchers.IO) {
             val newDir = File(currentPath, dirName)
             if (newDir.mkdirs()) {
-                withContext(Dispatchers.Main) {
-                    currentPath = newDir.absolutePath
-                }
+                withContext(Dispatchers.Main) { currentPath = newDir.absolutePath }
             }
         }
     }
@@ -139,9 +126,7 @@ fun FileSelectorScreen(
         operation = operation,
         onChange = { operation = it },
         currentPath = currentPath,
-        onCreatePath = { newDir ->
-            createDir(newDir.name)
-        }
+        onCreatePath = { newDir -> createDir(newDir.name) }
     )
 
     BaseScreen(
@@ -151,153 +136,64 @@ fun FileSelectorScreen(
     ) { isVisible ->
         Column(
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp)
                 .fillMaxSize()
+                .padding(horizontal = Space.screenH)
         ) {
-            LeftActionMenu(
-                isVisible = isVisible,
+            Spacer(Modifier.height(Space.sm))
+
+            Toolbar(
                 backEnabled = currentPath != key.startPath,
-                backToParent = {
-                    File(currentPath).parentFile?.let {
-                        currentPath = it.absolutePath
-                    }
+                onBack = {
+                    File(currentPath).parentFile?.let { currentPath = it.absolutePath }
                 },
-                createDir = { operation = SelectorOperation.CreateDir },
-                selectDir = {
-                    val path = currentPath
-                    key.onSelected(path)
+                onCreateDir = { operation = SelectorOperation.CreateDir },
+                onSelect = {
+                    key.onSelected(currentPath)
                     back()
-                },
-                modifier = Modifier.fillMaxWidth()
+                }
             )
-            FilesLayout(
-                isVisible = isVisible,
-                currentPath = currentPath,
-                updatePath = { path ->
-                    currentPath = path
-                },
-                files = files,
-                selectFile = key.selectFile,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(top = 8.dp)
-            )
-        }
-    }
-}
 
-@Composable
-private fun LeftActionMenu(
-    isVisible: Boolean,
-    backEnabled: Boolean,
-    backToParent: () -> Unit,
-    selectDir: () -> Unit,
-    createDir: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val ctx = rememberAnimatedContext(isVisible = isVisible)
-    Row(
-        modifier = modifier.animated(ctx, from = AnimatedDirection.Left),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ScalingActionButton(
-            enabled = backEnabled,
-            modifier = Modifier.weight(1f),
-            onClick = backToParent
-        ) {
-            MarqueeText(text = stringResource(R.string.files_back_to_parent))
-        }
-        ScalingActionButton(
-            modifier = Modifier.weight(1f),
-            onClick = createDir
-        ) {
-            MarqueeText(text = stringResource(R.string.files_create_dir))
-        }
-        ScalingActionButton(
-            modifier = Modifier.weight(1f),
-            onClick = selectDir
-        ) {
-            MarqueeText(text = stringResource(R.string.files_select_dir))
-        }
-    }
-}
+            Spacer(Modifier.height(Space.sm))
 
-@Composable
-private fun TopPathHeader(
-    path: String,
-    modifier: Modifier = Modifier,
-) {
-    CardTitleLayout(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 12.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.files_current_path, path),
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-    }
-}
+            PathBar(path = currentPath)
 
-@Composable
-private fun FilesLayout(
-    isVisible: Boolean,
-    currentPath: String,
-    files: List<File>,
-    updatePath: (String) -> Unit,
-    selectFile: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val ctx = rememberAnimatedContext(isVisible = isVisible)
-
-    BackgroundCard(
-        modifier = modifier.animated(ctx, from = AnimatedDirection.Right),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopPathHeader(
-                modifier = Modifier.fillMaxWidth(),
-                path = currentPath
-            )
+            Spacer(Modifier.height(Space.sm))
 
             if (files.isNotEmpty()) {
-                val scrollState = rememberLazyListState()
+                val listState = rememberLazyListState()
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                        .nonInteractiveScrollbar(
-                            state = scrollState.scrollIndicatorState!!,
-                            orientation = Orientation.Vertical,
-                        ),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                    state = scrollState,
+                        .weight(1f),
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = Space.xl),
+                    verticalArrangement = Arrangement.spacedBy(Space.sm)
                 ) {
-                    items(files, key = { it.absolutePath }) { file ->
-                        FileItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
-                            file = file,
+                    items(files.size) { index ->
+                        val file = files[index]
+                        CmcCard(
+                            shape = RoundedCornerShape(Radius.medium),
                             onClick = {
-                                if (!selectFile && file.isDirectory) {
-                                    updatePath(file.absolutePath)
+                                if (!key.selectFile && file.isDirectory) {
+                                    currentPath = file.absolutePath
                                 }
                             }
-                        )
+                        ) {
+                            BaseFileItem(file = file)
+                        }
                     }
                 }
             } else {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    ScalingLabel(
-                        text = stringResource(R.string.files_no_selectable_content)
+                    Text(
+                        text = stringResource(R.string.files_no_selectable_content),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -306,27 +202,113 @@ private fun FilesLayout(
 }
 
 @Composable
-private fun FileItem(
-    modifier: Modifier = Modifier,
-    file: File,
-    onClick: () -> Unit = {},
-    color: Color = itemColor(),
-    contentColor: Color = onItemColor(),
+private fun Toolbar(
+    backEnabled: Boolean,
+    onBack: () -> Unit,
+    onCreateDir: () -> Unit,
+    onSelect: () -> Unit
 ) {
-    val scale = remember { Animatable(initialValue = 0.95f) }
-    LaunchedEffect(Unit) {
-        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    Row(horizontalArrangement = Arrangement.spacedBy(Space.sm)) {
+        ToolbarButton(
+            modifier = Modifier.weight(1f),
+            icon = R.drawable.ic_arrow_left_rounded,
+            text = stringResource(R.string.files_back_to_parent),
+            enabled = backEnabled,
+            highlighted = false,
+            onClick = onBack
+        )
+        ToolbarButton(
+            modifier = Modifier.weight(1f),
+            icon = R.drawable.ic_create_new_folder_filled,
+            text = stringResource(R.string.files_create_dir),
+            enabled = true,
+            highlighted = false,
+            onClick = onCreateDir
+        )
+        ToolbarButton(
+            modifier = Modifier.weight(1f),
+            icon = R.drawable.ic_check,
+            text = stringResource(R.string.files_select_dir),
+            enabled = true,
+            highlighted = true,
+            onClick = onSelect
+        )
+    }
+}
+
+@Composable
+private fun ToolbarButton(
+    modifier: Modifier = Modifier,
+    icon: Int,
+    text: String,
+    enabled: Boolean,
+    highlighted: Boolean,
+    onClick: () -> Unit
+) {
+    val container = when {
+        !enabled -> MaterialTheme.colorScheme.surfaceContainer
+        highlighted -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+    val content = when {
+        !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = Alpha.medium)
+        highlighted -> MaterialTheme.colorScheme.onPrimary
+        else -> MaterialTheme.colorScheme.onSurface
     }
     Surface(
-        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-        color = color,
-        contentColor = contentColor,
-        shape = MaterialTheme.shapes.large,
-        onClick = onClick
+        modifier = modifier
+            .height(44.dp)
+            .clip(RoundedCornerShape(Radius.medium))
+            .clickable(enabled = enabled, onClick = onClick),
+        color = container,
+        contentColor = content,
+        shape = RoundedCornerShape(Radius.medium)
     ) {
-        BaseFileItem(
-            file = file,
-            modifier = Modifier.padding(all = 12.dp)
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = Space.sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.width(Space.xs))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun PathBar(path: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        shape = RoundedCornerShape(Radius.medium)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = Space.md, vertical = Space.sm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_folder_outlined),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.width(Space.sm))
+            Text(
+                text = path,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
