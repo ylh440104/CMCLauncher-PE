@@ -82,6 +82,10 @@ import com.cmc.launcher.viewmodel.ErrorViewModel
 import com.cmc.launcher.viewmodel.EventViewModel
 import com.cmc.launcher.viewmodel.ModpackImportViewModel
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
+import com.cmc.launcher.ui.theme.Space
+import com.cmc.launcher.ui.theme.Radius
+import com.cmc.launcher.ui.kit.CmcSection
+import com.cmc.launcher.ui.kit.CmcCard
 
 fun ScreenBackStackViewModel.navigateToDownload(targetScreen: TitledNavKey? = null) {
     downloadScreen.clearWith(targetScreen ?: downloadGameScreen)
@@ -171,12 +175,9 @@ private data class HubEntry(
     val target: TitledNavKey,
     val title: String,
     val caption: String,
-    @DrawableRes val icon: Int,
-    val container: Color,
-    val content: Color
+    @DrawableRes val icon: Int
 )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DownloadHub(
     isVisible: Boolean,
@@ -184,154 +185,90 @@ private fun DownloadHub(
     onOpenCategory: (TitledNavKey) -> Unit
 ) {
     val ctx = rememberAnimatedContext(isVisible = isVisible)
-    val scheme = MaterialTheme.colorScheme
 
     val entries = listOf(
-        HubEntry(
-            target = backScreenViewModel.downloadGameScreen,
-            title = "游戏本体",
-            caption = "原版与加载器安装",
-            icon = R.drawable.ic_sports_esports_outlined,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.primary
-        ),
-        HubEntry(
-            target = backScreenViewModel.downloadModPackScreen,
-            title = "整合包",
-            caption = "一键装配完整环境",
-            icon = R.drawable.ic_package_2_outlined,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.primary
-        ),
-        HubEntry(
-            target = backScreenViewModel.downloadModScreen,
-            title = "模组",
-            caption = "扩展玩法内容",
-            icon = R.drawable.ic_extension_outlined,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.primary
-        ),
-        HubEntry(
-            target = backScreenViewModel.downloadResourcePackScreen,
-            title = "资源包",
-            caption = "替换材质与音效",
-            icon = R.drawable.ic_format_paint_outlined,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.primary
-        ),
-        HubEntry(
-            target = backScreenViewModel.downloadSavesScreen,
-            title = "存档",
-            caption = "下载他人世界",
-            icon = R.drawable.ic_public,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.primary
-        ),
-        HubEntry(
-            target = backScreenViewModel.downloadShadersScreen,
-            title = "光影包",
-            caption = "提升画面表现",
-            icon = R.drawable.ic_lightbulb,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.primary
-        ),
-        HubEntry(
-            target = NormalNavKey.SearchId,
-            title = "按 ID 查找",
-            caption = "已知项目编号直达",
-            icon = R.drawable.ic_card,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.onSurfaceVariant
-        ),
-        HubEntry(
-            target = backScreenViewModel.downloadFavoritesScreen,
-            title = "我的收藏",
-            caption = "稍后再看的内容",
-            icon = R.drawable.ic_favorite_outlined,
-            container = scheme.surfaceContainerHigh,
-            content = scheme.onSurfaceVariant
-        )
+        HubEntry(backScreenViewModel.downloadGameScreen, "游戏本体", "原版与加载器安装", R.drawable.ic_sports_esports_outlined),
+        HubEntry(backScreenViewModel.downloadModPackScreen, "整合包", "一键装配完整环境", R.drawable.ic_package_2_outlined),
+        HubEntry(backScreenViewModel.downloadModScreen, "模组", "扩展玩法内容", R.drawable.ic_extension_outlined),
+        HubEntry(backScreenViewModel.downloadResourcePackScreen, "资源包", "替换材质与音效", R.drawable.ic_format_paint_outlined),
+        HubEntry(backScreenViewModel.downloadSavesScreen, "存档", "下载他人世界", R.drawable.ic_public),
+        HubEntry(backScreenViewModel.downloadShadersScreen, "光影包", "提升画面表现", R.drawable.ic_lightbulb),
+        HubEntry(NormalNavKey.SearchId, "按 ID 查找", "已知项目编号直达", R.drawable.ic_card),
+        HubEntry(backScreenViewModel.downloadFavoritesScreen, "我的收藏", "稍后再看的内容", R.drawable.ic_favorite_outlined)
     )
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+    androidx.compose.foundation.lazy.LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .animated(ctx, from = AnimatedDirection.Top),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        contentPadding = PaddingValues(
+            start = Space.screenH,
+            end = Space.screenH,
+            top = Space.sm,
+            bottom = Space.xxl
+        ),
+        verticalArrangement = Arrangement.spacedBy(Space.sm)
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Column(
-                modifier = Modifier.padding(start = 4.dp, top = 4.dp, bottom = 6.dp)
-            ) {
+        item {
+            Column(modifier = Modifier.padding(start = Space.xs, top = Space.xs, bottom = Space.xs)) {
                 Text(
                     text = "下载中心",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = scheme.onBackground
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "内容来自 Modrinth",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = scheme.onSurfaceVariant
-                )
-            }
-        }
-
-        items(entries) { entry ->
-            HubCard(entry = entry, onClick = { onOpenCategory(entry.target) })
-        }
-    }
-}
-
-@Composable
-private fun HubCard(
-    entry: HubEntry,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(132.dp),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = entry.container),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(MaterialTheme.shapes.large)
-                    .background(entry.content.copy(alpha = 0.14f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    modifier = Modifier.size(23.dp),
-                    painter = painterResource(entry.icon),
-                    contentDescription = null,
-                    tint = entry.content
-                )
-            }
-
-            Column {
-                Text(
-                    text = entry.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = entry.content,
-                    maxLines = 1
-                )
-                Text(
-                    text = entry.caption,
                     style = MaterialTheme.typography.bodySmall,
-                    color = entry.content.copy(alpha = 0.75f),
-                    maxLines = 1
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+
+        item { CmcSection(title = "分类", caption = "选择要浏览的内容类型") }
+
+        items(entries.size) { index ->
+            val entry = entries[index]
+            CmcCard(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(Radius.medium),
+                onClick = { onOpenCategory(entry.target) }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(Radius.small))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(entry.icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Spacer(Modifier.width(Space.md))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = entry.title,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = entry.caption,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                    }
+                    Icon(
+                        painter = painterResource(R.drawable.ic_arrow_right_rounded),
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

@@ -112,6 +112,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.math.roundToInt
+import com.cmc.launcher.ui.theme.Space
+import com.cmc.launcher.ui.theme.Radius
+import com.cmc.launcher.ui.theme.Alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
 
 private class VersionsScreenViewModel : ViewModel() {
 
@@ -267,24 +272,46 @@ fun VersionsManageScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = Space.screenH, vertical = Space.sm),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                FilledTonalButton(
-                    onClick = { showPathSheet = true }
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(Radius.medium))
+                        .clickable { showPathSheet = true },
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    shape = RoundedCornerShape(Radius.medium),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = Alpha.strong)
+                    )
                 ) {
-                    Icon(
-                        modifier = Modifier.size(18.dp),
-                        painter = painterResource(R.drawable.ic_folder_filled),
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = currentPathTitle,
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = Space.md, vertical = Space.sm),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(16.dp),
+                            painter = painterResource(R.drawable.ic_folder_filled),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(Space.sm))
+                        Text(
+                            text = currentPathTitle,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            modifier = Modifier.size(16.dp),
+                            painter = painterResource(R.drawable.ic_arrow_drop_down_rounded),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
