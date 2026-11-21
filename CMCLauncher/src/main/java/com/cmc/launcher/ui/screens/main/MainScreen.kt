@@ -142,7 +142,7 @@ fun MainScreen(
     ) {
         Column(Modifier.fillMaxSize()) {
             TopBar(
-                title = if (inLauncherScreen) BuildKeys.LAUNCHER_NAME else (mainScreenKey as? TitledNavKey)?.title,
+                title = if (inLauncherScreen) androidText(BuildKeys.LAUNCHER_NAME) else (mainScreenKey as? TitledNavKey)?.title,
                 subtitle = (mainScreenKey as? BackStackNavKey<*>)?.currentKey?.title,
                 showBack = !inLauncherScreen,
                 onBack = {
@@ -298,13 +298,16 @@ private fun TopBar(
                     overflow = TextOverflow.Ellipsis
                 )
                 if (subtitle != null) {
-                    AndroidStringText(
-                        text = subtitle,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
+                    ) {
+                        AndroidStringText(
+                            text = subtitle,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }

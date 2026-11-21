@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.text.DecimalFormat
 
+@Composable
 private fun defaultSliderColors(): SliderColors = SliderDefaults.colors()
 
 @Composable

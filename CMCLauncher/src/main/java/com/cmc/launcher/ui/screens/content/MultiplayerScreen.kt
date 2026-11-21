@@ -61,6 +61,7 @@ import com.cmc.launcher.ui.theme.Space
 import com.cmc.launcher.ui.components.ScreenTypeLayout
 import com.cmc.launcher.ui.components.ScreenType
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Row
 
 @Composable
 fun MultiplayerScreen(
