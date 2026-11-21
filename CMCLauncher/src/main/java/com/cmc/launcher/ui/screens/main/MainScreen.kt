@@ -129,6 +129,8 @@ fun MainScreen(
 
     val isBackgroundValid = LocalBackgroundViewModel.current?.isValid == true
     val launcherBackgroundOpacity = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
     val surface = if (isBackgroundValid) {
         backgroundColor().copy(alpha = launcherBackgroundOpacity)
     } else {
@@ -146,7 +148,7 @@ fun MainScreen(
                 subtitle = (mainScreenKey as? BackStackNavKey<*>)?.currentKey?.title,
                 showBack = !inLauncherScreen,
                 onBack = {
-                    LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher?.onBackPressed()
+                    backDispatcher?.onBackPressed()
                         ?: screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
                 },
                 onHome = toMainScreen,
