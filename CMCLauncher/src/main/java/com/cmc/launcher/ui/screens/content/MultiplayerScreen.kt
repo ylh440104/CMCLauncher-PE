@@ -102,22 +102,13 @@ fun MultiplayerScreen(
                     )
                 }
             } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(bottom = Space.xl)
-                ) {
+                Column(modifier = Modifier.fillMaxSize()) {
                     MainMenu(
-                        modifier = Modifier.fillMaxWidth(),
-                        eventViewModel = eventViewModel,
-                        onShareLogs = shareLogs
-                    )
-                    TutorialMenu(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 360.dp)
-                            .padding(horizontal = Space.screenH)
+                            .weight(1f),
+                        eventViewModel = eventViewModel,
+                        onShareLogs = shareLogs
                     )
                 }
             }
@@ -171,7 +162,8 @@ private fun MultiplayerOperation(
 private fun MainMenu(
     modifier: Modifier = Modifier,
     eventViewModel: EventViewModel,
-    onShareLogs: () -> Unit
+    onShareLogs: () -> Unit,
+    scrollable: Boolean = true
 ) {
     val context = LocalContext.current
     var operation by remember { mutableStateOf<MultiplayerOperation>(MultiplayerOperation.None) }
@@ -195,7 +187,7 @@ private fun MainMenu(
 
     Column(
         modifier = modifier
-            .verticalScroll(rememberScrollState())
+            .then(if (scrollable) Modifier.verticalScroll(rememberScrollState()) else Modifier)
             .padding(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
