@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -48,6 +49,7 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
@@ -55,11 +57,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.movtery.cardgrid.state.rememberCardGridState
-import com.movtery.guide.GuideSide
-import com.movtery.guide.guideNode
-import com.movtery.petlib.PetAnimation
-import com.movtery.petlib.PetTapReaction
 import com.cmc.launcher.BuildKeys
 import com.cmc.launcher.R
 import com.cmc.launcher.game.account.Account
@@ -81,10 +78,6 @@ import com.cmc.launcher.ui.components.ScreenTypeLayout
 import com.cmc.launcher.ui.components.animated
 import com.cmc.launcher.ui.components.rememberAnimatedContext
 import com.cmc.launcher.ui.guide.GuideKeys
-import com.cmc.launcher.ui.theme.cmc.Cmc
-import com.cmc.launcher.ui.theme.cmc.CmcAction
-import com.cmc.launcher.ui.theme.cmc.CmcHeroBanner
-import com.cmc.launcher.ui.theme.cmc.CmcQuickActionRow
 import com.cmc.launcher.ui.screens.NestedNavKey
 import com.cmc.launcher.ui.screens.NormalNavKey
 import com.cmc.launcher.ui.screens.content.elements.CommonVersionInfoLayout
@@ -98,16 +91,24 @@ import com.cmc.launcher.ui.screens.content.home.rememberActionMenuDragState
 import com.cmc.launcher.ui.screens.content.home.server.LocalServerCardQuickPlay
 import com.cmc.launcher.ui.screens.content.home.version.LocalHomeCardLauncher
 import com.cmc.launcher.ui.screens.content.home.version.LocalHomeCardVersionSettings
+import com.cmc.launcher.ui.theme.Space
+import com.cmc.launcher.ui.theme.cmc.Cmc
+import com.cmc.launcher.ui.theme.cmc.CmcAction
+import com.cmc.launcher.ui.theme.cmc.CmcHeroBanner
+import com.cmc.launcher.ui.theme.cmc.CmcQuickActionRow
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
+import com.movtery.cardgrid.state.rememberCardGridState
+import com.movtery.guide.GuideSide
+import com.movtery.guide.guideNode
+import com.movtery.petlib.PetAnimation
+import com.movtery.petlib.PetTapReaction
+import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.math.roundToInt
 
 private const val ContentWeight = 7f
 private const val ActionMenuWeight = 3f
-
 private val ActionMenuOuterPadding = 12.dp
-
 @Composable
 fun LauncherScreen(
     backStackViewModel: ScreenBackStackViewModel,
@@ -127,12 +128,9 @@ fun LauncherScreen(
         )
         dragState.dockedSide = dockedSide
         dragState.isRtl = isRtl
-
         LaunchedEffect(isVisible) {
-
             if (!isVisible) dragState.onDragCancel()
         }
-
         ScreenTypeLayout(
             modifier = Modifier
                 .fillMaxSize()
@@ -144,12 +142,9 @@ fun LauncherScreen(
             dragState.parentWidthPx = parentWidthPx
             dragState.outerPaddingPx = with(LocalDensity.current) { ActionMenuOuterPadding.toPx() }
             dragState.menuSpanPx = parentWidthPx * (ActionMenuWeight / (ActionMenuWeight + ContentWeight))
-
             val effectiveSide = dragState.previewSide ?: dockedSide
-
             val cardWidth = maxWidth * (ActionMenuWeight / (ActionMenuWeight + ContentWeight)) - ActionMenuOuterPadding
             val cardHeight = maxHeight - ActionMenuOuterPadding * 2
-
             val toAccountManageScreen: () -> Unit = {
                 backStackViewModel.mainScreen.navigateTo(
                     screenKey = NormalNavKey.AccountManager(FirstLoginMenu.NONE)
@@ -166,10 +161,8 @@ fun LauncherScreen(
                     navigateToVersions(version)
                 }
             }
-
             val isPortraitLayout = screenType == ScreenType.Phone || maxWidth < 600.dp
             val isActionMenuTaller = screenType == ScreenType.Tablet && !isPortraitLayout
-
             if (isPortraitLayout) {
                 CompositionLocalProvider(
                     LocalUriHandler provides object : UriHandler {
@@ -224,13 +217,10 @@ fun LauncherScreen(
                 }
                 }
             } else {
-
             Row(modifier = Modifier.fillMaxSize()) {
-
                 if (dockedSide == ActionMenuSide.START) {
                     Spacer(modifier = Modifier.weight(ActionMenuWeight))
                 }
-
                 CompositionLocalProvider(
                     LocalUriHandler provides object : UriHandler {
                         override fun openUri(uri: String) {
@@ -263,12 +253,10 @@ fun LauncherScreen(
                     )
                 }
                 }
-
                 if (dockedSide == ActionMenuSide.END) {
                     Spacer(modifier = Modifier.weight(ActionMenuWeight))
                 }
             }
-
             CompositionLocalProvider(LocalActionMenuDrag provides dragState) {
                 Box(
                     modifier = Modifier
@@ -301,7 +289,6 @@ fun LauncherScreen(
         }
     }
 }
-
 @Composable
 private fun HomeShortcuts(
     onDownload: () -> Unit,
@@ -354,7 +341,6 @@ private fun HomeShortcuts(
         )
     }
 }
-
 @Composable
 private fun ContentMenu(
     isVisible: Boolean,
@@ -365,7 +351,6 @@ private fun ContentMenu(
 ) {
     val ctx = rememberAnimatedContext(isVisible = isVisible)
     val gridState = rememberCardGridState()
-
     CompositionLocalProvider(
         LocalHomeCardLauncher provides onLaunchGame,
         LocalHomeCardVersionSettings provides onOpenVersionSettings,
@@ -380,7 +365,6 @@ private fun ContentMenu(
         )
     }
 }
-
 @Composable
 private fun AccountAvatarCenter(
     modifier: Modifier = Modifier,
@@ -410,7 +394,6 @@ private fun AccountAvatarCenter(
                     contentDescription = null
                 )
             }
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -429,7 +412,6 @@ private fun AccountAvatarCenter(
         }
     }
 }
-
 @Composable
 private fun AccountAvatarRow(
     modifier: Modifier = Modifier,
@@ -455,7 +437,6 @@ private fun AccountAvatarRow(
                 contentDescription = null
             )
         }
-
         Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -474,7 +455,6 @@ private fun AccountAvatarRow(
         }
     }
 }
-
 @Composable
 private fun VersionsContent(
     onLaunchGame: (Version?) -> Unit,
@@ -484,7 +464,6 @@ private fun VersionsContent(
 ) {
     val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
     val isRefreshing by VersionsManager.isRefreshing.collectAsStateWithLifecycle()
-
     var showList by remember { mutableStateOf(false) }
     var versionManagerRow by remember { mutableStateOf<LayoutCoordinates?>(null) }
     Column(modifier = modifier) {
@@ -524,12 +503,10 @@ private fun VersionsContent(
                     }
                 }
             }
-
             val menuAnchor = versionManagerRow
             val menuAnchorBounds = menuAnchor?.boundsInParent()
             val menuAnchorX = menuAnchorBounds?.left ?: 0f
             val menuAnchorHeight = menuAnchorBounds?.height ?: 0f
-
             DropdownMenu(
                 expanded = showList && menuAnchor != null,
                 onDismissRequest = { showList = false },
@@ -576,7 +553,6 @@ private fun VersionsContent(
                 }
             }
         }
-
         ScalingActionButton(
             modifier = Modifier
                 .fillMaxWidth()
@@ -592,7 +568,6 @@ private fun VersionsContent(
         )
     }
 }
-
 @Composable
 private fun ActionMenuCardContent(
     modifier: Modifier = Modifier,
@@ -613,7 +588,6 @@ private fun ActionMenuCardContent(
             modifier = Modifier.fillMaxSize()
         ) {
             val (accountAvatar, versionManagerLayout) = createRefs()
-
             AccountAvatarCenter(
                 modifier = Modifier
                     .constrainAs(accountAvatar) {
@@ -628,7 +602,6 @@ private fun ActionMenuCardContent(
                 account = account,
                 onClick = toAccountManageScreen
             )
-
             VersionsContent(
                 modifier = Modifier.constrainAs(versionManagerLayout) {
                     start.linkTo(parent.start)
@@ -642,7 +615,6 @@ private fun ActionMenuCardContent(
         }
     }
 }
-
 @Composable
 private fun ActionMenuTallerContent(
     modifier: Modifier = Modifier,
@@ -654,7 +626,6 @@ private fun ActionMenuTallerContent(
     toVersionSettingsScreen: () -> Unit,
 ) {
     val refreshWardrobe by AccountsManager.refreshWardrobe.collectAsStateWithLifecycle()
-
     Column(
         modifier = Modifier
             .actionMenuDragAnchor()
@@ -666,11 +637,9 @@ private fun ActionMenuTallerContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-
         val yaw = Math.toRadians(
             ((if (dockedSide == ActionMenuSide.START) 35.0 else -(35.0)) * (if (isRtl) -1 else 1))
         ).toFloat()
-
         val armModel = account?.skinModelType?.toArmModel()
         val skinStamp = account?.getSkinFile()?.lastModified()
         val capeStamp = account?.getCapeFile()?.lastModified()
@@ -686,7 +655,6 @@ private fun ActionMenuTallerContent(
                     ?.inputStream()?.use { it.readBytes() }
             }
         }
-
         PetModelView(
             modifier = Modifier
                 .weight(1f)
@@ -699,7 +667,6 @@ private fun ActionMenuTallerContent(
             tapReaction = PetTapReaction.Interact,
             dragYaw = false
         )
-
         BackgroundCard(
             modifier = Modifier
                 .guideNode(
@@ -716,7 +683,6 @@ private fun ActionMenuTallerContent(
                 account = account,
             )
         }
-
         BackgroundCard(
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.extraLarge,
@@ -730,7 +696,6 @@ private fun ActionMenuTallerContent(
         }
     }
 }
-
 @Composable
 private fun ActionMenu(
     isVisible: Boolean,
@@ -745,15 +710,12 @@ private fun ActionMenu(
     toVersionSettingsScreen: () -> Unit = {}
 ) {
     val ctx = rememberAnimatedContext(isVisible = isVisible)
-
     val account by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
-
     val contentModifier = modifier.graphicsLayer {
         val scale = pickUpScale()
         scaleX = scale
         scaleY = scale
     }.animated(ctx, from = swapDirection)
-
     if (isTaller) {
         ActionMenuTallerContent(
             modifier = contentModifier,
@@ -775,7 +737,6 @@ private fun ActionMenu(
         )
     }
 }
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun VersionManagerLayout(
@@ -816,7 +777,6 @@ private fun VersionManagerLayout(
                     .align(Alignment.CenterVertically)
             )
             Spacer(modifier = Modifier.width(8.dp))
-
             if (version == null) {
                 Text(
                     modifier = Modifier
@@ -851,7 +811,3 @@ private fun VersionManagerLayout(
         }
     }
 }
-
-import com.cmc.launcher.ui.theme.Space
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.foundation.layout.height
