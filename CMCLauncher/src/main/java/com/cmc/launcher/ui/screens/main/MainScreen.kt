@@ -1,34 +1,31 @@
 package com.cmc.launcher.ui.screens.main
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,16 +34,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import com.cmc.launcher.BuildKeys
@@ -55,13 +48,10 @@ import com.cmc.launcher.coroutine.TaskSystem
 import com.cmc.launcher.game.version.installed.Version
 import com.cmc.launcher.game.version.installed.VersionsManager
 import com.cmc.launcher.path.PathManager
-import com.cmc.launcher.setting.AllSettings
 import com.cmc.launcher.ui.AndroidStringText
 import com.cmc.launcher.ui.androidText
 import com.cmc.launcher.ui.components.BackgroundCard
 import com.cmc.launcher.ui.components.CardTitleLayout
-import com.cmc.launcher.ui.components.TextRailItem
-import com.cmc.launcher.ui.guide.sendStartGuideOnce
 import com.cmc.launcher.ui.screens.BackStackNavKey
 import com.cmc.launcher.ui.screens.NavStateHost
 import com.cmc.launcher.ui.screens.NestedNavDisplay
@@ -84,12 +74,12 @@ import com.cmc.launcher.ui.screens.content.navigateToDownload
 import com.cmc.launcher.ui.screens.navigateTo
 import com.cmc.launcher.ui.screens.onBack
 import com.cmc.launcher.ui.screens.rememberTransitionSpec
+import com.cmc.launcher.ui.theme.Alpha
+import com.cmc.launcher.ui.theme.Space
 import com.cmc.launcher.ui.theme.backgroundColor
 import com.cmc.launcher.ui.theme.cardColor
-import com.cmc.launcher.setting.enums.isLauncherInDarkTheme
 import com.cmc.launcher.ui.theme.onBackgroundColor
 import com.cmc.launcher.ui.theme.onCardColor
-import com.cmc.launcher.utils.animation.getAnimateTween
 import com.cmc.launcher.utils.file.formatFileSize
 import com.cmc.launcher.viewmodel.ErrorViewModel
 import com.cmc.launcher.viewmodel.EventViewModel
@@ -99,6 +89,14 @@ import com.cmc.launcher.viewmodel.ModpackImportViewModel
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
 import com.cmc.launcher.viewmodel.sendKeepScreen
 import com.cmc.launcher.viewmodel.sendToast
+import com.cmc.launcher.setting.AllSettings
+
+private data class NavDestination(
+    val title: String,
+    val icon: Int,
+    val selected: Boolean,
+    val onClick: () -> Unit
+)
 
 @Composable
 fun MainScreen(
@@ -108,7 +106,6 @@ fun MainScreen(
     modifyVersionViewModel: ModifyVersionViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-
     var taskRunning by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
         TaskSystem.tasksFlow.collect { tasks ->
@@ -120,83 +117,53 @@ fun MainScreen(
 
     val isTaskMenuExpanded = AllSettings.launcherTaskMenuExpanded.state
 
-    fun changeTasksExpandedState() {
-        AllSettings.launcherTaskMenuExpanded.save(!isTaskMenuExpanded)
-    }
-
     val toMainScreen: () -> Unit = {
         screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
     }
 
     val mainScreenKey = screenBackStackModel.mainScreen.currentKey
     val inLauncherScreen = mainScreenKey == null || mainScreenKey is NormalNavKey.LauncherMain
+    val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
+    val inDownloadScreen = mainScreenKey is NestedNavKey.Download
+    val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
 
     val isBackgroundValid = LocalBackgroundViewModel.current?.isValid == true
     val launcherBackgroundOpacity = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f
-
-    val backgroundColor = if (isBackgroundValid) {
+    val surface = if (isBackgroundValid) {
         backgroundColor().copy(alpha = launcherBackgroundOpacity)
-    } else backgroundColor()
+    } else {
+        MaterialTheme.colorScheme.background
+    }
 
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (isBackgroundValid) Modifier
-                else Modifier.background(MaterialTheme.colorScheme.background)
-            ),
-        color = if (isBackgroundValid) backgroundColor else Color.Transparent,
+        modifier = Modifier.fillMaxSize(),
+        color = surface,
         contentColor = onBackgroundColor()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        Column(Modifier.fillMaxSize()) {
             TopBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-                mainScreenKey = mainScreenKey,
-                inLauncherScreen = inLauncherScreen,
-                taskRunning = taskRunning,
-                isTasksExpanded = isTaskMenuExpanded,
-                contentColor = onBackgroundColor(),
-                onScreenBack = {
-                    screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
+                title = if (inLauncherScreen) BuildKeys.LAUNCHER_NAME else (mainScreenKey as? TitledNavKey)?.title,
+                subtitle = (mainScreenKey as? BackStackNavKey<*>)?.currentKey?.title,
+                showBack = !inLauncherScreen,
+                onBack = {
+                    LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher?.onBackPressed()
+                        ?: screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
                 },
-                toMainScreen = toMainScreen,
-                toSettingsScreen = {
-                    screenBackStackModel.mainScreen.removeAndNavigateTo(
-                        removes = screenBackStackModel.clearBeforeNavKeys,
-                        screenKey = screenBackStackModel.settingsScreen
-                    )
-                },
-                toDownloadScreen = {
-                    screenBackStackModel.navigateToDownload()
-                },
-                toMultiplayerScreen = {
-                    screenBackStackModel.mainScreen.removeAndNavigateTo(
-                        removes = screenBackStackModel.clearBeforeNavKeys,
-                        screenKey = NormalNavKey.Multiplayer
-                    )
-                },
-                openFileManager = {
+                onHome = toMainScreen,
+                onFileManager = {
                     eventViewModel.sendEvent(
                         EventViewModel.Event.OpenFileManager(
                             rootPath = PathManager.DIR_FILES_EXTERNAL.absolutePath
                         )
                     )
                 },
-                changeExpandedState = {
-                    changeTasksExpandedState()
+                onTasks = {
+                    AllSettings.launcherTaskMenuExpanded.save(!isTaskMenuExpanded)
                 },
+                taskRunning = taskRunning
             )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
+            Box(Modifier.fillMaxWidth().weight(1f)) {
                 NavStateHost(rootKey = screenBackStackModel.mainScreen) {
                     NavigationUI(
                         modifier = Modifier.fillMaxSize(),
@@ -209,233 +176,220 @@ fun MainScreen(
                     )
                 }
 
-                TaskMenu(
-                    isExpanded = isTaskMenuExpanded,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(0.3f)
-                        .align(Alignment.CenterStart)
-                        .padding(all = 6.dp)
-                ) {
-                    changeTasksExpandedState()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun <E: TitledNavKey> TopBar(
-    mainScreenKey: E?,
-    inLauncherScreen: Boolean,
-    taskRunning: Boolean,
-    isTasksExpanded: Boolean,
-    modifier: Modifier = Modifier,
-    contentColor: Color,
-    onScreenBack: () -> Unit,
-    toMainScreen: () -> Unit,
-    toSettingsScreen: () -> Unit,
-    toDownloadScreen: () -> Unit,
-    toMultiplayerScreen: () -> Unit,
-    openFileManager: () -> Unit,
-    changeExpandedState: () -> Unit,
-) {
-
-    val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
-    val inDownloadScreen = mainScreenKey is NestedNavKey.Download
-    val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
-
-    CompositionLocalProvider(
-        LocalContentColor provides contentColor
-    ) {
-        ConstraintLayout(modifier = modifier) {
-            val (backCenter, title, endButtons) = createRefs()
-
-            val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-
-            Row(
-                modifier = Modifier
-                    .constrainAs(backCenter) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    }
-                    .fillMaxHeight()
-            ) {
-                if (!inLauncherScreen) {
-                    Row(modifier = Modifier.fillMaxHeight()) {
-                        Spacer(Modifier.width(12.dp))
-
-                        IconButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            onClick = {
-                                if (!inLauncherScreen) {
-
-                                    backDispatcher?.onBackPressed() ?: run {
-                                        onScreenBack()
-                                    }
-                                }
-                            }
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(24.dp),
-                                painter = painterResource(R.drawable.ic_arrow_back),
-                                contentDescription = stringResource(R.string.generic_back)
-                            )
+                if (isTaskMenuExpanded) {
+                    TaskPanel(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(Space.screenH),
+                        onCollapse = {
+                            AllSettings.launcherTaskMenuExpanded.save(false)
                         }
-
-                        IconButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            onClick = {
-                                if (!inLauncherScreen) {
-
-                                    toMainScreen()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_home_filled),
-                                contentDescription = stringResource(R.string.generic_main_menu)
-                            )
-                        }
-                    }
-                }
-            }
-            val parentRes = mainScreenKey?.title
-            val childRes = (mainScreenKey as? BackStackNavKey<*>)?.currentKey?.title
-            Box(
-                modifier = Modifier.constrainAs(title) {
-                    centerVerticallyTo(parent)
-                    start.linkTo(backCenter.end, margin = 16.dp)
-                }
-            ) {
-                val parent = parentRes
-                val child = childRes
-                val style = MaterialTheme.typography.titleMedium
-                val softWarp = false
-                val maxLines = 1
-                if (parent == null) {
-                    Text(
-                        text = com.cmc.launcher.BuildKeys.LAUNCHER_NAME,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1
-                    )
-                } else {
-                    val titleText = if (child != null) {
-                        androidText(parent, androidText(" - "), child)
-                    } else {
-                        parent
-                    }
-
-                    AndroidStringText(
-                        text = titleText,
-                        style = style,
-                        softWrap = softWarp,
-                        maxLines = maxLines
                     )
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .constrainAs(endButtons) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end, margin = 12.dp)
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                if (!(isTasksExpanded || taskRunning)) {
-                    IconButton(
-                        onClick = { changeExpandedState() }
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(22.dp),
-                            painter = painterResource(R.drawable.ic_assignment_filled),
-                            contentDescription = stringResource(R.string.main_task_menu),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                TopBarIconItem(
-                    selected = false,
-                    painter = painterResource(R.drawable.ic_folder_filled),
-                    text = null,
-                    onClick = openFileManager
+            BottomNav(
+                destinations = listOf(
+                    NavDestination(
+                        title = "主页",
+                        icon = R.drawable.ic_home_filled,
+                        selected = inLauncherScreen,
+                        onClick = toMainScreen
+                    ),
+                    NavDestination(
+                        title = "版本",
+                        icon = R.drawable.ic_dashboard_outlined,
+                        selected = mainScreenKey is NormalNavKey.VersionsManager,
+                        onClick = {
+                            screenBackStackModel.mainScreen.removeAndNavigateTo(
+                                removes = screenBackStackModel.clearBeforeNavKeys,
+                                screenKey = NormalNavKey.VersionsManager
+                            )
+                        }
+                    ),
+                    NavDestination(
+                        title = "下载",
+                        icon = R.drawable.ic_download_2_outlined,
+                        selected = inDownloadScreen,
+                        onClick = { screenBackStackModel.navigateToDownload() }
+                    ),
+                    NavDestination(
+                        title = "联机",
+                        icon = R.drawable.ic_group_filled,
+                        selected = inMultiplayerScreen,
+                        onClick = {
+                            screenBackStackModel.mainScreen.removeAndNavigateTo(
+                                removes = screenBackStackModel.clearBeforeNavKeys,
+                                screenKey = NormalNavKey.Multiplayer
+                            )
+                        }
+                    ),
+                    NavDestination(
+                        title = "设置",
+                        icon = R.drawable.ic_settings_filled,
+                        selected = inSettingsScreen,
+                        onClick = {
+                            screenBackStackModel.mainScreen.removeAndNavigateTo(
+                                removes = screenBackStackModel.clearBeforeNavKeys,
+                                screenKey = screenBackStackModel.settingsScreen
+                            )
+                        }
+                    )
                 )
-
-                TopBarIconItem(
-                    selected = inMultiplayerScreen,
-                    painter = painterResource(R.drawable.ic_group_filled),
-                    text = null,
-                    onClick = {
-                        if (!inMultiplayerScreen) toMultiplayerScreen()
-                    },
-                )
-
-                TopBarIconItem(
-                    selected = inDownloadScreen,
-                    painter = painterResource(R.drawable.ic_download_2_filled),
-                    text = null,
-                    onClick = {
-                        if (!inDownloadScreen) toDownloadScreen()
-                    },
-                )
-
-                TopBarIconItem(
-                    selected = inSettingsScreen,
-                    painter = painterResource(R.drawable.ic_settings_filled),
-                    text = null,
-                    onClick = {
-                        if (!inSettingsScreen) toSettingsScreen()
-                    },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun TopBarIconItem(
-    selected: Boolean,
-    painter: Painter,
-    text: String?,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
-) {
-    val iconSize = if (text != null) 22.dp else 24.dp
-    Box(
-        modifier = modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(
-                if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
-                else Color.Transparent
             )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
+        }
+    }
+}
+
+@Composable
+private fun TopBar(
+    title: AndroidStringText?,
+    subtitle: AndroidStringText?,
+    showBack: Boolean,
+    taskRunning: Boolean,
+    onBack: () -> Unit,
+    onHome: () -> Unit,
+    onFileManager: () -> Unit,
+    onTasks: () -> Unit
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .height(52.dp)
+            .padding(horizontal = Space.xs),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (showBack) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_back),
+                    contentDescription = stringResource(R.string.generic_back),
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            IconButton(onClick = onHome) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_home_filled),
+                    contentDescription = stringResource(R.string.generic_main_menu),
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        } else {
+            Spacer(Modifier.width(Space.xs))
+        }
+
+        Column(Modifier.weight(1f)) {
+            if (title == null) {
+                Text(
+                    text = BuildKeys.LAUNCHER_NAME,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else {
+                AndroidStringText(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (subtitle != null) {
+                    AndroidStringText(
+                        text = subtitle,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+
+        if (!taskRunning) {
+            IconButton(onClick = onTasks) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_assignment_filled),
+                    contentDescription = stringResource(R.string.main_task_menu),
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        Box {
+            IconButton(onClick = { menuExpanded = true }) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_more_vert),
+                    contentDescription = stringResource(R.string.generic_more),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false },
+                shape = RoundedCornerShape(com.cmc.launcher.ui.theme.Radius.medium)
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.fm_activity_name)) },
+                    onClick = {
+                        menuExpanded = false
+                        onFileManager()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.main_task_menu)) },
+                    onClick = {
+                        menuExpanded = false
+                        onTasks()
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomNav(destinations: List<NavDestination>) {
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .height(60.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                modifier = Modifier.size(iconSize),
-                painter = painter,
-                contentDescription = text,
-                tint = if (selected) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            if (text != null) {
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (selected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            destinations.forEach { destination ->
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(com.cmc.launcher.ui.theme.Radius.medium))
+                        .clickable(onClick = destination.onClick)
+                        .padding(vertical = Space.xs),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(Space.xxs, Alignment.CenterVertically)
+                ) {
+                    Icon(
+                        painter = painterResource(destination.icon),
+                        contentDescription = destination.title,
+                        modifier = Modifier.size(21.dp),
+                        tint = if (destination.selected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = destination.title,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (destination.selected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
             }
         }
     }
@@ -611,79 +565,58 @@ private fun NavigationUI(
         Box(modifier)
     }
 }
-
 @Composable
-private fun TaskMenu(
-    isExpanded: Boolean,
+private fun TaskPanel(
     modifier: Modifier = Modifier,
-    changeExpandedState: () -> Unit = {}
+    onCollapse: () -> Unit
 ) {
     val tasks by TaskSystem.tasksFlow.collectAsStateWithLifecycle()
-    val show = isExpanded && tasks.isNotEmpty()
-    if (show) {
-        BackgroundCard(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(all = 6.dp),
-            influencedByBackground = false,
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.cardColors(
-                containerColor = backgroundColor(),
-                contentColor = onBackgroundColor()
-            ),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
-        ) {
-            Column {
-                CardTitleLayout(blur = 0) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp)
-                            .padding(top = 8.dp, bottom = 4.dp)
-                    ) {
-                        IconButton(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .align(Alignment.CenterStart),
-                            onClick = changeExpandedState
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(28.dp),
-                                painter = painterResource(R.drawable.ic_arrow_left_rounded),
-                                contentDescription = stringResource(R.string.generic_collapse)
-                            )
-                        }
-
-                        Text(
-                            modifier = Modifier.align(Alignment.Center),
-                            text = stringResource(R.string.main_task_menu)
-                        )
-                    }
-                }
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    items(tasks, key = { it.id }) { task ->
-                        val taskProgress by task.progress.collectAsStateWithLifecycle()
-                        val taskMessage by task.message.collectAsStateWithLifecycle()
-                        val rateBytesPerSec by task.rateBytesPerSec.collectAsStateWithLifecycle()
-
-                        TaskItem(
-                            taskProgress = taskProgress,
-                            taskMessage = taskMessage,
-                            rateBytesPerSec = rateBytesPerSec,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp)
-                        ) {
-
-                            TaskSystem.cancelTask(task.id)
-                        }
-                    }
+    BackgroundCard(
+        modifier = modifier,
+        influencedByBackground = false,
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = cardColor(false),
+            contentColor = onCardColor()
+        )
+    ) {
+        Column(Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Space.md, vertical = Space.sm),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.main_task_menu),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "收起",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(onClick = onCollapse)
+                )
+            }
+            androidx.compose.material3.HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = Alpha.soft)
+            )
+            androidx.compose.foundation.lazy.LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(Space.md),
+                verticalArrangement = Arrangement.spacedBy(Space.sm)
+            ) {
+                items(tasks.size) { index ->
+                    val task = tasks[index]
+                    val progress by task.progress.collectAsStateWithLifecycle()
+                    val message by task.message.collectAsStateWithLifecycle()
+                    val rate by task.rateBytesPerSec.collectAsStateWithLifecycle()
+                    TaskRow(
+                        progress = progress,
+                        message = message,
+                        rate = rate,
+                        onCancel = { TaskSystem.cancelTask(task.id) }
+                    )
                 }
             }
         }
@@ -691,81 +624,60 @@ private fun TaskMenu(
 }
 
 @Composable
-private fun TaskItem(
-    taskProgress: Float,
-    taskMessage: AndroidStringText?,
-    rateBytesPerSec: Long?,
-    modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.large,
-    color: Color = cardColor(false),
-    contentColor: Color = onCardColor(),
-    onCancelClick: () -> Unit = {}
+private fun TaskRow(
+    progress: Float,
+    message: AndroidStringText?,
+    rate: Long?,
+    onCancel: () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = Space.xs)
     ) {
-        Row(
-            modifier = Modifier.padding(all = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            IconButton(
-                modifier = Modifier
-                    .size(24.dp)
-                    .align(Alignment.CenterVertically),
-                onClick = onCancelClick
-            ) {
-                Icon(
-                    modifier = Modifier.size(20.dp),
-                    painter = painterResource(R.drawable.ic_close),
-                    contentDescription = stringResource(R.string.generic_cancel)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            message?.let {
+                AndroidStringText(
+                    text = it,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .align(Alignment.CenterVertically)
-            ) {
-                taskMessage?.let { message ->
-                    AndroidStringText(
-                        text = message,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-
-                if (taskProgress < 0) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else {
-                    LinearProgressIndicator(
-                        progress = { taskProgress },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    taskProgress.takeIf { it >= 0f }?.let { progress ->
-                        Text(
-                            text = "${(progress * 100).toInt()}%",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
-                    rateBytesPerSec?.let { bytes ->
-                        val text = remember(bytes) { "${formatFileSize(bytes)}/s" }
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
-                }
+            IconButton(onClick = onCancel, modifier = Modifier.size(28.dp)) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_close),
+                    contentDescription = stringResource(R.string.generic_cancel),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+        Spacer(Modifier.height(Space.xs))
+        if (progress < 0f) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        } else {
+            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Space.xxs)
+        ) {
+            if (progress >= 0f) {
+                Text(
+                    text = "${(progress * 100).toInt()}%",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            rate?.let {
+                Text(
+                    text = "${formatFileSize(it)}/s",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
