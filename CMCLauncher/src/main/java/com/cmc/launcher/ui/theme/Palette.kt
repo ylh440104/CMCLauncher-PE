@@ -42,7 +42,7 @@ private fun Color.luminance(): Float {
 }
 
 @Composable
-fun backgroundColor(): Color = MaterialTheme.colorScheme.surfaceContainer
+fun backgroundColor(): Color = MaterialTheme.colorScheme.surface
 @Composable
 fun onBackgroundColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -50,7 +50,7 @@ fun onBackgroundColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 fun cardColor(
     influencedByBackground: Boolean = true
 ): Color = influencedByBackgroundColor(
-    color = MaterialTheme.colorScheme.surfaceBright,
+    color = MaterialTheme.colorScheme.surfaceContainerHigh,
     enabled = influencedByBackground
 )
 @Composable
@@ -59,7 +59,7 @@ fun onCardColor(): Color = MaterialTheme.colorScheme.onSurface
 @Composable
 fun cardTitleColor(
     alpha: Float = 0.5f
-): Color = MaterialTheme.colorScheme.surface.copy(alpha = alpha)
+): Color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha)
 
 @Composable
 fun itemColor(
