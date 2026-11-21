@@ -331,6 +331,9 @@ private fun RgbChannel(label: String, value: Int, onValue: (Int) -> Unit) {
                 .padding(horizontal = Space.xs),
             value = value / 255f,
             onValueChange = { onValue((it * 255f).toInt().coerceIn(0, 255)) },
+            onValueChangeFinished = {
+                AllSettings.launcherCustomColor.save(AllSettings.launcherCustomColor.state)
+            },
             valueRange = 0f..1f,
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,

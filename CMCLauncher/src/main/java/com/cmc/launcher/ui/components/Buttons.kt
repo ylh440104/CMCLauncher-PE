@@ -72,19 +72,10 @@ fun ScalingActionButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale = animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-        label = "ButtonScale"
-    )
 
     Button(
         onClick = onClick,
-        modifier = modifier.graphicsLayer {
-            scaleX = scale.value
-            scaleY = scale.value
-        },
+        modifier = modifier,
         enabled = enabled,
         shape = shape,
         colors = colors,

@@ -46,7 +46,7 @@ object Size {
     val iconLg: Dp = 30.dp
     val iconXl: Dp = 40.dp
 
-    val touch: Dp = 44.dp
+    val touch: Dp = 48.dp
     val row: Dp = 52.dp
     val swatch: Dp = 40.dp
     val stroke: Dp = 1.dp

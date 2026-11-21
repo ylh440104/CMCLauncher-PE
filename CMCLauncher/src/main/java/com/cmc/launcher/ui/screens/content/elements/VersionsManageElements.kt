@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
 import com.cmc.launcher.ui.components.CmcTag
-import com.cmc.launcher.ui.theme.cmc.Cmc
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -713,11 +712,8 @@ fun VersionItemLayout(
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(2.dp))
                     .background(
-                        if (selected) Brush.verticalGradient(
-                            listOf(Cmc.Accent, Cmc.Blue)
-                        ) else Brush.verticalGradient(
-                            listOf(Color.Transparent, Color.Transparent)
-                        )
+                        if (selected) MaterialTheme.colorScheme.primary
+                        else Color.Transparent
                     )
             )
             Spacer(Modifier.width(10.dp))
@@ -903,8 +899,8 @@ fun CommonVersionInfoLayout(
                         .align(Alignment.TopEnd)
                         .size(9.dp)
                         .clip(CircleShape)
-                        .background(Cmc.Accent)
-                        .border(1.5.dp, Cmc.Ink, CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .border(1.5.dp, MaterialTheme.colorScheme.surface, CircleShape)
                 )
             }
         }
@@ -947,14 +943,14 @@ fun CommonVersionInfoLayout(
                     versionInfo?.let { versionInfo ->
                         CmcTag(
                             text = versionInfo.minecraftVersion,
-                            container = Cmc.Accent.copy(alpha = 0.14f),
-                            content = Cmc.Accent
+                            container = MaterialTheme.colorScheme.secondaryContainer,
+                            content = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         versionInfo.loaderInfos.forEach { loaderInfo ->
                             CmcTag(
                                 text = loaderInfo.loader.displayName + " " + loaderInfo.version,
-                                container = Cmc.Blue.copy(alpha = 0.14f),
-                                content = Cmc.Blue
+                                container = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                content = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

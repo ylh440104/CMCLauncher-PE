@@ -86,8 +86,6 @@ import com.cmc.launcher.ui.screens.onBack
 import com.cmc.launcher.ui.screens.rememberTransitionSpec
 import com.cmc.launcher.ui.theme.backgroundColor
 import com.cmc.launcher.ui.theme.cardColor
-import com.cmc.launcher.ui.theme.cmc.CmcBrandChip
-import com.cmc.launcher.ui.theme.cmc.cmcBackgroundBrush
 import com.cmc.launcher.setting.enums.isLauncherInDarkTheme
 import com.cmc.launcher.ui.theme.onBackgroundColor
 import com.cmc.launcher.ui.theme.onCardColor
@@ -145,7 +143,7 @@ fun MainScreen(
             .fillMaxSize()
             .then(
                 if (isBackgroundValid) Modifier
-                else Modifier.background(cmcBackgroundBrush(isLauncherInDarkTheme()))
+                else Modifier.background(MaterialTheme.colorScheme.background)
             ),
         color = if (isBackgroundValid) backgroundColor else Color.Transparent,
         contentColor = onBackgroundColor()
@@ -317,7 +315,12 @@ private fun <E: TitledNavKey> TopBar(
                 val softWarp = false
                 val maxLines = 1
                 if (parent == null) {
-                    CmcBrandChip()
+                    Text(
+                        text = com.cmc.launcher.BuildKeys.LAUNCHER_NAME,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1
+                    )
                 } else {
                     val titleText = if (child != null) {
                         androidText(parent, androidText(" - "), child)

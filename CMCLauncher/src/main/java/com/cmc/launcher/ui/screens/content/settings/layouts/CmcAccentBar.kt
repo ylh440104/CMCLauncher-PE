@@ -13,13 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.cmc.launcher.ui.theme.cmc.Cmc
 
 @Composable
 fun CmcAccentBar(
     active: Boolean,
     modifier: Modifier = Modifier,
-    accent: Color = Cmc.Accent
+    accent: Color = MaterialTheme.colorScheme.primary
 ) {
     val color by animateColorAsState(
         targetValue = if (active) accent else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),

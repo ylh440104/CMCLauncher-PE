@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
+import com.cmc.launcher.ui.theme.withQuietSurfaces
 import com.cmc.launcher.setting.AllSettings
 import com.cmc.launcher.setting.enums.isLauncherInDarkTheme
 import com.cmc.launcher.ui.theme.components.activeMaskView
@@ -637,12 +638,7 @@ fun CMCLauncherTheme(
         }
     }
 
-    var currentDarkTheme by remember { mutableStateOf(darkTheme) }
-    var currentDisplayScheme by remember { mutableStateOf(targetColorScheme) }
-    LaunchedEffect(darkTheme, targetColorScheme) {
-        currentDarkTheme = darkTheme
-        currentDisplayScheme = targetColorScheme
-    }
+    val currentDisplayScheme = remember(targetColorScheme) { targetColorScheme.withQuietSurfaces() }
     CompositionLocalProvider(
         LocalBackgroundViewModel provides backgroundViewModel,
         LocalFestivals provides festivals

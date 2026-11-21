@@ -106,6 +106,8 @@ import com.cmc.launcher.viewmodel.LocalBackgroundViewModel
 import com.cmc.launcher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.cmc.launcher.ui.theme.Space
+import com.cmc.launcher.ui.kit.CmcSegmented
 
 private data class AccountActions(
     val onIntent: (AccountManageIntent) -> Unit,
@@ -223,60 +225,32 @@ private fun AccountManageContent(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Row(
+        CmcSegmented(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilledTonalButton(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    if (!isMicrosoftLogging()) {
+                .padding(horizontal = Space.screenH, vertical = Space.sm),
+            options = listOf("微软", "离线", "认证服"),
+            selectedIndex = -1,
+            onSelect = { index ->
+                when (index) {
+                    0 -> if (!isMicrosoftLogging()) {
                         actions.onIntent(
-                            AccountManageIntent.UpdateMicrosoftLoginOp(
-                                MicrosoftLoginOperation.Tip
-                            )
+                            AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.Tip)
                         )
                     }
-                }
-            ) {
-                Text(
-                    text = "微软",
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = 1
-                )
-            }
-            FilledTonalButton(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    if (RegionGate.canUseOffline(context)) {
+
+                    1 -> if (RegionGate.canUseOffline(context)) {
                         actions.onIntent(
                             AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.Edit)
                         )
                     } else {
                         showRegionGate = true
                     }
+
+                    else -> showLoginMenu = true
                 }
-            ) {
-                Text(
-                    text = "离线",
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = 1
-                )
             }
-            FilledTonalButton(
-                modifier = Modifier.weight(1f),
-                onClick = { showLoginMenu = true }
-            ) {
-                Text(
-                    text = "认证服",
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = 1
-                )
-            }
-        }
+        )
 
         AccountsLayout(
             isVisible = isVisible,

@@ -192,48 +192,48 @@ private fun DownloadHub(
             title = "游戏本体",
             caption = "原版与加载器安装",
             icon = R.drawable.ic_sports_esports_outlined,
-            container = scheme.primaryContainer,
-            content = scheme.onPrimaryContainer
+            container = scheme.surfaceContainerHigh,
+            content = scheme.primary
         ),
         HubEntry(
             target = backScreenViewModel.downloadModPackScreen,
             title = "整合包",
             caption = "一键装配完整环境",
             icon = R.drawable.ic_package_2_outlined,
-            container = scheme.secondaryContainer,
-            content = scheme.onSecondaryContainer
+            container = scheme.surfaceContainerHigh,
+            content = scheme.primary
         ),
         HubEntry(
             target = backScreenViewModel.downloadModScreen,
             title = "模组",
             caption = "扩展玩法内容",
             icon = R.drawable.ic_extension_outlined,
-            container = scheme.tertiaryContainer,
-            content = scheme.onTertiaryContainer
+            container = scheme.surfaceContainerHigh,
+            content = scheme.primary
         ),
         HubEntry(
             target = backScreenViewModel.downloadResourcePackScreen,
             title = "资源包",
             caption = "替换材质与音效",
             icon = R.drawable.ic_format_paint_outlined,
-            container = scheme.primaryContainer,
-            content = scheme.onPrimaryContainer
+            container = scheme.surfaceContainerHigh,
+            content = scheme.primary
         ),
         HubEntry(
             target = backScreenViewModel.downloadSavesScreen,
             title = "存档",
             caption = "下载他人世界",
             icon = R.drawable.ic_public,
-            container = scheme.secondaryContainer,
-            content = scheme.onSecondaryContainer
+            container = scheme.surfaceContainerHigh,
+            content = scheme.primary
         ),
         HubEntry(
             target = backScreenViewModel.downloadShadersScreen,
             title = "光影包",
             caption = "提升画面表现",
             icon = R.drawable.ic_lightbulb,
-            container = scheme.tertiaryContainer,
-            content = scheme.onTertiaryContainer
+            container = scheme.surfaceContainerHigh,
+            content = scheme.primary
         ),
         HubEntry(
             target = NormalNavKey.SearchId,

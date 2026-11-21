@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
-import com.cmc.launcher.ui.theme.cmc.Cmc
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -397,7 +396,7 @@ private fun TextLaunchButton(version: Version, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
-            .background(Brush.horizontalGradient(listOf(Cmc.Accent, Cmc.Blue)))
+            .background(MaterialTheme.colorScheme.primary)
             .clickable { onLaunch(version) }
             .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
@@ -406,14 +405,14 @@ private fun TextLaunchButton(version: Version, modifier: Modifier = Modifier) {
                 modifier = Modifier.size(15.dp),
                 painter = painterResource(R.drawable.ic_play_arrow_filled),
                 contentDescription = null,
-                tint = Cmc.Ink
+                tint = MaterialTheme.colorScheme.onPrimary
             )
             Text(
                 modifier = Modifier.padding(start = 5.dp),
                 text = stringResource(R.string.main_launch_game),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
-                color = Cmc.Ink
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -425,7 +424,7 @@ private fun CompactLaunchButton(version: Version, modifier: Modifier = Modifier)
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(50))
-            .background(Brush.horizontalGradient(listOf(Cmc.Accent, Cmc.Blue)))
+            .background(MaterialTheme.colorScheme.primary)
             .clickable { onLaunch(version) },
         contentAlignment = Alignment.Center
     ) {
@@ -434,14 +433,14 @@ private fun CompactLaunchButton(version: Version, modifier: Modifier = Modifier)
                 modifier = Modifier.size(13.dp),
                 painter = painterResource(R.drawable.ic_play_arrow_filled),
                 contentDescription = null,
-                tint = Cmc.Ink
+                tint = MaterialTheme.colorScheme.onPrimary
             )
             Text(
                 modifier = Modifier.padding(start = 4.dp),
                 text = stringResource(R.string.main_launch_game),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
-                color = Cmc.Ink
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -454,7 +453,7 @@ private fun IconLaunchButton(version: Version, modifier: Modifier = Modifier) {
         modifier = modifier
             .size(34.dp)
             .clip(CircleShape)
-            .background(Brush.linearGradient(listOf(Cmc.Accent, Cmc.Blue)))
+            .background(MaterialTheme.colorScheme.primary)
             .clickable { onLaunch(version) },
         contentAlignment = Alignment.Center
     ) {
@@ -462,7 +461,7 @@ private fun IconLaunchButton(version: Version, modifier: Modifier = Modifier) {
             modifier = Modifier.size(17.dp),
             painter = painterResource(R.drawable.ic_play_arrow_filled),
             contentDescription = stringResource(R.string.main_launch_game),
-            tint = Cmc.Ink
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }

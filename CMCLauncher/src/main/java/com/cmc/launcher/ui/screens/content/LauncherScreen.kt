@@ -186,36 +186,10 @@ fun LauncherScreen(
                         )
                         .fillMaxSize()
                 ) {
-                    CmcHeroBanner(
-                        modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 2.dp),
-                        title = BuildKeys.LAUNCHER_NAME,
-                        subtitle = Cmc.TAGLINE,
-                        accent = MaterialTheme.colorScheme.primary
-                    )
-                    CmcQuickActionRow(
-                        modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 6.dp),
-                        actions = listOf(
-                            CmcAction(
-                                label = stringResource(R.string.generic_download),
-                                caption = "版本 / 整合包",
-                                accent = Cmc.Accent,
-                                onClick = {
-                                    backStackViewModel.navigateToDownload()
-                                }
-                            ),
-                            CmcAction(
-                                label = stringResource(R.string.page_title_version_manage),
-                                caption = "已安装",
-                                accent = Cmc.Blue,
-                                onClick = toVersionManageScreen
-                            ),
-                            CmcAction(
-                                label = "账号",
-                                caption = stringResource(R.string.settings_tab_launcher),
-                                accent = MaterialTheme.colorScheme.tertiary,
-                                onClick = toAccountManageScreen
-                            )
-                        )
+                    HomeShortcuts(
+                        onDownload = { backStackViewModel.navigateToDownload() },
+                        onVersions = toVersionManageScreen,
+                        onAccounts = toAccountManageScreen
                     )
                     ContentMenu(
                         modifier = Modifier
@@ -273,36 +247,10 @@ fun LauncherScreen(
                         .weight(ContentWeight)
                         .offset { IntOffset(x = dragState.previewShift.value.roundToInt(), y = 0) }
                 ) {
-                    CmcHeroBanner(
-                        modifier = Modifier.padding(start = 12.dp, end = 6.dp, top = 8.dp, bottom = 2.dp),
-                        title = BuildKeys.LAUNCHER_NAME,
-                        subtitle = Cmc.TAGLINE,
-                        accent = MaterialTheme.colorScheme.primary
-                    )
-                    CmcQuickActionRow(
-                        modifier = Modifier.padding(start = 12.dp, end = 6.dp, top = 6.dp),
-                        actions = listOf(
-                            CmcAction(
-                                label = stringResource(R.string.generic_download),
-                                caption = "版本 / 整合包",
-                                accent = Cmc.Accent,
-                                onClick = {
-                                    backStackViewModel.navigateToDownload()
-                                }
-                            ),
-                            CmcAction(
-                                label = stringResource(R.string.page_title_version_manage),
-                                caption = "已安装",
-                                accent = Cmc.Blue,
-                                onClick = toVersionManageScreen
-                            ),
-                            CmcAction(
-                                label = "账号",
-                                caption = stringResource(R.string.settings_tab_launcher),
-                                accent = MaterialTheme.colorScheme.tertiary,
-                                onClick = toAccountManageScreen
-                            )
-                        )
+                    HomeShortcuts(
+                        onDownload = { backStackViewModel.navigateToDownload() },
+                        onVersions = toVersionManageScreen,
+                        onAccounts = toAccountManageScreen
                     )
                     ContentMenu(
                         modifier = Modifier.fillMaxSize(),
@@ -351,6 +299,59 @@ fun LauncherScreen(
             }
             }
         }
+    }
+}
+
+@Composable
+private fun HomeShortcuts(
+    onDownload: () -> Unit,
+    onVersions: () -> Unit,
+    onAccounts: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Space.screenH, vertical = Space.sm)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = BuildKeys.LAUNCHER_NAME,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.width(Space.sm))
+            Text(
+                text = Cmc.TAGLINE,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+        Spacer(Modifier.height(Space.sm))
+        CmcQuickActionRow(
+            actions = listOf(
+                CmcAction(
+                    label = stringResource(R.string.generic_download),
+                    caption = "版本 / 整合包",
+                    iconRes = R.drawable.ic_download,
+                    onClick = onDownload
+                ),
+                CmcAction(
+                    label = stringResource(R.string.page_title_version_manage),
+                    caption = "已安装",
+                    iconRes = R.drawable.ic_dashboard_outlined,
+                    onClick = onVersions
+                ),
+                CmcAction(
+                    label = "账号",
+                    caption = "登录与切换",
+                    iconRes = R.drawable.ic_person_outlined,
+                    onClick = onAccounts
+                )
+            )
+        )
     }
 }
 
@@ -850,3 +851,7 @@ private fun VersionManagerLayout(
         }
     }
 }
+
+import com.cmc.launcher.ui.theme.Space
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.height
