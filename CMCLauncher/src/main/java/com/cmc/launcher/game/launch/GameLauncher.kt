@@ -88,6 +88,7 @@ class GameLauncher(
     }
 
     override suspend fun launch(screenSize: IntSize): Int {
+        LaunchTiming.start()
         if (!Renderers.isCurrentRendererValid()) {
             Renderers.setCurrentRenderer(version.getRenderer())
         }
@@ -106,6 +107,7 @@ class GameLauncher(
             manifest to rendererJob.await()
         }
         configuredRenderer = rendererConfig
+        LaunchTiming.mark("prepared")
         val clientJar = manifest.inheritsFrom?.let { inheritsFrom ->
 
             version.getInheritedClientJar(inheritsFrom)
@@ -228,6 +230,7 @@ class GameLauncher(
         customArgs: String
     ): Int {
         val runtime = RuntimesManager.forceReload(javaRuntime)
+        LaunchTiming.mark("runtime")
 
         val gameDirPath = version.getGameDir()
 
@@ -254,6 +257,7 @@ class GameLauncher(
                 getCacioJavaArgs(screenSize, isJava8)
             }
         ).getAllArgs()
+        LaunchTiming.mark("args")
 
         tryStartTouchProxy()
 

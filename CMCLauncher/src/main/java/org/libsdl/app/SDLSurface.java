@@ -27,6 +27,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 
 import com.cmc.launcher.game.sdl.SdlBridge;
+import com.cmc.launcher.game.launch.LaunchTiming;
 
 public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     View.OnApplyWindowInsetsListener, View.OnKeyListener, View.OnTouchListener,
@@ -104,6 +105,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     public void surfaceCreated(SurfaceHolder holder) {
         if (!SdlBridge.getSdlEnabled()) return;
         Log.v("SDL", "surfaceCreated()");
+        LaunchTiming.INSTANCE.mark("sdl_surface");
         SDLActivity.onNativeSurfaceCreated();
     }
 

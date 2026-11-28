@@ -117,8 +117,10 @@ abstract class Launcher(
 
         LoggerBridge.appendTitle("DLOPEN Java Runtime")
         dlopenJavaRuntime()
+        LaunchTiming.mark("java_runtime")
 
         dlopenEngine()
+        LaunchTiming.mark("engine")
 
         return launchJavaVM(
             context = context,
@@ -167,6 +169,7 @@ abstract class Launcher(
         ZLBridge.chdir(chdir())
 
         val exitCode = VMLauncher.launchJVM(args.toTypedArray())
+        LaunchTiming.mark("jvm_exit")
         LoggerBridge.append("Java Exit code: $exitCode")
         return exitCode
     }
