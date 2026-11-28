@@ -43,6 +43,8 @@ import com.cmc.launcher.utils.file.ensureDirectorySilently
 import com.cmc.launcher.utils.logging.Logger
 import com.cmc.launcher.utils.string.isEqualTo
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import org.lwjgl.glfw.CallbackBridge
@@ -89,13 +91,21 @@ class GameLauncher(
         if (!Renderers.isCurrentRendererValid()) {
             Renderers.setCurrentRenderer(version.getRenderer())
         }
-        configuredRenderer = withContext(Dispatchers.IO) {
-            (Renderers.getCurrentRenderer() as? ConfigurableRenderer)?.let { renderer ->
-                prepareRendererLaunchConfig(renderer, version)
+        val (manifest, rendererConfig) = coroutineScope {
+            val rendererJob = async(Dispatchers.IO) {
+                (Renderers.getCurrentRenderer() as? ConfigurableRenderer)?.let { renderer ->
+                    prepareRendererLaunchConfig(renderer, version)
+                }
             }
+            val manifest = withContext(Dispatchers.IO) {
+                GSON.fromJson(
+                    File(version.getVersionPath(), "${version.getVersionName()}.json").readText(),
+                    GameManifest::class.java
+                )
+            }
+            manifest to rendererJob.await()
         }
-
-        val manifest = GSON.fromJson(File(version.getVersionPath(), "${version.getVersionName()}.json").readText(), GameManifest::class.java)
+        configuredRenderer = rendererConfig
         val clientJar = manifest.inheritsFrom?.let { inheritsFrom ->
 
             version.getInheritedClientJar(inheritsFrom)
@@ -478,17 +488,22 @@ private fun setRendererEnv(
     }
 
     if (!envMap.containsKey("LIBGL_ES")) {
-        val glesMajor = getDetectedVersion()
-        Logger.info(TAG, "GLES version detected: $glesMajor")
-
-        envMap["LIBGL_ES"] = if (glesMajor < 3) {
-
-            "2"
-        } else if (rendererId.startsWith("opengles")) {
-            rendererId.replace("opengles", "").replace("_5", "")
+        val declared = rendererId.removePrefix("opengles").substringBefore('_').toIntOrNull()
+        if (declared != null) {
+            envMap["LIBGL_ES"] = if (declared < 3) "2" else declared.toString()
         } else {
+            val glesMajor = getDetectedVersion()
+            Logger.info(TAG, "GLES version detected: $glesMajor")
 
-            "3"
+            envMap["LIBGL_ES"] = if (glesMajor < 3) {
+
+                "2"
+            } else if (rendererId.startsWith("opengles")) {
+                rendererId.replace("opengles", "").replace("_5", "")
+            } else {
+
+                "3"
+            }
         }
     }
 }
@@ -525,7 +540,16 @@ private const val EGL_OPENGL_ES_BIT: Int = 0x0001
 private const val EGL_OPENGL_ES2_BIT: Int = 0x0004
 private const val EGL_OPENGL_ES3_BIT_KHR: Int = 0x0040
 
+private var detectedGlesVersion: Int? = null
+
 private fun getDetectedVersion(): Int {
+    detectedGlesVersion?.let { return it }
+    val detected = detectGlesVersion()
+    detectedGlesVersion = detected
+    return detected
+}
+
+private fun detectGlesVersion(): Int {
     val egl = EGLContext.getEGL() as EGL10
     val display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY)
     val numConfigs = IntArray(1)
