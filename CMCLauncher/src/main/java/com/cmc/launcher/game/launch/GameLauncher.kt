@@ -88,7 +88,8 @@ class GameLauncher(
     }
 
     override suspend fun launch(screenSize: IntSize): Int {
-        LaunchTiming.start()
+        LaunchTiming.startIfNeeded()
+        LaunchTiming.mark("game_begin")
         if (!Renderers.isCurrentRendererValid()) {
             Renderers.setCurrentRenderer(version.getRenderer())
         }

@@ -1,6 +1,7 @@
 package com.cmc.launcher.game.launch
 
 import android.util.Log
+import com.cmc.launcher.utils.logging.Logger
 
 object LaunchTiming {
 
@@ -14,10 +15,15 @@ object LaunchTiming {
         mark("begin")
     }
 
+    fun startIfNeeded() {
+        if (startedAt == 0L) start()
+    }
+
     fun mark(label: String) {
         val start = startedAt
         if (start == 0L) return
         val elapsed = (System.nanoTime() - start) / 1_000_000L
         Log.i(TAG, "$label=${elapsed}ms")
+        Logger.info(TAG, "$label=${elapsed}ms")
     }
 }

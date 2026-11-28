@@ -63,6 +63,7 @@ class GameLaunchFlow(scope: CoroutineScope) {
         onComplete: () -> Unit,
         onError: (ErrorViewModel.ThrowableMessage) -> Unit,
     ) {
+        LaunchTiming.start()
         if (taskExecutor.isRunning()) {
 
             isRunning()
